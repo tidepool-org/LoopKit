@@ -10,6 +10,7 @@ import Foundation
 
 protocol BasalScheduleEntryTableViewCellDelegate: class {
     func basalScheduleEntryTableViewCellDidUpdate(_ cell: BasalScheduleEntryTableViewCell)
+    func validateBasalScheduleEntryTableViewCell(_ cell: BasalScheduleEntryTableViewCell) -> Bool
 }
 
 private enum Component: Int, CaseIterable {
@@ -34,6 +35,8 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
 
     public weak var delegate: BasalScheduleEntryTableViewCellDelegate?
 
+    public var minimumBasalRatePerHour: Double = 0
+
     public var maximumBasalRatePerHour: Double = 30
 
     public var minimumRateIncrement: Double = 0.025 {
@@ -43,19 +46,38 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         }
     }
 
-    public let pickerInterval: TimeInterval = .hours(0.5)
+    public var pickerInterval: TimeInterval = .hours(0.5)
+
+    private var minimumWholeValue: Int {
+        return Int(floor(minimumBasalRatePerHour))
+    }
 
     private var maximumWholeValue: Int {
         return Int(floor(maximumBasalRatePerHour))
     }
 
-    private var maximumFractionalValue: Double {
+    private var minimumFractionalValue: Double {
+        if wholeValue == minimumWholeValue {
+            return minimumBasalRatePerHour.truncatingRemainder(dividingBy: 1)
+        } else {
+            return 0
+        }
+    }
 
-        if Int(floor(value)) == maximumWholeValue {
+    private var maximumFractionalValue: Double {
+        if wholeValue == maximumWholeValue {
             return maximumBasalRatePerHour.truncatingRemainder(dividingBy: 1)
         } else {
             return 1 - minimumRateIncrement
         }
+    }
+
+    private var wholeValue: Int {
+        return picker.selectedRow(inComponent: Component.whole.rawValue) + minimumWholeValue
+    }
+
+    private var fractionalValue: Double {
+        return Double(picker.selectedRow(inComponent: Component.fractional.rawValue)) * minimumRateIncrement + minimumFractionalValue
     }
 
     public var minimumStartTime: TimeInterval = .hours(0) {
@@ -76,14 +98,16 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         }
         set {
             let row = Int(round((newValue - minimumStartTime) / pickerInterval))
-            picker.selectRow(row, inComponent: Component.time.rawValue, animated: true)
+            if row >= 0 && row < pickerView(picker, numberOfRowsInComponent: Component.time.rawValue) {
+                picker.selectRow(row, inComponent: Component.time.rawValue, animated: true)
+            }
             updateDateLabel()
         }
     }
 
     var value: Double = 0 {
         didSet {
-            updatePickerWith(newValue: value)
+            updateValuePickerWith(newValue: value)
             updateValueLabel()
         }
     }
@@ -171,26 +195,27 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     }
 
     func validate() {
-        if abs(value.remainder(dividingBy: minimumRateIncrement)) > (minimumRateIncrement/10.0) ||
-            value > maximumBasalRatePerHour
+        if delegate?.validateBasalScheduleEntryTableViewCell(self) == true
         {
-            valueLabel.textColor = .invalid
-        } else {
             valueLabel.textColor = .black
+        } else {
+            valueLabel.textColor = .invalid
         }
     }
 
     func updateValueFromPicker() {
-        let wholePart = Double(picker.selectedRow(inComponent: Component.whole.rawValue))
-        let fractionalPart = Double(picker.selectedRow(inComponent: Component.fractional.rawValue)) * minimumRateIncrement
-        value = wholePart + fractionalPart
+        value = Double(wholeValue) + fractionalValue
         updateValueLabel()
     }
 
-    func updatePickerWith(newValue: Double) {
-        picker.selectRow(Int(floor(newValue)), inComponent: Component.whole.rawValue, animated: true)
-        let fractionalPartIndex = Int(round(newValue.truncatingRemainder(dividingBy: 1) / minimumRateIncrement))
+    func selectFractionalValue(_ fractional: Double) {
+        let fractionalPartIndex = Int(round((fractional - minimumFractionalValue) / minimumRateIncrement))
         picker.selectRow(fractionalPartIndex, inComponent: Component.fractional.rawValue, animated: true)
+    }
+
+    func updateValuePickerWith(newValue: Double) {
+        picker.selectRow(Int(floor(newValue)), inComponent: Component.whole.rawValue, animated: true)
+        selectFractionalValue(newValue.truncatingRemainder(dividingBy: 1))
     }
 
     func updateValueLabel() {
@@ -223,8 +248,12 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
         case .time:
             updateDateLabel()
         case .whole:
-            updateValueFromPicker()
+            let previousFractionalValue = value.truncatingRemainder(dividingBy: 1)
             picker.reloadComponent(Component.fractional.rawValue)
+            if previousFractionalValue >= minimumFractionalValue && previousFractionalValue <= maximumFractionalValue {
+                selectFractionalValue(previousFractionalValue)
+            }
+            updateValueFromPicker()
         case .fractional:
             updateValueFromPicker()
         }
@@ -259,7 +288,7 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
             label.text = wholeNumberFormatter.string(from: Double(row))
             label.textAlignment = .right
         case .fractional:
-            label.text = fractionalNumberFormatter.string(from: Double(row) * minimumRateIncrement)
+            label.text = fractionalNumberFormatter.string(from: Double(row) * minimumRateIncrement + minimumFractionalValue)
             label.textAlignment = .left
         }
         return label
@@ -278,7 +307,7 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDataSource {
         case .whole:
             return maximumWholeValue + 1
         case .fractional:
-            return Int(round(maximumFractionalValue / minimumRateIncrement)) + 1
+            return Int(round((maximumFractionalValue - minimumFractionalValue) / minimumRateIncrement)) + 1
         }
     }
 

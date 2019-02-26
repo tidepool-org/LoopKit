@@ -49,10 +49,21 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
     // MARK: - State
 
-    public var scheduleItems: [RepeatingScheduleValue<Double>] = []
+    public var scheduleItems: [RepeatingScheduleValue<Double>] = [] {
+        didSet {
+            updateInsertButton()
+        }
+    }
 
+    public var minimumBasalRatePerHour: Double = 0
     public var maximumBasalRatePerHour: Double = 30
     public var minimumRateIncrement: Double = 0.025
+    public var maximumScheduleItemCount: Int = 48 {
+        didSet {
+            updateInsertButton()
+        }
+    }
+    public var minimumTimeInterval: TimeInterval = .minutes(30)
 
     private var modifiedSchedule = false {
         didSet {
@@ -62,6 +73,16 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
                 self.navigationItem.leftBarButtonItem = nil
             }
         }
+    }
+
+    private func validate(value: Double) -> Bool {
+        return abs(value.remainder(dividingBy: minimumRateIncrement)) <= (minimumRateIncrement/10.0) &&
+            value <= maximumBasalRatePerHour &&
+            value >= minimumBasalRatePerHour
+    }
+
+    private func updateInsertButton() {
+        insertButtonItem.isEnabled = scheduleItems.count < maximumScheduleItemCount
     }
 
     override func addScheduleItem(_ sender: Any?) {
@@ -75,11 +96,9 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         var value = 0.0
 
         if scheduleItems.count > 0 {
-            let cell = tableView.cellForRow(at: IndexPath(row: scheduleItems.count - 1, section: 0)) as! BasalScheduleEntryTableViewCell
             let lastItem = scheduleItems.last!
-            let interval = cell.pickerInterval
 
-            startTime = lastItem.startTime + interval
+            startTime = lastItem.startTime + minimumTimeInterval
             value = lastItem.value
 
             if startTime >= TimeInterval(hours: 24) {
@@ -93,6 +112,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
                 value: value
             )
         )
+        updateInsertButton()
 
         super.addScheduleItem(sender)
     }
@@ -167,28 +187,29 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             let cell = tableView.dequeueReusableCell(withIdentifier: BasalScheduleEntryTableViewCell.className, for: indexPath) as! BasalScheduleEntryTableViewCell
 
             let item = scheduleItems[indexPath.row]
-            let interval = cell.pickerInterval
 
             cell.valueNumberFormatter.minimumFractionDigits = preferredValueFractionDigits()
             cell.maximumBasalRatePerHour = maximumBasalRatePerHour
+            cell.minimumBasalRatePerHour = minimumBasalRatePerHour
             cell.minimumRateIncrement = minimumRateIncrement
             cell.unitString = unitDisplayString
+            cell.pickerInterval = minimumTimeInterval
             //cell.isReadOnly = isReadOnly || isSyncInProgress
             cell.delegate = self
 
             if indexPath.row > 0 {
                 let lastItem = scheduleItems[indexPath.row - 1]
 
-                cell.minimumStartTime = lastItem.startTime + interval
+                cell.minimumStartTime = lastItem.startTime + minimumTimeInterval
             }
-            
-            if indexPath.row < scheduleItems.endIndex - 1 {
-                let nextItem = scheduleItems[indexPath.row + 1]
-                cell.maximumStartTime = nextItem.startTime - interval
-            } else if indexPath.row > 0 {
-                cell.maximumStartTime = TimeInterval(hours: 24) - interval
-            } else {
+
+            if indexPath.row == 0 {
                 cell.maximumStartTime = 0
+            } else if indexPath.row < scheduleItems.endIndex - 1 {
+                let nextItem = scheduleItems[indexPath.row + 1]
+                cell.maximumStartTime = nextItem.startTime - minimumTimeInterval
+            } else {
+                cell.maximumStartTime = TimeInterval(hours: 24) - minimumTimeInterval
             }
 
             cell.value = item.value
@@ -321,6 +342,10 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 }
 
 extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDelegate {
+    func validateBasalScheduleEntryTableViewCell(_ cell: BasalScheduleEntryTableViewCell) -> Bool {
+        return validate(value: cell.value)
+    }
+
     func basalScheduleEntryTableViewCellDidUpdate(_ cell: BasalScheduleEntryTableViewCell) {
         if let indexPath = tableView.indexPath(for: cell) {
             modifiedSchedule = true

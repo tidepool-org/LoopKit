@@ -135,6 +135,8 @@ class MasterViewController: UITableViewController {
                 }
                 scheduleVC.maximumBasalRatePerHour = 5
                 scheduleVC.minimumRateIncrement = 0.05
+                scheduleVC.minimumBasalRatePerHour = 0.05
+                scheduleVC.maximumScheduleItemCount = 5
                 scheduleVC.delegate = self
                 scheduleVC.title = sender?.textLabel?.text
                 scheduleVC.syncSource = self
