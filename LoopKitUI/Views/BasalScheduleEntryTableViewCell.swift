@@ -210,7 +210,9 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
 
     func selectFractionalValue(_ fractional: Double) {
         let fractionalPartIndex = Int(round((fractional - minimumFractionalValue) / minimumRateIncrement))
-        picker.selectRow(fractionalPartIndex, inComponent: Component.fractional.rawValue, animated: true)
+        if fractionalPartIndex >= 0 && fractionalPartIndex < pickerView(picker, numberOfRowsInComponent: Component.fractional.rawValue) {
+            picker.selectRow(fractionalPartIndex, inComponent: Component.fractional.rawValue, animated: true)
+        }
     }
 
     func updateValuePickerWith(newValue: Double) {

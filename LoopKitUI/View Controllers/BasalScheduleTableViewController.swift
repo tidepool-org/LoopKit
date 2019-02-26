@@ -157,6 +157,16 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         }
     }
 
+    public var isScheduleValid: Bool {
+        for item in scheduleItems {
+            if !validate(value: item.value) {
+                return false
+            }
+        }
+        return scheduleItems.count <= maximumScheduleItemCount
+    }
+
+
     // MARK: - UITableViewDataSource
 
     private enum Section: Int {
@@ -220,7 +230,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
 
             cell.textLabel?.text = syncSource?.syncButtonTitle(for: self)
-            cell.isEnabled = !isSyncInProgress
+            cell.isEnabled = !isSyncInProgress && isScheduleValid
             cell.isLoading = isSyncInProgress
 
             return cell
@@ -241,6 +251,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             scheduleItems.remove(at: indexPath.row)
 
             super.tableView(tableView, commit: editingStyle, forRowAt: indexPath)
+            tableView.reloadSections([Section.sync.rawValue], with: .none)
         }
     }
 
@@ -353,6 +364,7 @@ extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDeleg
                 startTime: cell.startTime,
                 value: cell.value
             )
+            tableView.reloadSections([Section.sync.rawValue], with: .none)
         }
     }
 }
