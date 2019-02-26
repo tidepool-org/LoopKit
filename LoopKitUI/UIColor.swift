@@ -10,6 +10,7 @@ import UIKit
 
 extension UIColor {
     static let delete = UIColor.higRed()
+    static let invalid = UIColor.higRed()
 }
 
 
