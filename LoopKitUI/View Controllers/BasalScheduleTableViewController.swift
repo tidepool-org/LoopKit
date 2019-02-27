@@ -127,6 +127,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             )
         )
         updateInsertButton()
+        updateTimeLimitsForItemsAdjacentTo(scheduleItems.count-1)
 
         super.addScheduleItem(sender)
     }
@@ -178,6 +179,29 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             }
         }
         return scheduleItems.count <= maximumScheduleItemCount
+    }
+
+    private func updateTimeLimitsForItemsAdjacentTo(_ index: Int) {
+        let item = scheduleItems[index]
+
+        // Update previous cell's maximumStartTime
+        if index > 0 {
+            let previousIndexPath = IndexPath(row: index-1, section: Section.schedule.rawValue)
+            if let previousCell = tableView.cellForRow(at: previousIndexPath) as? BasalScheduleEntryTableViewCell {
+                previousCell.maximumStartTime = item.startTime - minimumTimeInterval
+            }
+        }
+        // Update next cell's minimumStartTime
+        if index < scheduleItems.count - 1 {
+            let nextIndexPath = IndexPath(row: index+1, section: Section.schedule.rawValue)
+            if let nextCell = tableView.cellForRow(at: nextIndexPath) as? BasalScheduleEntryTableViewCell {
+                nextCell.minimumStartTime = item.startTime + minimumTimeInterval
+                // If next item is now the last item,
+                if index+1 == scheduleItems.count-1 {
+                    nextCell.maximumStartTime = TimeInterval(hours: 24) - minimumTimeInterval
+                }
+            }
+        }
     }
 
 
@@ -283,9 +307,9 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
             scheduleItems[destinationIndexPath.row] = RepeatingScheduleValue(startTime: startTime, value: scheduleItems[destinationIndexPath.row].value)
 
-            // Since the valid date ranges of neighboring cells are affected, the lazy solution is to just reload the entire table view
             DispatchQueue.main.async {
-                tableView.reloadData()
+                tableView.reloadRows(at: [destinationIndexPath], with: .none)
+                self.updateTimeLimitsForItemsAdjacentTo(destinationIndexPath.row)
             }
         }
     }
@@ -378,20 +402,7 @@ extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDeleg
                 startTime: cell.startTime,
                 value: cell.value
             )
-            // Update previous cell's maximumStartTime
-            if indexPath.row > 0 {
-                let previousIndexPath = IndexPath(row: indexPath.row-1, section: indexPath.section)
-                if let previousCell = tableView.cellForRow(at: previousIndexPath) as? BasalScheduleEntryTableViewCell {
-                    previousCell.maximumStartTime = cell.startTime - minimumTimeInterval
-                }
-            }
-            // Update next cell's minimumStartTime
-            if indexPath.row < scheduleItems.count - 1 {
-                let nextIndexPath = IndexPath(row: indexPath.row+1, section: indexPath.section)
-                if let nextCell = tableView.cellForRow(at: nextIndexPath) as? BasalScheduleEntryTableViewCell {
-                    nextCell.minimumStartTime = cell.startTime + minimumTimeInterval
-                }
-            }
+            updateTimeLimitsForItemsAdjacentTo(indexPath.row)
             tableView.reloadSections([Section.sync.rawValue], with: .none)
         }
     }

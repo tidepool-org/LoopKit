@@ -218,10 +218,10 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         }
     }
 
-    func selectFractionalValue(_ fractional: Double) {
+    func selectFractionalValue(_ fractional: Double, animated: Bool = true) {
         let fractionalPartIndex = Int(round((fractional - minimumFractionalValue) / minimumRateIncrement))
         if fractionalPartIndex >= 0 && fractionalPartIndex < pickerView(picker, numberOfRowsInComponent: Component.fractional.rawValue) {
-            picker.selectRow(fractionalPartIndex, inComponent: Component.fractional.rawValue, animated: true)
+            picker.selectRow(fractionalPartIndex, inComponent: Component.fractional.rawValue, animated: animated)
         }
     }
 
@@ -263,7 +263,7 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
             let previousFractionalValue = value.truncatingRemainder(dividingBy: 1)
             picker.reloadComponent(Component.fractional.rawValue)
             if previousFractionalValue >= minimumFractionalValue && previousFractionalValue <= maximumFractionalValue {
-                selectFractionalValue(previousFractionalValue)
+                selectFractionalValue(previousFractionalValue, animated: false)
             }
             updateValueFromPicker()
         case .fractional:
