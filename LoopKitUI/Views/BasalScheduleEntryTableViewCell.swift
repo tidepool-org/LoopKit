@@ -198,7 +198,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         {
             valueLabel.textColor = .black
         } else {
-            valueLabel.textColor = .invalid
+            valueLabel.textColor = BundleColor("Invalid")
         }
     }
 

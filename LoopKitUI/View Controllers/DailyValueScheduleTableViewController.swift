@@ -104,7 +104,7 @@ open class DailyValueScheduleTableViewController: UITableViewController, DatePic
 
     public weak var delegate: DailyValueScheduleTableViewControllerDelegate?
 
-    public lazy var insertButtonItem: UIBarButtonItem = {
+    public private(set) lazy var insertButtonItem: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addScheduleItem(_:)))
     }()
 

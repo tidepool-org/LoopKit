@@ -331,7 +331,7 @@ extension MasterViewController: DailyValueScheduleTableViewControllerDelegate {
 
 extension MasterViewController: BasalScheduleTableViewControllerSyncSource {
     func basalScheduleTableViewControllerIsReadOnly(_ viewController: BasalScheduleTableViewController) -> Bool {
-        return true
+        return false
     }
 
     func syncButtonDetailText(for viewController: BasalScheduleTableViewController) -> String? {
