@@ -127,16 +127,12 @@ class MasterViewController: UITableViewController {
             let row = ConfigurationRow(rawValue: indexPath.row)!
             switch row {
             case .basalRate:
-                let scheduleVC = BasalScheduleTableViewController(style: .grouped)
+                let scheduleVC = BasalScheduleTableViewController(minimumBasalRatePerHour: 0.05, maximumBasalRatePerHour: 5, minimumRateIncrement: 0.05, maximumScheduleItemCount: 5, minimumTimeInterval: .minutes(30))
 
                 if let profile = dataManager?.basalRateSchedule {
                     scheduleVC.timeZone = profile.timeZone
                     scheduleVC.scheduleItems = profile.items
                 }
-                scheduleVC.maximumBasalRatePerHour = 5
-                scheduleVC.minimumRateIncrement = 0.05
-                scheduleVC.minimumBasalRatePerHour = 0.5
-                scheduleVC.maximumScheduleItemCount = 5
                 scheduleVC.delegate = self
                 scheduleVC.title = sender?.textLabel?.text
                 scheduleVC.syncSource = self
@@ -334,7 +330,7 @@ extension MasterViewController: DailyValueScheduleTableViewControllerDelegate {
 
 
 extension MasterViewController: BasalScheduleTableViewControllerSyncSource {
-    func singleValueScheduleTableViewControllerIsReadOnly(_ viewController: BasalScheduleTableViewController) -> Bool {
+    func basalScheduleTableViewControllerIsReadOnly(_ viewController: BasalScheduleTableViewController) -> Bool {
         return false
     }
 

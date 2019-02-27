@@ -22,11 +22,29 @@ public protocol BasalScheduleTableViewControllerSyncSource: class {
 
     func syncButtonDetailText(for viewController: BasalScheduleTableViewController) -> String?
 
-    func singleValueScheduleTableViewControllerIsReadOnly(_ viewController: BasalScheduleTableViewController) -> Bool
+    func basalScheduleTableViewControllerIsReadOnly(_ viewController: BasalScheduleTableViewController) -> Bool
 }
 
 
 open class BasalScheduleTableViewController : DailyValueScheduleTableViewController {
+
+    public init(minimumBasalRatePerHour: Double, maximumBasalRatePerHour: Double, minimumRateIncrement: Double, maximumScheduleItemCount: Int, minimumTimeInterval: TimeInterval) {
+        self.minimumBasalRatePerHour = minimumBasalRatePerHour
+        self.maximumBasalRatePerHour = maximumBasalRatePerHour
+        self.minimumRateIncrement = minimumRateIncrement
+        self.maximumScheduleItemCount = maximumScheduleItemCount
+        self.minimumTimeInterval = minimumTimeInterval
+        super.init(style: .grouped)
+    }
+
+    public required init?(coder aDecoder: NSCoder) {
+        minimumBasalRatePerHour = 0
+        maximumBasalRatePerHour = 5
+        minimumRateIncrement = 0.05
+        maximumScheduleItemCount = 24
+        minimumTimeInterval = .minutes(30)
+        super.init(coder: aDecoder)
+    }
 
     open override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,15 +73,11 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         }
     }
 
-    public var minimumBasalRatePerHour: Double = 0
-    public var maximumBasalRatePerHour: Double = 30
-    public var minimumRateIncrement: Double = 0.025
-    public var maximumScheduleItemCount: Int = 48 {
-        didSet {
-            updateInsertButton()
-        }
-    }
-    public var minimumTimeInterval: TimeInterval = .minutes(30)
+    let minimumBasalRatePerHour: Double
+    let maximumBasalRatePerHour: Double
+    let minimumRateIncrement: Double
+    let maximumScheduleItemCount: Int
+    let minimumTimeInterval: TimeInterval
 
     private var modifiedSchedule = false {
         didSet {
@@ -127,7 +141,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
     public weak var syncSource: BasalScheduleTableViewControllerSyncSource? {
         didSet {
-            isReadOnly = syncSource?.singleValueScheduleTableViewControllerIsReadOnly(self) ?? false
+            isReadOnly = syncSource?.basalScheduleTableViewControllerIsReadOnly(self) ?? false
 
             if isViewLoaded {
                 tableView.reloadData()
