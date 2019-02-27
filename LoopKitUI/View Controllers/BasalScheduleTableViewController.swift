@@ -93,7 +93,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         tableView.endEditing(false)
 
         var startTime = TimeInterval(0)
-        var value = 0.0
+        var value = minimumBasalRatePerHour
 
         if scheduleItems.count > 0 {
             let lastItem = scheduleItems.last!
@@ -364,6 +364,20 @@ extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDeleg
                 startTime: cell.startTime,
                 value: cell.value
             )
+            // Update previous cell's maximumStartTime
+            if indexPath.row > 0 {
+                let previousIndexPath = IndexPath(row: indexPath.row-1, section: indexPath.section)
+                if let previousCell = tableView.cellForRow(at: previousIndexPath) as? BasalScheduleEntryTableViewCell {
+                    previousCell.maximumStartTime = cell.startTime - minimumTimeInterval
+                }
+            }
+            // Update next cell's minimumStartTime
+            if indexPath.row < scheduleItems.count - 1 {
+                let nextIndexPath = IndexPath(row: indexPath.row+1, section: indexPath.section)
+                if let nextCell = tableView.cellForRow(at: nextIndexPath) as? BasalScheduleEntryTableViewCell {
+                    nextCell.minimumStartTime = cell.startTime + minimumTimeInterval
+                }
+            }
             tableView.reloadSections([Section.sync.rawValue], with: .none)
         }
     }

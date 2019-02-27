@@ -83,6 +83,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     public var minimumStartTime: TimeInterval = .hours(0) {
         didSet {
             picker.reloadComponent(Component.time.rawValue)
+            updateStartTimeSelection()
         }
     }
     public var maximumStartTime: TimeInterval = .hours(24.5) {
@@ -91,18 +92,16 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         }
     }
 
-    var startTime: TimeInterval {
-        get {
-            let row = picker.selectedRow(inComponent: Component.time.rawValue)
-            return startTimeForTimeComponent(row: row)
-        }
-        set {
-            let row = Int(round((newValue - minimumStartTime) / pickerInterval))
-            if row >= 0 && row < pickerView(picker, numberOfRowsInComponent: Component.time.rawValue) {
-                picker.selectRow(row, inComponent: Component.time.rawValue, animated: true)
-            }
+    var startTime: TimeInterval = 0 {
+        didSet {
+            updateStartTimeSelection()
             updateDateLabel()
         }
+    }
+
+    var selectedStartTime: TimeInterval {
+        let row = picker.selectedRow(inComponent: Component.time.rawValue)
+        return startTimeForTimeComponent(row: row)
     }
 
     var value: Double = 0 {
@@ -208,6 +207,13 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         updateValueLabel()
     }
 
+    private func updateStartTimeSelection() {
+        let row = Int(round((startTime - minimumStartTime) / pickerInterval))
+        if row >= 0 && row < pickerView(picker, numberOfRowsInComponent: Component.time.rawValue) {
+            picker.selectRow(row, inComponent: Component.time.rawValue, animated: true)
+        }
+    }
+
     func selectFractionalValue(_ fractional: Double) {
         let fractionalPartIndex = Int(round((fractional - minimumFractionalValue) / minimumRateIncrement))
         if fractionalPartIndex >= 0 && fractionalPartIndex < pickerView(picker, numberOfRowsInComponent: Component.fractional.rawValue) {
@@ -248,7 +254,7 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
                     inComponent component: Int) {
         switch Component(rawValue: component)! {
         case .time:
-            updateDateLabel()
+            startTime = selectedStartTime
         case .whole:
             let previousFractionalValue = value.truncatingRemainder(dividingBy: 1)
             picker.reloadComponent(Component.fractional.rawValue)
