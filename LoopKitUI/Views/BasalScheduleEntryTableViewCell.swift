@@ -106,7 +106,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
 
     var value: Double = 0 {
         didSet {
-            updateValuePickerWith(newValue: value)
+            updateValuePickerWith(value)
             updateValueLabel()
         }
     }
@@ -129,6 +129,10 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
             pickerHeightConstraint.constant = newValue ? 0 : pickerExpandedHeight
         }
     }
+
+    private lazy var startOfDay: Date = {
+        return Calendar.current.startOfDay(for: Date())
+    }()
 
     var isReadOnly = false
 
@@ -185,7 +189,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     }
 
     private func stringForStartTime(_ time: TimeInterval) -> String {
-        let date = Calendar.current.startOfDay(for: Date()).addingTimeInterval(time)
+        let date = startOfDay.addingTimeInterval(time)
         return dateFormatter.string(from: date)
     }
 
@@ -221,7 +225,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         }
     }
 
-    func updateValuePickerWith(newValue: Double) {
+    func updateValuePickerWith(_ newValue: Double) {
         picker.selectRow(Int(floor(newValue)), inComponent: Component.whole.rawValue, animated: true)
         selectFractionalValue(newValue.truncatingRemainder(dividingBy: 1))
     }
