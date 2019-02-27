@@ -144,7 +144,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
-        if selected {
+        if selected && !isReadOnly {
             isPickerHidden = !isPickerHidden
         }
     }

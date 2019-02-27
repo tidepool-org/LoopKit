@@ -79,9 +79,9 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     let maximumScheduleItemCount: Int
     let minimumTimeInterval: TimeInterval
 
-    private var modifiedSchedule = false {
+    private var isScheduleModified = false {
         didSet {
-            if modifiedSchedule {
+            if isScheduleModified {
                 self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
             } else {
                 self.navigationItem.leftBarButtonItem = nil
@@ -218,7 +218,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             cell.minimumRateIncrement = minimumRateIncrement
             cell.unitString = unitDisplayString
             cell.pickerInterval = minimumTimeInterval
-            //cell.isReadOnly = isReadOnly || isSyncInProgress
+            cell.isReadOnly = isReadOnly || isSyncInProgress
             cell.delegate = self
 
             if indexPath.row > 0 {
@@ -329,7 +329,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
                             self.tableView.reloadSections([Section.schedule.rawValue], with: .fade)
                             self.isSyncInProgress = false
                             self.delegate?.dailyValueScheduleTableViewControllerWillFinishUpdating(self)
-                            self.modifiedSchedule = false
+                            self.isScheduleModified = false
                         case .failure(let error):
                             self.present(UIAlertController(with: error), animated: true) {
                                 self.isSyncInProgress = false
@@ -373,7 +373,7 @@ extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDeleg
 
     func basalScheduleEntryTableViewCellDidUpdate(_ cell: BasalScheduleEntryTableViewCell) {
         if let indexPath = tableView.indexPath(for: cell) {
-            modifiedSchedule = true
+            isScheduleModified = true
             scheduleItems[indexPath.row] = RepeatingScheduleValue(
                 startTime: cell.startTime,
                 value: cell.value
