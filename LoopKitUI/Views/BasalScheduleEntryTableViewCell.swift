@@ -288,7 +288,7 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
                     forComponent component: Int,
                     reusing view: UIView?) -> UIView {
 
-        let label = UILabel()
+        let label = (view as? UILabel) ?? UILabel()
         label.font = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body).withSize(22)
 
         switch Component(rawValue: component)! {
