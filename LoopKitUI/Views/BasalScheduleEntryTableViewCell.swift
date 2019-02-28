@@ -20,23 +20,23 @@ private enum Component: Int, CaseIterable {
 
 class BasalScheduleEntryTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var picker: UIPickerView!
+    @IBOutlet private weak var picker: UIPickerView!
 
-    @IBOutlet weak var pickerHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var pickerHeightConstraint: NSLayoutConstraint!
 
     private var pickerExpandedHeight: CGFloat = 0
 
-    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet private weak var dateLabel: UILabel!
 
-    @IBOutlet weak var unitLabel: UILabel!
+    @IBOutlet private weak var unitLabel: UILabel!
 
-    @IBOutlet weak var valueLabel: UILabel!
+    @IBOutlet private weak var valueLabel: UILabel!
 
     public weak var delegate: BasalScheduleEntryTableViewCellDelegate?
 
     public var basalRates: [Double] = [] {
         didSet {
-            updateValuePickerWith(value)
+            updateValuePicker(with: value)
         }
     }
 
@@ -68,7 +68,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
 
     var value: Double = 0 {
         didSet {
-            updateValuePickerWith(value)
+            updateValuePicker(with: value)
             updateValueLabel()
         }
     }
@@ -165,7 +165,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         }
     }
 
-    func updateValuePickerWith(_ newValue: Double) {
+    func updateValuePicker(with newValue: Double) {
         let selectedIndex: Int
         if let row = basalRates.firstIndex(of: newValue) {
             selectedIndex = row
