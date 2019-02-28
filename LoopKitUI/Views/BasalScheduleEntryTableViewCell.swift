@@ -238,20 +238,6 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
 
 
 extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
-    func pickerView(_ pickerView: UIPickerView,
-                    titleForRow row: Int,
-                    forComponent component: Int) -> String? {
-
-        switch Component(rawValue: component)! {
-        case .time:
-            let time = startTimeForTimeComponent(row: row)
-            return stringForStartTime(time)
-        case .whole:
-            return wholeNumberFormatter.string(from: Double(row))
-        case .fractional:
-            return fractionalNumberFormatter.string(from: Double(row) * minimumRateIncrement + minimumFractionalValue)
-        }
-    }
 
     func pickerView(_ pickerView: UIPickerView,
                     didSelectRow row: Int,
@@ -286,6 +272,33 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
         let metrics = UIFontMetrics(forTextStyle: .body)
         return metrics.scaledValue(for: 32)
+    }
+
+
+    func pickerView(_ pickerView: UIPickerView,
+                    viewForRow row: Int,
+                    forComponent component: Int,
+                    reusing view: UIView?) -> UIView {
+
+        let label = (view as? UILabel) ?? UILabel()
+        let pickerFontStyle = UIFont.TextStyle.title3
+        let metrics = UIFontMetrics(forTextStyle: pickerFontStyle)
+        let font = UIFont.preferredFont(forTextStyle: pickerFontStyle)
+        label.font = metrics.scaledFont(for: font)
+
+        switch Component(rawValue: component)! {
+        case .time:
+            let time = startTimeForTimeComponent(row: row)
+            label.text = stringForStartTime(time)
+            label.textAlignment = .center
+        case .whole:
+            label.text = wholeNumberFormatter.string(from: Double(row))
+            label.textAlignment = .right
+        case .fractional:
+            label.text = fractionalNumberFormatter.string(from: Double(row) * minimumRateIncrement + minimumFractionalValue)
+            label.textAlignment = .left
+        }
+        return label
     }
 }
 
