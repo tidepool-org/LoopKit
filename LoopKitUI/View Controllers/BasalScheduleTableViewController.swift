@@ -44,6 +44,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
         tableView.register(BasalScheduleEntryTableViewCell.nib(), forCellReuseIdentifier: BasalScheduleEntryTableViewCell.className)
         tableView.register(TextButtonTableViewCell.self, forCellReuseIdentifier: TextButtonTableViewCell.className)
+        updateEditButton()
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
@@ -62,6 +63,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
     public var scheduleItems: [RepeatingScheduleValue<Double>] = [] {
         didSet {
+            updateEditButton()
             updateInsertButton()
         }
     }
@@ -69,6 +71,10 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     let allowedBasalRates: [Double]
     let maximumScheduleItemCount: Int
     let minimumTimeInterval: TimeInterval
+
+    var lastValidStartTime: TimeInterval {
+        return TimeInterval.hours(24) - minimumTimeInterval
+    }
 
     private var isScheduleModified = false {
         didSet {
@@ -84,8 +90,29 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         return allowedBasalRates.firstIndex(of: value) != nil
     }
 
+    private func shouldSyncButtonBeEnabled() -> Bool {
+        return !isSyncInProgress && isScheduleValid && !isEditing
+    }
+
+    private func updateSyncButton() {
+        if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: Section.sync.rawValue)) as? TextButtonTableViewCell {
+            cell.isEnabled = shouldSyncButtonBeEnabled()
+        }
+    }
+
+    private func updateEditButton() {
+        let shouldEnableEditButton = scheduleItems.count > 1
+        if isEditing && !shouldEnableEditButton {
+            self.isEditing = false
+        }
+        editButtonItem.isEnabled = shouldEnableEditButton
+    }
+
     private func updateInsertButton() {
-        insertButtonItem.isEnabled = scheduleItems.count < maximumScheduleItemCount
+        guard let lastItem = scheduleItems.last else {
+            return
+        }
+        insertButtonItem.isEnabled = scheduleItems.count < maximumScheduleItemCount && !isEditing && lastItem.startTime < lastValidStartTime
     }
 
     override func addScheduleItem(_ sender: Any?) {
@@ -104,7 +131,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             startTime = lastItem.startTime + minimumTimeInterval
             value = lastItem.value
 
-            if startTime >= TimeInterval(hours: 24) {
+            if startTime > lastValidStartTime {
                 return
             }
         }
@@ -115,14 +142,26 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
                 value: value
             )
         )
-        updateInsertButton()
+        isScheduleModified = true
         updateTimeLimitsForItemsAdjacentTo(scheduleItems.count-1)
 
         super.addScheduleItem(sender)
+
+        updateSyncButton()
     }
 
     override func insertableIndiciesByRemovingRow(_ row: Int, withInterval timeInterval: TimeInterval) -> [Bool] {
         return insertableIndices(for: scheduleItems, removing: row, with: timeInterval)
+    }
+
+    open override func setEditing(_ editing: Bool, animated: Bool) {
+        tableView.beginUpdates()
+        hideBasalScheduleEntryCells()
+        tableView.endUpdates()
+
+        super.setEditing(editing, animated: animated)
+        updateInsertButton()
+        updateSyncButton()
     }
 
     func preferredValueFractionDigits() -> Int {
@@ -167,30 +206,29 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
                 return false
             }
         }
-        return scheduleItems.count <= maximumScheduleItemCount
+        return scheduleItems.count > 0 && scheduleItems.count <= maximumScheduleItemCount
+    }
+
+    private func updateTimeLimitsForItemAt(_ index: Int) {
+        guard index > 0 && index < scheduleItems.count else {
+            return
+        }
+        let indexPath = IndexPath(row: index, section: Section.schedule.rawValue)
+        if let cell = tableView.cellForRow(at: indexPath) as? BasalScheduleEntryTableViewCell {
+            if index+1 < scheduleItems.count {
+                cell.maximumStartTime = scheduleItems[index+1].startTime - minimumTimeInterval
+            } else {
+                cell.maximumStartTime = lastValidStartTime
+            }
+            if index > 1 {
+                cell.minimumStartTime = scheduleItems[index-1].startTime + minimumTimeInterval
+            }
+        }
     }
 
     private func updateTimeLimitsForItemsAdjacentTo(_ index: Int) {
-        let item = scheduleItems[index]
-
-        // Update previous cell's maximumStartTime
-        if index > 0 {
-            let previousIndexPath = IndexPath(row: index-1, section: Section.schedule.rawValue)
-            if let previousCell = tableView.cellForRow(at: previousIndexPath) as? BasalScheduleEntryTableViewCell {
-                previousCell.maximumStartTime = item.startTime - minimumTimeInterval
-            }
-        }
-        // Update next cell's minimumStartTime
-        if index < scheduleItems.count - 1 {
-            let nextIndexPath = IndexPath(row: index+1, section: Section.schedule.rawValue)
-            if let nextCell = tableView.cellForRow(at: nextIndexPath) as? BasalScheduleEntryTableViewCell {
-                nextCell.minimumStartTime = item.startTime + minimumTimeInterval
-                // If next item is now the last item,
-                if index+1 == scheduleItems.count-1 {
-                    nextCell.maximumStartTime = TimeInterval(hours: 24) - minimumTimeInterval
-                }
-            }
-        }
+        updateTimeLimitsForItemAt(index-1)
+        updateTimeLimitsForItemAt(index+1)
     }
 
 
@@ -244,7 +282,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
                 let nextItem = scheduleItems[indexPath.row + 1]
                 cell.maximumStartTime = nextItem.startTime - minimumTimeInterval
             } else {
-                cell.maximumStartTime = TimeInterval(hours: 24) - minimumTimeInterval
+                cell.maximumStartTime = lastValidStartTime
             }
 
             cell.value = item.value
@@ -255,7 +293,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
 
             cell.textLabel?.text = syncSource?.syncButtonTitle(for: self)
-            cell.isEnabled = !isSyncInProgress && isScheduleValid
+            cell.isEnabled = shouldSyncButtonBeEnabled()
             cell.isLoading = isSyncInProgress
 
             return cell
@@ -274,9 +312,12 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     open override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             scheduleItems.remove(at: indexPath.row)
+            isScheduleModified = true
 
             super.tableView(tableView, commit: editingStyle, forRowAt: indexPath)
-            tableView.reloadSections([Section.sync.rawValue], with: .none)
+            updateSyncButton()
+            updateTimeLimitsForItemAt(indexPath.row-1)
+            updateTimeLimitsForItemAt(indexPath.row)
         }
     }
 
@@ -284,6 +325,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         if sourceIndexPath != destinationIndexPath {
             let item = scheduleItems.remove(at: sourceIndexPath.row)
             scheduleItems.insert(item, at: destinationIndexPath.row)
+            isScheduleModified = true
 
             guard destinationIndexPath.row > 0, let cell = tableView.cellForRow(at: destinationIndexPath) as? BasalScheduleEntryTableViewCell else {
                 return
@@ -390,7 +432,7 @@ extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDeleg
                 value: cell.value
             )
             updateTimeLimitsForItemsAdjacentTo(indexPath.row)
-            tableView.reloadSections([Section.sync.rawValue], with: .none)
+            updateSyncButton()
         }
     }
 }
