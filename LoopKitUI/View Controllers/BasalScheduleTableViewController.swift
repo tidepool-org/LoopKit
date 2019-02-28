@@ -89,7 +89,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         }
     }
 
-    private func validate(value: Double) -> Bool {
+    private func isBasalRateValid(_ value: Double) -> Bool {
         return abs(value.remainder(dividingBy: minimumRateIncrement)) <= (minimumRateIncrement/10.0) &&
             value <= maximumBasalRatePerHour &&
             value >= minimumBasalRatePerHour
@@ -174,7 +174,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
     public var isScheduleValid: Bool {
         for item in scheduleItems {
-            if !validate(value: item.value) {
+            if !isBasalRateValid(item.value) {
                 return false
             }
         }
@@ -392,7 +392,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
 extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDelegate {
     func validateBasalScheduleEntryTableViewCell(_ cell: BasalScheduleEntryTableViewCell) -> Bool {
-        return validate(value: cell.value)
+        return isBasalRateValid(cell.value)
     }
 
     func basalScheduleEntryTableViewCellDidUpdate(_ cell: BasalScheduleEntryTableViewCell) {
