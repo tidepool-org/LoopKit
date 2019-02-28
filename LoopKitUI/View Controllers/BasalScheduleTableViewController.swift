@@ -63,7 +63,6 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
     public var scheduleItems: [RepeatingScheduleValue<Double>] = [] {
         didSet {
-            updateEditButton()
             updateInsertButton()
         }
     }
@@ -101,11 +100,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     }
 
     private func updateEditButton() {
-        let shouldEnableEditButton = scheduleItems.count > 1
-        if isEditing && !shouldEnableEditButton {
-            self.isEditing = false
-        }
-        editButtonItem.isEnabled = shouldEnableEditButton
+        editButtonItem.isEnabled = scheduleItems.count > 1
     }
 
     private func updateInsertButton() {
@@ -148,6 +143,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         super.addScheduleItem(sender)
 
         updateSyncButton()
+        updateEditButton()
     }
 
     override func insertableIndiciesByRemovingRow(_ row: Int, withInterval timeInterval: TimeInterval) -> [Bool] {
@@ -268,6 +264,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             cell.unitString = unitDisplayString
             cell.minimumTimeInterval = minimumTimeInterval
             cell.isReadOnly = isReadOnly || isSyncInProgress
+            cell.isPickerHidden = true
             cell.delegate = self
 
             if indexPath.row > 0 {
@@ -312,12 +309,20 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     open override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             scheduleItems.remove(at: indexPath.row)
-            isScheduleModified = true
 
             super.tableView(tableView, commit: editingStyle, forRowAt: indexPath)
+
+            if scheduleItems.count == 1 {
+                self.isEditing = false
+            }
+
             updateSyncButton()
+            updateInsertButton()
+            updateEditButton()
             updateTimeLimitsForItemAt(indexPath.row-1)
             updateTimeLimitsForItemAt(indexPath.row)
+            isScheduleModified = true
+
         }
     }
 
