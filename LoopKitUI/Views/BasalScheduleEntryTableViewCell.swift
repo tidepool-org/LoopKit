@@ -247,9 +247,9 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
             let time = startTimeForTimeComponent(row: row)
             return stringForStartTime(time)
         case .whole:
-            return valueNumberFormatter.string(from: Double(row))
+            return wholeNumberFormatter.string(from: Double(row))
         case .fractional:
-            return valueNumberFormatter.string(from: Double(row) * minimumRateIncrement)
+            return fractionalNumberFormatter.string(from: Double(row) * minimumRateIncrement + minimumFractionalValue)
         }
     }
 
@@ -283,27 +283,9 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
         }
     }
 
-    func pickerView(_ pickerView: UIPickerView,
-                    viewForRow row: Int,
-                    forComponent component: Int,
-                    reusing view: UIView?) -> UIView {
-
-        let label = (view as? UILabel) ?? UILabel()
-        label.font = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body).withSize(22)
-
-        switch Component(rawValue: component)! {
-        case .time:
-            let time = startTimeForTimeComponent(row: row)
-            label.text = stringForStartTime(time)
-            label.textAlignment = .center
-        case .whole:
-            label.text = wholeNumberFormatter.string(from: Double(row))
-            label.textAlignment = .right
-        case .fractional:
-            label.text = fractionalNumberFormatter.string(from: Double(row) * minimumRateIncrement + minimumFractionalValue)
-            label.textAlignment = .left
-        }
-        return label
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        let metrics = UIFontMetrics(forTextStyle: .body)
+        return metrics.scaledValue(for: 32)
     }
 }
 

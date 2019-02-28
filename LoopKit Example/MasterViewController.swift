@@ -127,7 +127,7 @@ class MasterViewController: UITableViewController {
             let row = ConfigurationRow(rawValue: indexPath.row)!
             switch row {
             case .basalRate:
-                let scheduleVC = BasalScheduleTableViewController(minimumBasalRatePerHour: 0.05, maximumBasalRatePerHour: 5, minimumRateIncrement: 0.05, maximumScheduleItemCount: 5, minimumTimeInterval: .minutes(30))
+                let scheduleVC = BasalScheduleTableViewController(minimumBasalRatePerHour: 0.05, maximumBasalRatePerHour: 30, minimumRateIncrement: 0.025, maximumScheduleItemCount: 5, minimumTimeInterval: .minutes(30))
 
                 if let profile = dataManager?.basalRateSchedule {
                     scheduleVC.timeZone = profile.timeZone
