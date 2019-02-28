@@ -52,6 +52,8 @@ public protocol PumpManagerDelegate: PumpManagerStatusObserver {
 public protocol PumpManager: DeviceManager {
     // Rounds units to the nearest delivery increment
     func roundToDeliveryIncrement(units: Double) -> Double
+
+    var supportedBasalRates: [Double] { get }
     
     var pumpManagerDelegate: PumpManagerDelegate? { get set }
 

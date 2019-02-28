@@ -28,22 +28,15 @@ public protocol BasalScheduleTableViewControllerSyncSource: class {
 
 open class BasalScheduleTableViewController : DailyValueScheduleTableViewController {
 
-    public init(minimumBasalRatePerHour: Double, maximumBasalRatePerHour: Double, minimumRateIncrement: Double, maximumScheduleItemCount: Int, minimumTimeInterval: TimeInterval) {
-        self.minimumBasalRatePerHour = minimumBasalRatePerHour
-        self.maximumBasalRatePerHour = maximumBasalRatePerHour
-        self.minimumRateIncrement = minimumRateIncrement
+    public init(allowedBasalRates: [Double], maximumScheduleItemCount: Int, minimumTimeInterval: TimeInterval) {
+        self.allowedBasalRates = allowedBasalRates
         self.maximumScheduleItemCount = maximumScheduleItemCount
         self.minimumTimeInterval = minimumTimeInterval
         super.init(style: .grouped)
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        minimumBasalRatePerHour = 0
-        maximumBasalRatePerHour = 5
-        minimumRateIncrement = 0.05
-        maximumScheduleItemCount = 24
-        minimumTimeInterval = .minutes(30)
-        super.init(coder: aDecoder)
+        fatalError("init(coder:) has not been implemented")
     }
 
     open override func viewDidLoad() {
@@ -73,9 +66,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         }
     }
 
-    let minimumBasalRatePerHour: Double
-    let maximumBasalRatePerHour: Double
-    let minimumRateIncrement: Double
+    let allowedBasalRates: [Double]
     let maximumScheduleItemCount: Int
     let minimumTimeInterval: TimeInterval
 
@@ -90,9 +81,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     }
 
     private func isBasalRateValid(_ value: Double) -> Bool {
-        return abs(value.remainder(dividingBy: minimumRateIncrement)) <= (minimumRateIncrement/10.0) &&
-            value <= maximumBasalRatePerHour &&
-            value >= minimumBasalRatePerHour
+        return allowedBasalRates.firstIndex(of: value) != nil
     }
 
     private func updateInsertButton() {
@@ -107,7 +96,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         tableView.endEditing(false)
 
         var startTime = TimeInterval(0)
-        var value = minimumBasalRatePerHour
+        var value = allowedBasalRates.count > 0 ? allowedBasalRates[0] : 0
 
         if scheduleItems.count > 0 {
             let lastItem = scheduleItems.last!
@@ -237,11 +226,9 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             let item = scheduleItems[indexPath.row]
 
             cell.valueNumberFormatter.minimumFractionDigits = preferredValueFractionDigits()
-            cell.maximumBasalRatePerHour = maximumBasalRatePerHour
-            cell.minimumBasalRatePerHour = minimumBasalRatePerHour
-            cell.minimumRateIncrement = minimumRateIncrement
+            cell.basalRates = allowedBasalRates
             cell.unitString = unitDisplayString
-            cell.pickerInterval = minimumTimeInterval
+            cell.minimumTimeInterval = minimumTimeInterval
             cell.isReadOnly = isReadOnly || isSyncInProgress
             cell.delegate = self
 
@@ -302,7 +289,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
                 return
             }
 
-            let interval = cell.pickerInterval
+            let interval = cell.minimumTimeInterval
             let startTime = scheduleItems[destinationIndexPath.row - 1].startTime + interval
 
             scheduleItems[destinationIndexPath.row] = RepeatingScheduleValue(startTime: startTime, value: scheduleItems[destinationIndexPath.row].value)
@@ -371,7 +358,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             return proposedDestinationIndexPath
         }
 
-        let interval = cell.pickerInterval
+        let interval = cell.minimumTimeInterval
         let indices = insertableIndices(for: scheduleItems, removing: sourceIndexPath.row, with: interval)
 
         if indices[proposedDestinationIndexPath.row] {
@@ -407,4 +394,3 @@ extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDeleg
         }
     }
 }
-

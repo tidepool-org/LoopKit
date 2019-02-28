@@ -127,10 +127,23 @@ class MasterViewController: UITableViewController {
             let row = ConfigurationRow(rawValue: indexPath.row)!
             switch row {
             case .basalRate:
-                let scheduleVC = BasalScheduleTableViewController(minimumBasalRatePerHour: 0.05, maximumBasalRatePerHour: 30, minimumRateIncrement: 0.025, maximumScheduleItemCount: 5, minimumTimeInterval: .minutes(30))
+
+                // x22 with max basal rate of 5U/hr
+//                let pulsesPerUnit = 20
+//                let basalRates = (1...100).map { Double($0) / Double(pulsesPerUnit) }
+
+                // full x23 rates
+                let rateGroup1 = ((1...38).map { Double($0) / Double(40) })
+                let rateGroup2 = ((20...199).map { Double($0) / Double(20) })
+                let rateGroup3 = ((100...350).map { Double($0) / Double(10) })
+                let basalRates = rateGroup1 + rateGroup2 + rateGroup3
+
+                let scheduleVC = BasalScheduleTableViewController(allowedBasalRates: basalRates, maximumScheduleItemCount: 5, minimumTimeInterval: .minutes(30))
 
                 if let profile = dataManager?.basalRateSchedule {
                     scheduleVC.timeZone = profile.timeZone
+
+
                     scheduleVC.scheduleItems = profile.items
                 }
                 scheduleVC.delegate = self
