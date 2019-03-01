@@ -11,7 +11,13 @@ private class FrameworkBundle {
     static let main = Bundle(for: FrameworkBundle.self)
 }
 
-func BundleColor(_ name: String, compatibleWith traitCollection: UITraitCollection? = nil) -> UIColor? {
+private func BundleColor(_ name: String, compatibleWith traitCollection: UITraitCollection? = nil) -> UIColor? {
     return UIColor(named: name, in: FrameworkBundle.main, compatibleWith: traitCollection)
 }
+
+extension UIColor {
+    static let delete = BundleColor("Delete")
+    static let invalid = BundleColor("Invalid")
+}
+
 

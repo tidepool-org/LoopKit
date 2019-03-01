@@ -147,9 +147,9 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     func validate() {
         if delegate?.validateBasalScheduleEntryTableViewCell(self) == true
         {
-            valueLabel.textColor = .black
+            valueLabel.textColor = .darkText
         } else {
-            valueLabel.textColor = BundleColor("Invalid")
+            valueLabel.textColor = .invalid
         }
     }
 

@@ -141,7 +141,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             )
         )
         isScheduleModified = true
-        updateTimeLimitsForItemsAdjacentTo(scheduleItems.endIndex-1)
+        updateTimeLimitsForItemsAdjacent(to: scheduleItems.endIndex-1)
 
         super.addScheduleItem(sender)
 
@@ -203,7 +203,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             scheduleItems.allSatisfy { isBasalRateValid($0.value) }
     }
 
-    private func updateTimeLimitsForItemAt(_ index: Int) {
+    private func updateTimeLimitsFor(itemAt index: Int) {
         guard index > 0 && index < scheduleItems.endIndex else {
             return
         }
@@ -220,9 +220,9 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         }
     }
 
-    private func updateTimeLimitsForItemsAdjacentTo(_ index: Int) {
-        updateTimeLimitsForItemAt(index-1)
-        updateTimeLimitsForItemAt(index+1)
+    private func updateTimeLimitsForItemsAdjacent(to index: Int) {
+        updateTimeLimitsFor(itemAt: index-1)
+        updateTimeLimitsFor(itemAt: index+1)
     }
 
 
@@ -317,8 +317,8 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             updateSyncButton()
             updateInsertButton()
             updateEditButton()
-            updateTimeLimitsForItemAt(indexPath.row-1)
-            updateTimeLimitsForItemAt(indexPath.row)
+            updateTimeLimitsFor(itemAt: indexPath.row-1)
+            updateTimeLimitsFor(itemAt: indexPath.row)
             isScheduleModified = true
 
         }
@@ -341,7 +341,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
             DispatchQueue.main.async {
                 tableView.reloadRows(at: [destinationIndexPath], with: .none)
-                self.updateTimeLimitsForItemsAdjacentTo(destinationIndexPath.row)
+                self.updateTimeLimitsForItemsAdjacent(to: destinationIndexPath.row)
             }
         }
     }
@@ -435,7 +435,7 @@ extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDeleg
                 startTime: cell.startTime,
                 value: cell.value
             )
-            updateTimeLimitsForItemsAdjacentTo(indexPath.row)
+            updateTimeLimitsForItemsAdjacent(to: indexPath.row)
             updateSyncButton()
         }
     }
