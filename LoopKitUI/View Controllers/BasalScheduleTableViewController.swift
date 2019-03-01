@@ -136,7 +136,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
         scheduleItems.append(
             RepeatingScheduleValue(
-                startTime: min(TimeInterval(hours: 23.5), startTime),
+                startTime: startTime,
                 value: value
             )
         )
