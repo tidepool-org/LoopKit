@@ -10,7 +10,7 @@ import Foundation
 
 protocol BasalScheduleEntryTableViewCellDelegate: class {
     func basalScheduleEntryTableViewCellDidUpdate(_ cell: BasalScheduleEntryTableViewCell)
-    func validateBasalScheduleEntryTableViewCell(_ cell: BasalScheduleEntryTableViewCell) -> Bool
+    func isBasalScheduleEntryTableViewCellValid(_ cell: BasalScheduleEntryTableViewCell) -> Bool
 }
 
 private enum Component: Int, CaseIterable {
@@ -48,7 +48,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
             updateStartTimeSelection()
         }
     }
-    public var maximumStartTime: TimeInterval = .hours(24.5) {
+    public var maximumStartTime: TimeInterval = .hours(23.5) {
         didSet {
             picker.reloadComponent(Component.time.rawValue)
         }
@@ -89,6 +89,10 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         set {
             picker.isHidden = newValue
             pickerHeightConstraint.constant = newValue ? 0 : pickerExpandedHeight
+
+            if !newValue {
+                updateValuePicker(with: value)
+            }
         }
     }
 
@@ -145,11 +149,10 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     }
 
     func validate() {
-        if delegate?.validateBasalScheduleEntryTableViewCell(self) == true
-        {
-            valueLabel.textColor = .darkText
-        } else {
+        if delegate?.isBasalScheduleEntryTableViewCellValid(self) == false {
             valueLabel.textColor = .invalid
+        } else {
+            valueLabel.textColor = .darkText
         }
     }
 

@@ -409,22 +409,23 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
         if indices[proposedDestinationIndexPath.row] {
             return proposedDestinationIndexPath
-        } else {
-            var closestRow = sourceIndexPath.row
-
-            for (index, valid) in indices.enumerated() where valid {
-                if abs(proposedDestinationIndexPath.row - index) < closestRow {
-                    closestRow = index
-                }
-            }
-
-            return IndexPath(row: closestRow, section: proposedDestinationIndexPath.section)
         }
+
+        var closestRow = sourceIndexPath.row
+
+        for (index, valid) in indices.enumerated() where valid {
+            if abs(proposedDestinationIndexPath.row - index) < closestRow {
+                closestRow = index
+            }
+        }
+
+        return IndexPath(row: closestRow, section: proposedDestinationIndexPath.section)
     }
 }
 
 extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDelegate {
-    func validateBasalScheduleEntryTableViewCell(_ cell: BasalScheduleEntryTableViewCell) -> Bool {
+
+    func isBasalScheduleEntryTableViewCellValid(_ cell: BasalScheduleEntryTableViewCell) -> Bool {
         return isBasalRateValid(cell.value)
     }
 
