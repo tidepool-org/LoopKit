@@ -78,7 +78,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
     private var isScheduleModified = false {
         didSet {
-            if isScheduleModified {
+            if isScheduleModified && syncSource != nil {
                 self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
             } else {
                 self.navigationItem.leftBarButtonItem = nil
