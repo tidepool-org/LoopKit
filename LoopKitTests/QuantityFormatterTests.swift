@@ -51,8 +51,10 @@ class QuantityFormatterTests: XCTestCase {
 
         formatter.unitStyle = .long
 
-        XCTAssertEqual("Units/Hour", formatter.string(from: unit))
-        XCTAssertEqual("10 Units/Hour", formatter.string(from: HKQuantity(unit: unit, doubleValue: 10), for: unit)!)
+        XCTAssertEqual("Units/hour", formatter.string(from: unit))
+        XCTAssertEqual("10 Units/hour", formatter.string(from: HKQuantity(unit: unit, doubleValue: 10), for: unit)!)
+
+        XCTAssertEqual("1 Unit/hour", formatter.string(from: HKQuantity(unit: unit, doubleValue: 1), for: unit)!)
     }
 
     func testCarbs() {
