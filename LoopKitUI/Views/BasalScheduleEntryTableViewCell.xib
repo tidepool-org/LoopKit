@@ -21,20 +21,14 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IiE-NW-t0Y">
                         <rect key="frame" x="16" y="11" width="320" height="43.5"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="252" verticalCompressionResistancePriority="752" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IvR-bM-kHO">
-                                <rect key="frame" x="0.0" y="4" width="218" height="35.5"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" verticalCompressionResistancePriority="752" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IvR-bM-kHO">
+                                <rect key="frame" x="0.0" y="4" width="42" height="35.5"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" verticalCompressionResistancePriority="752" text="U/hour" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HJF-Xw-CLE" userLabel="Unit Label">
-                                <rect key="frame" x="268" y="4" width="52" height="35.5"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                <color key="textColor" red="0.56000000238418579" green="0.56000000238418579" blue="0.56000000238418579" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" verticalCompressionResistancePriority="752" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S68-xc-fEG">
-                                <rect key="frame" x="222" y="4" width="42" height="35.5"/>
+                                <rect key="frame" x="46" y="4" width="266" height="35.5"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -43,11 +37,8 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="S68-xc-fEG" firstAttribute="top" secondItem="IiE-NW-t0Y" secondAttribute="top" constant="4" id="1t9-pf-rUs"/>
+                            <constraint firstAttribute="trailing" secondItem="S68-xc-fEG" secondAttribute="trailing" constant="8" id="30C-3a-O5D"/>
                             <constraint firstItem="IvR-bM-kHO" firstAttribute="leading" secondItem="IiE-NW-t0Y" secondAttribute="leading" id="32J-Hd-Bfs"/>
-                            <constraint firstItem="HJF-Xw-CLE" firstAttribute="leading" secondItem="S68-xc-fEG" secondAttribute="trailing" constant="4" id="C2i-6q-y5z"/>
-                            <constraint firstAttribute="bottom" secondItem="HJF-Xw-CLE" secondAttribute="bottom" constant="4" id="FJ1-qp-dE9"/>
-                            <constraint firstItem="HJF-Xw-CLE" firstAttribute="top" secondItem="IiE-NW-t0Y" secondAttribute="top" constant="4" id="LLM-8B-1bl"/>
-                            <constraint firstAttribute="trailing" secondItem="HJF-Xw-CLE" secondAttribute="trailing" id="OSG-vm-Xhd"/>
                             <constraint firstAttribute="bottom" secondItem="IvR-bM-kHO" secondAttribute="bottom" constant="4" id="PlK-8s-Rac"/>
                             <constraint firstItem="IvR-bM-kHO" firstAttribute="top" secondItem="IiE-NW-t0Y" secondAttribute="top" constant="4" id="PwR-sa-Rub"/>
                             <constraint firstItem="S68-xc-fEG" firstAttribute="leading" secondItem="IvR-bM-kHO" secondAttribute="trailing" constant="4" id="b0m-Id-4if"/>
@@ -86,10 +77,9 @@
                 <outlet property="dateLabel" destination="IvR-bM-kHO" id="kZ6-T1-d3I"/>
                 <outlet property="picker" destination="iU4-wM-j06" id="Xjv-yj-8eK"/>
                 <outlet property="pickerHeightConstraint" destination="gat-53-oCQ" id="7tN-G6-XJV"/>
-                <outlet property="unitLabel" destination="HJF-Xw-CLE" id="dPK-fy-mFx"/>
                 <outlet property="valueLabel" destination="S68-xc-fEG" id="RQG-5i-iFe"/>
             </connections>
-            <point key="canvasLocation" x="13" y="-72"/>
+            <point key="canvasLocation" x="12.800000000000001" y="-72.413793103448285"/>
         </tableViewCell>
     </objects>
 </document>

@@ -156,6 +156,15 @@ private extension HKUnit {
             }
         }
 
+        if self == .internationalUnitsPerHour {
+            switch style {
+            case .short, .medium:
+                return LocalizedString("U/hr", comment: "The short unit display string for international units of insulin per hour")
+            case .long:
+                return LocalizedString("Units/Hour", comment: "The long unit display string for international units of insulin per hour")
+            }
+        }
+
         if self == HKUnit.millimolesPerLiter {
             switch style {
             case .short, .medium:

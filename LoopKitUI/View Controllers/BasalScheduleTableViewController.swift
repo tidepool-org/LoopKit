@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import HealthKit
 import LoopKit
 
 public enum SyncBasalScheduleResult<T: RawRepresentable> {
@@ -115,23 +116,25 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     }
 
     override func addScheduleItem(_ sender: Any?) {
-        guard !isReadOnly && !isSyncInProgress else {
+        guard !isReadOnly && !isSyncInProgress && !allowedBasalRates.isEmpty else {
             return
         }
 
         tableView.endEditing(false)
 
-        var startTime = TimeInterval(0)
-        var value = allowedBasalRates.count > 0 ? allowedBasalRates[0] : 0
+        let startTime: TimeInterval
+        let value: Double
 
         if let lastItem = scheduleItems.last {
-
             startTime = lastItem.startTime + minimumTimeInterval
             value = lastItem.value
 
             if startTime > lastValidStartTime {
                 return
             }
+        } else {
+            startTime = TimeInterval(0)
+            value = allowedBasalRates[0]
         }
 
         scheduleItems.append(
@@ -257,9 +260,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
             let item = scheduleItems[indexPath.row]
 
-            cell.valueNumberFormatter.minimumFractionDigits = preferredValueFractionDigits
             cell.basalRates = allowedBasalRates
-            cell.unitString = unitDisplayString
             cell.minimumTimeInterval = minimumTimeInterval
             cell.isReadOnly = isCellEditingPossible
             cell.isPickerHidden = true
@@ -426,15 +427,21 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 extension BasalScheduleTableViewController: BasalScheduleEntryTableViewCellDelegate {
 
     func isBasalScheduleEntryTableViewCellValid(_ cell: BasalScheduleEntryTableViewCell) -> Bool {
-        return isBasalRateValid(cell.value)
+        guard let value = cell.value else {
+            return false
+        }
+        return isBasalRateValid(value)
     }
 
     func basalScheduleEntryTableViewCellDidUpdate(_ cell: BasalScheduleEntryTableViewCell) {
+        guard let value = cell.value else {
+            return
+        }
         if let indexPath = tableView.indexPath(for: cell) {
             isScheduleModified = true
             scheduleItems[indexPath.row] = RepeatingScheduleValue(
                 startTime: cell.startTime,
-                value: cell.value
+                value: value
             )
             updateTimeLimitsForItemsAdjacent(to: indexPath.row)
             updateSyncButton()

@@ -38,6 +38,23 @@ class QuantityFormatterTests: XCTestCase {
         XCTAssertEqual("10 Units", formatter.string(from: HKQuantity(unit: unit, doubleValue: 10), for: unit)!)
     }
 
+    func testInsulinRates() {
+        let unit = HKUnit.internationalUnit().unitDivided(by: .hour())
+
+        XCTAssertEqual("U/hr", formatter.string(from: unit))
+        XCTAssertEqual("10 U/hr", formatter.string(from: HKQuantity(unit: unit, doubleValue: 10), for: unit)!)
+
+        formatter.unitStyle = .short
+
+        XCTAssertEqual("U/hr", formatter.string(from: unit))
+        XCTAssertEqual("10U/hr", formatter.string(from: HKQuantity(unit: unit, doubleValue: 10), for: unit)!)
+
+        formatter.unitStyle = .long
+
+        XCTAssertEqual("Units/Hour", formatter.string(from: unit))
+        XCTAssertEqual("10 Units/Hour", formatter.string(from: HKQuantity(unit: unit, doubleValue: 10), for: unit)!)
+    }
+
     func testCarbs() {
         let unit = HKUnit.gram()
 

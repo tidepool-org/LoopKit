@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import HealthKit
+import LoopKit
 
 protocol BasalScheduleEntryTableViewCellDelegate: class {
     func basalScheduleEntryTableViewCellDidUpdate(_ cell: BasalScheduleEntryTableViewCell)
@@ -28,8 +30,6 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
 
     @IBOutlet private weak var dateLabel: UILabel!
 
-    @IBOutlet private weak var unitLabel: UILabel!
-
     @IBOutlet private weak var valueLabel: UILabel!
 
     public weak var delegate: BasalScheduleEntryTableViewCellDelegate?
@@ -39,6 +39,8 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
             updateValuePicker(with: value)
         }
     }
+
+    private let basalRateUnits = HKUnit.internationalUnitsPerHour
 
     public var minimumTimeInterval: TimeInterval = .hours(0.5)
 
@@ -66,19 +68,10 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         return startTimeForTimeComponent(row: row)
     }
 
-    var value: Double = 0 {
+    var value: Double? = nil {
         didSet {
             updateValuePicker(with: value)
             updateValueLabel()
-        }
-    }
-
-    var unitString: String? {
-        get {
-            return unitLabel.text
-        }
-        set {
-            unitLabel.text = newValue
         }
     }
 
@@ -127,11 +120,8 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         return dateFormatter
     }()
 
-    lazy var valueNumberFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 1
-
+    lazy var valueQuantityFormatter: QuantityFormatter = {
+        let formatter = QuantityFormatter()
         return formatter
     }()
 
@@ -168,20 +158,27 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         }
     }
 
-    func updateValuePicker(with newValue: Double) {
+    func updateValuePicker(with newValue: Double?) {
+        guard let value = newValue else {
+            return
+        }
         let selectedIndex: Int
-        if let row = basalRates.firstIndex(of: newValue) {
+        if let row = basalRates.firstIndex(of: value) {
             selectedIndex = row
         } else {
-            let closest = basalRates.enumerated().min(by: { abs($0.1 - newValue) < abs($1.1 - newValue)} )!
+            let closest = basalRates.enumerated().min(by: { abs($0.1 - value) < abs($1.1 - value)} )!
             selectedIndex = closest.offset
         }
         picker.selectRow(selectedIndex, inComponent: Component.value.rawValue, animated: true)
     }
 
     func updateValueLabel() {
+        guard let value = value else {
+            return
+        }
         validate()
-        valueLabel.text = valueNumberFormatter.string(from: value)
+        let quantity = HKQuantity(unit: basalRateUnits, doubleValue: value)
+        valueLabel.text = valueQuantityFormatter.string(from: quantity, for: basalRateUnits)
     }
 }
 
@@ -215,7 +212,8 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
             let time = startTimeForTimeComponent(row: row)
             return stringForStartTime(time)
         case .value:
-            return valueNumberFormatter.string(from: basalRates[row])
+            let quantity = HKQuantity(unit: basalRateUnits, doubleValue: basalRates[row])
+            return valueQuantityFormatter.string(from: quantity, for: basalRateUnits)
         }
     }
 }
