@@ -54,6 +54,10 @@ public protocol PumpManager: DeviceManager {
     func roundToDeliveryIncrement(units: Double) -> Double
 
     var supportedBasalRates: [Double] { get }
+
+    var maximumBasalScheduleEntryCount: Int { get }
+
+    var minimumBasalScheduleEntryDuration: TimeInterval { get }
     
     var pumpManagerDelegate: PumpManagerDelegate? { get set }
 
