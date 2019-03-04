@@ -108,7 +108,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         if selected && !isReadOnly {
-            isPickerHidden = !isPickerHidden
+            isPickerHidden.toggle()
         }
     }
 
@@ -159,15 +159,14 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     }
 
     func updateValuePicker(with newValue: Double?) {
-        guard let value = newValue else {
+        guard let value = newValue, !basalRates.isEmpty else {
             return
         }
         let selectedIndex: Int
         if let row = basalRates.firstIndex(of: value) {
             selectedIndex = row
         } else {
-            let closest = basalRates.enumerated().min(by: { abs($0.1 - value) < abs($1.1 - value)} )!
-            selectedIndex = closest.offset
+            selectedIndex = basalRates.enumerated().filter({$0.element <= value}).max(by: { $0.1 < $1.1 })?.offset ?? 0
         }
         picker.selectRow(selectedIndex, inComponent: Component.value.rawValue, animated: true)
     }

@@ -94,7 +94,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         return !isSyncInProgress && isScheduleValid && !isEditing
     }
 
-    private var isCellEditingPossible: Bool {
+    private var isCellReadOnly: Bool {
         return isReadOnly || isSyncInProgress
     }
 
@@ -116,7 +116,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     }
 
     override func addScheduleItem(_ sender: Any?) {
-        guard !isReadOnly && !isSyncInProgress && !allowedBasalRates.isEmpty else {
+        guard !isReadOnly && !isSyncInProgress, let firstBasalRate = allowedBasalRates.first else {
             return
         }
 
@@ -134,7 +134,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             }
         } else {
             startTime = TimeInterval(0)
-            value = allowedBasalRates[0]
+            value = firstBasalRate
         }
 
         scheduleItems.append(
@@ -166,8 +166,6 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         updateSyncButton()
     }
 
-    var preferredValueFractionDigits: Int = 1
-
     public weak var syncSource: BasalScheduleTableViewControllerSyncSource? {
         didSet {
             isReadOnly = syncSource?.basalScheduleTableViewControllerIsReadOnly(self) ?? false
@@ -186,7 +184,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
                     cell.isEnabled = !isSyncInProgress
                     cell.isLoading = isSyncInProgress
                 case let cell as BasalScheduleEntryTableViewCell:
-                    cell.isReadOnly = isCellEditingPossible
+                    cell.isReadOnly = isCellReadOnly
                 default:
                     break
                 }
@@ -201,13 +199,13 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     }
 
     public var isScheduleValid: Bool {
-        return scheduleItems.endIndex > 0 &&
-            scheduleItems.endIndex <= maximumScheduleItemCount &&
+        return !scheduleItems.isEmpty &&
+            scheduleItems.count <= maximumScheduleItemCount &&
             scheduleItems.allSatisfy { isBasalRateValid($0.value) }
     }
 
     private func updateTimeLimitsFor(itemAt index: Int) {
-        guard index > 0 && index < scheduleItems.endIndex else {
+        guard scheduleItems.indices.contains(index) else {
             return
         }
         let indexPath = IndexPath(row: index, section: Section.schedule.rawValue)
@@ -262,7 +260,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
             cell.basalRates = allowedBasalRates
             cell.minimumTimeInterval = minimumTimeInterval
-            cell.isReadOnly = isCellEditingPossible
+            cell.isReadOnly = isCellReadOnly
             cell.isPickerHidden = true
             cell.delegate = self
 
@@ -311,7 +309,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
             super.tableView(tableView, commit: editingStyle, forRowAt: indexPath)
 
-            if scheduleItems.endIndex == 1 {
+            if scheduleItems.count == 1 {
                 self.isEditing = false
             }
 
