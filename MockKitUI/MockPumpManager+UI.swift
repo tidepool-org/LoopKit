@@ -55,21 +55,21 @@ extension MockPumpManager {
     }
 }
 
-// MARK: - SingleValueScheduleTableViewControllerSyncSource
+// MARK: - BasalScheduleTableViewControllerSyncSource
 extension MockPumpManager {
-    public func syncScheduleValues(for viewController: SingleValueScheduleTableViewController, completion: @escaping (RepeatingScheduleValueResult<Double>) -> Void) {
+    public func syncScheduleValues(for viewController: BasalScheduleTableViewController, completion: @escaping (SyncBasalScheduleResult<Double>) -> Void) {
         completion(.success(scheduleItems: [RepeatingScheduleValue(startTime: 0, value: 1.0)], timeZone: .current))
     }
 
-    public func syncButtonTitle(for viewController: SingleValueScheduleTableViewController) -> String {
+    public func syncButtonTitle(for viewController: BasalScheduleTableViewController) -> String {
         return "Continue"
     }
 
-    public func syncButtonDetailText(for viewController: SingleValueScheduleTableViewController) -> String? {
+    public func syncButtonDetailText(for viewController: BasalScheduleTableViewController) -> String? {
         return nil
     }
 
-    public func singleValueScheduleTableViewControllerIsReadOnly(_ viewController: SingleValueScheduleTableViewController) -> Bool {
+    public func basalScheduleTableViewControllerIsReadOnly(_ viewController: BasalScheduleTableViewController) -> Bool {
         return false
     }
 }

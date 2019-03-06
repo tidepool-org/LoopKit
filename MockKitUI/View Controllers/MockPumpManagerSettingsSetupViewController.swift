@@ -96,7 +96,10 @@ final class MockPumpManagerSettingsSetupViewController: SetupTableViewController
         case .configuration:
             switch ConfigurationRow(rawValue: indexPath.row)! {
             case .basalRates:
-                let vc = SingleValueScheduleTableViewController(style: .grouped)
+                guard let pumpManager = pumpManager else {
+                    return
+                }
+                let vc = BasalScheduleTableViewController(allowedBasalRates: pumpManager.supportedBasalRates, maximumScheduleItemCount: pumpManager.maximumBasalScheduleEntryCount, minimumTimeInterval: pumpManager.minimumBasalScheduleEntryDuration)
 
                 if let profile = pumpManagerSetupViewController?.basalSchedule {
                     vc.scheduleItems = profile.items

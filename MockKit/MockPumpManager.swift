@@ -60,6 +60,18 @@ public final class MockPumpManager: TestingPumpManager {
         return MockPumpManager.pumpReservoirCapacity
     }
 
+    public var supportedBasalRates: [Double] {
+        return (0...700).map { Double($0) / Double(type(of: self).pulsesPerUnit) }
+    }
+
+    public var maximumBasalScheduleEntryCount: Int {
+        return 48
+    }
+
+    public var minimumBasalScheduleEntryDuration: TimeInterval {
+        return .minutes(30)
+    }
+
     public var testingDevice: HKDevice {
         return type(of: self).device
     }
