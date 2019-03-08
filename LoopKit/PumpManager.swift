@@ -67,6 +67,9 @@ public protocol PumpManager: DeviceManager {
     // User selectable basal rates
     var supportedBasalRates: [Double] { get }
 
+    // User selectable bolus volumes
+    var supportedBolusVolumes: [Double] { get }
+
     var maximumBasalScheduleEntryCount: Int { get }
 
     var minimumBasalScheduleEntryDuration: TimeInterval { get }
