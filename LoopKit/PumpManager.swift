@@ -50,12 +50,12 @@ public protocol PumpManagerDelegate: PumpManagerStatusObserver {
 
 
 public protocol PumpManager: DeviceManager {
-    /// Rounds a temporary basal rate in U/hr to a rate supported by this pump.
+    /// Rounds a basal rate in U/hr to a rate supported by this pump.
     ///
     /// - Parameters:
     ///   - unitsPerHour: A desired rate of delivery in Units/hr
     /// - Returns: a supported rate of delivery in Units/hr. The rate returned should not be larger than the passed in rate.
-    func roundToSupportedTemporaryBasalRate(unitsPerHour: Double) -> Double
+    func roundToSupportedBasalRate(unitsPerHour: Double) -> Double
 
     /// Rounds a bolus volume in U to a delivery amount supported by this pump.
     ///
@@ -69,12 +69,6 @@ public protocol PumpManager: DeviceManager {
 
     // User selectable bolus volumes
     var supportedBolusVolumes: [Double] { get }
-
-    // Maximum pump allowed bolus volume in U
-    var maximumBolusVolume: Double { get }
-
-    // Maximum pump allowed basal rate in U/Hr
-    var maximumBasalRate: Double { get }
 
     var maximumBasalScheduleEntryCount: Int { get }
 
