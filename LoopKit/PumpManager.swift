@@ -70,6 +70,12 @@ public protocol PumpManager: DeviceManager {
     // User selectable bolus volumes
     var supportedBolusVolumes: [Double] { get }
 
+    // Maximum pump allowed bolus volume in U
+    var maximumBolusVolume: Double { get }
+
+    // Maximum pump allowed basal rate in U/Hr
+    var maximumBasalRate: Double { get }
+
     var maximumBasalScheduleEntryCount: Int { get }
 
     var minimumBasalScheduleEntryDuration: TimeInterval { get }
