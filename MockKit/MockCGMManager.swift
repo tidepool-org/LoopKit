@@ -82,21 +82,13 @@ public final class MockCGMManager: TestingCGMManager {
         ]
     }
 
-    public var appURL: URL? {
-        return nil
-    }
+    public let appURL: URL? = nil
 
-    public var providesBLEHeartbeat: Bool {
-        return false
-    }
+    public let providesBLEHeartbeat = false
 
-    public var managedDataInterval: TimeInterval? {
-        return nil
-    }
+    public let managedDataInterval: TimeInterval? = nil
 
-    public var shouldSyncToRemoteService: Bool {
-        return false
-    }
+    public let shouldSyncToRemoteService = false
 
     public func fetchNewDataIfNeeded(_ completion: @escaping (CGMResult) -> Void) {
         dataSource.fetchNewData(completion)

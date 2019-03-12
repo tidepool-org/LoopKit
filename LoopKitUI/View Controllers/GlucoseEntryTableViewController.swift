@@ -27,7 +27,7 @@ public class GlucoseEntryTableViewController: TextFieldTableViewController {
 
     public var glucose: HKQuantity? {
         get {
-            guard let doubleValue = value.flatMap(Double.init) else {
+            guard let value = value, let doubleValue = Double(value) else {
                 return nil
             }
             return HKQuantity(unit: glucoseUnit, doubleValue: doubleValue)
