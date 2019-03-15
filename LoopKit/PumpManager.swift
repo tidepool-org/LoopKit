@@ -99,6 +99,13 @@ public protocol PumpManager: DeviceManager {
     ///   - result: A DoseEntry or an error describing why the command failed
     func enactBolus(units: Double, at startDate: Date, willRequest: @escaping (_ dose: DoseEntry) -> Void, completion: @escaping (_ result: PumpManagerResult<DoseEntry>) -> Void)
 
+    /// Cancels the current, in progress, bolus.
+    ///
+    /// - Parameters:
+    ///   - completion: A closure called after the command is complete
+    ///   - result: A DoseEntry containing the actual delivery amount of the canceled bolus, nil if canceled bolus information is not available, or an error describing why the command failed.
+    func cancelBolus(completion: @escaping (_ result: PumpManagerResult<DoseEntry?>) -> Void)
+
     /// Send a temporary basal rate command and handle the result
     ///
     /// - Parameters:
@@ -107,6 +114,13 @@ public protocol PumpManager: DeviceManager {
     ///   - completion: A closure called after the command is complete
     ///   - result: A DoseEntry or an error describing why the command failed
     func enactTempBasal(unitsPerHour: Double, for duration: TimeInterval, completion: @escaping (_ result: PumpManagerResult<DoseEntry>) -> Void)
+
+    /// Returns a new instance of a dose progress estimator
+    ///
+    /// - Parameters:
+    ///   - dose: A DoseEntry that was issued by this pump
+    /// - Returns: An optional DoseProgressEstimator that can be used to generate live estimates of dose progress. Returns nil if dose estimation not provided.
+    func progressEstimatorForDose(_ dose: DoseEntry) -> DoseProgressEstimator?
 
     func updateBLEHeartbeatPreference()
     
