@@ -375,6 +375,7 @@
 		C1EE3C20221F4E1A0081AA37 /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE3C1F221F4E1A0081AA37 /* UIColor.swift */; };
 		C1F8B1E2223C3CC000DD66CF /* TimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4303C4901E2D664200ADEDC8 /* TimeZone.swift */; };
 		C1F8B1E4223C570F00DD66CF /* DoseProgressEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8B1E3223C570F00DD66CF /* DoseProgressEstimator.swift */; };
+		C1F8B1E8223E6D4900DD66CF /* MockDoseProgressEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8B1E7223E6D4900DD66CF /* MockDoseProgressEstimator.swift */; };
 		C1FB427721754EBB00FAB378 /* ReservoirVolumeHUDView.xib in Resources */ = {isa = PBXBuildFile; fileRef = C1FB427621754EBB00FAB378 /* ReservoirVolumeHUDView.xib */; };
 		C1FB427921754FC900FAB378 /* ReservoirVolumeHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FB427821754FC800FAB378 /* ReservoirVolumeHUDView.swift */; };
 		C1FB427B2175503B00FAB378 /* LevelHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FB427A2175503A00FAB378 /* LevelHUDView.swift */; };
@@ -910,6 +911,7 @@
 		C1E31F152200E85F00E88C00 /* CompletionNotifying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionNotifying.swift; sourceTree = "<group>"; };
 		C1EE3C1F221F4E1A0081AA37 /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		C1F8B1E3223C570F00DD66CF /* DoseProgressEstimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoseProgressEstimator.swift; sourceTree = "<group>"; };
+		C1F8B1E7223E6D4900DD66CF /* MockDoseProgressEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDoseProgressEstimator.swift; sourceTree = "<group>"; };
 		C1FB427621754EBB00FAB378 /* ReservoirVolumeHUDView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReservoirVolumeHUDView.xib; sourceTree = "<group>"; };
 		C1FB427821754FC800FAB378 /* ReservoirVolumeHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReservoirVolumeHUDView.swift; sourceTree = "<group>"; };
 		C1FB427A2175503A00FAB378 /* LevelHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelHUDView.swift; sourceTree = "<group>"; };
@@ -1592,6 +1594,7 @@
 				89AB9EC621A4774500351324 /* MockPumpManager.swift */,
 				89D2047421CC7BD7001238CC /* MockKit.h */,
 				89D2047521CC7BD7001238CC /* Info.plist */,
+				C1F8B1E7223E6D4900DD66CF /* MockDoseProgressEstimator.swift */,
 			);
 			path = MockKit;
 			sourceTree = "<group>";
@@ -2420,6 +2423,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1F8B1E8223E6D4900DD66CF /* MockDoseProgressEstimator.swift in Sources */,
 				89D204BF21CC7FFB001238CC /* NSTimeInterval.swift in Sources */,
 				89D204C421CC803C001238CC /* HKUnit.swift in Sources */,
 				89D204B321CC7DC7001238CC /* Locked.swift in Sources */,

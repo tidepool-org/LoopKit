@@ -200,9 +200,29 @@ public final class MockPumpManager: TestingPumpManager {
             let bolus = NewPumpEvent.bolus(at: Date(), units: units, deliveryUnitsPerMinute: type(of: self).deliveryUnitsPerMinute)
             pendingPumpEvents.append(bolus)
             willRequest(bolus.dose!)
+            self.status.bolusState = .inProgress(bolus.dose!)
             completion(.success(bolus.dose!))
         }
     }
+
+    public func cancelBolus(completion: @escaping (PumpManagerResult<DoseEntry?>) -> Void) {
+        let oldState = self.status.bolusState
+        self.status.bolusState = .canceling
+        suspendDelivery { (error) in
+            if let error = error {
+                self.status.bolusState = oldState
+                completion(.failure(error))
+            } else {
+                self.status.bolusState = .none
+                completion(.success(nil))
+            }
+        }
+    }
+
+    public func progressEstimatorForDose(_ dose: DoseEntry) -> DoseProgressEstimator? {
+        return MockDoseProgressEstimator(dose: dose)
+    }
+
 
     public func roundToDeliveryIncrement(units: Double) -> Double {
         return round(units * MockPumpManager.pulsesPerUnit) / MockPumpManager.pulsesPerUnit
