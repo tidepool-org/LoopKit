@@ -10,25 +10,59 @@ import Foundation
 import LoopKit
 
 class MockDoseProgressEstimator: DoseProgressEstimator {
-    weak var delegate: DoseProgressEstimatorDelegate?
+
 
     public let dose: DoseEntry
 
+    private var observers = WeakSet<DoseProgressObserver>()
+
     private var timer: Timer?
 
-    var estimatedDeliveredUnits: Double {
+    private var lock = os_unfair_lock()
+
+    var progress: DoseProgress {
+        os_unfair_lock_lock(&lock)
+        defer {
+            os_unfair_lock_unlock(&lock)
+        }
         let elapsed = -dose.startDate.timeIntervalSinceNow
         let duration = dose.endDate.timeIntervalSince(dose.startDate)
         let percentProgress = min(elapsed / duration, 1)
         let delivered = round(percentProgress * dose.units * 20) / 20
-        return delivered
+        return DoseProgress(deliveredUnits: delivered, percentComplete: delivered / dose.units)
     }
 
     init(dose: DoseEntry) {
         self.dose = dose
     }
 
+    func addObserver(_ observer: DoseProgressObserver) {
+        os_unfair_lock_lock(&lock)
+        defer {
+            os_unfair_lock_unlock(&lock)
+        }
+        let firstObserver = observers.isEmpty
+        observers.insert(observer)
+        if firstObserver {
+            start(on: RunLoop.current)
+        }
+    }
+
+    func removeObserver(_ observer: DoseProgressObserver) {
+        os_unfair_lock_lock(&lock)
+        defer {
+            os_unfair_lock_unlock(&lock)
+        }
+        observers.remove(observer)
+        if observers.isEmpty {
+            stop()
+        }
+    }
+
     func start(on runLoop: RunLoop) {
+        guard self.timer == nil else {
+            return
+        }
         let timeSinceStart = dose.startDate.timeIntervalSinceNow
         let timeBetweenPulses: TimeInterval
         switch dose.type {
@@ -42,7 +76,9 @@ class MockDoseProgressEstimator: DoseProgressEstimator {
         let delayUntilNextPulse = timeBetweenPulses - timeSinceStart.remainder(dividingBy: timeBetweenPulses)
         let timer = Timer(fire: Date() + delayUntilNextPulse, interval: timeBetweenPulses, repeats: true) { [weak self] _  in
             if let self = self {
-                self.delegate?.doseProgressEstimatorHasNewEstimate(self)
+                for observer in self.observers {
+                    observer.doseProgressEstimatorHasNewEstimate(self)
+                }
             }
         }
         runLoop.add(timer, forMode: .default)
@@ -50,6 +86,11 @@ class MockDoseProgressEstimator: DoseProgressEstimator {
     }
 
     func stop() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    deinit {
         timer?.invalidate()
     }
 }

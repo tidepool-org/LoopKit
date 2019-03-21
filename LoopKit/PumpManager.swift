@@ -89,6 +89,9 @@ public protocol PumpManager: DeviceManager {
     /// If the pump data (reservoir/events) is out of date, it will be fetched, and if successful, trigger a loop
     func assertCurrentPumpData()
 
+    /// The dose estimator for a current bolus, if one is ongoing
+    var bolusProgressEstimator: DoseProgressEstimator? { get }
+
     /// Send a bolus command and handle the result
     ///
     /// - Parameters:
@@ -114,13 +117,6 @@ public protocol PumpManager: DeviceManager {
     ///   - completion: A closure called after the command is complete
     ///   - result: A DoseEntry or an error describing why the command failed
     func enactTempBasal(unitsPerHour: Double, for duration: TimeInterval, completion: @escaping (_ result: PumpManagerResult<DoseEntry>) -> Void)
-
-    /// Returns a new instance of a dose progress estimator
-    ///
-    /// - Parameters:
-    ///   - dose: A DoseEntry that was issued by this pump
-    /// - Returns: An optional DoseProgressEstimator that can be used to generate live estimates of dose progress. Returns nil if dose estimation not provided.
-    func progressEstimatorForDose(_ dose: DoseEntry) -> DoseProgressEstimator?
 
     func updateBLEHeartbeatPreference()
     

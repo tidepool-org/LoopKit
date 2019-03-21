@@ -8,18 +8,29 @@
 
 import Foundation
 
-public protocol DoseProgressEstimatorDelegate: class {
+public struct DoseProgress {
+    public let deliveredUnits: Double
+    public let percentComplete: Double
+
+    public var isComplete: Bool {
+        return percentComplete >= 1.0
+    }
+
+    public init(deliveredUnits: Double, percentComplete: Double) {
+        self.deliveredUnits = deliveredUnits
+        self.percentComplete = percentComplete
+    }
+}
+
+public protocol DoseProgressObserver: class {
     func doseProgressEstimatorHasNewEstimate(_ doseProgressEstimator: DoseProgressEstimator)
 }
 
 public protocol DoseProgressEstimator: class {
-    var delegate: DoseProgressEstimatorDelegate? { get set }
 
-    var dose: DoseEntry { get }
+    func addObserver(_ observer: DoseProgressObserver)
 
-    var estimatedDeliveredUnits: Double { get }
+    func removeObserver(_ observer: DoseProgressObserver)
 
-    func start(on runLoop: RunLoop)
-
-    func stop()
+    var progress: DoseProgress { get }
 }
