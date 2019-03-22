@@ -21,10 +21,6 @@ class MockDoseProgressEstimator: DoseProgressEstimator {
     private var lock = os_unfair_lock()
 
     var progress: DoseProgress {
-        os_unfair_lock_lock(&lock)
-        defer {
-            os_unfair_lock_unlock(&lock)
-        }
         let elapsed = -dose.startDate.timeIntervalSinceNow
         let duration = dose.endDate.timeIntervalSince(dose.startDate)
         let percentProgress = min(elapsed / duration, 1)
@@ -44,7 +40,7 @@ class MockDoseProgressEstimator: DoseProgressEstimator {
         let firstObserver = observers.isEmpty
         observers.insert(observer)
         if firstObserver {
-            start(on: RunLoop.current)
+            start(on: RunLoop.main)
         }
     }
 
@@ -56,6 +52,16 @@ class MockDoseProgressEstimator: DoseProgressEstimator {
         observers.remove(observer)
         if observers.isEmpty {
             stop()
+        }
+    }
+
+    func notify() {
+        os_unfair_lock_lock(&lock)
+        let observersCopy = observers
+        os_unfair_lock_unlock(&lock)
+
+        for observer in observersCopy {
+            observer.doseProgressEstimatorHasNewEstimate(self)
         }
     }
 
@@ -76,9 +82,7 @@ class MockDoseProgressEstimator: DoseProgressEstimator {
         let delayUntilNextPulse = timeBetweenPulses - timeSinceStart.remainder(dividingBy: timeBetweenPulses)
         let timer = Timer(fire: Date() + delayUntilNextPulse, interval: timeBetweenPulses, repeats: true) { [weak self] _  in
             if let self = self {
-                for observer in self.observers {
-                    observer.doseProgressEstimatorHasNewEstimate(self)
-                }
+                self.notify()
             }
         }
         runLoop.add(timer, forMode: .default)
