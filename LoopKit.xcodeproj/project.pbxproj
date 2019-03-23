@@ -368,14 +368,14 @@
 		C16C3D3F21A3101700401105 /* WeakSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C133FD1621A2A845009B2D20 /* WeakSet.swift */; };
 		C184FECB219F2E0100CD2722 /* SuspendResumeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C184FECA219F2E0100CD2722 /* SuspendResumeTableViewCell.swift */; };
 		C1ABE39322465D7300570E82 /* UnfairLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ABE38D2245CFCD00570E82 /* UnfairLock.swift */; };
-		C1ABE39522465FA100570E82 /* BaseDoseProgressEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ABE39422465FA100570E82 /* BaseDoseProgressEstimator.swift */; };
+		C1ABE39522465FA100570E82 /* DoseProgressTimerEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ABE39422465FA100570E82 /* DoseProgressTimerEstimator.swift */; };
 		C1D7366421F78A4D00048CDD /* UIAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D7366321F78A4D00048CDD /* UIAlertController.swift */; };
 		C1E31F1222008AA300E88C00 /* SettingsNavigationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E31F1122008AA300E88C00 /* SettingsNavigationViewController.swift */; };
 		C1E31F142200E7D500E88C00 /* HUDProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E31F132200E7D500E88C00 /* HUDProvider.swift */; };
 		C1E31F162200E85F00E88C00 /* CompletionNotifying.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E31F152200E85F00E88C00 /* CompletionNotifying.swift */; };
 		C1EE3C20221F4E1A0081AA37 /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EE3C1F221F4E1A0081AA37 /* UIColor.swift */; };
 		C1F8B1E2223C3CC000DD66CF /* TimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4303C4901E2D664200ADEDC8 /* TimeZone.swift */; };
-		C1F8B1E4223C570F00DD66CF /* DoseProgressEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8B1E3223C570F00DD66CF /* DoseProgressEstimator.swift */; };
+		C1F8B1E4223C570F00DD66CF /* DoseProgressReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8B1E3223C570F00DD66CF /* DoseProgressReporter.swift */; };
 		C1F8B1E8223E6D4900DD66CF /* MockDoseProgressEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8B1E7223E6D4900DD66CF /* MockDoseProgressEstimator.swift */; };
 		C1FB427721754EBB00FAB378 /* ReservoirVolumeHUDView.xib in Resources */ = {isa = PBXBuildFile; fileRef = C1FB427621754EBB00FAB378 /* ReservoirVolumeHUDView.xib */; };
 		C1FB427921754FC900FAB378 /* ReservoirVolumeHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FB427821754FC800FAB378 /* ReservoirVolumeHUDView.swift */; };
@@ -902,7 +902,7 @@
 		C17F4CB21EE9B6DF005079B1 /* carb_entry_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = carb_entry_input.json; sourceTree = "<group>"; };
 		C184FECA219F2E0100CD2722 /* SuspendResumeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspendResumeTableViewCell.swift; sourceTree = "<group>"; };
 		C1ABE38D2245CFCD00570E82 /* UnfairLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfairLock.swift; sourceTree = "<group>"; };
-		C1ABE39422465FA100570E82 /* BaseDoseProgressEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDoseProgressEstimator.swift; sourceTree = "<group>"; };
+		C1ABE39422465FA100570E82 /* DoseProgressTimerEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseProgressTimerEstimator.swift; sourceTree = "<group>"; };
 		C1CBF61B1EEA2A1E001E4851 /* ice_1_hour_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_1_hour_input.json; sourceTree = "<group>"; };
 		C1D7366321F78A4D00048CDD /* UIAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAlertController.swift; sourceTree = "<group>"; };
 		C1DB55B01F2E95FD00C483A2 /* WalshInsulinModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalshInsulinModel.swift; sourceTree = "<group>"; };
@@ -913,7 +913,7 @@
 		C1E31F132200E7D500E88C00 /* HUDProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDProvider.swift; sourceTree = "<group>"; };
 		C1E31F152200E85F00E88C00 /* CompletionNotifying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionNotifying.swift; sourceTree = "<group>"; };
 		C1EE3C1F221F4E1A0081AA37 /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
-		C1F8B1E3223C570F00DD66CF /* DoseProgressEstimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoseProgressEstimator.swift; sourceTree = "<group>"; };
+		C1F8B1E3223C570F00DD66CF /* DoseProgressReporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoseProgressReporter.swift; sourceTree = "<group>"; };
 		C1F8B1E7223E6D4900DD66CF /* MockDoseProgressEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDoseProgressEstimator.swift; sourceTree = "<group>"; };
 		C1FB427621754EBB00FAB378 /* ReservoirVolumeHUDView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReservoirVolumeHUDView.xib; sourceTree = "<group>"; };
 		C1FB427821754FC800FAB378 /* ReservoirVolumeHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReservoirVolumeHUDView.swift; sourceTree = "<group>"; };
@@ -1313,7 +1313,8 @@
 				43D8FDE71C7290350073BE78 /* DailyQuantitySchedule.swift */,
 				43D8FDE81C7290350073BE78 /* DailyValueSchedule.swift */,
 				4379CFE221102A4100AADC79 /* DeviceManager.swift */,
-				C1F8B1E3223C570F00DD66CF /* DoseProgressEstimator.swift */,
+				C1F8B1E3223C570F00DD66CF /* DoseProgressReporter.swift */,
+				C1ABE39422465FA100570E82 /* DoseProgressTimerEstimator.swift */,
 				43C9805B212D216A003B5D17 /* GlucoseChange.swift */,
 				43D8FDEA1C7290350073BE78 /* GlucoseEffect.swift */,
 				4378B64A1ED61965000AE785 /* GlucoseEffectVelocity.swift */,
@@ -1341,7 +1342,6 @@
 				1F5DAB2B2118CE9300048054 /* Localizable.strings */,
 				437874B4202FDC8300A3D8B9 /* Persistence */,
 				C133FD1621A2A845009B2D20 /* WeakSet.swift */,
-				C1ABE39422465FA100570E82 /* BaseDoseProgressEstimator.swift */,
 			);
 			path = LoopKit;
 			sourceTree = "<group>";
@@ -2282,7 +2282,7 @@
 				4322B791202FA2B70002837D /* Model.xcdatamodeld in Sources */,
 				4322B773202FA2790002837D /* CarbEntry.swift in Sources */,
 				43D8FDFC1C7290350073BE78 /* HealthKitSampleStore.swift in Sources */,
-				C1F8B1E4223C570F00DD66CF /* DoseProgressEstimator.swift in Sources */,
+				C1F8B1E4223C570F00DD66CF /* DoseProgressReporter.swift in Sources */,
 				437AFEF22036A2D7008C4892 /* DeletedCarbEntry.swift in Sources */,
 				434570441FE605E30089C4DC /* OSLog.swift in Sources */,
 				4322B789202FA2B30002837D /* DoseType.swift in Sources */,
@@ -2321,7 +2321,7 @@
 				437AFEF02036A156008C4892 /* DeletedCarbObject+CoreDataProperties.swift in Sources */,
 				4322B777202FA2790002837D /* CarbValue.swift in Sources */,
 				4322B782202FA2AF0002837D /* PumpEventType.swift in Sources */,
-				C1ABE39522465FA100570E82 /* BaseDoseProgressEstimator.swift in Sources */,
+				C1ABE39522465FA100570E82 /* DoseProgressTimerEstimator.swift in Sources */,
 				4322B77C202FA2A60002837D /* NSData.swift in Sources */,
 				43D8FDFA1C7290350073BE78 /* GlucoseRangeSchedule.swift in Sources */,
 				4322B77E202FA2AF0002837D /* PersistedPumpEvent.swift in Sources */,

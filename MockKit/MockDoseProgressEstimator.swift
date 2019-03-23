@@ -10,7 +10,7 @@ import Foundation
 import LoopKit
 
 
-class MockDoseProgressEstimator: BaseDoseProgressEstimator {
+class MockDoseProgressEstimator: DoseProgressTimerEstimator {
 
     public let dose: DoseEntry
 

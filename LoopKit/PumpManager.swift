@@ -90,7 +90,7 @@ public protocol PumpManager: DeviceManager {
     func assertCurrentPumpData()
 
     /// The dose estimator for a current bolus, if one is ongoing
-    var bolusProgressEstimator: DoseProgressEstimator? { get }
+    var bolusProgressReporter: DoseProgressReporter? { get }
 
     /// Send a bolus command and handle the result
     ///

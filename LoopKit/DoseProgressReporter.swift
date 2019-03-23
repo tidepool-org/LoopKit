@@ -1,5 +1,5 @@
 //
-//  DoseProgressEstimator.swift
+//  DoseProgressReporter.swift
 //  LoopKit
 //
 //  Created by Pete Schwamb on 3/12/19.
@@ -23,10 +23,10 @@ public struct DoseProgress {
 }
 
 public protocol DoseProgressObserver: class {
-    func doseProgressEstimatorHasNewEstimate(_ doseProgressEstimator: DoseProgressEstimator)
+    func doseProgressReporterProgressUpdated(_ doseProgressReporter: DoseProgressReporter)
 }
 
-public protocol DoseProgressEstimator: class {
+public protocol DoseProgressReporter: class {
 
     func addObserver(_ observer: DoseProgressObserver)
 

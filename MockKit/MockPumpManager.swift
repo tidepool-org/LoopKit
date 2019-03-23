@@ -100,8 +100,8 @@ public final class MockPumpManager: TestingPumpManager {
             pumpManagerDelegate?.pumpManagerDidUpdateState(self)
 
             if case .inProgress(let dose) = status.bolusState, status.bolusState != oldValue.bolusState {
-                bolusProgressEstimator = MockDoseProgressEstimator(dose: dose)
-                bolusProgressEstimator?.addObserver(self)
+                bolusProgressReporter = MockDoseProgressEstimator(dose: dose)
+                bolusProgressReporter?.addObserver(self)
             }
         }
     }
@@ -148,7 +148,7 @@ public final class MockPumpManager: TestingPumpManager {
         return raw
     }
 
-    public var bolusProgressEstimator: DoseProgressEstimator?
+    public var bolusProgressReporter: DoseProgressReporter?
 
     public var pumpRecordsBasalProfileStartEvents: Bool {
         return false
@@ -270,10 +270,10 @@ public final class MockPumpManager: TestingPumpManager {
 }
 
 extension MockPumpManager: DoseProgressObserver {
-    public func doseProgressEstimatorHasNewEstimate(_ doseProgressEstimator: DoseProgressEstimator) {
-        if doseProgressEstimator === self.bolusProgressEstimator, doseProgressEstimator.progress.isComplete {
+    public func doseProgressReporterProgressUpdated(_ doseProgressReporter: DoseProgressReporter) {
+        if doseProgressReporter === self.bolusProgressReporter, doseProgressReporter.progress.isComplete {
             self.status.bolusState = .none
-            self.bolusProgressEstimator = nil
+            self.bolusProgressReporter = nil
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-//  BaseDoseProgressEstimator.swift
+//  DoseProgressTimerEstimator.swift
 //  LoopKit
 //
 //  Created by Pete Schwamb on 3/23/19.
@@ -9,8 +9,7 @@
 import Foundation
 
 
-open class BaseDoseProgressEstimator: DoseProgressEstimator {
-
+open class DoseProgressTimerEstimator: DoseProgressReporter {
     public var timer: Timer?
 
     private var lock = UnfairLock()
@@ -48,7 +47,7 @@ open class BaseDoseProgressEstimator: DoseProgressEstimator {
         }
 
         for observer in observersCopy {
-            observer.doseProgressEstimatorHasNewEstimate(self)
+            observer.doseProgressReporterProgressUpdated(self)
         }
     }
 
