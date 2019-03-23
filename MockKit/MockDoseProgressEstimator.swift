@@ -9,18 +9,12 @@
 import Foundation
 import LoopKit
 
-class MockDoseProgressEstimator: DoseProgressEstimator {
 
+class MockDoseProgressEstimator: BaseDoseProgressEstimator {
 
     public let dose: DoseEntry
 
-    private var observers = WeakSet<DoseProgressObserver>()
-
-    private var timer: Timer?
-
-    private var lock = os_unfair_lock()
-
-    var progress: DoseProgress {
+    override var progress: DoseProgress {
         let elapsed = -dose.startDate.timeIntervalSinceNow
         let duration = dose.endDate.timeIntervalSince(dose.startDate)
         let percentProgress = min(elapsed / duration, 1)
@@ -28,47 +22,12 @@ class MockDoseProgressEstimator: DoseProgressEstimator {
         return DoseProgress(deliveredUnits: delivered, percentComplete: delivered / dose.units)
     }
 
-    init(dose: DoseEntry) {
+    public init(dose: DoseEntry) {
         self.dose = dose
+        super.init()
     }
 
-    func addObserver(_ observer: DoseProgressObserver) {
-        os_unfair_lock_lock(&lock)
-        defer {
-            os_unfair_lock_unlock(&lock)
-        }
-        let firstObserver = observers.isEmpty
-        observers.insert(observer)
-        if firstObserver {
-            start(on: RunLoop.main)
-        }
-    }
-
-    func removeObserver(_ observer: DoseProgressObserver) {
-        os_unfair_lock_lock(&lock)
-        defer {
-            os_unfair_lock_unlock(&lock)
-        }
-        observers.remove(observer)
-        if observers.isEmpty {
-            stop()
-        }
-    }
-
-    func notify() {
-        os_unfair_lock_lock(&lock)
-        let observersCopy = observers
-        os_unfair_lock_unlock(&lock)
-
-        for observer in observersCopy {
-            observer.doseProgressEstimatorHasNewEstimate(self)
-        }
-    }
-
-    func start(on runLoop: RunLoop) {
-        guard self.timer == nil else {
-            return
-        }
+    override func createTimer() -> Timer {
         let timeSinceStart = dose.startDate.timeIntervalSinceNow
         let timeBetweenPulses: TimeInterval
         switch dose.type {
@@ -80,21 +39,10 @@ class MockDoseProgressEstimator: DoseProgressEstimator {
             fatalError("Can only estimate progress on basal rates or boluses.")
         }
         let delayUntilNextPulse = timeBetweenPulses - timeSinceStart.remainder(dividingBy: timeBetweenPulses)
-        let timer = Timer(fire: Date() + delayUntilNextPulse, interval: timeBetweenPulses, repeats: true) { [weak self] _  in
+        return Timer(fire: Date() + delayUntilNextPulse, interval: timeBetweenPulses, repeats: true) { [weak self] _  in
             if let self = self {
                 self.notify()
             }
         }
-        runLoop.add(timer, forMode: .default)
-        self.timer = timer
-    }
-
-    func stop() {
-        timer?.invalidate()
-        timer = nil
-    }
-
-    deinit {
-        timer?.invalidate()
     }
 }
