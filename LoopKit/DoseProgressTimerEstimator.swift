@@ -11,13 +11,13 @@ import Foundation
 
 open class DoseProgressTimerEstimator: DoseProgressReporter {
 
-    private var lock = UnfairLock()
+    private let lock = UnfairLock()
 
     private var observers = WeakSet<DoseProgressObserver>()
 
     var timer: DispatchSourceTimer?
 
-    var reportingQueue: DispatchQueue
+    let reportingQueue: DispatchQueue
 
     public init(reportingQueue: DispatchQueue) {
         self.reportingQueue = reportingQueue
@@ -54,10 +54,14 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
         for observer in observersCopy {
             observer.doseProgressReporterDidUpdate(self)
         }
+
+        if progress.isComplete {
+            lock.locked { stop() }
+        }
     }
 
     func start() {
-        guard self.timer == nil else {
+        guard self.timer == nil, !progress.isComplete else {
             return
         }
 
