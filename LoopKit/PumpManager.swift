@@ -89,8 +89,8 @@ public protocol PumpManager: DeviceManager {
     /// If the pump data (reservoir/events) is out of date, it will be fetched, and if successful, trigger a loop
     func assertCurrentPumpData()
 
-    /// The dose estimator for a current bolus, if one is ongoing
-    var bolusProgressReporter: DoseProgressReporter? { get }
+    /// Returns a dose estimator for the current bolus, if one is in progress
+    func createBolusProgressReporter(reportingOn dispatchQueue: DispatchQueue) -> DoseProgressReporter?
 
     /// Send a bolus command and handle the result
     ///

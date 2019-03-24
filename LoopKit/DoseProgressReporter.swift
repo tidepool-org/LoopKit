@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 public struct DoseProgress {
     public let deliveredUnits: Double
     public let percentComplete: Double
@@ -27,10 +28,9 @@ public protocol DoseProgressObserver: class {
 }
 
 public protocol DoseProgressReporter: class {
+    var progress: DoseProgress { get }
 
     func addObserver(_ observer: DoseProgressObserver)
 
     func removeObserver(_ observer: DoseProgressObserver)
-
-    var progress: DoseProgress { get }
 }

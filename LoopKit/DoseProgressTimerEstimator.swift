@@ -10,13 +10,18 @@ import Foundation
 
 
 open class DoseProgressTimerEstimator: DoseProgressReporter {
-    public var timer: DispatchSourceTimer?
 
     private var lock = UnfairLock()
 
     private var observers = WeakSet<DoseProgressObserver>()
 
-    public init() {}
+    var timer: DispatchSourceTimer?
+
+    var reportingQueue: DispatchQueue
+
+    public init(reportingQueue: DispatchQueue) {
+        self.reportingQueue = reportingQueue
+    }
 
     open var progress: DoseProgress {
         fatalError("progress must be implemented in subclasse")
@@ -58,7 +63,7 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
 
         let (delay, repeating) = timerParameters()
 
-        let timer = DispatchSource.makeTimerSource()
+        let timer = DispatchSource.makeTimerSource(queue: reportingQueue)
         timer.schedule(deadline: .now() + delay, repeating: repeating)
         timer.setEventHandler(handler: { [weak self] in
             self?.notify()

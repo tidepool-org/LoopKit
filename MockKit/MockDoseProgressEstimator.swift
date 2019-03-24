@@ -22,13 +22,13 @@ class MockDoseProgressEstimator: DoseProgressTimerEstimator {
         return DoseProgress(deliveredUnits: delivered, percentComplete: delivered / dose.units)
     }
 
-    public init(dose: DoseEntry) {
+    public init(reportingQueue: DispatchQueue, dose: DoseEntry) {
         self.dose = dose
-        super.init()
+        super.init(reportingQueue: reportingQueue)
     }
 
     override func timerParameters() -> (delay: TimeInterval, repeating: TimeInterval) {
-        let timeSinceStart = dose.startDate.timeIntervalSinceNow
+        let timeSinceStart = -dose.startDate.timeIntervalSinceNow
         let timeBetweenPulses: TimeInterval
         switch dose.type {
         case .bolus:
