@@ -23,7 +23,7 @@ public struct DoseProgress {
 }
 
 public protocol DoseProgressObserver: class {
-    func doseProgressReporterProgressUpdated(_ doseProgressReporter: DoseProgressReporter)
+    func doseProgressReporterDidUpdate(_ doseProgressReporter: DoseProgressReporter)
 }
 
 public protocol DoseProgressReporter: class {

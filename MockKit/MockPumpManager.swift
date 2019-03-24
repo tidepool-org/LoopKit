@@ -270,10 +270,12 @@ public final class MockPumpManager: TestingPumpManager {
 }
 
 extension MockPumpManager: DoseProgressObserver {
-    public func doseProgressReporterProgressUpdated(_ doseProgressReporter: DoseProgressReporter) {
-        if doseProgressReporter === self.bolusProgressReporter, doseProgressReporter.progress.isComplete {
-            self.status.bolusState = .none
-            self.bolusProgressReporter = nil
+    public func doseProgressReporterDidUpdate(_ doseProgressReporter: DoseProgressReporter) {
+        DispatchQueue.main.async {
+            if doseProgressReporter === self.bolusProgressReporter, doseProgressReporter.progress.isComplete {
+                self.status.bolusState = .none
+                self.bolusProgressReporter = nil
+            }
         }
     }
 }

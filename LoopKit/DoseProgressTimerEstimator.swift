@@ -10,7 +10,7 @@ import Foundation
 
 
 open class DoseProgressTimerEstimator: DoseProgressReporter {
-    public var timer: Timer?
+    public var timer: DispatchSourceTimer?
 
     private var lock = UnfairLock()
 
@@ -27,7 +27,7 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
             let firstObserver = observers.isEmpty
             observers.insert(observer)
             if firstObserver {
-                start(on: RunLoop.main)
+                start()
             }
         }
     }
@@ -47,29 +47,41 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
         }
 
         for observer in observersCopy {
-            observer.doseProgressReporterProgressUpdated(self)
+            observer.doseProgressReporterDidUpdate(self)
         }
     }
 
-    func start(on runLoop: RunLoop) {
+    func start() {
         guard self.timer == nil else {
             return
         }
-        let timer = createTimer()
-        runLoop.add(timer, forMode: .default)
+
+        let (delay, repeating) = timerParameters()
+
+        let timer = DispatchSource.makeTimerSource()
+        timer.schedule(deadline: .now() + delay, repeating: repeating)
+        timer.setEventHandler(handler: { [weak self] in
+            self?.notify()
+        })
         self.timer = timer
+        timer.resume()
     }
 
-    open func createTimer() -> Timer {
-        fatalError("createTimer must be been implemented in subclasse")
+    open func timerParameters() -> (delay: TimeInterval, repeating: TimeInterval) {
+        fatalError("timerParameters must be been implemented in subclasse")
     }
 
     func stop() {
-        timer?.invalidate()
-        timer = nil
+        guard let timer = timer else {
+            return
+        }
+
+        timer.setEventHandler {}
+        timer.cancel()
+        self.timer = nil
     }
 
     deinit {
-        timer?.invalidate()
+        stop()
     }
 }

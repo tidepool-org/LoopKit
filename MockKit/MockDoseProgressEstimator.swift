@@ -27,7 +27,7 @@ class MockDoseProgressEstimator: DoseProgressTimerEstimator {
         super.init()
     }
 
-    override func createTimer() -> Timer {
+    override func timerParameters() -> (delay: TimeInterval, repeating: TimeInterval) {
         let timeSinceStart = dose.startDate.timeIntervalSinceNow
         let timeBetweenPulses: TimeInterval
         switch dose.type {
@@ -39,10 +39,6 @@ class MockDoseProgressEstimator: DoseProgressTimerEstimator {
             fatalError("Can only estimate progress on basal rates or boluses.")
         }
         let delayUntilNextPulse = timeBetweenPulses - timeSinceStart.remainder(dividingBy: timeBetweenPulses)
-        return Timer(fire: Date() + delayUntilNextPulse, interval: timeBetweenPulses, repeats: true) { [weak self] _  in
-            if let self = self {
-                self.notify()
-            }
-        }
+        return (delay: delayUntilNextPulse, repeating: timeBetweenPulses)
     }
 }
