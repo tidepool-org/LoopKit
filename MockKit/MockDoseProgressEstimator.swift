@@ -34,7 +34,7 @@ class MockDoseProgressEstimator: DoseProgressTimerEstimator {
         case .bolus:
             timeBetweenPulses = TimeInterval(2)
         case .basal, .tempBasal:
-            timeBetweenPulses = 0.05 / dose.unitsPerHour
+            timeBetweenPulses = 0.05 / dose.unitsPerHour * .hours(1)
         default:
             fatalError("Can only estimate progress on basal rates or boluses.")
         }
