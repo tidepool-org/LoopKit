@@ -22,7 +22,7 @@ public class UnfairLock {
         _lock.deallocate()
     }
 
-    public func locked<ReturnValue>(_ f: () throws -> ReturnValue) rethrows -> ReturnValue {
+    public func withLock<ReturnValue>(_ f: () throws -> ReturnValue) rethrows -> ReturnValue {
         os_unfair_lock_lock(_lock)
         defer { os_unfair_lock_unlock(_lock) }
         return try f()

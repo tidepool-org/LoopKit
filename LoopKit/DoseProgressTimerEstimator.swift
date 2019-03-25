@@ -28,7 +28,7 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
     }
 
     public func addObserver(_ observer: DoseProgressObserver) {
-        lock.locked {
+        lock.withLock {
             let firstObserver = observers.isEmpty
             observers.insert(observer)
             if firstObserver {
@@ -38,7 +38,7 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
     }
 
     public func removeObserver(_ observer: DoseProgressObserver) {
-        lock.locked {
+        lock.withLock {
             observers.remove(observer)
             if observers.isEmpty {
                 stop()
@@ -47,20 +47,18 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
     }
 
     public func notify() {
-        let observersCopy = lock.locked { () -> WeakSet<DoseProgressObserver> in
-            return observers
-        }
+        let observersCopy = lock.withLock { observers }
 
         for observer in observersCopy {
             observer.doseProgressReporterDidUpdate(self)
         }
 
         if progress.isComplete {
-            lock.locked { stop() }
+            lock.withLock { stop() }
         }
     }
 
-    func start() {
+    private func start() {
         guard self.timer == nil, !progress.isComplete else {
             return
         }
@@ -80,7 +78,7 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
         fatalError("timerParameters must be been implemented in subclasse")
     }
 
-    func stop() {
+    private func stop() {
         guard let timer = timer else {
             return
         }
@@ -91,6 +89,6 @@ open class DoseProgressTimerEstimator: DoseProgressReporter {
     }
 
     deinit {
-        stop()
+        lock.withLock { stop() }
     }
 }
