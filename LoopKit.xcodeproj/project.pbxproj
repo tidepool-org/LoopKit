@@ -446,6 +446,48 @@
 			remoteGlobalIDString = 89D2047121CC7BD7001238CC;
 			remoteInfo = MockKit;
 		};
+		A95EC21D225E5EAE0066B1C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43D8FDCA1C728FDF0073BE78;
+			remoteInfo = LoopKit;
+		};
+		A95EC21F225E5EFD0066B1C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43BA7153201E484D0058961E;
+			remoteInfo = LoopKitUI;
+		};
+		A95EC221225E5EFD0066B1C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 89D2047121CC7BD7001238CC;
+			remoteInfo = MockKit;
+		};
+		A95EC223225E5F0E0066B1C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43D8FDCA1C728FDF0073BE78;
+			remoteInfo = LoopKit;
+		};
+		A95EC225225E5F0E0066B1C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 892A5D33222F03CB008961AB;
+			remoteInfo = LoopTestingKit;
+		};
+		A95EC227225E5F1C0066B1C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43D8FDCA1C728FDF0073BE78;
+			remoteInfo = LoopKit;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -1749,6 +1791,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A95EC228225E5F1C0066B1C6 /* PBXTargetDependency */,
 			);
 			name = LoopKitUI;
 			productName = LoopKitUI;
@@ -1803,6 +1846,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A95EC21E225E5EAE0066B1C6 /* PBXTargetDependency */,
 			);
 			name = LoopTestingKit;
 			productName = LoopTestingKit;
@@ -1840,6 +1884,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				A95EC224225E5F0E0066B1C6 /* PBXTargetDependency */,
+				A95EC226225E5F0E0066B1C6 /* PBXTargetDependency */,
 			);
 			name = MockKit;
 			productName = MockKit;
@@ -1876,6 +1922,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				A95EC220225E5EFD0066B1C6 /* PBXTargetDependency */,
+				A95EC222225E5EFD0066B1C6 /* PBXTargetDependency */,
 			);
 			name = MockKitUI;
 			productName = MockKitUI;
@@ -2521,6 +2569,36 @@
 			isa = PBXTargetDependency;
 			target = 89D2047121CC7BD7001238CC /* MockKit */;
 			targetProxy = 89D2047C21CC7BD8001238CC /* PBXContainerItemProxy */;
+		};
+		A95EC21E225E5EAE0066B1C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43D8FDCA1C728FDF0073BE78 /* LoopKit */;
+			targetProxy = A95EC21D225E5EAE0066B1C6 /* PBXContainerItemProxy */;
+		};
+		A95EC220225E5EFD0066B1C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43BA7153201E484D0058961E /* LoopKitUI */;
+			targetProxy = A95EC21F225E5EFD0066B1C6 /* PBXContainerItemProxy */;
+		};
+		A95EC222225E5EFD0066B1C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 89D2047121CC7BD7001238CC /* MockKit */;
+			targetProxy = A95EC221225E5EFD0066B1C6 /* PBXContainerItemProxy */;
+		};
+		A95EC224225E5F0E0066B1C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43D8FDCA1C728FDF0073BE78 /* LoopKit */;
+			targetProxy = A95EC223225E5F0E0066B1C6 /* PBXContainerItemProxy */;
+		};
+		A95EC226225E5F0E0066B1C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 892A5D33222F03CB008961AB /* LoopTestingKit */;
+			targetProxy = A95EC225225E5F0E0066B1C6 /* PBXContainerItemProxy */;
+		};
+		A95EC228225E5F1C0066B1C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43D8FDCA1C728FDF0073BE78 /* LoopKit */;
+			targetProxy = A95EC227225E5F1C0066B1C6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
