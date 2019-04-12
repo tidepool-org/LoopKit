@@ -39,7 +39,6 @@ public protocol CGMManagerDelegate: class {
     /// - Parameter manager: The manager instance
     func cgmManagerWantsDeletion(_ manager: CGMManager)
 
-
     /// Informs the delegate that the manager has updated its state and should be persisted.
     ///
     /// - Parameter manager: The manager instance
@@ -76,5 +75,80 @@ public protocol CGMManager: DeviceManager {
 public extension CGMManager {
     var appURL: URL? {
         return nil
+    }
+
+    /// Convenience wrapper for notifying the delegate of deletion on the delegate queue
+    ///
+    /// - Parameters:
+    ///   - completion: A closure called from the delegate queue after the delegate is called
+    func notifyDelegateOfDeletion(completion: @escaping () -> Void) {
+        delegateQueue.async {
+            self.cgmManagerDelegate?.cgmManagerWantsDeletion(self)
+            completion()
+        }
+    }
+}
+
+
+
+public class CGMManagerDelegateWrapper {
+    public typealias Delegate = CGMManagerDelegate
+
+    private let lock = UnfairLock()
+    private weak var _delegate: Delegate?
+    private var _queue: DispatchQueue
+
+    public init() {
+        _queue = .main
+    }
+
+    public var delegate: Delegate? {
+        get {
+            return lock.withLock {
+                return _delegate
+            }
+        }
+        set {
+            lock.withLock {
+                _delegate = newValue
+            }
+        }
+    }
+
+    public var queue: DispatchQueue! {
+        get {
+            return lock.withLock {
+                return _queue
+            }
+        }
+        set {
+            lock.withLock {
+                _queue = newValue ?? .main
+            }
+        }
+    }
+
+    public func notify(_ block: @escaping (_ delegate: Delegate?) -> Void) {
+        var delegate: Delegate?
+        var queue: DispatchQueue!
+
+        lock.withLock {
+            delegate = _delegate
+            queue = _queue
+        }
+
+        queue.async {
+            block(delegate)
+        }
+    }
+
+    public func call<ReturnType>(_ block: (_ delegate: Delegate?) -> ReturnType) -> ReturnType {
+        return lock.withLock { () -> ReturnType in
+            var result: ReturnType!
+            _queue.sync {
+                result = block(_delegate)
+            }
+            return result
+        }
     }
 }
