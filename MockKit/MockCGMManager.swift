@@ -63,7 +63,7 @@ public final class MockCGMManager: TestingCGMManager {
         }
     }
 
-    private let delegate = CGMManagerDelegateWrapper()
+    private let delegate = WeakSynchronizedDelegate<CGMManagerDelegate>()
 
     public var dataSource: MockCGMDataSource {
         didSet {

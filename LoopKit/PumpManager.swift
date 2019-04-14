@@ -65,10 +65,10 @@ public protocol PumpManager: DeviceManager {
     /// - Returns: The rounded bolus volume in Units. The volume returned should not be larger than the passed in rate.
     func roundToSupportedBolusVolume(units: Double) -> Double
 
-    /// All user-selectable basal rates, in Units per Hour
+    /// All user-selectable basal rates, in Units per Hour. Must be non-empty.
     var supportedBasalRates: [Double] { get }
 
-    /// All user-selectable bolus volumes, in Units
+    /// All user-selectable bolus volumes, in Units. Must be non-empty.
     var supportedBolusVolumes: [Double] { get }
 
     /// The maximum number of scheduled basal rates in a single day supported by the pump
@@ -165,11 +165,11 @@ public protocol PumpManager: DeviceManager {
 
 public extension PumpManager {
     func roundToSupportedBasalRate(unitsPerHour: Double) -> Double {
-        return supportedBasalRates.filter({$0 <= unitsPerHour}).max() ?? 0
+        return supportedBasalRates.filter({$0 <= unitsPerHour}).max()!
     }
 
     func roundToSupportedBolusVolume(units: Double) -> Double {
-        return supportedBolusVolumes.filter({$0 <= units}).max() ?? 0
+        return supportedBolusVolumes.filter({$0 <= units}).max()!
     }
 
     /// Convenience wrapper for notifying the delegate of deactivation on the delegate queue
@@ -180,69 +180,6 @@ public extension PumpManager {
         delegateQueue.async {
             self.pumpManagerDelegate?.pumpManagerWillDeactivate(self)
             completion()
-        }
-    }
-}
-
-
-public class PumpManagerDelegateWrapper {
-    public typealias Delegate = PumpManagerDelegate
-
-    private let lock = UnfairLock()
-    private weak var _delegate: Delegate?
-    private var _queue: DispatchQueue
-
-    public init() {
-        _queue = .main
-    }
-
-    public var delegate: Delegate? {
-        get {
-            return lock.withLock {
-                return _delegate
-            }
-        }
-        set {
-            lock.withLock {
-                _delegate = newValue
-            }
-        }
-    }
-
-    public var queue: DispatchQueue! {
-        get {
-            return lock.withLock {
-                return _queue
-            }
-        }
-        set {
-            lock.withLock {
-                _queue = newValue ?? .main
-            }
-        }
-    }
-
-    public func notify(_ block: @escaping (_ delegate: Delegate?) -> Void) {
-        var delegate: Delegate?
-        var queue: DispatchQueue!
-
-        lock.withLock {
-            delegate = _delegate
-            queue = _queue
-        }
-
-        queue.async {
-            block(delegate)
-        }
-    }
-
-    public func call<ReturnType>(_ block: (_ delegate: Delegate?) -> ReturnType) -> ReturnType {
-        return lock.withLock { () -> ReturnType in
-            var result: ReturnType!
-            _queue.sync {
-                result = block(_delegate)
-            }
-            return result
         }
     }
 }

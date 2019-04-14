@@ -129,10 +129,10 @@ public final class MockPumpManager: TestingPumpManager {
         }
     }
 
-    private let delegate = PumpManagerDelegateWrapper()
+    private let delegate = WeakSynchronizedDelegate<PumpManagerDelegate>()
 
-    private var statusObservers = WeakObserverSet<PumpManagerStatusObserver>()
-    private var stateObservers = WeakObserverSet<MockPumpManagerStateObserver>()
+    private var statusObservers = WeakSynchronizedSet<PumpManagerStatusObserver>()
+    private var stateObservers = WeakSynchronizedSet<MockPumpManagerStateObserver>()
 
     private var pendingPumpEvents: [NewPumpEvent] = []
 
@@ -171,15 +171,15 @@ public final class MockPumpManager: TestingPumpManager {
     }
 
     public func addStatusObserver(_ observer: PumpManagerStatusObserver, queue: DispatchQueue) {
-        statusObservers.addObserver(observer, queue: queue)
+        statusObservers.insert(observer, queue: queue)
     }
 
     public func addStateObserver(_ observer: MockPumpManagerStateObserver, queue: DispatchQueue) {
-        stateObservers.addObserver(observer, queue: queue)
+        stateObservers.insert(observer, queue: queue)
     }
 
     public func removeStatusObserver(_ observer: PumpManagerStatusObserver) {
-        statusObservers.removeObserver(observer)
+        statusObservers.removeElement(observer)
     }
 
     public func assertCurrentPumpData() {
