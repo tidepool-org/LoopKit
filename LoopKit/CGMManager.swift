@@ -39,7 +39,6 @@ public protocol CGMManagerDelegate: class, DeviceManagerDelegate {
     /// - Parameter manager: The manager instance
     func cgmManagerWantsDeletion(_ manager: CGMManager)
 
-
     /// Informs the delegate that the manager has updated its state and should be persisted.
     ///
     /// - Parameter manager: The manager instance
@@ -76,5 +75,16 @@ public protocol CGMManager: DeviceManager {
 public extension CGMManager {
     var appURL: URL? {
         return nil
+    }
+
+    /// Convenience wrapper for notifying the delegate of deletion on the delegate queue
+    ///
+    /// - Parameters:
+    ///   - completion: A closure called from the delegate queue after the delegate is called
+    func notifyDelegateOfDeletion(completion: @escaping () -> Void) {
+        delegateQueue.async {
+            self.cgmManagerDelegate?.cgmManagerWantsDeletion(self)
+            completion()
+        }
     }
 }
