@@ -35,6 +35,11 @@ public struct TestingScenario {
         shift(by: offset)
     }
 
+    public mutating func stepForward(by offset: TimeInterval) {
+        assert(offset > 0)
+        shift(by: -offset)
+    }
+
     public mutating func stepForward(
         unitsPerHour: Double,
         duration: TimeInterval,
@@ -45,7 +50,7 @@ public struct TestingScenario {
         dateRelativeBasalEntries.removeAll(where: { $0.dateOffset >= dateOffset })
         let basal = DateRelativeBasalEntry(unitsPerHourValue: unitsPerHour, dateOffset: dateOffset, duration: duration)
         dateRelativeBasalEntries.append(basal)
-        shift(by: -loopInterval)
+        stepForward(by: loopInterval)
     }
 
     mutating func shift(by offset: TimeInterval) {
