@@ -17,11 +17,11 @@ struct DateRelativeBasalEntry: DateRelativeQuantity, Codable {
     func doseEntry(relativeTo referenceDate: Date) -> DoseEntry {
         let startDate = referenceDate.addingTimeInterval(dateOffset)
         let endDate = startDate.addingTimeInterval(duration)
-        return DoseEntry(type: .basal, startDate: startDate, endDate: endDate, value: unitsPerHourValue, unit: .unitsPerHour)
+        return DoseEntry(type: .tempBasal, startDate: startDate, endDate: endDate, value: unitsPerHourValue, unit: .unitsPerHour)
     }
 
     func newPumpEvent(relativeTo referenceDate: Date) -> NewPumpEvent {
         let dose = doseEntry(relativeTo: referenceDate)
-        return NewPumpEvent(date: dose.startDate, dose: dose, isMutable: false, raw: .newPumpEventIdentifier(), title: "Basal", type: .basal)
+        return NewPumpEvent(date: dose.startDate, dose: dose, isMutable: false, raw: .newPumpEventIdentifier(), title: "Basal", type: .tempBasal)
     }
 }
