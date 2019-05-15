@@ -410,6 +410,10 @@ extension AddEditOverrideTableViewController {
             guard targetRange.maxValue >= targetRange.minValue else {
                 return nil
             }
+        } else {
+            guard insulinNeedsScaleFactor != 1.0 else {
+                return nil
+            }
         }
 
         return TemporaryScheduleOverrideSettings(
