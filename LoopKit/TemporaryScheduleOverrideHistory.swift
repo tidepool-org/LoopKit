@@ -21,6 +21,15 @@ private struct OverrideEvent: Equatable {
     init(override: TemporaryScheduleOverride) {
         self.override = override
     }
+
+    var actualEndDate: Date {
+        switch end {
+        case .natural:
+            return override.endDate
+        case .early(let endDate):
+            return endDate
+        }
+    }
 }
 
 
@@ -96,7 +105,7 @@ public final class TemporaryScheduleOverrideHistory {
 
         var recentEvents = self.recentEvents
         recentEvents.removeAll(where: { event in
-            event.override.endDate < oldestEndDateToKeep
+            event.actualEndDate < oldestEndDateToKeep
         })
 
         if recentEvents != self.recentEvents {
