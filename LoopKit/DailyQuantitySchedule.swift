@@ -83,7 +83,7 @@ public typealias SingleQuantitySchedule = DailyQuantitySchedule<Double>
 
 
 public extension DailyQuantitySchedule where T == Double {
-    public func quantity(at time: Date) -> HKQuantity {
+    func quantity(at time: Date) -> HKQuantity {
         return HKQuantity(unit: unit, doubleValue: valueSchedule.value(at: time))
     }
 
@@ -103,7 +103,7 @@ public extension DailyQuantitySchedule where T == Double {
         return total / valueSchedule.repeatInterval
     }
 
-    public func averageQuantity() -> HKQuantity {
+    func averageQuantity() -> HKQuantity {
         return HKQuantity(unit: unit, doubleValue: averageValue())
     }
 }

@@ -77,25 +77,28 @@ public struct GlucoseRangeSchedule: DailySchedule, Equatable {
         return rangeSchedule.between(start: startDate, end: endDate)
     }
 
-    public func quantityBetween(start: Date, end: Date) -> [AbsoluteScheduleValue<Range<HKQuantity>>] {
-        var quantitySchedule = [AbsoluteScheduleValue<Range<HKQuantity>>]()
+    public func quantityBetween(start: Date, end: Date) -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
+        var quantitySchedule = [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]()
 
         for schedule in between(start: start, end: end) {
-            let lowerBound = HKQuantity(unit: unit, doubleValue: schedule.value.minValue)
-            let upperBound = HKQuantity(unit: unit, doubleValue: schedule.value.maxValue)
-
             quantitySchedule.append(AbsoluteScheduleValue(
                 startDate: schedule.startDate,
                 endDate: schedule.endDate,
-                value: lowerBound..<upperBound
+                value: schedule.value.quantityRange(for: unit)
             ))
         }
 
         return quantitySchedule
     }
 
+    /// Returns the underlying values in `unit`
+    /// Consider using quantity(at:) instead
     public func value(at time: Date) -> DoubleRange {
         return rangeSchedule.value(at: time)
+    }
+
+    public func quantityRange(at time: Date) -> ClosedRange<HKQuantity> {
+        return value(at: time).quantityRange(for: unit)
     }
 
     public var items: [RepeatingScheduleValue<DoubleRange>] {
@@ -118,4 +121,12 @@ public struct GlucoseRangeSchedule: DailySchedule, Equatable {
     public var rawValue: RawValue {
         return rangeSchedule.rawValue
     }
+}
+
+fileprivate extension DoubleRange {
+func quantityRange(for unit: HKUnit) -> ClosedRange<HKQuantity> {
+let lowerBound = HKQuantity(unit: unit, doubleValue: minValue)
+let upperBound = HKQuantity(unit: unit, doubleValue: maxValue)
+return lowerBound...upperBound
+}
 }
