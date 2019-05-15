@@ -395,6 +395,7 @@
 		89AE223B228BCAAB00BDFD85 /* TemporaryScheduleOverrideSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89AE2224228BC54C00BDFD85 /* TemporaryScheduleOverrideSettings.swift */; };
 		89AE223C228BCAAB00BDFD85 /* WeakSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89AE222A228BC56A00BDFD85 /* WeakSet.swift */; };
 		89AE223D228BCB0B00BDFD85 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974B0672215FE460043F01B /* Collection.swift */; };
+		89AE223E228BD3C400BDFD85 /* BasalScheduleEntryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 892A5D62222F6B13008961AB /* BasalScheduleEntryTableViewCell.xib */; };
 		89D2048221CC7BD8001238CC /* MockKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 89D2047421CC7BD7001238CC /* MockKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		89D2048921CC7BF7001238CC /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4301582C1C7ECD7A00B64B63 /* HealthKit.framework */; };
 		89D2049F21CC7C13001238CC /* MockKitUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 89D2049121CC7C13001238CC /* MockKitUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2252,6 +2253,7 @@
 				895FE08622011F0C00FCF18A /* DecimalTextFieldTableViewCell.xib in Resources */,
 				43BA719620203C750058961E /* Assets.xcassets in Resources */,
 				1F5DAB2A2118CE9300048054 /* InfoPlist.strings in Resources */,
+				89AE223E228BD3C400BDFD85 /* BasalScheduleEntryTableViewCell.xib in Resources */,
 				43BA7192202039950058961E /* RepeatingScheduleValueTableViewCell.xib in Resources */,
 				43F5035B21059AF7009FA89A /* AuthenticationTableViewCell.xib in Resources */,
 			);
