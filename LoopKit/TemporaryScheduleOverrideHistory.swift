@@ -44,6 +44,14 @@ public final class TemporaryScheduleOverrideHistory {
         }
     }
 
+    /// Tracks a sequence of override events that failed validation checks.
+    /// Stored to enable retrieval via issue report after a deliberate crash.
+    private var taintedEventLog: [OverrideEvent] = [] {
+        didSet {
+            delegate?.temporaryScheduleOverrideHistoryDidUpdate(self)
+        }
+    }
+
     public weak var delegate: TemporaryScheduleOverrideHistoryDelegate?
 
     public init() {}
@@ -53,24 +61,25 @@ public final class TemporaryScheduleOverrideHistory {
             return
         }
 
+        if let override = override {
+            // If this override starts farther in the past than recorded overrides, cleanup prior history.
+            recentEvents.removeAll(where: { $0.override.startDate >= override.startDate })
+            for (index, event) in recentEvents.enumerated() where event.actualEndDate >= override.startDate {
+                recentEvents[index].end = .early(override.startDate.nearestPrevious)
+            }
+        }
+
         if  let lastEvent = recentEvents.last,
             case .natural = lastEvent.end,
             !lastEvent.override.hasFinished(relativeTo: enableDate)
         {
-            let activeOverrideHasNotBegun = lastEvent.override.startDate > enableDate
-            let activeOverrideEdited = override?.startDate == lastEvent.override.startDate
-            if activeOverrideHasNotBegun || activeOverrideEdited {
-                recentEvents.removeLast()
+            let overrideEnd: Date
+            if let override = override {
+                overrideEnd = min(override.startDate.nearestPrevious, enableDate)
             } else {
-                // If a new override was enabled, ensure the active intervals do not overlap.
-                let overrideEnd: Date
-                if let override = override {
-                    overrideEnd = min(override.startDate.nearestPrevious, enableDate)
-                } else {
-                    overrideEnd = enableDate
-                }
-                recentEvents[recentEvents.endIndex - 1].end = .early(overrideEnd)
+                overrideEnd = enableDate
             }
+            recentEvents[recentEvents.endIndex - 1].end = .early(overrideEnd)
         }
 
         if let override = override {
@@ -121,12 +130,34 @@ public final class TemporaryScheduleOverrideHistory {
             }
             return override
         }
-
-        precondition(overrides.adjacentPairs().allSatisfy { override, next in
-            !override.activeInterval.intersects(next.activeInterval)
-        }, "No overrides should overlap.")
-
+        validateOverridesReflectingEnabledDuration(overrides)
         return overrides
+    }
+
+    private func validateOverridesReflectingEnabledDuration(_ overrides: [TemporaryScheduleOverride]) {
+        let overlappingOverridePairIndices: [(Int, Int)] =
+            Array(overrides.enumerated())
+                .allPairs()
+                .compactMap {
+                    let ((index1, override1), (index2, override2)) = ($0, $1)
+                    if override1.activeInterval.intersects(override2.activeInterval) {
+                        return (index1, index2)
+                    } else {
+                        return nil
+                    }
+            }
+        let invalidOverrideIndices = overlappingOverridePairIndices.flatMap { [$0, $1] }
+
+        guard invalidOverrideIndices.isEmpty else {
+            // Save the invalid event history for debugging.
+            taintedEventLog = recentEvents
+
+            // Wipe only conflicting overrides to retain as much history as possible.
+            recentEvents.removeAll(at: invalidOverrideIndices)
+
+            // Crash deliberately to notify something has gone wrong.
+            preconditionFailure("No overrides should overlap.")
+        }
     }
 
     func wipeHistory() {
@@ -168,22 +199,30 @@ extension OverrideEvent: RawRepresentable {
 
 
 extension TemporaryScheduleOverrideHistory: RawRepresentable {
-    public typealias RawValue = [[String: Any]]
+    public typealias RawValue = [String: [[String: Any]]]
 
     public convenience init?(rawValue: RawValue) {
         self.init()
-        self.recentEvents = rawValue.compactMap(OverrideEvent.init(rawValue:))
+        if let recentEventsRawValue = rawValue["recentEvents"] {
+            self.recentEvents = recentEventsRawValue.compactMap(OverrideEvent.init(rawValue:))
+        }
+        if let taintedEventsRawValue = rawValue["taintedEventLog"] {
+            self.taintedEventLog = taintedEventsRawValue.compactMap(OverrideEvent.init(rawValue:))
+        }
     }
 
     public var rawValue: RawValue {
-        return recentEvents.map { $0.rawValue }
+        return [
+            "recentEvents": recentEvents.map { $0.rawValue },
+            "taintedEventLog": taintedEventLog.map { $0.rawValue }
+        ]
     }
 }
 
 
 extension TemporaryScheduleOverrideHistory: CustomDebugStringConvertible {
     public var debugDescription: String {
-        return "TemporaryScheduleOverrideHistory(recentEvents: \(recentEvents))"
+        return "TemporaryScheduleOverrideHistory(recentEvents: \(recentEvents), taintedEventLog: \(taintedEventLog))"
     }
 }
 
