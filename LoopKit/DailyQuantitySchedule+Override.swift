@@ -14,27 +14,15 @@ extension GlucoseRangeSchedule {
         _ override: TemporaryScheduleOverride,
         relativeTo date: Date = Date()
     ) -> GlucoseRangeSchedule {
-        let rangeSchedule = self.rangeSchedule.applyingGlucoseRangeOverride(from: override, relativeTo: date)
-        return GlucoseRangeSchedule(rangeSchedule: rangeSchedule)
-    }
-}
-
-extension DailyQuantitySchedule where T == DoubleRange {
-    fileprivate func applyingGlucoseRangeOverride(
-        from override: TemporaryScheduleOverride,
-        relativeTo date: Date
-    ) -> DailyQuantitySchedule {
-        guard let targetRange = override.settings.targetRange else {
+        guard override.isActive(at: date),
+            let targetRange = override.settings.targetRange
+        else {
             return self
         }
-        return DailyQuantitySchedule(
-            unit: unit,
-            valueSchedule: valueSchedule.applyingOverride(
-                during: override.activeInterval,
-                relativeTo: date,
-                updatingOverridenValuesWith: { _ in targetRange }
-            )
-        )
+
+        let singleOverriddenItem = [RepeatingScheduleValue(startTime: 0, value: targetRange)]
+        let rangeSchedule = DailyQuantitySchedule(unit: self.rangeSchedule.unit, dailyItems: singleOverriddenItem, timeZone: self.rangeSchedule.timeZone)!
+        return GlucoseRangeSchedule(rangeSchedule: rangeSchedule)
     }
 }
 
