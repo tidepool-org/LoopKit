@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 import HealthKit
-import os.log
 
 
 public enum GlucoseStoreResult<T> {
@@ -71,7 +70,7 @@ public final class GlucoseStore: HealthKitSampleStore {
 
     private let dataAccessQueue = DispatchQueue(label: "com.loudnate.GlucoseKit.dataAccessQueue", qos: .utility)
 
-    private let log = OSLog(category: "GlucoseStore")
+    private let log = DiagnosticLog(category: "GlucoseStore")
 
     /// The most-recent glucose value.
     public private(set) var latestGlucose: GlucoseValue? {

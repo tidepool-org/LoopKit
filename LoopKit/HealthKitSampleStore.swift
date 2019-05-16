@@ -8,7 +8,6 @@
 
 import Foundation
 import HealthKit
-import os.log
 
 
 extension Notification.Name {
@@ -51,7 +50,7 @@ public class HealthKitSampleStore {
         return date.addingTimeInterval(timeIntervalSinceNow)
     }
 
-    private let log: OSLog
+    private let log: DiagnosticLog
 
     public init(
         healthStore: HKHealthStore,
@@ -66,7 +65,7 @@ public class HealthKitSampleStore {
         self.observationEnabled = observationEnabled
         self.test_currentDate = test_currentDate
 
-        self.log = OSLog(category: String(describing: Swift.type(of: self)))
+        self.log = DiagnosticLog(category: String(describing: Swift.type(of: self)))
 
         if !authorizationRequired {
             createQuery()

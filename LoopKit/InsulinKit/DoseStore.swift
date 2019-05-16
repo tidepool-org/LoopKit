@@ -8,7 +8,6 @@
 
 import CoreData
 import HealthKit
-import os.log
 
 
 public protocol DoseStoreDelegate: class {
@@ -86,7 +85,7 @@ public final class DoseStore {
         }
     }
 
-    private let log = OSLog(category: "DoseStore")
+    private let log = DiagnosticLog(category: "DoseStore")
 
     public var insulinModel: InsulinModel? {
         get {

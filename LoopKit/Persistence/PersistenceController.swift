@@ -6,7 +6,6 @@
 //
 
 import CoreData
-import os.log
 
 
 public protocol PersistenceControllerDelegate: class {
@@ -66,7 +65,7 @@ public final class PersistenceController {
 
     public weak var delegate: PersistenceControllerDelegate?
 
-    private let log = OSLog(category: "PersistenceController")
+    private let log = DiagnosticLog(category: "PersistenceController")
 
     /// Initializes a new persistence controller in the specified directory
     ///

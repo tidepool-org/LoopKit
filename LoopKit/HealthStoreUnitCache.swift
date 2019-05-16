@@ -6,7 +6,6 @@
 //
 
 import HealthKit
-import os.log
 
 
 public class HealthStoreUnitCache {
@@ -62,7 +61,7 @@ public class HealthStoreUnitCache {
         healthStore.preferredUnits(for: [quantityType]) { (results, error) in
             if let error = error {
                 // This is a common/expected case when protected data is unavailable
-                OSLog(category: "HealthStoreUnitCache").info("Error fetching unit for %{public}@: %{public}@", quantityTypeIdentifier.rawValue, String(describing: error))
+                DiagnosticLog(category: "HealthStoreUnitCache").info("Error fetching unit for %{public}@: %{public}@", quantityTypeIdentifier.rawValue, String(describing: error))
             }
 
             unit = results[quantityType]

@@ -7,7 +7,6 @@
 
 import HealthKit
 import CoreData
-import os.log
 
 enum InsulinDeliveryStoreResult<T> {
     case success(T)
@@ -28,7 +27,7 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
 
     private let queue = DispatchQueue(label: "com.loopkit.InsulinKit.InsulinDeliveryStore.queue", qos: .utility)
 
-    private let log = OSLog(category: "InsulinDeliveryStore")
+    private let log = DiagnosticLog(category: "InsulinDeliveryStore")
 
     /// The most-recent end date for a basal sample written by LoopKit
     /// Should only be accessed on dataAccessQueue

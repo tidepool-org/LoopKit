@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import os.log
+import LoopKit
 
 
 public class CommandResponseViewController: UIViewController {
@@ -87,7 +87,7 @@ private class SharedResponse: NSObject, UIActivityItemSource {
         do {
             try text.write(to: url, atomically: true, encoding: .utf8)
         } catch let error {
-            os_log("Failed to write to file %{public}@: %{public}@", log: .default, type: .error, title, String(describing: error))
+            DiagnosticLog(category: "SharedResponse").debug("Failed to write to file %{public}@: %{public}@", title, String(describing: error))
             return nil
         }
 

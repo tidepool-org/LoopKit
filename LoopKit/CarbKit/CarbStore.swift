@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 import HealthKit
-import os.log
 
 
 public enum CarbStoreResult<T> {
@@ -141,7 +140,7 @@ public final class CarbStore: HealthKitSampleStore {
 
     private let queue = DispatchQueue(label: "com.loudnate.CarbKit.dataAccessQueue", qos: .utility)
 
-    private let log = OSLog(category: "CarbStore")
+    private let log = DiagnosticLog(category: "CarbStore")
 
     /**
      Initializes a new instance of the store.
