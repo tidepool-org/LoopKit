@@ -167,3 +167,11 @@ extension InsulinSensitivityScalingTableViewCell: UIPickerViewDelegate {
         selectedPercentage = allScaleFactorPercentages[row]
     }
 }
+
+extension InsulinSensitivityScalingTableViewCellDelegate where Self: UITableViewController {
+    func collapseInsulinSensitivityScalingCells(excluding indexPath: IndexPath? = nil) {
+        for case let cell as InsulinSensitivityScalingTableViewCell in tableView.visibleCells where tableView.indexPath(for: cell) != indexPath && !cell.isPickerHidden {
+            cell.isPickerHidden = true
+        }
+    }
+}

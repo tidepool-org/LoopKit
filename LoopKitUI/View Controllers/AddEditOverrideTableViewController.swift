@@ -342,7 +342,7 @@ public final class AddEditOverrideTableViewController: UITableViewController {
         case .properties:
             tableView.endEditing(false)
             tableView.beginUpdates()
-            hideDatePickerCells(excluding: indexPath)
+            collapseExpandableCells(excluding: indexPath)
         case .cancel:
             break
         }
@@ -365,9 +365,10 @@ public final class AddEditOverrideTableViewController: UITableViewController {
         }
     }
 
-    private func collapseDurationDatePicker() {
+    private func collapseExpandableCells(excluding indexPath: IndexPath? = nil) {
         tableView.beginUpdates()
-        hideDatePickerCells()
+        hideDatePickerCells(excluding: indexPath)
+        collapseInsulinSensitivityScalingCells(excluding: indexPath)
         tableView.endUpdates()
     }
 }
@@ -522,7 +523,7 @@ extension AddEditOverrideTableViewController {
 
 extension AddEditOverrideTableViewController: TextFieldTableViewCellDelegate {
     public func textFieldTableViewCellDidBeginEditing(_ cell: TextFieldTableViewCell) {
-        collapseDurationDatePicker()
+        collapseExpandableCells()
     }
 
     public func textFieldTableViewCellDidEndEditing(_ cell: TextFieldTableViewCell) {
@@ -589,7 +590,7 @@ extension AddEditOverrideTableViewController: DatePickerTableViewCellDelegate {
 
 extension AddEditOverrideTableViewController: DoubleRangeTableViewCellDelegate {
     func doubleRangeTableViewCellDidBeginEditing(_ cell: DoubleRangeTableViewCell) {
-        collapseDurationDatePicker()
+        collapseExpandableCells()
     }
 
     func doubleRangeTableViewCellDidUpdateRange(_ cell: DoubleRangeTableViewCell) {
