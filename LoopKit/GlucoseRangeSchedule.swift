@@ -50,6 +50,8 @@ extension DoubleRange: Equatable {
     }
 }
 
+extension DoubleRange: Hashable {}
+
 
 /// Defines a daily schedule of glucose ranges
 public struct GlucoseRangeSchedule: DailySchedule, Equatable {

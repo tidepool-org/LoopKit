@@ -9,7 +9,7 @@
 import Foundation
 
 
-public struct TemporaryScheduleOverrideSettings: Equatable {
+public struct TemporaryScheduleOverrideSettings: Hashable {
     public var targetRange: DoubleRange?
     public var insulinNeedsScaleFactor: Double?
 

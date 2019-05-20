@@ -9,7 +9,7 @@
 import Foundation
 
 
-public struct TemporaryScheduleOverridePreset: Equatable {
+public struct TemporaryScheduleOverridePreset: Hashable {
     public var symbol: String
     public var name: String
     public var settings: TemporaryScheduleOverrideSettings

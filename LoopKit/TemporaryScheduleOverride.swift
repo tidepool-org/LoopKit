@@ -10,14 +10,15 @@ import Foundation
 import HealthKit
 
 
-public struct TemporaryScheduleOverride: Equatable {
-    public enum Context: Equatable {
+public struct TemporaryScheduleOverride: Hashable {
+    public enum Context: Hashable {
         case preMeal
+        case legacyWorkout
         case preset(TemporaryScheduleOverridePreset)
         case custom
     }
 
-    public enum Duration: Comparable {
+    public enum Duration: Hashable, Comparable {
         case finite(TimeInterval)
         case indefinite
 
@@ -131,6 +132,8 @@ extension TemporaryScheduleOverride.Context: RawRepresentable {
         switch context {
         case "premeal":
             self = .preMeal
+        case "legacyWorkout":
+            self = .legacyWorkout
         case "preset":
             guard
                 let presetRawValue = rawValue["preset"] as? TemporaryScheduleOverridePreset.RawValue,
@@ -150,6 +153,8 @@ extension TemporaryScheduleOverride.Context: RawRepresentable {
         switch self {
         case .preMeal:
             return ["context": "premeal"]
+        case .legacyWorkout:
+            return ["context": "legacyWorkout"]
         case .preset(let preset):
             return [
                 "context": "preset",
