@@ -10,12 +10,14 @@ import Foundation
 
 
 public struct TemporaryScheduleOverridePreset: Hashable {
+    public let id: UUID
     public var symbol: String
     public var name: String
     public var settings: TemporaryScheduleOverrideSettings
     public var duration: TemporaryScheduleOverride.Duration
 
-    public init(symbol: String, name: String, settings: TemporaryScheduleOverrideSettings, duration: TemporaryScheduleOverride.Duration) {
+    public init(id: UUID = UUID(), symbol: String, name: String, settings: TemporaryScheduleOverrideSettings, duration: TemporaryScheduleOverride.Duration) {
+        self.id = id
         self.symbol = symbol
         self.name = name
         self.settings = settings
@@ -37,6 +39,8 @@ extension TemporaryScheduleOverridePreset: RawRepresentable {
 
     public init?(rawValue: RawValue) {
         guard
+            let idString = rawValue["id"] as? String,
+            let id = UUID(uuidString: idString),
             let symbol = rawValue["symbol"] as? String,
             let name = rawValue["name"] as? String,
             let settingsRawValue = rawValue["settings"] as? TemporaryScheduleOverrideSettings.RawValue,
@@ -47,11 +51,12 @@ extension TemporaryScheduleOverridePreset: RawRepresentable {
             return nil
         }
 
-        self.init(symbol: symbol, name: name, settings: settings, duration: duration)
+        self.init(id: id, symbol: symbol, name: name, settings: settings, duration: duration)
     }
 
     public var rawValue: RawValue {
         return [
+            "id": id.uuidString,
             "symbol": symbol,
             "name": name,
             "settings": settings.rawValue,

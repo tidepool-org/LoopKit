@@ -432,7 +432,14 @@ extension AddEditOverrideTableViewController {
             return nil
         }
 
-        return TemporaryScheduleOverridePreset(symbol: symbol, name: name, settings: settings, duration: duration)
+        let id: UUID
+        if case .editPreset(let preset) = inputMode {
+            id = preset.id
+        } else {
+            id = UUID()
+        }
+
+        return TemporaryScheduleOverridePreset(id: id, symbol: symbol, name: name, settings: settings, duration: duration)
     }
 
     private var configuredOverride: TemporaryScheduleOverride? {
