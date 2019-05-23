@@ -189,4 +189,11 @@ final class TemporaryScheduleOverrideHistoryTests: XCTestCase {
 
         XCTAssert(historyResolves(to: expected))
     }
+
+    func testCancelFutureOverride() {
+        recordOverride(beginningAt: .hours(2), duration: .finite(.hours(3)), insulinNeedsScaleFactor: 1.5, recordedAt: .hours(1))
+        recordOverrideDisable(at: .hours(1.5))
+        let expected = basalRateSchedule
+        XCTAssert(historyResolves(to: expected))
+    }
 }

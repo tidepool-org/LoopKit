@@ -62,29 +62,34 @@ public final class TemporaryScheduleOverrideHistory {
         }
 
         if let override = override {
-            // If this override starts farther in the past than recorded overrides, cleanup prior history.
-            recentEvents.removeAll(where: { $0.override.startDate >= override.startDate })
-            for (index, event) in recentEvents.enumerated() where event.actualEndDate >= override.startDate {
-                recentEvents[index].end = .early(override.startDate.nearestPrevious)
-            }
+            record(override, at: enableDate)
+        } else {
+            cancelActiveOverride(at: enableDate)
         }
+    }
 
-        if  let lastEvent = recentEvents.last,
-            case .natural = lastEvent.end,
-            !lastEvent.override.hasFinished(relativeTo: enableDate)
-        {
-            let overrideEnd: Date
-            if let override = override {
-                overrideEnd = min(override.startDate.nearestPrevious, enableDate)
-            } else {
-                overrideEnd = enableDate
-            }
+    private func record(_ override: TemporaryScheduleOverride, at enableDate: Date) {
+        recentEvents.removeAll(where: { $0.override.startDate >= override.startDate })
+
+        if recentEvents.last?.override.hasFinished(relativeTo: enableDate) == false {
+            let overrideEnd = min(override.startDate.nearestPrevious, enableDate)
             recentEvents[recentEvents.endIndex - 1].end = .early(overrideEnd)
         }
 
-        if let override = override {
-            let enabledEvent = OverrideEvent(override: override)
-            recentEvents.append(enabledEvent)
+        let enabledEvent = OverrideEvent(override: override)
+        recentEvents.append(enabledEvent)
+    }
+
+    private func cancelActiveOverride(at date: Date) {
+        if  let lastEvent = recentEvents.last,
+            case .natural = lastEvent.end,
+            !lastEvent.override.hasFinished(relativeTo: date)
+        {
+            if lastEvent.override.startDate > date {
+                recentEvents.removeLast()
+            } else {
+                recentEvents[recentEvents.endIndex - 1].end = .early(date)
+            }
         }
     }
 
@@ -145,9 +150,9 @@ public final class TemporaryScheduleOverrideHistory {
                     } else {
                         return nil
                     }
-            }
-        let invalidOverrideIndices = overlappingOverridePairIndices.flatMap { [$0, $1] }
+                }
 
+        let invalidOverrideIndices = overlappingOverridePairIndices.flatMap { [$0, $1] }
         guard invalidOverrideIndices.isEmpty else {
             // Save the invalid event history for debugging.
             taintedEventLog = recentEvents
