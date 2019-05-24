@@ -326,7 +326,7 @@ private extension NewPumpEvent {
 
     static func tempBasal(at date: Date, for duration: TimeInterval, unitsPerHour: Double) -> NewPumpEvent {
         let dose = DoseEntry(
-            type: .basal,
+            type: .tempBasal,
             startDate: date,
             endDate: date.addingTimeInterval(duration),
             value: unitsPerHour,
