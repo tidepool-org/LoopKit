@@ -96,7 +96,7 @@ public final class AddEditOverrideTableViewController: UITableViewController {
 
     private var targetRange: DoubleRange? { didSet { updateSaveButtonEnabled() } }
 
-    private var insulinNeedsScaleFactor = 1.0
+    private var insulinNeedsScaleFactor = 1.0 { didSet { updateSaveButtonEnabled() }}
 
     private var startDate = Date()
 
