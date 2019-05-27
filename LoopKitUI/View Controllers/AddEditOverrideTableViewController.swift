@@ -335,6 +335,24 @@ public final class AddEditOverrideTableViewController: UITableViewController {
         tableView.insertRows(at: [durationIndexPath], with: .automatic)
     }
 
+    public override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        guard section == 0 else {
+            return nil
+        }
+
+        switch inputMode {
+        case .customizePresetOverride(let preset):
+            return String(format: NSLocalizedString("Changes will only apply this time you enable the override. The default settings of %@ will not be affected.", comment: "Footer text for customizing an override from a preset (1: preset name)"), preset.name)
+        case .editOverride(let override):
+            guard case .preset(let preset) = override.context else {
+                return nil
+            }
+            return String(format: NSLocalizedString("Editing affects only the active override. The default settings of %@ will not be affected.", comment: "Footer text for editing an active override (1: preset name)"), preset.name)
+        default:
+            return nil
+        }
+    }
+
     // MARK: - UITableViewDelegate
 
     public override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
