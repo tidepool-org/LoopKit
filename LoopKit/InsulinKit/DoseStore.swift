@@ -128,7 +128,7 @@ public final class DoseStore {
     /// The basal profile, applying recent overrides relative to the current moment in time.
     public var basalProfileApplyingOverrideHistory: BasalRateSchedule? {
         if let basalProfile = basalProfile {
-            return overrideHistory?.resolvingRecentBasalSchedule(basalProfile)
+            return overrideHistory?.resolvingRecentBasalSchedule(basalProfile) ?? basalProfile
         } else {
             return nil
         }
@@ -908,6 +908,7 @@ extension DoseStore {
     ///   - result: The doses along with schedule basal
     private func getPumpEventDoseEntriesForSavingToHealthStore(lastBasalEndDate: Date, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void) {
         self.persistenceController.managedObjectContext.perform {
+            // The try? here swallows errors. DoseStoreError.configurationError, and DoseStoreError.fetchError
             guard let doses = try? self.getNormalizedPumpEventDoseEntriesForSavingToHealthStore(basalStart: lastBasalEndDate, end: self.currentDate()),
                 doses.count > 0
             else {
