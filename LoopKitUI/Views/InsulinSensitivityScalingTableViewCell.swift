@@ -86,7 +86,7 @@ final class InsulinSensitivityScalingTableViewCell: UITableViewCell {
                 selectedPercentage = allScaleFactorPercentages
                     .adjacentPairs()
                     .first(where: { lower, upper in
-                        (lower...upper).contains(percentage)
+                        (lower..<upper).contains(percentage)
                     })?.0 ?? 100
             }
         }
@@ -104,6 +104,7 @@ final class InsulinSensitivityScalingTableViewCell: UITableViewCell {
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
+        // Save and reassign the background color to avoid propagated transparency during the animation.
         let gaugeBarBackgroundColor = gaugeBar.backgroundColor
         super.setSelected(selected, animated: animated)
 
@@ -114,6 +115,7 @@ final class InsulinSensitivityScalingTableViewCell: UITableViewCell {
     }
 
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        // Save and reassign the background color to avoid propagated transparency during the animation.
         let gaugeBarBackgroundColor = gaugeBar.backgroundColor
         super.setHighlighted(highlighted, animated: animated)
 

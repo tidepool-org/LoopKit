@@ -126,9 +126,9 @@ public struct GlucoseRangeSchedule: DailySchedule, Equatable {
 }
 
 fileprivate extension DoubleRange {
-func quantityRange(for unit: HKUnit) -> ClosedRange<HKQuantity> {
-let lowerBound = HKQuantity(unit: unit, doubleValue: minValue)
-let upperBound = HKQuantity(unit: unit, doubleValue: maxValue)
-return lowerBound...upperBound
-}
+    func quantityRange(for unit: HKUnit) -> ClosedRange<HKQuantity> {
+        let lowerBound = HKQuantity(unit: unit, doubleValue: minValue)
+        let upperBound = HKQuantity(unit: unit, doubleValue: maxValue)
+        return lowerBound...upperBound
+    }
 }

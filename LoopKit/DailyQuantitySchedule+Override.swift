@@ -113,9 +113,15 @@ extension DailyValueSchedule {
 
         let overrideStartOffset = scheduleOffset(for: activeInterval.start)
         let overrideEndOffset = scheduleOffset(for: activeInterval.end)
-        assert(overrideStartOffset != overrideEndOffset)
-        let overrideCrossesMidnight = overrideStartOffset > overrideEndOffset
+        guard overrideStartOffset != overrideEndOffset else {
+            // Full schedule overridden
+            return DailyValueSchedule(
+                dailyItems: items.map { item in RepeatingScheduleValue(startTime: item.startTime, value: update(item.value)) },
+                timeZone: timeZone
+            )!
+        }
 
+        let overrideCrossesMidnight = overrideStartOffset > overrideEndOffset
         let scheduleItemsIncludingOverride = scheduleItemsPaddedToClosedInterval
             .adjacentPairs()
             .flatMap { item, nextItem -> [RepeatingScheduleValue<T>] in
@@ -166,9 +172,8 @@ extension DailyValueSchedule {
     /// Clamps the override date interval to the relevant period of effect given a reference date.
     /// Returns `nil` if an override during the given interval has no effect relative to the reference date.
     private func clampingToAffectedInterval(_ interval: DateInterval, relativeTo referenceDate: Date) -> DateInterval? {
-        let relevantHistoryPeriod = CarbStore.defaultMaximumAbsorptionTimeInterval
-        let relevantPeriodStart = referenceDate.addingTimeInterval(-relevantHistoryPeriod)
-        let relevantPeriodEnd = referenceDate.addingTimeInterval(relevantHistoryPeriod)
+        let relevantPeriodStart = referenceDate.addingTimeInterval(-repeatInterval)
+        let relevantPeriodEnd = referenceDate.addingTimeInterval(repeatInterval)
 
         guard
             interval.end > relevantPeriodStart,
@@ -180,8 +185,6 @@ extension DailyValueSchedule {
         let startDate = max(interval.start, relevantPeriodStart)
         let endDate = min(interval.end, relevantPeriodEnd)
         let affectedInterval = DateInterval(start: startDate, end: endDate)
-
-        assert(affectedInterval.duration <= 2 * relevantHistoryPeriod)
         return affectedInterval
     }
 

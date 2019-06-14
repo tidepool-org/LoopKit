@@ -90,8 +90,8 @@ class TemporaryScheduleOverrideTests: XCTestCase {
             RepeatingScheduleValue(startTime: .hours(0), value: 1.2),
             RepeatingScheduleValue(startTime: .hours(2), value: 1.8),
             RepeatingScheduleValue(startTime: .hours(6), value: 2.1),
-            RepeatingScheduleValue(startTime: .hours(10), value: 1.4),
-            RepeatingScheduleValue(startTime: .hours(20), value: 1.0),
+            RepeatingScheduleValue(startTime: .hours(20), value: 1.5),
+            RepeatingScheduleValue(startTime: .hours(22), value: 1.0),
         ])!
 
         XCTAssert(overridden.equals(expected, accuracy: epsilon))
@@ -135,12 +135,11 @@ class TemporaryScheduleOverrideTests: XCTestCase {
             from: override,
             relativeTo: date(at: "02:00") + .hours(24)
         )
-        // expect full override within +/- 8 hours of reference time
+
+        // expect full schedule override; start/end dates are too distant to have an effect
         let expected = BasalRateSchedule(dailyItems: [
             RepeatingScheduleValue(startTime: .hours(0), value: 1.8),
             RepeatingScheduleValue(startTime: .hours(6), value: 2.1),
-            RepeatingScheduleValue(startTime: .hours(10), value: 1.4),
-            RepeatingScheduleValue(startTime: .hours(18), value: 2.1),
             RepeatingScheduleValue(startTime: .hours(20), value: 1.5)
         ])!
 
@@ -149,33 +148,15 @@ class TemporaryScheduleOverrideTests: XCTestCase {
 
     func testOutdatedOverride() {
         let overridden = applyingActiveBasalOverride(from: "02:00", to: "04:00", on: basalRateSchedule,
-                                                     referenceDate: date(at: "12:00"))
+                                                     referenceDate: date(at: "12:00").addingTimeInterval(.hours(24)))
         let expected = basalRateSchedule
-
-        XCTAssert(overridden.equals(expected, accuracy: epsilon))
-    }
-
-    func testClampedPastOverride() {
-        var override = basalUpOverride(start: "02:00", end: "04:00")
-        override.startDate += .hours(-6) // override starts at 8pm of previous day
-        override.duration += .hours(6) // still ends at 4am
-
-        let overridden = basalRateSchedule.applyingBasalRateMultiplier(from: override, relativeTo: date(at: "6:00"))
-        // expect override to be clamped to 10pm of previous day
-        let expected = BasalRateSchedule(dailyItems: [
-            RepeatingScheduleValue(startTime: .hours(0), value: 1.8),
-            RepeatingScheduleValue(startTime: .hours(4), value: 1.2),
-            RepeatingScheduleValue(startTime: .hours(6), value: 1.4),
-            RepeatingScheduleValue(startTime: .hours(20), value: 1.0),
-            RepeatingScheduleValue(startTime: .hours(22), value: 1.5),
-        ])!
 
         XCTAssert(overridden.equals(expected, accuracy: epsilon))
     }
 
     func testFarFutureOverride() {
         let overridden = applyingActiveBasalOverride(from: "10:00", to: "12:00", on: basalRateSchedule,
-                                                     referenceDate: date(at: "02:00"))
+                                                     referenceDate: date(at: "02:00").addingTimeInterval(-.hours(24)))
         let expected = basalRateSchedule
 
         XCTAssert(overridden.equals(expected, accuracy: epsilon))
@@ -186,13 +167,11 @@ class TemporaryScheduleOverrideTests: XCTestCase {
         override.duration = .indefinite
         let overridden = basalRateSchedule.applyingBasalRateMultiplier(from: override, relativeTo: date(at: "02:00"))
 
-        // expect only next 8 hours overridden
+        // expect full schedule overridden
         let expected = BasalRateSchedule(dailyItems: [
-            RepeatingScheduleValue(startTime: .hours(0), value: 1.2),
-            RepeatingScheduleValue(startTime: .hours(2), value: 1.8),
+            RepeatingScheduleValue(startTime: .hours(0), value: 1.8),
             RepeatingScheduleValue(startTime: .hours(6), value: 2.1),
-            RepeatingScheduleValue(startTime: .hours(10), value: 1.4),
-            RepeatingScheduleValue(startTime: .hours(20), value: 1.0)
+            RepeatingScheduleValue(startTime: .hours(20), value: 1.5)
         ])!
 
         XCTAssert(overridden.equals(expected, accuracy: epsilon))

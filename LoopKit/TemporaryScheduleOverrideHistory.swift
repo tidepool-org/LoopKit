@@ -41,6 +41,13 @@ public final class TemporaryScheduleOverrideHistory {
     private var recentEvents: [OverrideEvent] = [] {
         didSet {
             delegate?.temporaryScheduleOverrideHistoryDidUpdate(self)
+
+            if let lastTaintedEvent = taintedEventLog.last,
+                Date().timeIntervalSince(lastTaintedEvent.override.startDate) > .hours(48)
+            {
+                taintedEventLog.removeAll()
+            }
+
         }
     }
 
@@ -95,31 +102,38 @@ public final class TemporaryScheduleOverrideHistory {
 
     public func resolvingRecentBasalSchedule(_ base: BasalRateSchedule, relativeTo referenceDate: Date = Date()) -> BasalRateSchedule {
         filterRecentEvents(relativeTo: referenceDate)
-        return overridesReflectingEnabledDuration.reduce(base) { base, override in
+        return overridesReflectingEnabledDuration(relativeTo: referenceDate).reduce(base) { base, override in
             base.applyingBasalRateMultiplier(from: override, relativeTo: referenceDate)
         }
     }
 
     public func resolvingRecentInsulinSensitivitySchedule(_ base: InsulinSensitivitySchedule, relativeTo referenceDate: Date = Date()) -> InsulinSensitivitySchedule {
         filterRecentEvents(relativeTo: referenceDate)
-        return overridesReflectingEnabledDuration.reduce(base) { base, override in
+        return overridesReflectingEnabledDuration(relativeTo: referenceDate).reduce(base) { base, override in
             base.applyingSensitivityMultiplier(from: override, relativeTo: referenceDate)
         }
     }
 
     public func resolvingRecentCarbRatioSchedule(_ base: CarbRatioSchedule, relativeTo referenceDate: Date = Date()) -> CarbRatioSchedule {
         filterRecentEvents(relativeTo: referenceDate)
-        return overridesReflectingEnabledDuration.reduce(base) { base, override in
+        return overridesReflectingEnabledDuration(relativeTo: referenceDate).reduce(base) { base, override in
             base.applyingCarbRatioMultiplier(from: override, relativeTo: referenceDate)
         }
     }
 
-    private func filterRecentEvents(relativeTo referenceDate: Date) {
-        let oldestEndDateToKeep = referenceDate.addingTimeInterval(-CarbStore.defaultMaximumAbsorptionTimeInterval)
+    private func relevantPeriod(relativeTo referenceDate: Date) -> DateInterval {
+        let window = CarbStore.defaultMaximumAbsorptionTimeInterval
+        return DateInterval(
+            start: referenceDate.addingTimeInterval(-window),
+            end: referenceDate.addingTimeInterval(window)
+        )
+    }
 
+    private func filterRecentEvents(relativeTo referenceDate: Date) {
+        let period = relevantPeriod(relativeTo: referenceDate)
         var recentEvents = self.recentEvents
         recentEvents.removeAll(where: { event in
-            event.actualEndDate < oldestEndDateToKeep
+            event.actualEndDate < period.start || event.override.startDate > period.end
         })
 
         if recentEvents != self.recentEvents {
@@ -127,13 +141,20 @@ public final class TemporaryScheduleOverrideHistory {
         }
     }
 
-    private var overridesReflectingEnabledDuration: [TemporaryScheduleOverride] {
-        let overrides = recentEvents.map { event -> TemporaryScheduleOverride in
+    private func overridesReflectingEnabledDuration(relativeTo referenceDate: Date) -> [TemporaryScheduleOverride] {
+        var overrides = recentEvents.map { event -> TemporaryScheduleOverride in
             var override = event.override
             if case .early(let endDate) = event.end {
                 override.endDate = endDate
             }
             return override
+        }
+        let period = relevantPeriod(relativeTo: referenceDate)
+        overrides.mutateEach { override in
+            // Save the actual (computed) end date prior to modifying the start date, which shifts the whole interval
+            let end = override.endDate
+            override.startDate = max(override.startDate, period.start)
+            override.endDate = min(end, period.end)
         }
         validateOverridesReflectingEnabledDuration(overrides)
         return overrides
@@ -209,10 +230,18 @@ extension TemporaryScheduleOverrideHistory: RawRepresentable {
     public convenience init?(rawValue: RawValue) {
         self.init()
         if let recentEventsRawValue = rawValue["recentEvents"] {
-            self.recentEvents = recentEventsRawValue.compactMap(OverrideEvent.init(rawValue:))
+            let recentEvents = recentEventsRawValue.compactMap(OverrideEvent.init(rawValue:))
+            guard recentEvents.count == recentEventsRawValue.count else {
+                return nil
+            }
+            self.recentEvents = recentEvents
         }
         if let taintedEventsRawValue = rawValue["taintedEventLog"] {
-            self.taintedEventLog = taintedEventsRawValue.compactMap(OverrideEvent.init(rawValue:))
+            let taintedEventLog = taintedEventsRawValue.compactMap(OverrideEvent.init(rawValue:))
+            guard taintedEventLog.count == taintedEventsRawValue.count else {
+                return nil
+            }
+            self.taintedEventLog = taintedEventLog
         }
     }
 

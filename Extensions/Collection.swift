@@ -19,6 +19,7 @@ func product<S: Sequence, C: Collection>(_ s: S, _ c: C) -> LazySequence<Flatten
 }
 
 extension Collection {
+    /// Returns a sequence containing adjacent pairs of elements in the ordered collection.
     func adjacentPairs() -> Zip2Sequence<Self, SubSequence> {
         return zip(self, dropFirst())
     }

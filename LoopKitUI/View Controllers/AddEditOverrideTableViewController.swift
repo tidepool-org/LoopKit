@@ -254,7 +254,6 @@ public final class AddEditOverrideTableViewController: UITableViewController {
                 cell.titleLabel.text = NSLocalizedString("Start Time", comment: "The text for the override start time")
                 cell.datePicker.datePickerMode = .dateAndTime
                 cell.datePicker.minimumDate = min(startDate, Date())
-                cell.datePicker.maximumDate = Date() + CarbStore.defaultMaximumAbsorptionTimeInterval
                 cell.date = startDate
                 cell.delegate = self
                 return cell
