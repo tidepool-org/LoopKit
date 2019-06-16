@@ -56,6 +56,10 @@ public final class OverridePresetTableViewController: UITableViewController {
         title = NSLocalizedString("Override Presets", comment: "The title text for the override presets screen")
         navigationItem.rightBarButtonItems = [saveButton, editButton]
         tableView.register(SettingsTableViewCell.self, forCellReuseIdentifier: SettingsTableViewCell.className)
+
+        if presets.isEmpty {
+            editButton.isEnabled = false
+        }
     }
 
     @objc private func addNewPreset() {

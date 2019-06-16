@@ -64,7 +64,8 @@ public class TextFieldTableViewCell: UITableViewCell, UITextFieldDelegate {
         guard let maximumTextLength = maximumTextLength else {
             return true
         }
-        let allText = (textField.text ?? "") + string
+        let text = textField.text ?? ""
+        let allText = (text as NSString).replacingCharacters(in: range, with: string)
         if allText.count <= maximumTextLength {
             return true
         } else {
