@@ -275,9 +275,9 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
     open override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         switch Section(rawValue: section)! {
         case .schedule:
-            return nil
+            return LocalizedString("Insulin sensitivity describes how your blood glucose should respond to a given dose of insulin. Smaller values mean more insulin should be given when above target. Values that are too small can cause dangerously low blood sugars.", comment: "The description shown on the insulin sensitivity schedule interface.")
         case .sync:
-            return LocalizedString("Insulin sensitivity is the amount of blood glucose lowering effect that a given dose of insulin is expected to cause. Values that are too low can cause dangerously low blood sugars.", comment: "The description shown on the insulin sensitivity schedule interface.")
+            return nil
         }
     }
 
