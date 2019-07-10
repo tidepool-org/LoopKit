@@ -1,5 +1,5 @@
 //
-//  BasalScheduleEntryTableViewCell.swift
+//  SetConstrainedScheduleEntryTableViewCell.swift
 //  LoopKitUI
 //
 //  Created by Pete Schwamb on 2/23/19.
@@ -10,9 +10,8 @@ import Foundation
 import HealthKit
 import LoopKit
 
-protocol BasalScheduleEntryTableViewCellDelegate: class {
-    func basalScheduleEntryTableViewCellDidUpdate(_ cell: BasalScheduleEntryTableViewCell)
-    func isBasalScheduleEntryTableViewCellValid(_ cell: BasalScheduleEntryTableViewCell) -> Bool
+protocol SetConstrainedScheduleEntryTableViewCellDelegate: class {
+    func setConstrainedScheduleEntryTableViewCellDidUpdate(_ cell: SetConstrainedScheduleEntryTableViewCell)
 }
 
 private enum Component: Int, CaseIterable {
@@ -20,7 +19,21 @@ private enum Component: Int, CaseIterable {
     case value
 }
 
-class BasalScheduleEntryTableViewCell: UITableViewCell {
+public enum EmptySelectionType {
+    case none
+    case firstIndex
+    case lastIndex
+
+    var rowCount: Int {
+        if self == .none {
+            return 0
+        } else {
+            return 1
+        }
+    }
+}
+
+class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
 
     @IBOutlet private weak var picker: UIPickerView!
 
@@ -32,15 +45,29 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
 
     @IBOutlet private weak var valueLabel: UILabel!
 
-    public weak var delegate: BasalScheduleEntryTableViewCellDelegate?
+    public weak var delegate: SetConstrainedScheduleEntryTableViewCellDelegate?
 
-    public var basalRates: [Double] = [] {
+    public var allowedValues: [Double] = [] {
         didSet {
+            picker.reloadAllComponents()
             updateValuePicker(with: value)
         }
     }
 
-    private let basalRateUnits = HKUnit.internationalUnitsPerHour
+    public var emptySelectionType = EmptySelectionType.none {
+        didSet {
+            picker.reloadAllComponents()
+            updateValuePicker(with: value)
+        }
+    }
+
+    public var unit: HKUnit? {
+        didSet {
+            if let unit = unit {
+                valueQuantityFormatter.setPreferredNumberFormatter(for: unit)
+            }
+        }
+    }
 
     public var minimumTimeInterval: TimeInterval = .hours(0.5)
 
@@ -107,6 +134,7 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
 
         pickerExpandedHeight = pickerHeightConstraint.constant
 
+        valueLabel.text = nil
         setSelected(true, animated: false)
         updateDateLabel()
     }
@@ -146,15 +174,21 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     }
 
     func validate() {
-        if delegate?.isBasalScheduleEntryTableViewCellValid(self) == false {
-            valueLabel.textColor = .invalid
-        } else {
+        if let value = value, allowedValues.contains(value) {
             valueLabel.textColor = .darkText
+        } else {
+            valueLabel.textColor = .invalid
         }
     }
 
     func updateValueFromPicker() {
-        value = basalRates[picker.selectedRow(inComponent: Component.value.rawValue)]
+        let rowOffset = emptySelectionType == .firstIndex ? 1 : 0
+        let index = picker.selectedRow(inComponent: Component.value.rawValue) - rowOffset
+        if index >= 0 && index < allowedValues.count {
+            value = allowedValues[index]
+        } else {
+            value = nil
+        }
         updateValueLabel()
     }
 
@@ -166,30 +200,52 @@ class BasalScheduleEntryTableViewCell: UITableViewCell {
     }
 
     func updateValuePicker(with newValue: Double?) {
-        guard let value = newValue, !basalRates.isEmpty else {
+        guard !allowedValues.isEmpty else {
             return
         }
         let selectedIndex: Int
-        if let row = basalRates.firstIndex(of: value) {
-            selectedIndex = row
+        let rowOffset = emptySelectionType == .firstIndex ? 1 : 0
+        if let value = value {
+            if let row = allowedValues.firstIndex(of: value) {
+                selectedIndex = row + rowOffset
+            } else {
+                // Select next highest value
+                selectedIndex = allowedValues.enumerated().filter({$0.element >= value}).min(by: { $0.1 < $1.1 })?.offset ?? 0
+            }
         } else {
-            selectedIndex = basalRates.enumerated().filter({$0.element <= value}).max(by: { $0.1 < $1.1 })?.offset ?? 0
+            switch emptySelectionType {
+            case .none:
+                selectedIndex = allowedValues.count - 1
+            case .firstIndex:
+                selectedIndex = 0
+            case .lastIndex:
+                selectedIndex = allowedValues.count
+            }
         }
         picker.selectRow(selectedIndex, inComponent: Component.value.rawValue, animated: true)
     }
 
     func updateValueLabel() {
         guard let value = value else {
+            valueLabel.text = nil
             return
         }
         validate()
-        let quantity = HKQuantity(unit: basalRateUnits, doubleValue: value)
-        valueLabel.text = valueQuantityFormatter.string(from: quantity, for: basalRateUnits)
+        valueLabel.text = formatValue(value)
+    }
+
+    private func formatValue(_ value: Double) -> String? {
+        if let unit = unit {
+            let quantity = HKQuantity(unit: unit, doubleValue: value)
+            return valueQuantityFormatter.string(from: quantity, for: unit)
+        } else {
+            return valueQuantityFormatter.numberFormatter.string(from: value)
+        }
     }
 }
 
 
-extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
+extension SetConstrainedScheduleEntryTableViewCell: UIPickerViewDelegate {
 
     func pickerView(_ pickerView: UIPickerView,
                     didSelectRow row: Int,
@@ -201,7 +257,7 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
             updateValueFromPicker()
         }
 
-        delegate?.basalScheduleEntryTableViewCellDidUpdate(self)
+        delegate?.setConstrainedScheduleEntryTableViewCellDidUpdate(self)
     }
 
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
@@ -218,13 +274,16 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDelegate {
             let time = startTimeForTimeComponent(row: row)
             return stringForStartTime(time)
         case .value:
-            let quantity = HKQuantity(unit: basalRateUnits, doubleValue: basalRates[row])
-            return valueQuantityFormatter.string(from: quantity, for: basalRateUnits)
+            let valueRow = emptySelectionType == .firstIndex ? row - 1 : row
+            guard valueRow >= 0 && valueRow < allowedValues.count else {
+                return nil
+            }
+            return formatValue(allowedValues[row])
         }
     }
 }
 
-extension BasalScheduleEntryTableViewCell: UIPickerViewDataSource {
+extension SetConstrainedScheduleEntryTableViewCell: UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return Component.allCases.count
     }
@@ -234,15 +293,15 @@ extension BasalScheduleEntryTableViewCell: UIPickerViewDataSource {
         case .time:
             return Int(round((maximumStartTime - minimumStartTime) / minimumTimeInterval) + 1)
         case .value:
-            return basalRates.count
+            return allowedValues.count + emptySelectionType.rowCount
         }
     }
 }
 
 /// UITableViewController extensions to aid working with DatePickerTableViewCell
-extension BasalScheduleEntryTableViewCellDelegate where Self: UITableViewController {
-    func hideBasalScheduleEntryCells(excluding indexPath: IndexPath? = nil) {
-        for case let cell as BasalScheduleEntryTableViewCell in tableView.visibleCells where tableView.indexPath(for: cell) != indexPath && cell.isPickerHidden == false {
+extension SetConstrainedScheduleEntryTableViewCellDelegate where Self: UITableViewController {
+    func hideSetConstrainedScheduleEntryCells(excluding indexPath: IndexPath? = nil) {
+        for case let cell as SetConstrainedScheduleEntryTableViewCell in tableView.visibleCells where tableView.indexPath(for: cell) != indexPath && cell.isPickerHidden == false {
             cell.isPickerHidden = true
         }
     }

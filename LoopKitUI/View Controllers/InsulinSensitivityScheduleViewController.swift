@@ -1,8 +1,8 @@
 //
-//  BasalScheduleTableViewController.swift
+//  InsulinSensitivityScheduleViewController.swift
 //  LoopKitUI
 //
-//  Created by Pete Schwamb on 2/23/19.
+//  Created by Pete Schwamb on 7/2/19.
 //  Copyright © 2019 LoopKit Authors. All rights reserved.
 //
 
@@ -10,29 +10,21 @@ import UIKit
 import HealthKit
 import LoopKit
 
-public enum SyncBasalScheduleResult<T: RawRepresentable> {
-    case success(scheduleItems: [RepeatingScheduleValue<T>], timeZone: TimeZone)
+public enum SaveInsulinSensitivityScheduleResult<T: RawRepresentable> {
+    case success
     case failure(Error)
 }
 
-
-public protocol BasalScheduleTableViewControllerSyncSource: class {
-    func syncScheduleValues(for viewController: BasalScheduleTableViewController, completion: @escaping (_ result: SyncBasalScheduleResult<Double>) -> Void)
-
-    func syncButtonTitle(for viewController: BasalScheduleTableViewController) -> String
-
-    func syncButtonDetailText(for viewController: BasalScheduleTableViewController) -> String?
-
-    func basalScheduleTableViewControllerIsReadOnly(_ viewController: BasalScheduleTableViewController) -> Bool
+public protocol InsulinSensitivityScheduleStorageDelegate {
+    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (_ result: SaveInsulinSensitivityScheduleResult<Double>) -> Void)
 }
 
+public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableViewController {
 
-open class BasalScheduleTableViewController : DailyValueScheduleTableViewController {
+    public init(allowedValues: [Double], minimumTimeInterval: TimeInterval? = nil) {
+        self.allowedValues = allowedValues
+        self.minimumTimeInterval = minimumTimeInterval ?? .minutes(30)
 
-    public init(allowedBasalRates: [Double], maximumScheduleItemCount: Int, minimumTimeInterval: TimeInterval) {
-        self.allowedBasalRates = allowedBasalRates
-        self.maximumScheduleItemCount = maximumScheduleItemCount
-        self.minimumTimeInterval = minimumTimeInterval
         super.init(style: .grouped)
     }
 
@@ -48,28 +40,45 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         updateEditButton()
     }
 
-    open override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        if syncSource == nil {
-            delegate?.dailyValueScheduleTableViewControllerWillFinishUpdating(self)
-        }
-    }
-
     @objc private func cancel(_ sender: Any?) {
         self.navigationController?.popViewController(animated: true)
     }
 
     // MARK: - State
 
-    public var scheduleItems: [RepeatingScheduleValue<Double>] = [] {
+    public var insulinSensitivityScheduleStorageDelegate: InsulinSensitivityScheduleStorageDelegate?
+
+    public var unit: HKUnit = HKUnit.milligramsPerDeciliter.unitDivided(by: .internationalUnit())
+
+    public var schedule: InsulinSensitivitySchedule? {
+        get {
+            let validEntries = internalItems.compactMap { (item) -> RepeatingScheduleValue<Double>? in
+                guard let value = item.value else {
+                    return nil
+                }
+                return RepeatingScheduleValue(startTime: item.startTime, value: value)
+            }
+            return InsulinSensitivitySchedule(unit: unit, dailyItems: validEntries, timeZone: timeZone)
+        }
+        set {
+            if let newValue = newValue {
+                unit = newValue.unit
+                internalItems = newValue.items.map { (entry) -> RepeatingScheduleValue<Double?> in
+                    RepeatingScheduleValue(startTime: entry.startTime, value: entry.value)
+                }
+                isScheduleModified = false
+            }
+        }
+    }
+
+    private var internalItems: [RepeatingScheduleValue<Double?>] = [] {
         didSet {
+            isScheduleModified = true
             updateInsertButton()
         }
     }
 
-    let allowedBasalRates: [Double]
-    let maximumScheduleItemCount: Int
+    let allowedValues: [Double]
     let minimumTimeInterval: TimeInterval
 
     var lastValidStartTime: TimeInterval {
@@ -78,54 +87,52 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
     private var isScheduleModified = false {
         didSet {
-            if isScheduleModified && syncSource != nil {
+            if isScheduleModified {
                 self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
             } else {
                 self.navigationItem.leftBarButtonItem = nil
             }
+            updateSyncButton()
         }
     }
 
-    private func isBasalRateValid(_ value: Double) -> Bool {
-        return allowedBasalRates.contains(value)
+    private func isValid(_ value: Double?) -> Bool {
+        guard let value = value else {
+            return false
+        }
+        return allowedValues.contains(value)
     }
 
-    private var isSyncAllowed: Bool {
-        return !isSyncInProgress && isScheduleValid && !isEditing
+    public var isScheduleValid: Bool {
+        return !internalItems.isEmpty &&
+            internalItems.allSatisfy { isValid($0.value) }
     }
 
-    private var isCellReadOnly: Bool {
-        return isReadOnly || isSyncInProgress
-    }
 
     private func updateSyncButton() {
         if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: Section.sync.rawValue)) as? TextButtonTableViewCell {
-            cell.isEnabled = isSyncAllowed
+            cell.isEnabled = isScheduleModified && isScheduleValid
         }
     }
 
     private func updateEditButton() {
-        editButtonItem.isEnabled = scheduleItems.endIndex > 1
+        editButtonItem.isEnabled = internalItems.endIndex > 1
     }
 
     private func updateInsertButton() {
-        guard let lastItem = scheduleItems.last else {
+        guard let lastItem = internalItems.last else {
             return
         }
-        insertButtonItem.isEnabled = scheduleItems.endIndex < maximumScheduleItemCount && !isEditing && lastItem.startTime < lastValidStartTime
+        insertButtonItem.isEnabled = !isEditing && lastItem.startTime < lastValidStartTime
     }
 
     override func addScheduleItem(_ sender: Any?) {
-        guard !isReadOnly && !isSyncInProgress, let firstBasalRate = allowedBasalRates.first else {
-            return
-        }
-
         tableView.endEditing(false)
 
         let startTime: TimeInterval
-        let value: Double
+        let value: Double?
 
-        if let lastItem = scheduleItems.last {
+        if let lastItem = internalItems.last {
             startTime = lastItem.startTime + minimumTimeInterval
             value = lastItem.value
 
@@ -134,26 +141,36 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
             }
         } else {
             startTime = TimeInterval(0)
-            value = firstBasalRate
+            value = nil
         }
 
-        scheduleItems.append(
+        internalItems.append(
             RepeatingScheduleValue(
                 startTime: startTime,
                 value: value
             )
         )
-        isScheduleModified = true
-        updateTimeLimitsForItemsAdjacent(to: scheduleItems.endIndex-1)
+        updateTimeLimitsForItemsAdjacent(to: internalItems.endIndex-1)
 
         super.addScheduleItem(sender)
 
-        updateSyncButton()
+        if internalItems.count == 1 {
+            let index = IndexPath(row: 0, section: Section.schedule.rawValue)
+            tableView.beginUpdates()
+            tableView.selectRow(at: index, animated: true, scrollPosition: .top)
+            tableView.deselectRow(at: index, animated: true)
+            tableView.endUpdates()
+        } else {
+            tableView.beginUpdates()
+            hideSetConstrainedScheduleEntryCells()
+            tableView.endUpdates()
+        }
+
         updateEditButton()
     }
 
     override func insertableIndiciesByRemovingRow(_ row: Int, withInterval timeInterval: TimeInterval) -> [Bool] {
-        return insertableIndices(for: scheduleItems, removing: row, with: timeInterval)
+        return insertableIndices(for: internalItems, removing: row, with: timeInterval)
     }
 
     open override func setEditing(_ editing: Bool, animated: Bool) {
@@ -166,57 +183,20 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         updateSyncButton()
     }
 
-    public weak var syncSource: BasalScheduleTableViewControllerSyncSource? {
-        didSet {
-            isReadOnly = syncSource?.basalScheduleTableViewControllerIsReadOnly(self) ?? false
-
-            if isViewLoaded {
-                tableView.reloadData()
-            }
-        }
-    }
-
-    private var isSyncInProgress = false {
-        didSet {
-            for cell in tableView.visibleCells {
-                switch cell {
-                case let cell as TextButtonTableViewCell:
-                    cell.isEnabled = !isSyncInProgress
-                    cell.isLoading = isSyncInProgress
-                case let cell as SetConstrainedScheduleEntryTableViewCell:
-                    cell.isReadOnly = isCellReadOnly
-                default:
-                    break
-                }
-            }
-
-            for item in navigationItem.rightBarButtonItems ?? [] {
-                item.isEnabled = !isSyncInProgress
-            }
-
-            navigationItem.hidesBackButton = isSyncInProgress
-        }
-    }
-
-    public var isScheduleValid: Bool {
-        return !scheduleItems.isEmpty &&
-            scheduleItems.count <= maximumScheduleItemCount &&
-            scheduleItems.allSatisfy { isBasalRateValid($0.value) }
-    }
 
     private func updateTimeLimitsFor(itemAt index: Int) {
-        guard scheduleItems.indices.contains(index) else {
+        guard internalItems.indices.contains(index) else {
             return
         }
         let indexPath = IndexPath(row: index, section: Section.schedule.rawValue)
         if let cell = tableView.cellForRow(at: indexPath) as? SetConstrainedScheduleEntryTableViewCell {
-            if index+1 < scheduleItems.endIndex {
-                cell.maximumStartTime = scheduleItems[index+1].startTime - minimumTimeInterval
+            if index+1 < internalItems.endIndex {
+                cell.maximumStartTime = internalItems[index+1].startTime - minimumTimeInterval
             } else {
                 cell.maximumStartTime = lastValidStartTime
             }
             if index > 1 {
-                cell.minimumStartTime = scheduleItems[index-1].startTime + minimumTimeInterval
+                cell.minimumStartTime = internalItems[index-1].startTime + minimumTimeInterval
             }
         }
     }
@@ -229,23 +209,19 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
     // MARK: - UITableViewDataSource
 
-    private enum Section: Int {
+    private enum Section: Int, CaseIterable {
         case schedule
         case sync
     }
 
     open override func numberOfSections(in tableView: UITableView) -> Int {
-        if syncSource != nil {
-            return 2
-        }
-
-        return 1
+        return Section.allCases.count
     }
 
     open override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch Section(rawValue: section)! {
         case .schedule:
-            return scheduleItems.endIndex
+            return internalItems.endIndex
         case .sync:
             return 1
         }
@@ -256,27 +232,27 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         case .schedule:
             let cell = tableView.dequeueReusableCell(withIdentifier: SetConstrainedScheduleEntryTableViewCell.className, for: indexPath) as! SetConstrainedScheduleEntryTableViewCell
 
-            cell.unit = HKUnit.internationalUnitsPerHour
+            cell.unit = unit
 
-            let item = scheduleItems[indexPath.row]
+            let item = internalItems[indexPath.row]
 
-            cell.allowedValues = allowedBasalRates
+            cell.allowedValues = allowedValues
             cell.minimumTimeInterval = minimumTimeInterval
-            cell.isReadOnly = isCellReadOnly
+            cell.isReadOnly = false
             cell.isPickerHidden = true
             cell.delegate = self
             cell.timeZone = timeZone
 
             if indexPath.row > 0 {
-                let lastItem = scheduleItems[indexPath.row - 1]
+                let lastItem = internalItems[indexPath.row - 1]
 
                 cell.minimumStartTime = lastItem.startTime + minimumTimeInterval
             }
 
             if indexPath.row == 0 {
                 cell.maximumStartTime = 0
-            } else if indexPath.row < scheduleItems.endIndex - 1 {
-                let nextItem = scheduleItems[indexPath.row + 1]
+            } else if indexPath.row < internalItems.endIndex - 1 {
+                let nextItem = internalItems[indexPath.row + 1]
                 cell.maximumStartTime = nextItem.startTime - minimumTimeInterval
             } else {
                 cell.maximumStartTime = lastValidStartTime
@@ -284,14 +260,13 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
 
             cell.value = item.value
             cell.startTime = item.startTime
+            cell.emptySelectionType = .lastIndex
 
             return cell
         case .sync:
             let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
-
-            cell.textLabel?.text = syncSource?.syncButtonTitle(for: self)
-            cell.isEnabled = isSyncAllowed
-            cell.isLoading = isSyncInProgress
+            cell.textLabel?.text = LocalizedString("Save", comment: "Button text for saving insulin sensitivity schedule")
+            cell.isEnabled = isScheduleModified && isScheduleValid
 
             return cell
         }
@@ -302,44 +277,41 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         case .schedule:
             return nil
         case .sync:
-            return syncSource?.syncButtonDetailText(for: self)
+            return LocalizedString("Insulin sensitivity is the amount of blood glucose lowering effect that a given dose of insulin is expected to cause. Values that are too low can cause dangerously low blood sugars.", comment: "The description shown on the insulin sensitivity schedule interface.")
         }
     }
 
     open override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            scheduleItems.remove(at: indexPath.row)
+            internalItems.remove(at: indexPath.row)
 
             super.tableView(tableView, commit: editingStyle, forRowAt: indexPath)
 
-            if scheduleItems.count == 1 {
+            if internalItems.count == 1 {
                 self.isEditing = false
             }
 
-            updateSyncButton()
             updateInsertButton()
             updateEditButton()
             updateTimeLimitsFor(itemAt: indexPath.row-1)
             updateTimeLimitsFor(itemAt: indexPath.row)
-            isScheduleModified = true
 
         }
     }
 
     open override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath != destinationIndexPath {
-            let item = scheduleItems.remove(at: sourceIndexPath.row)
-            scheduleItems.insert(item, at: destinationIndexPath.row)
-            isScheduleModified = true
+            let item = internalItems.remove(at: sourceIndexPath.row)
+            internalItems.insert(item, at: destinationIndexPath.row)
 
             guard destinationIndexPath.row > 0, let cell = tableView.cellForRow(at: destinationIndexPath) as? SetConstrainedScheduleEntryTableViewCell else {
                 return
             }
 
             let interval = cell.minimumTimeInterval
-            let startTime = scheduleItems[destinationIndexPath.row - 1].startTime + interval
+            let startTime = internalItems[destinationIndexPath.row - 1].startTime + interval
 
-            scheduleItems[destinationIndexPath.row] = RepeatingScheduleValue(startTime: startTime, value: scheduleItems[destinationIndexPath.row].value)
+            internalItems[destinationIndexPath.row] = RepeatingScheduleValue(startTime: startTime, value: internalItems[destinationIndexPath.row].value)
 
             DispatchQueue.main.async {
                 tableView.reloadRows(at: [destinationIndexPath], with: .none)
@@ -365,10 +337,6 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         return super.tableView(tableView, willSelectRowAt: indexPath)
     }
 
-    open override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return super.tableView(tableView, canEditRowAt: indexPath) && !isSyncInProgress
-    }
-
     open override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         super.tableView(tableView, didSelectRowAt: indexPath)
 
@@ -376,26 +344,17 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         case .schedule:
             break
         case .sync:
-            if let syncSource = syncSource, !isSyncInProgress {
-                isSyncInProgress = true
-                syncSource.syncScheduleValues(for: self) { (result) in
-                    DispatchQueue.main.async {
-                        switch result {
-                        case .success(let items, let timeZone):
-                            self.scheduleItems = items
-                            self.timeZone = timeZone
-                            self.tableView.reloadSections([Section.schedule.rawValue], with: .fade)
-                            self.isSyncInProgress = false
-                            self.delegate?.dailyValueScheduleTableViewControllerWillFinishUpdating(self)
-                            self.isScheduleModified = false
-                            self.updateInsertButton()
-                        case .failure(let error):
-                            self.present(UIAlertController(with: error), animated: true) {
-                                self.isSyncInProgress = false
-                            }
-                        }
+            if let schedule = schedule {
+                insulinSensitivityScheduleStorageDelegate?.saveSchedule(schedule, for: self, completion: { (result) in
+                    switch result {
+                    case .success:
+                        self.delegate?.dailyValueScheduleTableViewControllerWillFinishUpdating(self)
+                        self.isScheduleModified = false
+                        self.updateInsertButton()
+                    case .failure(let error):
+                        self.present(UIAlertController(with: error), animated: true)
                     }
-                }
+                })
             }
         }
     }
@@ -407,7 +366,7 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
         }
 
         let interval = cell.minimumTimeInterval
-        let indices = insertableIndices(for: scheduleItems, removing: sourceIndexPath.row, with: interval)
+        let indices = insertableIndices(for: internalItems, removing: sourceIndexPath.row, with: interval)
 
         if indices[proposedDestinationIndexPath.row] {
             return proposedDestinationIndexPath
@@ -425,19 +384,14 @@ open class BasalScheduleTableViewController : DailyValueScheduleTableViewControl
     }
 }
 
-extension BasalScheduleTableViewController: SetConstrainedScheduleEntryTableViewCellDelegate {
+extension InsulinSensitivityScheduleViewController: SetConstrainedScheduleEntryTableViewCellDelegate {
     func setConstrainedScheduleEntryTableViewCellDidUpdate(_ cell: SetConstrainedScheduleEntryTableViewCell) {
-        guard let value = cell.value else {
-            return
-        }
         if let indexPath = tableView.indexPath(for: cell) {
-            isScheduleModified = true
-            scheduleItems[indexPath.row] = RepeatingScheduleValue(
+            internalItems[indexPath.row] = RepeatingScheduleValue(
                 startTime: cell.startTime,
-                value: value
+                value: cell.value
             )
             updateTimeLimitsForItemsAdjacent(to: indexPath.row)
-            updateSyncButton()
         }
     }
 }
