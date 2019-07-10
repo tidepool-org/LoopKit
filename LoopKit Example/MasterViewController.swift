@@ -409,21 +409,4 @@ private extension HKUnit {
             return 100
         }
     }
-
-    var lowWarningThreshold: Double {
-        if self == HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()) {
-            return 0.9
-        } else {
-            return 15
-        }
-
-    }
-
-    var highWarningThreshold: Double {
-        if self == HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()) {
-            return 22
-        } else {
-            return 400
-        }
-    }
 }
