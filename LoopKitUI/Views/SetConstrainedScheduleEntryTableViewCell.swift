@@ -19,21 +19,21 @@ private enum Component: Int, CaseIterable {
     case value
 }
 
-public enum EmptySelectionType {
-    case none
-    case firstIndex
-    case lastIndex
+class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
 
-    var rowCount: Int {
-        if self == .none {
-            return 0
-        } else {
-            return 1
+    enum EmptySelectionType {
+        case none
+        case firstIndex
+        case lastIndex
+
+        var rowCount: Int {
+            if self == .none {
+                return 0
+            } else {
+                return 1
+            }
         }
     }
-}
-
-class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
 
     @IBOutlet private weak var picker: UIPickerView!
 
@@ -50,14 +50,14 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
     public var allowedValues: [Double] = [] {
         didSet {
             picker.reloadAllComponents()
-            updateValuePicker(with: value)
+            updateValuePicker()
         }
     }
 
     public var emptySelectionType = EmptySelectionType.none {
         didSet {
             picker.reloadAllComponents()
-            updateValuePicker(with: value)
+            updateValuePicker()
         }
     }
 
@@ -108,7 +108,7 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
 
     var value: Double? = nil {
         didSet {
-            updateValuePicker(with: value)
+            updateValuePicker()
             updateValueLabel()
         }
     }
@@ -122,7 +122,7 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
             pickerHeightConstraint.constant = newValue ? 0 : pickerExpandedHeight
 
             if !newValue {
-                updateValuePicker(with: value)
+                updateValuePicker()
             }
         }
     }
@@ -199,7 +199,7 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
         }
     }
 
-    func updateValuePicker(with newValue: Double?) {
+    func updateValuePicker() {
         guard !allowedValues.isEmpty else {
             return
         }
