@@ -22,20 +22,6 @@ protocol GlucoseRangeTableViewCellDelegate: class {
 
 class GlucoseRangeTableViewCell: UITableViewCell {
 
-    enum EmptySelectionType {
-        case none
-        case firstIndex
-        case lastIndex
-
-        var rowCount: Int {
-            if self == .none {
-                return 0
-            } else {
-                return 1
-            }
-        }
-    }
-
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet open weak var picker: UIPickerView!
     @IBOutlet open weak var pickerHeightConstraint: NSLayoutConstraint!
@@ -76,11 +62,18 @@ class GlucoseRangeTableViewCell: UITableViewCell {
         }
     }
 
-    public var emptySelectionType = EmptySelectionType.none {
-        didSet {
-            picker.reloadAllComponents()
-            selectPickerValues()
+    private var allowedMaxValues: [Double] {
+        guard let minValue = minValue else {
+            return allowedValues
         }
+        return allowedValues.filter( { $0 >= minValue })
+    }
+
+    private var allowedMinValues: [Double] {
+        guard let maxValue = maxValue else {
+            return allowedValues
+        }
+        return allowedValues.filter( { $0 <= maxValue })
     }
 
     var unitString: String? {
@@ -165,54 +158,49 @@ class GlucoseRangeTableViewCell: UITableViewCell {
         }
     }
 
-    fileprivate func selectPickerValue(for component: Component, with selectedValue: Double?) {
+    fileprivate func selectPickerValue(for component: Component, with selectedValue: Double?, allowedValues: [Double]) {
         guard !allowedValues.isEmpty else {
             return
         }
         let selectedIndex: Int
-        let rowOffset = emptySelectionType == .firstIndex ? 1 : 0
         if let value = selectedValue {
             if let row = allowedValues.firstIndex(of: value) {
-                selectedIndex = row + rowOffset
+                selectedIndex = row
             } else {
                 // Select next highest value
                 selectedIndex = allowedValues.enumerated().filter({$0.element >= value}).min(by: { $0.1 < $1.1 })?.offset ?? 0
             }
         } else {
-            switch emptySelectionType {
-            case .none:
-                selectedIndex = allowedValues.count - 1
-            case .firstIndex:
-                selectedIndex = 0
-            case .lastIndex:
-                selectedIndex = allowedValues.count
-            }
+            selectedIndex = allowedValues.count
         }
-        picker.selectRow(selectedIndex, inComponent: component.rawValue, animated: true)
+        picker.selectRow(selectedIndex, inComponent: component.rawValue, animated: false)
     }
 
     fileprivate func selectPickerValues() {
-        selectPickerValue(for: .minValue, with: minValue)
-        selectPickerValue(for: .maxValue, with: maxValue)
+        selectPickerValue(for: .minValue, with: minValue, allowedValues: allowedMinValues)
+        selectPickerValue(for: .maxValue, with: maxValue, allowedValues: allowedMaxValues)
     }
 
-    fileprivate func updateValueFromPicker(for component: Component) {
-        let rowOffset = emptySelectionType == .firstIndex ? 1 : 0
-        let index = picker.selectedRow(inComponent: component.rawValue) - rowOffset
+    fileprivate func updateMinValueFromPicker() {
+        let index = picker.selectedRow(inComponent: Component.minValue.rawValue)
         let value: Double?
-        if index >= 0 && index < allowedValues.count {
-            value = allowedValues[index]
+        if index >= 0 && index < allowedMinValues.count {
+            value = allowedMinValues[index]
         } else {
             value = nil
         }
-        switch component {
-        case .maxValue:
-            maxValue = value
-        case .minValue:
-            minValue = value
-        default:
-            break
+        minValue = value
+    }
+
+    fileprivate func updateMaxValueFromPicker() {
+        let index = picker.selectedRow(inComponent: Component.maxValue.rawValue)
+        let value: Double?
+        if index >= 0 && index < allowedMaxValues.count {
+            value = allowedMaxValues[index]
+        } else {
+            value = nil
         }
+        maxValue = value
     }
 
     func updateDateLabel() {
@@ -255,8 +243,16 @@ extension GlucoseRangeTableViewCell: UIPickerViewDelegate {
         switch component {
         case .time:
             startTime = selectedStartTime
-        case .minValue, .maxValue:
-            updateValueFromPicker(for: component)
+        case .minValue:
+            updateMinValueFromPicker()
+            picker.reloadComponent(Component.minValue.rawValue)
+            picker.reloadComponent(Component.maxValue.rawValue)
+            selectPickerValues()
+        case .maxValue:
+            updateMaxValueFromPicker()
+            picker.reloadComponent(Component.minValue.rawValue)
+            picker.reloadComponent(Component.maxValue.rawValue)
+            selectPickerValues()
         default:
             break
         }
@@ -281,12 +277,16 @@ extension GlucoseRangeTableViewCell: UIPickerViewDelegate {
         case .time:
             let time = startTimeForTimeComponent(row: row)
             return stringForStartTime(time)
-        case .minValue, .maxValue:
-            let valueRow = emptySelectionType == .firstIndex ? row - 1 : row
-            guard valueRow >= 0 && valueRow < allowedValues.count else {
+        case .minValue:
+            guard row < allowedMinValues.count else {
                 return nil
             }
-            return valueNumberFormatter.string(from: allowedValues[row])
+            return valueNumberFormatter.string(from: allowedMinValues[row])
+        case .maxValue:
+            guard row < allowedMaxValues.count else {
+                return nil
+            }
+            return valueNumberFormatter.string(from: allowedMaxValues[row])
         case .separator:
             return "–"
         case .units:
@@ -304,8 +304,10 @@ extension GlucoseRangeTableViewCell: UIPickerViewDataSource {
         switch Component(rawValue: component)! {
         case .time:
             return Int(round((maximumStartTime - minimumStartTime) / minimumTimeInterval) + 1)
-        case .minValue, .maxValue:
-            return allowedValues.count + emptySelectionType.rowCount
+        case .minValue:
+            return allowedMinValues.count + (minValue != nil ? 0 : 1)
+        case .maxValue:
+            return allowedMaxValues.count + (maxValue != nil ? 0 : 1)
         case .units, .separator:
             return 1
         }

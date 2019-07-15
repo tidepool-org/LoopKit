@@ -40,7 +40,7 @@
                             <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" alignment="center" spacing="3" baselineRelativeArrangement="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OlF-DK-Tvf">
                                 <rect key="frame" x="254.5" y="0.0" width="141.5" height="28"/>
                                 <subviews>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="min" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ZFq-4F-l9E" customClass="PaddedTextField" customModule="LoopKitUI" customModuleProvider="target">
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="min" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ZFq-4F-l9E" customClass="PaddedTextField" customModule="LoopKitUI" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="3.5" width="36" height="21"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <textInputTraits key="textInputTraits" keyboardType="decimalPad"/>
@@ -54,7 +54,7 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="max" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Dw2-da-mzO" customClass="PaddedTextField" customModule="LoopKitUI" customModuleProvider="target">
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="max" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Dw2-da-mzO" customClass="PaddedTextField" customModule="LoopKitUI" customModuleProvider="target">
                                         <rect key="frame" x="50.5" y="3.5" width="36" height="21"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <textInputTraits key="textInputTraits" keyboardType="decimalPad"/>
