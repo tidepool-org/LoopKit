@@ -103,26 +103,15 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
     }
 
     override func addScheduleItem(_ sender: Any?) {
-        var startTime = TimeInterval(0)
-        let value: EditableRange
 
-        if editableItems.count > 0 {
-            let lastItem = editableItems.last!
-
-            startTime = lastItem.startTime + minimumTimeInterval
-            value = lastItem.value
-
-            if startTime >= TimeInterval(hours: 24) {
-                return
-            }
-        } else {
-            value = EditableRange(minValue: nil, maxValue: nil)
+        guard let allowedTimeRange = allowedTimeRange(for: editableItems.count) else {
+            return
         }
 
         editableItems.append(
             RepeatingScheduleValue(
-                startTime: min(TimeInterval(hours: 23.5), startTime),
-                value: value
+                startTime: allowedTimeRange.lowerBound,
+                value: editableItems.last?.value ?? EditableRange(minValue: nil, maxValue: nil)
             )
         )
 
@@ -135,6 +124,34 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         }
 
         tableView.endUpdates()
+    }
+
+    private func updateTimeLimits(for index: Int) {
+        let indexPath = IndexPath(row: index, section: Section.schedule.rawValue)
+        if let allowedTimeRange = allowedTimeRange(for: index), let cell = tableView.cellForRow(at: indexPath) as? GlucoseRangeTableViewCell {
+            cell.allowedTimeRange = allowedTimeRange
+        }
+    }
+
+    private func allowedTimeRange(for index: Int) -> ClosedRange<TimeInterval>? {
+        let minTime: TimeInterval
+        let maxTime: TimeInterval
+        if index == 0 {
+            maxTime = TimeInterval(0)
+        } else if index+1 < editableItems.endIndex {
+            maxTime = editableItems[index+1].startTime - minimumTimeInterval
+        } else {
+            maxTime = lastValidStartTime
+        }
+        if index > 0 {
+            minTime = editableItems[index-1].startTime + minimumTimeInterval
+            if minTime > lastValidStartTime {
+                return nil
+            }
+        } else {
+            minTime = TimeInterval(0)
+        }
+        return minTime...maxTime
     }
 
     override func insertableIndiciesByRemovingRow(_ row: Int, withInterval timeInterval: TimeInterval) -> [Bool] {
@@ -193,13 +210,9 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
                 cell.startTime = lastItem.startTime + minimumTimeInterval
             }
 
-            if indexPath.row == 0 {
-                cell.maximumStartTime = .hours(0)
-            } else if indexPath.row < editableItems.endIndex - 1 {
-                let nextItem = editableItems[indexPath.row + 1]
-                cell.startTime = nextItem.startTime - minimumTimeInterval
-            } else {
-                cell.maximumStartTime = lastValidStartTime
+            if let allowedTimeRange = allowedTimeRange(for: indexPath.row) {
+                cell.allowedTimeRange = allowedTimeRange
+                cell.startTime = allowedTimeRange.lowerBound
             }
 
             return cell
@@ -318,6 +331,7 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
     public override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         switch Section(rawValue: indexPath.section)! {
         case .schedule:
+            updateTimeLimits(for: indexPath.row)
             tableView.beginUpdates()
             hideGlucoseRangeCells(excluding: indexPath)
             tableView.endUpdates()

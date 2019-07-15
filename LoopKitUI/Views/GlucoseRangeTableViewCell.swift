@@ -124,15 +124,10 @@ class GlucoseRangeTableViewCell: UITableViewCell {
         return startTimeForTimeComponent(row: row)
     }
 
-    public var minimumStartTime: TimeInterval = .hours(0) {
+    public var allowedTimeRange: ClosedRange<TimeInterval> = .hours(0)...(.hours(23.5)) {
         didSet {
             picker.reloadComponent(Component.time.rawValue)
             updateStartTimeSelection()
-        }
-    }
-    public var maximumStartTime: TimeInterval = .hours(23.5) {
-        didSet {
-            picker.reloadComponent(Component.time.rawValue)
         }
     }
 
@@ -152,7 +147,7 @@ class GlucoseRangeTableViewCell: UITableViewCell {
 
 
     private func updateStartTimeSelection() {
-        let row = Int(round((startTime - minimumStartTime) / minimumTimeInterval))
+        let row = Int(round((startTime - allowedTimeRange.lowerBound) / minimumTimeInterval))
         if row >= 0 && row < pickerView(picker, numberOfRowsInComponent: Component.time.rawValue) {
             picker.selectRow(row, inComponent: Component.time.rawValue, animated: true)
         }
@@ -208,7 +203,7 @@ class GlucoseRangeTableViewCell: UITableViewCell {
     }
 
     private func startTimeForTimeComponent(row: Int) -> TimeInterval {
-        return minimumStartTime + minimumTimeInterval * TimeInterval(row)
+        return allowedTimeRange.lowerBound + minimumTimeInterval * TimeInterval(row)
     }
 
     private func stringForStartTime(_ time: TimeInterval) -> String {
@@ -303,7 +298,7 @@ extension GlucoseRangeTableViewCell: UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         switch Component(rawValue: component)! {
         case .time:
-            return Int(round((maximumStartTime - minimumStartTime) / minimumTimeInterval) + 1)
+            return Int(round((allowedTimeRange.upperBound - allowedTimeRange.lowerBound) / minimumTimeInterval) + 1)
         case .minValue:
             return allowedMinValues.count + (minValue != nil ? 0 : 1)
         case .maxValue:
