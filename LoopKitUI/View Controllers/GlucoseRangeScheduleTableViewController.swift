@@ -10,6 +10,15 @@ import UIKit
 import HealthKit
 import LoopKit
 
+public enum SaveGlucoseRangeScheduleResult {
+    case success
+    case failure(Error)
+}
+
+public protocol GlucoseRangeScheduleStorageDelegate {
+    func saveSchedule(_ schedule: GlucoseRangeSchedule, for viewController: GlucoseRangeScheduleTableViewController, completion: @escaping (_ result: SaveGlucoseRangeScheduleResult) -> Void)
+}
+
 private struct EditableRange {
     public let minValue: Double?
     public let maxValue: Double?
@@ -42,6 +51,8 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         tableView.register(GlucoseRangeTableViewCell.nib(), forCellReuseIdentifier: GlucoseRangeTableViewCell.className)
         tableView.register(GlucoseRangeOverrideTableViewCell.nib(), forCellReuseIdentifier: GlucoseRangeOverrideTableViewCell.className)
         tableView.register(TextButtonTableViewCell.self, forCellReuseIdentifier: TextButtonTableViewCell.className)
+
+        updateEditButton()
     }
 
     public override func viewWillDisappear(_ animated: Bool) {
@@ -52,6 +63,13 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
 
     @objc private func cancel(_ sender: Any?) {
         self.navigationController?.popViewController(animated: true)
+    }
+
+    private func updateInsertButton() {
+        guard let lastItem = editableItems.last else {
+            return
+        }
+        insertButtonItem.isEnabled = !isEditing && lastItem.startTime < lastValidStartTime
     }
 
     private func updateSaveButton() {
@@ -65,8 +83,14 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
             editableItems.allSatisfy { isValid($0.value) }
     }
 
+    private func updateEditButton() {
+        editButtonItem.isEnabled = editableItems.endIndex > 1
+    }
+
 
     // MARK: - State
+
+    public var glucoseRangeScheduleStorageDelegate: GlucoseRangeScheduleStorageDelegate?
 
     let allowedValues: [Double]
     let minimumTimeInterval: TimeInterval
@@ -95,6 +119,8 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
     private var editableItems: [RepeatingScheduleValue<EditableRange>] = [] {
         didSet {
             isScheduleModified = true
+            updateInsertButton()
+            updateEditButton()
         }
     }
 
@@ -246,15 +272,8 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
             cell.unitString = unitDisplayString
             cell.delegate = self
 
-            if indexPath.row > 0 {
-                let lastItem = editableItems[indexPath.row - 1]
-
-                cell.startTime = lastItem.startTime + minimumTimeInterval
-            }
-
             if let allowedTimeRange = allowedTimeRange(for: indexPath.row) {
                 cell.allowedTimeRange = allowedTimeRange
-                cell.startTime = allowedTimeRange.lowerBound
             }
 
             return cell
@@ -373,7 +392,7 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
     public override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         switch sections[section] {
         case .schedule:
-            return LocalizedString("The correction range is the blood glucose range that you would like Loop to correct to.", comment: "The section footer of correction range schedule")
+            return LocalizedString("Correction range is the blood glucose range that you would like Loop to correct to.", comment: "The section footer of correction range schedule")
         default:
             return nil
         }
@@ -382,19 +401,19 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
     // MARK: - UITableViewDelegate
 
     public override func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        return sections[indexPath.section] == Section.schedule
+        return true
     }
 
     public override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         switch sections[indexPath.section] {
         case .schedule:
             updateTimeLimits(for: indexPath.row)
-            tableView.beginUpdates()
-            hideGlucoseRangeCells(excluding: indexPath)
-            tableView.endUpdates()
+            tableView.performBatchUpdates({
+                hideGlucoseRangeCells(excluding: indexPath)
+            }, completion: nil)
             return super.tableView(tableView, willSelectRowAt: indexPath)
         default:
-            return nil
+            return indexPath
         }
     }
 
@@ -405,8 +424,18 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         case .override:
             break
         case .save:
-            // TODO
-            break
+            if let schedule = schedule {
+                glucoseRangeScheduleStorageDelegate?.saveSchedule(schedule, for: self, completion: { (result) in
+                    switch result {
+                    case .success:
+                        self.delegate?.dailyValueScheduleTableViewControllerWillFinishUpdating(self)
+                        self.isScheduleModified = false
+                        self.updateInsertButton()
+                    case .failure(let error):
+                        self.present(UIAlertController(with: error), animated: true)
+                    }
+                })
+            }
         }
     }
 

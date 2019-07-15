@@ -161,6 +161,7 @@ class MasterViewController: UITableViewController {
                 let scheduleVC = GlucoseRangeScheduleTableViewController(allowedValues: unit.allowedCorrectionRangeValues, unit: unit)
 
                 scheduleVC.delegate = self
+                scheduleVC.glucoseRangeScheduleStorageDelegate = self
                 scheduleVC.title = sender?.textLabel?.text
 
                 if let schedule = dataManager?.glucoseTargetRangeSchedule {
@@ -366,8 +367,15 @@ extension MasterViewController: BasalScheduleTableViewControllerSyncSource {
 }
 
 extension MasterViewController: InsulinSensitivityScheduleStorageDelegate {
-    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (SaveInsulinSensitivityScheduleResult<Double>) -> Void) {
+    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (SaveInsulinSensitivityScheduleResult) -> Void) {
         self.dataManager?.insulinSensitivitySchedule = schedule
+        completion(.success)
+    }
+}
+
+extension MasterViewController: GlucoseRangeScheduleStorageDelegate {
+    func saveSchedule(_ schedule: GlucoseRangeSchedule, for viewController: GlucoseRangeScheduleTableViewController, completion: @escaping (SaveGlucoseRangeScheduleResult) -> Void) {
+        self.dataManager?.glucoseTargetRangeSchedule = schedule
         completion(.success)
     }
 }

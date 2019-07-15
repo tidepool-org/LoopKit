@@ -10,13 +10,13 @@ import UIKit
 import HealthKit
 import LoopKit
 
-public enum SaveInsulinSensitivityScheduleResult<T: RawRepresentable> {
+public enum SaveInsulinSensitivityScheduleResult {
     case success
     case failure(Error)
 }
 
 public protocol InsulinSensitivityScheduleStorageDelegate {
-    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (_ result: SaveInsulinSensitivityScheduleResult<Double>) -> Void)
+    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (_ result: SaveInsulinSensitivityScheduleResult) -> Void)
 }
 
 public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableViewController {
