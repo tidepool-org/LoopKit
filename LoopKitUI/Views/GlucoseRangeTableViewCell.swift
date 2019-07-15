@@ -317,8 +317,8 @@ extension GlucoseRangeTableViewCell: UIPickerViewDataSource {
 
 /// UITableViewController extensions to aid working with DatePickerTableViewCell
 extension GlucoseRangeTableViewCellDelegate where Self: UITableViewController {
-    func hideSetConstrainedScheduleEntryCells(excluding indexPath: IndexPath? = nil) {
-        for case let cell as SetConstrainedScheduleEntryTableViewCell in tableView.visibleCells where tableView.indexPath(for: cell) != indexPath && cell.isPickerHidden == false {
+    func hideGlucoseRangeCells(excluding indexPath: IndexPath? = nil) {
+        for case let cell as GlucoseRangeTableViewCell in tableView.visibleCells where tableView.indexPath(for: cell) != indexPath && cell.isPickerHidden == false {
             cell.isPickerHidden = true
         }
     }

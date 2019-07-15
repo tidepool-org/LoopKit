@@ -193,7 +193,9 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
                 cell.startTime = lastItem.startTime + minimumTimeInterval
             }
 
-            if indexPath.row < editableItems.endIndex - 1 {
+            if indexPath.row == 0 {
+                cell.maximumStartTime = .hours(0)
+            } else if indexPath.row < editableItems.endIndex - 1 {
                 let nextItem = editableItems[indexPath.row + 1]
                 cell.startTime = nextItem.startTime - minimumTimeInterval
             } else {
@@ -316,10 +318,15 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
     public override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         switch Section(rawValue: indexPath.section)! {
         case .schedule:
+            tableView.beginUpdates()
+            hideGlucoseRangeCells(excluding: indexPath)
+            tableView.endUpdates()
             return super.tableView(tableView, willSelectRowAt: indexPath)
         case .override:
             return nil
         }
+
+        
     }
 
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
