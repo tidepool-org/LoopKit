@@ -65,7 +65,7 @@ class MasterViewController: UITableViewController {
 
     private enum ConfigurationRow: Int {
         case basalRate
-        case glucoseTargetRange
+        case correctionRange
         case insulinSensitivity
         case pumpID
 
@@ -95,8 +95,8 @@ class MasterViewController: UITableViewController {
             switch ConfigurationRow(rawValue: indexPath.row)! {
             case .basalRate:
                 cell.textLabel?.text = LocalizedString("Basal Rates", comment: "The title text for the basal rate schedule")
-            case .glucoseTargetRange:
-                cell.textLabel?.text = LocalizedString("Glucose Target Range", comment: "The title text for the glucose target range schedule")
+            case .correctionRange:
+                cell.textLabel?.text = LocalizedString("Correction Range", comment: "The title text for the glucose target range schedule")
             case .insulinSensitivity:
                 cell.textLabel?.text = LocalizedString("Insulin Sensitivity", comment: "The title text for the glucose target range schedule")
             case .pumpID:
@@ -154,7 +154,7 @@ class MasterViewController: UITableViewController {
                 scheduleVC.syncSource = self
 
                 show(scheduleVC, sender: sender)
-            case .glucoseTargetRange:
+            case .correctionRange:
 
                 let unit = dataManager?.glucoseTargetRangeSchedule?.unit ?? dataManager?.glucoseStore.preferredUnit ?? HKUnit.milligramsPerDeciliter
 
