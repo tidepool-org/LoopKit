@@ -161,12 +161,15 @@ class MasterViewController: UITableViewController {
                 let scheduleVC = GlucoseRangeScheduleTableViewController(allowedValues: unit.allowedCorrectionRangeValues, unit: unit)
 
                 scheduleVC.delegate = self
-                scheduleVC.glucoseRangeScheduleStorageDelegate = self
                 scheduleVC.title = sender?.textLabel?.text
 
                 if let schedule = dataManager?.glucoseTargetRangeSchedule {
-                    scheduleVC.schedule = schedule
+                    var overrides: [TemporaryScheduleOverride.Context: DoubleRange] = [:]
+                    overrides[.preMeal] = dataManager?.preMealTargetRange
+                    overrides[.legacyWorkout] = dataManager?.legacyWorkoutTargetRange
+                    scheduleVC.setSchedule(schedule, withOverrideRanges: overrides)
                 }
+
                 show(scheduleVC, sender: sender)
             case .insulinSensitivity:
                 let defaultGlucoseUnits = dataManager?.glucoseStore.preferredUnit ?? HKUnit.milligramsPerDeciliter
@@ -374,8 +377,18 @@ extension MasterViewController: InsulinSensitivityScheduleStorageDelegate {
 }
 
 extension MasterViewController: GlucoseRangeScheduleStorageDelegate {
-    func saveSchedule(_ schedule: GlucoseRangeSchedule, for viewController: GlucoseRangeScheduleTableViewController, completion: @escaping (SaveGlucoseRangeScheduleResult) -> Void) {
-        self.dataManager?.glucoseTargetRangeSchedule = schedule
+    func saveSchedule(for viewController: GlucoseRangeScheduleTableViewController, completion: @escaping (SaveGlucoseRangeScheduleResult) -> Void) {
+        self.dataManager?.glucoseTargetRangeSchedule = viewController.schedule
+        for (context, range) in viewController.overrideRanges {
+            switch context {
+            case .preMeal:
+                self.dataManager?.preMealTargetRange = range
+            case .legacyWorkout:
+                self.dataManager?.legacyWorkoutTargetRange = range
+            default:
+                break
+            }
+        }
         completion(.success)
     }
 }

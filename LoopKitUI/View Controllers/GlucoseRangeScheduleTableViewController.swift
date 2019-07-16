@@ -16,20 +16,20 @@ public enum SaveGlucoseRangeScheduleResult {
 }
 
 public protocol GlucoseRangeScheduleStorageDelegate {
-    func saveSchedule(_ schedule: GlucoseRangeSchedule, for viewController: GlucoseRangeScheduleTableViewController, completion: @escaping (_ result: SaveGlucoseRangeScheduleResult) -> Void)
+    func saveSchedule(for viewController: GlucoseRangeScheduleTableViewController, completion: @escaping (_ result: SaveGlucoseRangeScheduleResult) -> Void)
 }
 
 private struct EditableRange {
     public let minValue: Double?
     public let maxValue: Double?
 
-    public init(minValue: Double?, maxValue: Double?) {
+    init(minValue: Double?, maxValue: Double?) {
         self.minValue = minValue
         self.maxValue = maxValue
     }
 }
 
-public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableViewController, GlucoseRangeTableViewCellDelegate {
+public class GlucoseRangeScheduleTableViewController: UITableViewController {
 
     public init(allowedValues: [Double], minimumTimeInterval: TimeInterval? = nil, unit: HKUnit) {
         self.allowedValues = allowedValues
@@ -38,7 +38,6 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         super.init(style: .grouped)
 
         self.unit = unit
-        unitDisplayString = unit.glucoseUnitDisplayString
     }
 
     public required init?(coder aDecoder: NSCoder) {
@@ -52,18 +51,18 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         tableView.register(GlucoseRangeOverrideTableViewCell.nib(), forCellReuseIdentifier: GlucoseRangeOverrideTableViewCell.className)
         tableView.register(TextButtonTableViewCell.self, forCellReuseIdentifier: TextButtonTableViewCell.className)
 
+        navigationItem.rightBarButtonItems = [insertButtonItem, editButtonItem]
+
         updateEditButton()
-    }
-
-    public override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        delegate?.dailyValueScheduleTableViewControllerWillFinishUpdating(self)
     }
 
     @objc private func cancel(_ sender: Any?) {
         self.navigationController?.popViewController(animated: true)
     }
+
+    public private(set) lazy var insertButtonItem: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addScheduleItem(_:)))
+    }()
 
     private func updateInsertButton() {
         guard let lastItem = editableItems.last else {
@@ -71,6 +70,13 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         }
         insertButtonItem.isEnabled = !isEditing && lastItem.startTime < lastValidStartTime
     }
+
+    open override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+
+        updateInsertButton()
+    }
+
 
     private func updateSaveButton() {
         if let section = sections.firstIndex(of: .save), let cell = tableView.cellForRow(at: IndexPath(row: 0, section: section)) as? TextButtonTableViewCell {
@@ -87,72 +93,20 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         editButtonItem.isEnabled = editableItems.endIndex > 1
     }
 
+    public func setSchedule(_ schedule: GlucoseRangeSchedule, withOverrideRanges overrides: [TemporaryScheduleOverride.Context: DoubleRange]) {
+        unit = schedule.unit
+        editableItems = schedule.items.map({ (item) -> RepeatingScheduleValue<EditableRange> in
+            let range = EditableRange(minValue: item.value.minValue, maxValue: item.value.maxValue)
+            return RepeatingScheduleValue<EditableRange>(startTime: item.startTime, value: range)
+        })
 
-    // MARK: - State
-
-    public var glucoseRangeScheduleStorageDelegate: GlucoseRangeScheduleStorageDelegate?
-
-    let allowedValues: [Double]
-    let minimumTimeInterval: TimeInterval
-
-    var lastValidStartTime: TimeInterval {
-        return TimeInterval.hours(24) - minimumTimeInterval
-    }
-
-    private var unit: HKUnit = HKUnit.milligramsPerDeciliter {
-        didSet {
-            unitDisplayString = unit.glucoseUnitDisplayString
+        editableOverrideRanges.removeAll()
+        for (context, range) in overrides {
+            editableOverrideRanges[context] = EditableRange(minValue: range.minValue, maxValue: range.maxValue)
         }
+
+        isScheduleModified = false
     }
-
-    private var isScheduleModified = false {
-        didSet {
-            if isScheduleModified {
-                self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
-            } else {
-                self.navigationItem.leftBarButtonItem = nil
-            }
-            updateSaveButton()
-        }
-    }
-
-    private var editableItems: [RepeatingScheduleValue<EditableRange>] = [] {
-        didSet {
-            isScheduleModified = true
-            updateInsertButton()
-            updateEditButton()
-        }
-    }
-
-    public var schedule: GlucoseRangeSchedule? {
-        get {
-            let dailyItems = editableItems.compactMap { (item) -> RepeatingScheduleValue<DoubleRange>? in
-                guard isValid(item.value) else {
-                    return nil
-                }
-                guard let min = item.value.minValue, let max = item.value.maxValue else {
-                    return nil
-                }
-                let range = DoubleRange(minValue: min, maxValue: max)
-                return RepeatingScheduleValue(startTime: item.startTime, value: range)
-            }
-            return GlucoseRangeSchedule(unit: unit, dailyItems: dailyItems)
-        }
-        set {
-            if let newValue = newValue {
-                unit = newValue.unit
-                editableItems = newValue.items.map({ (item) -> RepeatingScheduleValue<EditableRange> in
-                    let range = EditableRange(minValue: item.value.minValue, maxValue: item.value.maxValue)
-                    return RepeatingScheduleValue<EditableRange>(startTime: item.startTime, value: range)
-                })
-                isScheduleModified = false
-            }
-        }
-    }
-
-    public var overrideContexts: [TemporaryScheduleOverride.Context] = [.preMeal, .legacyWorkout]
-
-    public var overrideRanges: [TemporaryScheduleOverride.Context: DoubleRange] = [:]
 
     private func isValid(_ range: EditableRange) -> Bool {
         guard let max = range.maxValue, let min = range.minValue else {
@@ -161,7 +115,7 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         return allowedValues.contains(max) && allowedValues.contains(min)
     }
 
-    override func addScheduleItem(_ sender: Any?) {
+    @IBAction func addScheduleItem(_ sender: Any?) {
 
         guard let allowedTimeRange = allowedTimeRange(for: editableItems.count) else {
             return
@@ -213,9 +167,99 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
         return minTime...maxTime
     }
 
-    override func insertableIndiciesByRemovingRow(_ row: Int, withInterval timeInterval: TimeInterval) -> [Bool] {
-        return insertableIndices(for: editableItems, removing: row, with: timeInterval)
+    func insertableIndices(removing row: Int) -> [Bool] {
+
+        let insertableIndices = editableItems.enumerated().map { (enumeration) -> Bool in
+            let (index, item) = enumeration
+
+            if row == index {
+                return true
+            } else if index == 0 {
+                return false
+            } else if index == editableItems.endIndex - 1 {
+                return item.startTime < TimeInterval(hours: 24) - minimumTimeInterval
+            } else if index > row {
+                return editableItems[index + 1].startTime - item.startTime > minimumTimeInterval
+            } else {
+                return item.startTime - editableItems[index - 1].startTime > minimumTimeInterval
+            }
+        }
+
+        return insertableIndices
     }
+
+
+
+    // MARK: - State
+
+    public var delegate: GlucoseRangeScheduleStorageDelegate?
+
+    let allowedValues: [Double]
+    let minimumTimeInterval: TimeInterval
+
+    var lastValidStartTime: TimeInterval {
+        return TimeInterval.hours(24) - minimumTimeInterval
+    }
+
+    public var timeZone = TimeZone.currentFixed
+
+    private var unit: HKUnit = HKUnit.milligramsPerDeciliter
+
+    private var isScheduleModified = false {
+        didSet {
+            if isScheduleModified {
+                self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
+            } else {
+                self.navigationItem.leftBarButtonItem = nil
+            }
+            updateSaveButton()
+        }
+    }
+
+    private var editableItems: [RepeatingScheduleValue<EditableRange>] = [] {
+        didSet {
+            isScheduleModified = true
+            updateInsertButton()
+            updateEditButton()
+        }
+    }
+
+    public var schedule: GlucoseRangeSchedule? {
+        get {
+            let dailyItems = editableItems.compactMap { (item) -> RepeatingScheduleValue<DoubleRange>? in
+                guard isValid(item.value) else {
+                    return nil
+                }
+                guard let min = item.value.minValue, let max = item.value.maxValue else {
+                    return nil
+                }
+                let range = DoubleRange(minValue: min, maxValue: max)
+                return RepeatingScheduleValue(startTime: item.startTime, value: range)
+            }
+            return GlucoseRangeSchedule(unit: unit, dailyItems: dailyItems)
+        }
+    }
+
+    public var overrideContexts: [TemporaryScheduleOverride.Context] = [.preMeal, .legacyWorkout]
+
+    private var editableOverrideRanges: [TemporaryScheduleOverride.Context: EditableRange] = [:] {
+        didSet {
+            isScheduleModified = true
+        }
+    }
+
+    public var overrideRanges: [TemporaryScheduleOverride.Context: DoubleRange] {
+        get {
+            var setRanges: [TemporaryScheduleOverride.Context: DoubleRange] = [:]
+            for (context, range) in editableOverrideRanges {
+                if let minValue = range.minValue, let maxValue = range.maxValue, isValid(range) {
+                    setRanges[context] = DoubleRange(minValue: minValue, maxValue: maxValue)
+                }
+            }
+            return setRanges
+        }
+    }
+
 
     // MARK: - UITableViewDataSource
 
@@ -269,7 +313,7 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
 
             cell.minValue = item.value.minValue
             cell.maxValue = item.value.maxValue
-            cell.unitString = unitDisplayString
+            cell.unitString = unit.glucoseUnitDisplayString
             cell.delegate = self
 
             if let allowedTimeRange = allowedTimeRange(for: indexPath.row) {
@@ -282,6 +326,7 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
 
             cell.valueNumberFormatter.minimumFractionDigits = unit.preferredFractionDigits
             cell.valueNumberFormatter.maximumFractionDigits = unit.preferredFractionDigits
+            cell.allowedValues = allowedValues
 
             let context = overrideContexts[indexPath.row]
 
@@ -305,10 +350,10 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
                 preconditionFailure("Unexpected override context \(context)")
             }
 
-            cell.titleLabel.text = titleText
+            cell.dateLabel.text = titleText
             cell.iconImageView.image = image
 
-            cell.unitString = unitDisplayString
+            cell.unitString = unit.glucoseUnitDisplayString
             cell.delegate = self
 
             return cell
@@ -365,7 +410,7 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
     public override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         switch sections[indexPath.section] {
         case .schedule:
-            return true
+            return indexPath.row > 0
         default:
             return false
         }
@@ -405,59 +450,89 @@ public class GlucoseRangeScheduleTableViewController: DailyValueScheduleTableVie
     }
 
     public override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        tableView.beginUpdates()
         switch sections[indexPath.section] {
         case .schedule:
             updateTimeLimits(for: indexPath.row)
-            tableView.performBatchUpdates({
-                hideGlucoseRangeCells(excluding: indexPath)
-            }, completion: nil)
-            return super.tableView(tableView, willSelectRowAt: indexPath)
+            hideGlucoseRangeCells(excluding: indexPath)
+        case .override:
+            hideGlucoseRangeCells(excluding: indexPath)
         default:
-            return indexPath
+            break
         }
+        tableView.endEditing(false)
+
+        return indexPath
+    }
+
+    public override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        tableView.beginUpdates()
+        tableView.endUpdates()
     }
 
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch sections[indexPath.section] {
-        case .schedule:
-            super.tableView(tableView, didSelectRowAt: indexPath)
-        case .override:
-            break
         case .save:
-            if let schedule = schedule {
-                glucoseRangeScheduleStorageDelegate?.saveSchedule(schedule, for: self, completion: { (result) in
-                    switch result {
-                    case .success:
-                        self.delegate?.dailyValueScheduleTableViewControllerWillFinishUpdating(self)
-                        self.isScheduleModified = false
-                        self.updateInsertButton()
-                    case .failure(let error):
-                        self.present(UIAlertController(with: error), animated: true)
-                    }
-                })
-            }
+            delegate?.saveSchedule(for: self, completion: { (result) in
+                switch result {
+                case .success:
+                    self.isScheduleModified = false
+                    self.updateInsertButton()
+                case .failure(let error):
+                    self.present(UIAlertController(with: error), animated: true)
+                }
+            })
+        default:
+            break
         }
+        tableView.endEditing(false)
+        tableView.endUpdates()
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 
-    // MARK: - GlucoseRangeTableViewCellDelegate
-    func glucoseRangeTableViewCellDidUpdate(_ cell: GlucoseRangeTableViewCell) {
-        if let indexPath = tableView.indexPath(for: cell) {
-            editableItems[indexPath.row] = RepeatingScheduleValue(
-                startTime: cell.startTime,
-                value: EditableRange(minValue: cell.minValue, maxValue: cell.maxValue)
-            )
+    public override func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+
+        guard sourceIndexPath.section == proposedDestinationIndexPath.section else {
+            return sourceIndexPath
+        }
+
+        guard sourceIndexPath != proposedDestinationIndexPath else {
+            return proposedDestinationIndexPath
+        }
+
+        let indices = insertableIndices(removing: sourceIndexPath.row)
+
+        if indices[proposedDestinationIndexPath.row] {
+            return proposedDestinationIndexPath
+        } else {
+            var closestRow = sourceIndexPath.row
+
+            for (index, valid) in indices.enumerated() where valid {
+                if abs(proposedDestinationIndexPath.row - index) < closestRow {
+                    closestRow = index
+                }
+            }
+
+            return IndexPath(row: closestRow, section: proposedDestinationIndexPath.section)
         }
     }
 }
 
-
-extension GlucoseRangeScheduleTableViewController: GlucoseRangeOverrideTableViewCellDelegate {
-    func glucoseRangeOverrideTableViewCellDidUpdateValue(_ cell: GlucoseRangeOverrideTableViewCell) {
-        guard let indexPath = tableView.indexPath(for: cell) else {
-            return
+extension GlucoseRangeScheduleTableViewController : GlucoseRangeTableViewCellDelegate {
+    func glucoseRangeTableViewCellDidUpdate(_ cell: GlucoseRangeTableViewCell) {
+        if let indexPath = tableView.indexPath(for: cell) {
+            switch sections[indexPath.section] {
+            case .schedule:
+                editableItems[indexPath.row] = RepeatingScheduleValue(
+                    startTime: cell.startTime,
+                    value: EditableRange(minValue: cell.minValue, maxValue: cell.maxValue)
+                )
+            case .override:
+                let context = overrideContexts[indexPath.row]
+                editableOverrideRanges[context] = EditableRange(minValue: cell.minValue, maxValue: cell.maxValue)
+            default:
+                break
+            }
         }
-
-        let context = overrideContexts[indexPath.row]
-        overrideRanges[context] = DoubleRange(minValue: cell.minValue, maxValue: cell.maxValue)
     }
 }

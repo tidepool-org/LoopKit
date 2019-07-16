@@ -8,19 +8,30 @@
 
 import UIKit
 
-private enum Component: Int, CaseIterable {
-    case time = 0
-    case minValue
-    case separator
-    case maxValue
-    case units
-}
-
 protocol GlucoseRangeTableViewCellDelegate: class {
     func glucoseRangeTableViewCellDidUpdate(_ cell: GlucoseRangeTableViewCell)
 }
 
 class GlucoseRangeTableViewCell: UITableViewCell {
+
+    public enum Component: Int, CaseIterable {
+        case time = 0
+        case minValue
+        case separator
+        case maxValue
+        case units
+
+        var placeholderString: String? {
+            switch self {
+            case .minValue:
+                return LocalizedString("min", comment: "Placeholder for minimum value in glucose range")
+            case .maxValue:
+                return LocalizedString("max", comment: "Placeholder for maximum value in glucose range")
+            default:
+                return nil
+            }
+        }
+    }
 
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet open weak var picker: UIPickerView!
@@ -34,6 +45,8 @@ class GlucoseRangeTableViewCell: UITableViewCell {
     public var minimumTimeInterval: TimeInterval = .hours(0.5)
 
     public weak var delegate: GlucoseRangeTableViewCellDelegate?
+
+    var allowTimeSelection: Bool = true
 
     var minValue: Double? {
         didSet {
@@ -264,28 +277,39 @@ extension GlucoseRangeTableViewCell: UIPickerViewDelegate {
         return metrics.scaledValue(for: 32)
     }
 
-    func pickerView(_ pickerView: UIPickerView,
-                    titleForRow row: Int,
-                    forComponent component: Int) -> String? {
+    func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
 
-        switch Component(rawValue: component)! {
+        let title: String?
+        let component = Component(rawValue: component)!
+        var attributes: [NSAttributedString.Key : Any]? = nil
+
+        switch component {
         case .time:
             let time = startTimeForTimeComponent(row: row)
-            return stringForStartTime(time)
+            title = stringForStartTime(time)
         case .minValue:
-            guard row < allowedMinValues.count else {
-                return nil
+            if row >= allowedMinValues.count {
+                title = component.placeholderString
+                attributes = [.foregroundColor: UIColor.lightGray]
+            } else {
+                title = valueNumberFormatter.string(from: allowedMinValues[row])
             }
-            return valueNumberFormatter.string(from: allowedMinValues[row])
         case .maxValue:
-            guard row < allowedMaxValues.count else {
-                return nil
+            if row >= allowedMaxValues.count {
+                title = component.placeholderString
+                attributes = [.foregroundColor: UIColor.lightGray]
+            } else {
+                title = valueNumberFormatter.string(from: allowedMaxValues[row])
             }
-            return valueNumberFormatter.string(from: allowedMaxValues[row])
         case .separator:
-            return "–"
+            title = LocalizedString("-", comment: "Separator between min and max glucose values")
         case .units:
-            return unitString
+            title = unitString
+        }
+        if let title = title {
+            return NSAttributedString(string: title, attributes: attributes)
+        } else {
+            return nil
         }
     }
 }
@@ -298,7 +322,11 @@ extension GlucoseRangeTableViewCell: UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         switch Component(rawValue: component)! {
         case .time:
-            return Int(round((allowedTimeRange.upperBound - allowedTimeRange.lowerBound) / minimumTimeInterval) + 1)
+            if allowTimeSelection {
+                return Int(round((allowedTimeRange.upperBound - allowedTimeRange.lowerBound) / minimumTimeInterval) + 1)
+            } else {
+                return 0
+            }
         case .minValue:
             return allowedMinValues.count + (minValue != nil ? 0 : 1)
         case .maxValue:
