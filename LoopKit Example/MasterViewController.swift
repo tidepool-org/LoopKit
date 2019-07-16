@@ -171,9 +171,11 @@ class MasterViewController: UITableViewController {
                     self.show(scheduleVC, sender: sender)
                 }
             case .insulinSensitivity:
-                let unit = dataManager?.insulinSensitivitySchedule?.unit ?? HKUnit.milligramsPerDeciliter.unitDivided(by: .internationalUnit())
+                let defaultGlucoseUnits = dataManager?.glucoseStore.preferredUnit ?? HKUnit.milligramsPerDeciliter
+                let unit = dataManager?.insulinSensitivitySchedule?.unit ?? defaultGlucoseUnits.unitDivided(by: .internationalUnit())
                 let scheduleVC = InsulinSensitivityScheduleViewController(allowedValues: unit.allowedSensitivityValues)
 
+                scheduleVC.unit = unit
                 scheduleVC.delegate = self
                 scheduleVC.insulinSensitivityScheduleStorageDelegate = self
                 scheduleVC.schedule = dataManager?.insulinSensitivitySchedule
@@ -383,7 +385,7 @@ extension MasterViewController: BasalScheduleTableViewControllerSyncSource {
 }
 
 extension MasterViewController: InsulinSensitivityScheduleStorageDelegate {
-    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (SaveInsulinSensitivityScheduleResult<Double>) -> Void) {
+    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (SaveInsulinSensitivityScheduleResult) -> Void) {
         self.dataManager?.insulinSensitivitySchedule = schedule
         completion(.success)
     }

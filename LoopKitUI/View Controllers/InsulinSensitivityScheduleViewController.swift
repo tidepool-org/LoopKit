@@ -10,13 +10,13 @@ import UIKit
 import HealthKit
 import LoopKit
 
-public enum SaveInsulinSensitivityScheduleResult<T: RawRepresentable> {
+public enum SaveInsulinSensitivityScheduleResult {
     case success
     case failure(Error)
 }
 
 public protocol InsulinSensitivityScheduleStorageDelegate {
-    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (_ result: SaveInsulinSensitivityScheduleResult<Double>) -> Void)
+    func saveSchedule(_ schedule: InsulinSensitivitySchedule, for viewController: InsulinSensitivityScheduleViewController, completion: @escaping (_ result: SaveInsulinSensitivityScheduleResult) -> Void)
 }
 
 public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableViewController {
@@ -275,7 +275,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
     open override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         switch Section(rawValue: section)! {
         case .schedule:
-            return LocalizedString("Insulin sensitivity describes how your blood glucose should respond to a given dose of insulin. Smaller values mean more insulin should be given when above target. Values that are too small can cause dangerously low blood sugars.", comment: "The description shown on the insulin sensitivity schedule interface.")
+            return LocalizedString("Insulin sensitivity describes how your blood glucose should respond to a 1 Unit dose of insulin. Smaller values mean more insulin will be given when above target. Values that are too small can cause dangerously low blood glucose.", comment: "The description shown on the insulin sensitivity schedule interface.")
         case .sync:
             return nil
         }
