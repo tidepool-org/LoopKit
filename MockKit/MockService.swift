@@ -90,97 +90,9 @@ extension MockService {
 
 extension MockService: Analytics {
 
-    // MARK: - UIApplicationDelegate
-
-    public func application(didFinishLaunchingWithOptions launchOptions: [AnyHashable: Any]?) {
-        recordAnalytics("applicationDidFinishLaunchingWithOptions; launchOptions: \(launchOptions ?? [:])")
-    }
-
-    // MARK: - Screens
-
-    public func didDisplayBolusScreen() {
-        recordAnalytics("didDisplayBolusScreen")
-    }
-
-    public func didDisplaySettingsScreen() {
-        recordAnalytics("didDisplaySettingsScreen")
-    }
-
-    public func didDisplayStatusScreen() {
-        recordAnalytics("didDisplayStatusScreen")
-    }
-
-    // MARK: - Config Events
-
-    public func transmitterTimeDidDrift(_ drift: TimeInterval) {
-        recordAnalytics("transmitterTimeDidDrift; drift: \(drift)")
-    }
-
-    public func pumpTimeDidDrift(_ drift: TimeInterval) {
-        recordAnalytics("pumpTimeDidDrift; drift: \(drift)")
-    }
-
-    public func pumpTimeZoneDidChange() {
-        recordAnalytics("pumpTimeZoneDidChange")
-    }
-
-    public func pumpBatteryWasReplaced() {
-        recordAnalytics("pumpBatteryWasReplaced")
-    }
-
-    public func reservoirWasRewound() {
-        recordAnalytics("reservoirWasRewound")
-    }
-
-    public func didChangeBasalRateSchedule() {
-        recordAnalytics("didChangeBasalRateSchedule")
-    }
-
-    public func didChangeCarbRatioSchedule() {
-        recordAnalytics("didChangeCarbRatioSchedule")
-    }
-
-    public func didChangeInsulinModel() {
-        recordAnalytics("didChangeInsulinModel")
-    }
-
-    public func didChangeInsulinSensitivitySchedule() {
-        recordAnalytics("didChangeInsulinSensitivitySchedule")
-    }
-
-    public func didChangeLoopSettings(from oldValue: LoopSettings, to newValue: LoopSettings) {
-        recordAnalytics("didChangeLoopSettings; from: \(oldValue); to: \(newValue)")
-    }
-
-    // MARK: - Loop Events
-
-    public func didAddCarbsFromWatch() {
-        recordAnalytics("didAddCarbsFromWatch")
-    }
-
-    public func didRetryBolus() {
-        recordAnalytics("didRetryBolus")
-    }
-
-    public func didSetBolusFromWatch(_ units: Double) {
-        recordAnalytics("didSetBolusFromWatch; units: \(units)")
-    }
-
-    public func didFetchNewCGMData() {
-        recordAnalytics("didFetchNewCGMData")
-    }
-
-    public func loopDidSucceed() {
-        recordAnalytics("loopDidSucceed")
-    }
-
-    public func loopDidError() {
-        recordAnalytics("loopDidError")
-    }
-
-    private func recordAnalytics(_ message: String) {
+    public func recordAnalyticsEvent(_ name: String, withProperties properties: [AnyHashable: Any]?, outOfSession: Bool) {
         if analytics {
-            record("[Analytics] \(message)")
+            record("[Analytics] \(name) \(String(describing: properties)) \(outOfSession)")
         }
     }
 
@@ -221,10 +133,6 @@ extension MockService: RemoteData {
             "last reservoir value (\(String(describing: lastReservoirValue)))",
             "pump manager status (\(String(describing: pumpManagerStatus)))",
             "and loop error (\(String(describing: loopError)))"].joined(separator: "; "))
-    }
-
-    public func upload(pumpStatus: PumpStatus?, deviceName: String?, firmwareVersion: String?) {
-        recordRemoteData("Upload pump status (\(String(describing: pumpStatus))) with device name (\(String(describing: deviceName))) and firmware version (\(String(describing: firmwareVersion)))")
     }
 
     public func upload(glucoseValues values: [GlucoseValue], sensorState: SensorDisplayable?) {

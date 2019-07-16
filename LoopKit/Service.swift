@@ -10,12 +10,18 @@
 public protocol ServiceDelegate: AnyObject {
 
     /// Informs the delegate that the specified service was updated.
+    /// An existing service is considered updated when the credentials,
+    /// authorization, or any other configuration necessary for the
+    /// service are changed. The delegate should respond by writing
+    /// the specified service to persistent storage.
     ///
     /// - Parameters:
     ///     - service: The service updated.
     func serviceUpdated(_ service: Service)
 
     /// Informs the delegate that the specified service was deleted.
+    /// The delegate should respond by removing the specified service
+    /// from persistent storage.
     ///
     /// - Parameters:
     ///     - service: The service deleted.
@@ -28,14 +34,14 @@ public protocol Service: DeviceManager {
 
     var serviceDelegate: ServiceDelegate? { get set }
 
-    /// Is the service complete?
-    var isComplete: Bool { get }
+    /// Does the service have a valid configuration?
+    var hasValidConfiguration: Bool { get }
 
-    /// Verify the service. Send any error to completion closure.
+    /// Verify the service configuration. Send any error to completion closure.
     ///
     /// - Parameters:
     ///     - completion: A closure called once upon completion with any error.
-    func verify(completion: @escaping (Error?) -> Void)
+    func verifyConfiguration(completion: @escaping (Error?) -> Void)
 
     /// Informs the service that it was created.
     ///
@@ -60,9 +66,9 @@ public protocol Service: DeviceManager {
 
 public extension Service {
 
-    var isComplete: Bool { return true }
+    var hasValidConfiguration: Bool { return true }
 
-    func verify(completion: @escaping (Error?) -> Void) {
+    func verifyConfiguration(completion: @escaping (Error?) -> Void) {
         completion(nil)
     }
 

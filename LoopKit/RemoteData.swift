@@ -21,8 +21,6 @@ public protocol RemoteData {
                           pumpManagerStatus: PumpManagerStatus?,
                           loopError: Error?)
 
-    func upload(pumpStatus: PumpStatus?, deviceName: String?, firmwareVersion: String?)
-
     func upload(glucoseValues values: [GlucoseValue], sensorState: SensorDisplayable?)
 
     func upload(pumpEvents events: [PersistedPumpEvent], fromSource source: String, completion: @escaping (Result<[URL], Error>) -> Void)

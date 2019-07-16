@@ -43,7 +43,7 @@ open class ServiceTableViewController: UITableViewController {
     }
 
     public func updateButtonStates() {
-        navigationItem.rightBarButtonItem?.isEnabled = service.isComplete
+        navigationItem.rightBarButtonItem?.isEnabled = service.hasValidConfiguration
     }
 
     @objc public func cancel() {
@@ -53,7 +53,7 @@ open class ServiceTableViewController: UITableViewController {
     }
 
     @objc public func done() {
-        guard service.isComplete else {
+        guard service.hasValidConfiguration else {
             return
         }
 
@@ -63,7 +63,7 @@ open class ServiceTableViewController: UITableViewController {
             self.navigationItem.titleView = ValidatingIndicatorView(frame: CGRect.zero)
         })
 
-        service.verify { error in
+        service.verifyConfiguration { error in
             DispatchQueue.main.async {
                 UIView.animate(withDuration: 0.25, animations: {
                     self.navigationItem.titleView = nil
