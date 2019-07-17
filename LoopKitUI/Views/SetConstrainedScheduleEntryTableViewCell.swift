@@ -281,7 +281,7 @@ extension SetConstrainedScheduleEntryTableViewCell: UIPickerViewDelegate {
             let time = startTimeForTimeComponent(row: row)
             return stringForStartTime(time)
         case .value:
-            let valueRow = emptySelectionType == .firstIndex ? row - 1 : row
+            let valueRow = row - emptySelectionType.rowOffset
             guard valueRow >= 0 && valueRow < allowedValues.count else {
                 return nil
             }
