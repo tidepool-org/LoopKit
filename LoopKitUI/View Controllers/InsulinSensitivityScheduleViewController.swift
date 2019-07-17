@@ -92,7 +92,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
             } else {
                 self.navigationItem.leftBarButtonItem = nil
             }
-            updateSyncButton()
+            updateSaveButton()
         }
     }
 
@@ -109,9 +109,9 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
     }
 
 
-    private func updateSyncButton() {
-        if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: Section.sync.rawValue)) as? TextButtonTableViewCell {
-            cell.isEnabled = isScheduleModified && isScheduleValid
+    private func updateSaveButton() {
+        if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: Section.save.rawValue)) as? TextButtonTableViewCell {
+            cell.isEnabled = !isEditing && isScheduleModified && isScheduleValid
         }
     }
 
@@ -180,7 +180,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
 
         super.setEditing(editing, animated: animated)
         updateInsertButton()
-        updateSyncButton()
+        updateSaveButton()
     }
 
 
@@ -211,7 +211,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
 
     private enum Section: Int, CaseIterable {
         case schedule
-        case sync
+        case save
     }
 
     open override func numberOfSections(in tableView: UITableView) -> Int {
@@ -222,7 +222,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
         switch Section(rawValue: section)! {
         case .schedule:
             return internalItems.endIndex
-        case .sync:
+        case .save:
             return 1
         }
     }
@@ -263,7 +263,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
             cell.emptySelectionType = .lastIndex
 
             return cell
-        case .sync:
+        case .save:
             let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
             cell.textLabel?.text = LocalizedString("Save", comment: "Button text for saving insulin sensitivity schedule")
             cell.isEnabled = isScheduleModified && isScheduleValid
@@ -276,7 +276,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
         switch Section(rawValue: section)! {
         case .schedule:
             return LocalizedString("Insulin sensitivity describes how your blood glucose should respond to a 1 Unit dose of insulin. Smaller values mean more insulin will be given when above target. Values that are too small can cause dangerously low blood glucose.", comment: "The description shown on the insulin sensitivity schedule interface.")
-        case .sync:
+        case .save:
             return nil
         }
     }
@@ -343,7 +343,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
         switch Section(rawValue: indexPath.section)! {
         case .schedule:
             break
-        case .sync:
+        case .save:
             if let schedule = schedule {
                 insulinSensitivityScheduleStorageDelegate?.saveSchedule(schedule, for: self, completion: { (result) in
                     switch result {
