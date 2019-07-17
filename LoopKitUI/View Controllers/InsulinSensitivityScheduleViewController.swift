@@ -87,11 +87,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
 
     private var isScheduleModified = false {
         didSet {
-            if isScheduleModified {
-                self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
-            } else {
-                self.navigationItem.leftBarButtonItem = nil
-            }
+            updateCancelButton()
             updateSaveButton()
         }
     }
@@ -108,6 +104,13 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
             internalItems.allSatisfy { isValid($0.value) }
     }
 
+    private func updateCancelButton() {
+        if isScheduleModified {
+            self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
+        } else {
+            self.navigationItem.leftBarButtonItem = nil
+        }
+    }
 
     private func updateSaveButton() {
         if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: Section.save.rawValue)) as? TextButtonTableViewCell {
