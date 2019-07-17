@@ -279,7 +279,7 @@ extension SetConstrainedScheduleEntryTableViewCell: UIPickerViewDelegate {
             guard valueRow >= 0 && valueRow < allowedValues.count else {
                 return nil
             }
-            return formatValue(allowedValues[row])
+            return formatValue(allowedValues[valueRow])
         }
     }
 }
