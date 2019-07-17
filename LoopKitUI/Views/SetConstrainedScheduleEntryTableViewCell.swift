@@ -74,6 +74,8 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
         didSet {
             if let unit = unit {
                 valueQuantityFormatter.setPreferredNumberFormatter(for: unit)
+                picker.reloadAllComponents()
+                updateValuePicker()
             }
         }
     }
