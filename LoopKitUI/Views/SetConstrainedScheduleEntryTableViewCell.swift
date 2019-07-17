@@ -211,7 +211,7 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
                 selectedIndex = row + rowOffset
             } else {
                 // Select next highest value
-                selectedIndex = allowedValues.enumerated().filter({$0.element >= value}).min(by: { $0.1 < $1.1 })?.offset ?? 0
+                selectedIndex = (allowedValues.enumerated().filter({$0.element >= value}).min(by: { $0.1 < $1.1 })?.offset ?? 0) + rowOffset
             }
         } else {
             switch emptySelectionType {
