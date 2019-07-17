@@ -21,7 +21,7 @@ private enum Component: Int, CaseIterable {
 
 class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
 
-    enum EmptySelectionType {
+    public enum EmptySelectionType {
         case none
         case firstIndex
         case lastIndex

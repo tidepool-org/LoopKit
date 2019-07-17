@@ -176,6 +176,7 @@ class MasterViewController: UITableViewController {
                 let unit = dataManager?.insulinSensitivitySchedule?.unit ?? defaultGlucoseUnits.unitDivided(by: .internationalUnit())
                 let scheduleVC = InsulinSensitivityScheduleViewController(allowedValues: unit.allowedSensitivityValues)
 
+                scheduleVC.unit = unit
                 scheduleVC.delegate = self
                 scheduleVC.insulinSensitivityScheduleStorageDelegate = self
                 scheduleVC.schedule = dataManager?.insulinSensitivitySchedule
