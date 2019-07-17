@@ -92,7 +92,7 @@ class MasterViewController: UITableViewController {
             case .glucoseTargetRange:
                 cell.textLabel?.text = LocalizedString("Glucose Target Range", comment: "The title text for the glucose target range schedule")
             case .insulinSensitivity:
-                cell.textLabel?.text = LocalizedString("Insulin Sensitivity", comment: "The title text for the glucose target range schedule")
+                cell.textLabel?.text = LocalizedString("Insulin Sensitivity", comment: "The title text for the insulin sensitivity schedule")
             case .pumpID:
                 cell.textLabel?.text = LocalizedString("Pump ID", comment: "The title text for the pump ID")
             }
