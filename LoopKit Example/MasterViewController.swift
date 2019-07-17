@@ -397,12 +397,4 @@ private extension HKUnit {
 
         return []
     }
-
-    var defaultSensitivityValue: Double {
-        if self == HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()) {
-            return 6
-        } else {
-            return 100
-        }
-    }
 }
