@@ -323,7 +323,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
     // MARK: - UITableViewDelegate
 
     open override func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        guard indexPath.section == 0 else {
+        guard indexPath.section == Section.schedule.rawValue else {
             return super.tableView(tableView, shouldHighlightRowAt: indexPath)
         }
 
