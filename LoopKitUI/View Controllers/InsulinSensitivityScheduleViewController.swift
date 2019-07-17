@@ -21,9 +21,9 @@ public protocol InsulinSensitivityScheduleStorageDelegate {
 
 public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableViewController {
 
-    public init(allowedValues: [Double], minimumTimeInterval: TimeInterval? = nil) {
+    public init(allowedValues: [Double], minimumTimeInterval: TimeInterval = TimeInterval(30 * 60)) {
         self.allowedValues = allowedValues
-        self.minimumTimeInterval = minimumTimeInterval ?? .minutes(30)
+        self.minimumTimeInterval = minimumTimeInterval
 
         super.init(style: .grouped)
     }
