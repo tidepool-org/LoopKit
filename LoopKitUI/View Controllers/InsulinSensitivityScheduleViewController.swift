@@ -67,6 +67,8 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
                     RepeatingScheduleValue(startTime: entry.startTime, value: entry.value)
                 }
                 isScheduleModified = false
+            } else {
+                internalItems = []
             }
         }
     }
