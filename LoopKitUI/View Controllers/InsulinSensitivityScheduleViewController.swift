@@ -304,12 +304,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
             let item = internalItems.remove(at: sourceIndexPath.row)
             internalItems.insert(item, at: destinationIndexPath.row)
 
-            guard destinationIndexPath.row > 0, let cell = tableView.cellForRow(at: destinationIndexPath) as? SetConstrainedScheduleEntryTableViewCell else {
-                return
-            }
-
-            let interval = cell.minimumTimeInterval
-            let startTime = internalItems[destinationIndexPath.row - 1].startTime + interval
+            let startTime = internalItems[destinationIndexPath.row - 1].startTime + minimumTimeInterval
 
             internalItems[destinationIndexPath.row] = RepeatingScheduleValue(startTime: startTime, value: internalItems[destinationIndexPath.row].value)
 
