@@ -46,44 +46,38 @@ class MasterViewController: UITableViewController {
 
     // MARK: - Data Source
 
-    private enum Section: Int {
+    private enum Section: Int, CaseIterable {
         case data
         case configuration
-
-        static let count = 2
     }
 
-    private enum DataRow: Int {
+    private enum DataRow: Int, CaseIterable {
         case carbs = 0
         case reservoir
         case diagnostic
         case generate
         case reset
-
-        static let count = 5
     }
 
-    private enum ConfigurationRow: Int {
+    private enum ConfigurationRow: Int, CaseIterable {
         case basalRate
         case glucoseTargetRange
         case insulinSensitivity
         case pumpID
-
-        static let count = 4
     }
 
     // MARK: UITableViewDataSource
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return Section.count
+        return Section.allCases.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch Section(rawValue: section)! {
         case .configuration:
-            return ConfigurationRow.count
+            return ConfigurationRow.allCases.count
         case .data:
-            return DataRow.count
+            return DataRow.allCases.count
         }
     }
 
