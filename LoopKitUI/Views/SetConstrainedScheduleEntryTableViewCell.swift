@@ -33,6 +33,14 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
                 return 1
             }
         }
+
+        var rowOffset: Int {
+            if self == .firstIndex {
+                return 1
+            } else {
+                return 0
+            }
+        }
     }
 
     @IBOutlet private weak var picker: UIPickerView!
@@ -65,6 +73,8 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
         didSet {
             if let unit = unit {
                 valueQuantityFormatter.setPreferredNumberFormatter(for: unit)
+                picker.reloadAllComponents()
+                updateValuePicker()
             }
         }
     }
@@ -123,6 +133,7 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
 
             if !newValue {
                 updateValuePicker()
+                updateStartTimeSelection()
             }
         }
     }
@@ -182,8 +193,7 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
     }
 
     func updateValueFromPicker() {
-        let rowOffset = emptySelectionType == .firstIndex ? 1 : 0
-        let index = picker.selectedRow(inComponent: Component.value.rawValue) - rowOffset
+        let index = picker.selectedRow(inComponent: Component.value.rawValue) - emptySelectionType.rowOffset
         if index >= 0 && index < allowedValues.count {
             value = allowedValues[index]
         } else {
@@ -204,13 +214,12 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
             return
         }
         let selectedIndex: Int
-        let rowOffset = emptySelectionType == .firstIndex ? 1 : 0
         if let value = value {
             if let row = allowedValues.firstIndex(of: value) {
-                selectedIndex = row + rowOffset
+                selectedIndex = row + emptySelectionType.rowOffset
             } else {
                 // Select next highest value
-                selectedIndex = allowedValues.enumerated().filter({$0.element >= value}).min(by: { $0.1 < $1.1 })?.offset ?? 0
+                selectedIndex = (allowedValues.enumerated().filter({$0.element >= value}).min(by: { $0.1 < $1.1 })?.offset ?? 0) + emptySelectionType.rowOffset
             }
         } else {
             switch emptySelectionType {
@@ -274,11 +283,11 @@ extension SetConstrainedScheduleEntryTableViewCell: UIPickerViewDelegate {
             let time = startTimeForTimeComponent(row: row)
             return stringForStartTime(time)
         case .value:
-            let valueRow = emptySelectionType == .firstIndex ? row - 1 : row
+            let valueRow = row - emptySelectionType.rowOffset
             guard valueRow >= 0 && valueRow < allowedValues.count else {
                 return nil
             }
-            return formatValue(allowedValues[row])
+            return formatValue(allowedValues[valueRow])
         }
     }
 }

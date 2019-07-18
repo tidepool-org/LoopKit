@@ -21,9 +21,9 @@ public protocol InsulinSensitivityScheduleStorageDelegate {
 
 public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableViewController {
 
-    public init(allowedValues: [Double], minimumTimeInterval: TimeInterval? = nil) {
+    public init(allowedValues: [Double], minimumTimeInterval: TimeInterval = TimeInterval(30 * 60)) {
         self.allowedValues = allowedValues
-        self.minimumTimeInterval = minimumTimeInterval ?? .minutes(30)
+        self.minimumTimeInterval = minimumTimeInterval
 
         super.init(style: .grouped)
     }
@@ -67,6 +67,8 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
                     RepeatingScheduleValue(startTime: entry.startTime, value: entry.value)
                 }
                 isScheduleModified = false
+            } else {
+                internalItems = []
             }
         }
     }
@@ -87,12 +89,8 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
 
     private var isScheduleModified = false {
         didSet {
-            if isScheduleModified {
-                self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
-            } else {
-                self.navigationItem.leftBarButtonItem = nil
-            }
-            updateSyncButton()
+            updateCancelButton()
+            updateSaveButton()
         }
     }
 
@@ -108,10 +106,17 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
             internalItems.allSatisfy { isValid($0.value) }
     }
 
+    private func updateCancelButton() {
+        if isScheduleModified {
+            self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
+        } else {
+            self.navigationItem.leftBarButtonItem = nil
+        }
+    }
 
-    private func updateSyncButton() {
-        if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: Section.sync.rawValue)) as? TextButtonTableViewCell {
-            cell.isEnabled = isScheduleModified && isScheduleValid
+    private func updateSaveButton() {
+        if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: Section.save.rawValue)) as? TextButtonTableViewCell {
+            cell.isEnabled = !isEditing && isScheduleModified && isScheduleValid
         }
     }
 
@@ -180,7 +185,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
 
         super.setEditing(editing, animated: animated)
         updateInsertButton()
-        updateSyncButton()
+        updateSaveButton()
     }
 
 
@@ -211,7 +216,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
 
     private enum Section: Int, CaseIterable {
         case schedule
-        case sync
+        case save
     }
 
     open override func numberOfSections(in tableView: UITableView) -> Int {
@@ -222,7 +227,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
         switch Section(rawValue: section)! {
         case .schedule:
             return internalItems.endIndex
-        case .sync:
+        case .save:
             return 1
         }
     }
@@ -263,7 +268,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
             cell.emptySelectionType = .lastIndex
 
             return cell
-        case .sync:
+        case .save:
             let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
             cell.textLabel?.text = LocalizedString("Save", comment: "Button text for saving insulin sensitivity schedule")
             cell.isEnabled = isScheduleModified && isScheduleValid
@@ -276,7 +281,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
         switch Section(rawValue: section)! {
         case .schedule:
             return LocalizedString("Insulin sensitivity describes how your blood glucose should respond to a 1 Unit dose of insulin. Smaller values mean more insulin will be given when above target. Values that are too small can cause dangerously low blood glucose.", comment: "The description shown on the insulin sensitivity schedule interface.")
-        case .sync:
+        case .save:
             return nil
         }
     }
@@ -304,12 +309,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
             let item = internalItems.remove(at: sourceIndexPath.row)
             internalItems.insert(item, at: destinationIndexPath.row)
 
-            guard destinationIndexPath.row > 0, let cell = tableView.cellForRow(at: destinationIndexPath) as? SetConstrainedScheduleEntryTableViewCell else {
-                return
-            }
-
-            let interval = cell.minimumTimeInterval
-            let startTime = internalItems[destinationIndexPath.row - 1].startTime + interval
+            let startTime = internalItems[destinationIndexPath.row - 1].startTime + minimumTimeInterval
 
             internalItems[destinationIndexPath.row] = RepeatingScheduleValue(startTime: startTime, value: internalItems[destinationIndexPath.row].value)
 
@@ -323,7 +323,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
     // MARK: - UITableViewDelegate
 
     open override func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        guard indexPath.section == 0 else {
+        guard indexPath.section == Section.schedule.rawValue else {
             return super.tableView(tableView, shouldHighlightRowAt: indexPath)
         }
 
@@ -343,7 +343,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
         switch Section(rawValue: indexPath.section)! {
         case .schedule:
             break
-        case .sync:
+        case .save:
             if let schedule = schedule {
                 insulinSensitivityScheduleStorageDelegate?.saveSchedule(schedule, for: self, completion: { (result) in
                     switch result {
