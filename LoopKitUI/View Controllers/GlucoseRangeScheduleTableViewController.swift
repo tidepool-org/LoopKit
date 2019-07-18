@@ -34,10 +34,9 @@ public class GlucoseRangeScheduleTableViewController: UITableViewController {
     public init(allowedValues: [Double], minimumTimeInterval: TimeInterval = TimeInterval(30 * 60), unit: HKUnit) {
         self.allowedValues = allowedValues
         self.minimumTimeInterval = minimumTimeInterval
+        self.unit = unit
 
         super.init(style: .grouped)
-
-        self.unit = unit
     }
 
     public required init?(coder aDecoder: NSCoder) {
