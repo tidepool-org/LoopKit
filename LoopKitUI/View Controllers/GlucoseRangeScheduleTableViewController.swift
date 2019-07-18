@@ -113,7 +113,7 @@ public class GlucoseRangeScheduleTableViewController: UITableViewController {
     }
 
     private func isValid(_ range: EditableRange) -> Bool {
-        guard let max = range.maxValue, let min = range.minValue else {
+        guard let max = range.maxValue, let min = range.minValue, min <= max else {
             return false
         }
         return allowedValues.contains(max) && allowedValues.contains(min)
