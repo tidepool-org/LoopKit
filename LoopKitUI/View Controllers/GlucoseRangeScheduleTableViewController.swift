@@ -506,20 +506,10 @@ public class GlucoseRangeScheduleTableViewController: UITableViewController {
 
         let indices = insertableIndices(removing: sourceIndexPath.row)
 
-        if indices[proposedDestinationIndexPath.row] {
-            return proposedDestinationIndexPath
-        } else {
-            var closestRow = sourceIndexPath.row
-
-            for (index, valid) in indices.enumerated() where valid {
-                if abs(proposedDestinationIndexPath.row - index) < closestRow {
-                    closestRow = index
-                }
-            }
-
-            return IndexPath(row: closestRow, section: proposedDestinationIndexPath.section)
-        }
+        let closestDestinationRow = indices.insertableIndex(closestTo: proposedDestinationIndexPath.row, from: sourceIndexPath.row)
+        return IndexPath(row: closestDestinationRow, section: proposedDestinationIndexPath.section)
     }
+
 }
 
 extension GlucoseRangeScheduleTableViewController : GlucoseRangeTableViewCellDelegate {
