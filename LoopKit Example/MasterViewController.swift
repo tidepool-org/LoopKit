@@ -90,7 +90,7 @@ class MasterViewController: UITableViewController {
             case .basalRate:
                 cell.textLabel?.text = LocalizedString("Basal Rates", comment: "The title text for the basal rate schedule")
             case .correctionRange:
-                cell.textLabel?.text = LocalizedString("Correction Range", comment: "The title text for the glucose target range schedule")
+                cell.textLabel?.text = LocalizedString("Correction Range", comment: "The title text for the glucose correction range schedule")
             case .insulinSensitivity:
                 cell.textLabel?.text = LocalizedString("Insulin Sensitivity", comment: "The title text for the insulin sensitivity schedule")
             case .pumpID:
