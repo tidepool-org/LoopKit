@@ -300,7 +300,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
             updateEditButton()
             updateTimeLimitsFor(itemAt: indexPath.row-1)
             updateTimeLimitsFor(itemAt: indexPath.row)
-
+            updateSaveButton()
         }
     }
 

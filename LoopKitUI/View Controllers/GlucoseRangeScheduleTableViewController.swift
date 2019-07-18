@@ -72,15 +72,20 @@ public class GlucoseRangeScheduleTableViewController: UITableViewController {
     }
 
     open override func setEditing(_ editing: Bool, animated: Bool) {
+        tableView.beginUpdates()
+        hideGlucoseRangeCells()
+        tableView.endUpdates()
+
         super.setEditing(editing, animated: animated)
 
         updateInsertButton()
+        updateSaveButton()
     }
 
 
     private func updateSaveButton() {
         if let section = sections.firstIndex(of: .save), let cell = tableView.cellForRow(at: IndexPath(row: 0, section: section)) as? TextButtonTableViewCell {
-            cell.isEnabled = isScheduleModified && isScheduleValid
+            cell.isEnabled = !isEditing && isScheduleModified && isScheduleValid
         }
     }
 
