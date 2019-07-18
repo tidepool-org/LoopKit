@@ -31,10 +31,10 @@ private struct EditableRange {
 
 public class GlucoseRangeScheduleTableViewController: UITableViewController {
 
-    public init(allowedValues: [Double], minimumTimeInterval: TimeInterval = TimeInterval(30 * 60), unit: HKUnit) {
+    public init(allowedValues: [Double], unit: HKUnit, minimumTimeInterval: TimeInterval = TimeInterval(30 * 60)) {
         self.allowedValues = allowedValues
-        self.minimumTimeInterval = minimumTimeInterval
         self.unit = unit
+        self.minimumTimeInterval = minimumTimeInterval
 
         super.init(style: .grouped)
     }
