@@ -134,6 +134,7 @@ class SetConstrainedScheduleEntryTableViewCell: UITableViewCell {
 
             if !newValue {
                 updateValuePicker()
+                updateStartTimeSelection()
             }
         }
     }
