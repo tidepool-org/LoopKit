@@ -317,7 +317,7 @@ public class GlucoseRangeScheduleTableViewController: UITableViewController {
 
             cell.minValue = item.value.minValue
             cell.maxValue = item.value.maxValue
-            cell.unitString = unit.glucoseUnitDisplayString
+            cell.unitString = unit.localizedUnitString(in: .short)
             cell.delegate = self
 
             if let allowedTimeRange = allowedTimeRange(for: indexPath.row) {
@@ -357,7 +357,7 @@ public class GlucoseRangeScheduleTableViewController: UITableViewController {
             cell.dateLabel.text = titleText
             cell.iconImageView.image = image
 
-            cell.unitString = unit.glucoseUnitDisplayString
+            cell.unitString = unit.localizedUnitString(in: .short)
             cell.delegate = self
 
             return cell

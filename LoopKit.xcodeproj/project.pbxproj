@@ -36,7 +36,6 @@
 		4303C4941E2D665F00ADEDC8 /* TimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4303C4901E2D664200ADEDC8 /* TimeZone.swift */; };
 		43177D021D3729E60006E908 /* IdentifiableClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434FF1DF1CF269D8000DB779 /* IdentifiableClass.swift */; };
 		43177D041D372A7F0006E908 /* CarbEntryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43177D031D372A7F0006E908 /* CarbEntryTableViewController.swift */; };
-		4322B76B202F9E4B0002837D /* HKUnit+LoopKitUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4322B76A202F9E4B0002837D /* HKUnit+LoopKitUI.swift */; };
 		4322B76C202F9ECD0002837D /* CarbMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE411C7291900073BE78 /* CarbMathTests.swift */; };
 		4322B76D202F9EF20002837D /* GlucoseMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE991C7293D00073BE78 /* GlucoseMathTests.swift */; };
 		4322B76E202FA26B0002837D /* GlucoseMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE861C72934C0073BE78 /* GlucoseMath.swift */; };
@@ -783,7 +782,6 @@
 		43177D091D3732C70006E908 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		43177D0B1D3734040006E908 /* GlucoseRangeOverrideTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseRangeOverrideTableViewCell.swift; sourceTree = "<group>"; };
 		43177D0D1D3737420006E908 /* NibLoadable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NibLoadable.swift; sourceTree = "<group>"; };
-		4322B76A202F9E4B0002837D /* HKUnit+LoopKitUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HKUnit+LoopKitUI.swift"; sourceTree = "<group>"; };
 		43260F6D21C4BF7A00DD6837 /* UUID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UUID.swift; sourceTree = "<group>"; };
 		432711371EDE826A00171F6A /* CustomInputTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomInputTextField.swift; sourceTree = "<group>"; };
 		432762731D60505F0083215A /* HKQuantitySample.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HKQuantitySample.swift; sourceTree = "<group>"; };
@@ -1464,7 +1462,6 @@
 				895FE06D22011E9A00FCF18A /* OverrideSelectionViewController.storyboard */,
 				43A8EC3B210CEEA500A81379 /* CGMManagerUI.swift */,
 				892A5D9F2231E12F008961AB /* CompletionNotifying.swift */,
-				4322B76A202F9E4B0002837D /* HKUnit+LoopKitUI.swift */,
 				892A5DA12231E136008961AB /* HUDProvider.swift */,
 				895FE06C22011E9900FCF18A /* OverrideEmojiDataSource.swift */,
 				43FB60E220DCB9E0002B996B /* PumpManagerUI.swift */,
@@ -2487,7 +2484,6 @@
 				43BA717A201E4F1D0058961E /* IdentifiableClass.swift in Sources */,
 				895FE08822011F0C00FCF18A /* DoubleRangeTableViewCell.swift in Sources */,
 				43BA7187201EE7090058961E /* GlucoseRangeScheduleTableViewController.swift in Sources */,
-				4322B76B202F9E4B0002837D /* HKUnit+LoopKitUI.swift in Sources */,
 				43BA7183201EE7090058961E /* DailyQuantityScheduleTableViewController.swift in Sources */,
 				43F503632106C761009FA89A /* ServiceAuthenticationUI.swift in Sources */,
 				432CF86B20D76B9C0066B889 /* SetupIndicatorView.swift in Sources */,

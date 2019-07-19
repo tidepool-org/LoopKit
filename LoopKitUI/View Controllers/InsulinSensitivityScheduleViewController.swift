@@ -238,7 +238,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
         case .schedule:
             let cell = tableView.dequeueReusableCell(withIdentifier: SetConstrainedScheduleEntryTableViewCell.className, for: indexPath) as! SetConstrainedScheduleEntryTableViewCell
 
-            cell.unit = unit
+            cell.unit = unit.unitDivided(by: .internationalUnit())
 
             let item = internalItems[indexPath.row]
 
