@@ -129,7 +129,7 @@ open class QuantityFormatter {
 }
 
 
-private extension HKUnit {
+public extension HKUnit {
     var usesMassFormatterForUnitString: Bool {
         return self == .gram()
     }

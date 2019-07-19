@@ -21,9 +21,10 @@ public protocol InsulinSensitivityScheduleStorageDelegate {
 
 public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableViewController {
 
-    public init(allowedValues: [Double], minimumTimeInterval: TimeInterval = TimeInterval(30 * 60)) {
+    public init(allowedValues: [Double], unit: HKUnit, minimumTimeInterval: TimeInterval = TimeInterval(30 * 60)) {
         self.allowedValues = allowedValues
         self.minimumTimeInterval = minimumTimeInterval
+        self.unit = unit
 
         super.init(style: .grouped)
     }
@@ -237,7 +238,7 @@ public class InsulinSensitivityScheduleViewController : DailyValueScheduleTableV
         case .schedule:
             let cell = tableView.dequeueReusableCell(withIdentifier: SetConstrainedScheduleEntryTableViewCell.className, for: indexPath) as! SetConstrainedScheduleEntryTableViewCell
 
-            cell.unit = unit
+            cell.unit = unit.unitDivided(by: .internationalUnit())
 
             let item = internalItems[indexPath.row]
 

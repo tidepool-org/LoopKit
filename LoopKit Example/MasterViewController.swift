@@ -165,9 +165,8 @@ class MasterViewController: UITableViewController {
                     self.show(scheduleVC, sender: sender)
                 }
             case .insulinSensitivity:
-                let defaultGlucoseUnits = dataManager?.glucoseStore.preferredUnit ?? HKUnit.milligramsPerDeciliter
-                let unit = dataManager?.insulinSensitivitySchedule?.unit ?? defaultGlucoseUnits.unitDivided(by: .internationalUnit())
-                let scheduleVC = InsulinSensitivityScheduleViewController(allowedValues: unit.allowedSensitivityValues)
+                let unit = dataManager?.insulinSensitivitySchedule?.unit ?? dataManager?.glucoseStore.preferredUnit ?? HKUnit.milligramsPerDeciliter
+                let scheduleVC = InsulinSensitivityScheduleViewController(allowedValues: unit.allowedSensitivityValues, unit: unit)
 
                 scheduleVC.unit = unit
                 scheduleVC.delegate = self
@@ -326,21 +325,6 @@ extension MasterViewController: DailyValueScheduleTableViewControllerDelegate {
                     if let controller = controller as? GlucoseRangeScheduleTableViewController {
                         dataManager?.glucoseTargetRangeSchedule = GlucoseRangeSchedule(unit: controller.unit, dailyItems: controller.scheduleItems, timeZone: controller.timeZone)
                     }
-                case .insulinSensitivity:
-                    if let controller = controller as? DailyQuantityScheduleTableViewController {
-                        dataManager?.insulinSensitivitySchedule = InsulinSensitivitySchedule(unit: controller.unit, dailyItems: controller.scheduleItems, timeZone: controller.timeZone)
-                    }
-                /*case let row:
-                    if let controller = controller as? DailyQuantityScheduleTableViewController {
-                        switch row {
-                        case .CarbRatio:
-                            dataManager.carbRatioSchedule = CarbRatioSchedule(unit: controller.unit, dailyItems: controller.scheduleItems, timeZone: controller.timeZone)
-                        case .InsulinSensitivity:
-                            dataManager.insulinSensitivitySchedule = InsulinSensitivitySchedule(unit: controller.unit, dailyItems: controller.scheduleItems, timeZone: controller.timeZone)
-                        default:
-                            break
-                        }
-                    }*/
                 default:
                     break
                 }
@@ -387,12 +371,12 @@ extension MasterViewController: InsulinSensitivityScheduleStorageDelegate {
 
 private extension HKUnit {
     var allowedSensitivityValues: [Double] {
-        if self == HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()) {
-            return (6...270).map { Double($0) / 10.0 }
+        if self == HKUnit.milligramsPerDeciliter {
+            return (10...500).map { Double($0) }
         }
 
-        if self == HKUnit.milligramsPerDeciliter.unitDivided(by: .internationalUnit()) {
-            return (10...500).map { Double($0) }
+        if self == HKUnit.millimolesPerLiter {
+            return (6...270).map { Double($0) / 10.0 }
         }
 
         return []
