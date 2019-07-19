@@ -205,6 +205,15 @@ public extension HKUnit {
             }
         }
 
+        if self == HKUnit.grams.unitDivided(by: HKUnit.internationalUnit()) {
+            switch style {
+            case .short, .medium:
+                return LocalizedString("g/U", comment: "The short unit display string for grams per U")
+            case .long:
+                break  // Fallback to the MeasurementFormatter localization
+            }
+        }
+
         return nil
     }
 }
