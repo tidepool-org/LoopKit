@@ -146,6 +146,11 @@ public extension HKUnit {
         }
     }
 
+    // Short localized unit string with unlocalized fallback
+    func shortLocalizedUnitString() -> String {
+        return localizedUnitString(in: .short) ?? unitString
+    }
+
     func localizedUnitString(in style: Formatter.UnitStyle, singular: Bool = false) -> String? {
         if self == .internationalUnit() {
             switch style {
@@ -176,7 +181,7 @@ public extension HKUnit {
         if self == HKUnit.millimolesPerLiter {
             switch style {
             case .short, .medium:
-                return LocalizedString("mmol/L", comment: "The short unit display string for millimoles of glucose per liter")
+                return LocalizedString("mmol/L", comment: "The short unit display string for millimoles per liter")
             case .long:
                 break  // Fallback to the MeasurementFormatter localization
             }
