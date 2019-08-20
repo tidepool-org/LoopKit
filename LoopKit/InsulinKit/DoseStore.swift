@@ -697,7 +697,8 @@ extension DoseStore {
      
      Events are deduplicated by a unique constraint on `NewPumpEvent.getter:raw`.
 
-     - parameter events:     An array of new pump events. Pump events should have end times reflective of when delivery is actually expected to be finished, as doses that end prior to a reservoir reading are ignored when reservoir data is being used.
+     - parameter events: An array of new pump events. Pump events should have end times reflective of when delivery is actually expected to be finished, as doses that end prior to a reservoir reading are ignored when reservoir data is being used.
+     - parameter lastReconciliation: The date that pump events were most recently reconciled against recorded pump history. Pump events are assumed to be reflective of delivery up until this point in time. If reservoir values are recorded after this time, they may be used to supplement event based delivery.
      - parameter completion: A closure called after the events are saved. The closure takes a single argument:
      - parameter error: An error object explaining why the events could not be saved.
      */
