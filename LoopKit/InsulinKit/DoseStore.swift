@@ -721,10 +721,9 @@ extension DoseStore {
             var firstMutableDate: Date?
             var primeValueAdded = false
 
-            // Remove old mutable pumpEvents; any that are still valid should be included in events
-            let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [NSPredicate(format: "mutable == true")])
+            // Remove any stored mutable pumpEvents; any that are still valid should be included in events
             do {
-                try self.purgePumpEventObjects(matching: predicate)
+                try self.purgePumpEventObjects(matching: NSPredicate(format: "mutable == true"))
             } catch let error {
                 completion(DoseStoreError(error: .coreDataError(error as NSError)))
                 return
@@ -866,7 +865,7 @@ extension DoseStore {
     ///   - completion: A closure called on completion
     ///   - error: An error if one ocurred during processing or saving
     private func savePumpEventsToHealthStore(after start: Date, completion: @escaping (_ error: Error?) -> Void) {
-        getPumpEventDoseEntriesForSavingToHealthStore(lastBasalEndDate: start) { (result) in
+        getPumpEventDoseEntriesForSavingToHealthStore(startingAt: start) { (result) in
             switch result {
             case .success(let doses):
                 guard doses.count > 0 else {
@@ -900,12 +899,28 @@ extension DoseStore {
     ///   - start: The date on and after which to include doses
     ///   - completion: A closure called on completion
     ///   - result: The doses along with schedule basal
-    private func getPumpEventDoseEntriesForSavingToHealthStore(lastBasalEndDate: Date, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void) {
+    private func getPumpEventDoseEntriesForSavingToHealthStore(startingAt: Date, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void) {
+        // Can't store to HealthKit if we don't know end of reconciled range, or if we already have doses after the end
+        guard let endingAt = self.lastPumpEventsReconciliation, endingAt > startingAt else {
+            completion(.success([]))
+            return
+        }
+
         self.persistenceController.managedObjectContext.perform {
-            // The try? here swallows errors. DoseStoreError.configurationError, and DoseStoreError.fetchError
-            guard let doses = try? self.getNormalizedPumpEventDoseEntriesForSavingToHealthStore(basalStart: lastBasalEndDate, end: self.currentDate()),
-                doses.count > 0
-            else {
+            let doses: [DoseEntry]
+            do {
+                doses = try self.getNormalizedPumpEventDoseEntriesForSavingToHealthStore(basalStart: startingAt, end: self.currentDate())
+            } catch let error as DoseStoreError {
+                self.log.error("Error while fetching doses to add to HealthKit: %{public}@", String(describing: error))
+                completion(.failure(error))
+                return
+            } catch {
+                assertionFailure()
+                return
+            }
+            
+            guard !doses.isEmpty else
+            {
                 completion(.success([]))
                 return
             }
@@ -916,11 +931,7 @@ extension DoseStore {
                 return
             }
 
-            // If we haven't recorded a lastAddedPumpEvents date, use the current date.
-            let lastReconciliation = self.lastPumpEventsReconciliation ?? .distantPast
-            let endingAt = lastBasalEndDate <= lastReconciliation ? lastReconciliation : self.currentDate()
-
-            let reconciledDoses = doses.overlayBasalSchedule(basalSchedule, startingAt: lastBasalEndDate, endingAt: endingAt, insertingBasalEntries: !self.pumpRecordsBasalProfileStartEvents)
+            let reconciledDoses = doses.overlayBasalSchedule(basalSchedule, startingAt: startingAt, endingAt: endingAt, insertingBasalEntries: !self.pumpRecordsBasalProfileStartEvents)
             completion(.success(reconciledDoses))
         }
     }
@@ -1391,7 +1402,7 @@ extension DoseStore {
                             }
                         }
 
-                        self.getPumpEventDoseEntriesForSavingToHealthStore(lastBasalEndDate: firstPumpEventDate, completion: { (result) in
+                        self.getPumpEventDoseEntriesForSavingToHealthStore(startingAt: firstPumpEventDate, completion: { (result) in
 
                             report.append("")
                             report.append("### getNormalizedPumpEventDoseEntriesOverlaidWithBasalEntries")
