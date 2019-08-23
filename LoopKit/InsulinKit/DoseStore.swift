@@ -901,7 +901,7 @@ extension DoseStore {
     ///   - result: The doses along with schedule basal
     private func getPumpEventDoseEntriesForSavingToHealthStore(startingAt: Date, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void) {
         // Can't store to HealthKit if we don't know end of reconciled range, or if we already have doses after the end
-        guard let endingAt = self.lastPumpEventsReconciliation, endingAt > startingAt else {
+        guard let endingAt = lastPumpEventsReconciliation, endingAt > startingAt else {
             completion(.success([]))
             return
         }
