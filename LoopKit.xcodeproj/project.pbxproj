@@ -1053,6 +1053,7 @@
 		A92CF74622B94C7300CDC13A /* DiagnosticLog+Subsystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DiagnosticLog+Subsystem.swift"; sourceTree = "<group>"; };
 		A93AA888229715CF00FA4316 /* ServiceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceViewController.swift; sourceTree = "<group>"; };
 		A9446799229737C200668B2D /* ServiceTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceTableViewController.swift; sourceTree = "<group>"; };
+		A95FF924230F8632002F5328 /* Model 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 2.xcdatamodel"; sourceTree = "<group>"; };
 		A96A596522B80BB400229EB4 /* DiagnosticLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticLog.swift; sourceTree = "<group>"; };
 		A96A598922B839D200229EB4 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		A981329F22946B7D00429E9A /* TempBasalRecommendation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempBasalRecommendation.swift; sourceTree = "<group>"; };
@@ -3664,9 +3665,10 @@
 		43D8FEE01C7294D50073BE78 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				A95FF924230F8632002F5328 /* Model 2.xcdatamodel */,
 				43D8FEE11C7294D50073BE78 /* Model.xcdatamodel */,
 			);
-			currentVersion = 43D8FEE11C7294D50073BE78 /* Model.xcdatamodel */;
+			currentVersion = A95FF924230F8632002F5328 /* Model 2.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

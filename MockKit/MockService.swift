@@ -36,6 +36,8 @@ public final class MockService: Service {
 
     private let delegate = WeakSynchronizedDelegate<ServiceDelegate>()
 
+    public weak var remoteDataDelegate: RemoteDataDelegate?
+
     public var remoteData: Bool
 
     public var logging: Bool
@@ -102,12 +104,13 @@ extension MockService: Analytics {
 extension MockService: Logging {
 
     public func log (_ message: StaticString, subsystem: String, category: String, type: OSLogType, _ args: [CVarArg]) {
+        if logging {
+            // Since this is only stored in memory, do not worry about public/private qualifiers
+            let messageWithoutQualifiers = message.description.replacingOccurrences(of: "%{public}", with: "%").replacingOccurrences(of: "%{private}", with: "%")
+            let messageWithArguments = String(format: messageWithoutQualifiers, arguments: args)
 
-        // Since this is only stored in memory, do not worry about public/private qualifiers
-        let messageWithoutQualifiers = message.description.replacingOccurrences(of: "%{public}", with: "%").replacingOccurrences(of: "%{private}", with: "%")
-        let messageWithArguments = String(format: messageWithoutQualifiers, arguments: args)
-
-        record("[Logging] \(messageWithArguments)")
+            record("[Logging] \(messageWithArguments)")
+        }
     }
 
 }
@@ -135,23 +138,14 @@ extension MockService: RemoteData {
             "and loop error (\(String(describing: loopError)))"].joined(separator: "; "))
     }
 
-    public func upload(glucoseValues values: [GlucoseValue], sensorState: SensorDisplayable?) {
-        recordRemoteData("Upload gllucose values (\(values)) with sensor state (\(String(describing: sensorState)))")
-    }
-
     public func upload(pumpEvents events: [PersistedPumpEvent], fromSource source: String, completion: @escaping (Result<[URL], Error>) -> Void) {
         recordRemoteData("Upload pump events (\(events)) from source (\(source))")
         completion(Result.success([]))
     }
 
-    public func upload(carbEntries entries: [StoredCarbEntry], completion: @escaping (_ entries: [StoredCarbEntry]) -> Void) {
-        recordRemoteData("Upload carb entries (\(entries))")
-        completion(entries)
-    }
-
-    public func delete(carbEntries entries: [DeletedCarbEntry], completion: @escaping (_ entries: [DeletedCarbEntry]) -> Void) {
-        recordRemoteData("Delete carb entries (\(entries))")
-        completion(entries)
+    public func synchronizeRemoteData(completion: @escaping (_ result: Result<Bool, Error>) -> Void) {
+        recordRemoteData("Synchronize remote data")
+        completion(.success(false))
     }
 
     private func recordRemoteData(_ message: String) {

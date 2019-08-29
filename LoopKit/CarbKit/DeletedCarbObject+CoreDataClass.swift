@@ -23,4 +23,24 @@ class DeletedCarbObject: NSManagedObject {
             primitiveUploadState = NSNumber(value: newValue.rawValue)
         }
     }
+
+    override func willSave() {
+        if !isDeleted {
+            setPrimitiveValue(Date(), forKey: "modifiedDate")
+        }
+        super.willSave()
+    }
+}
+
+
+extension DeletedCarbObject {
+
+    func update(from entry: CachedCarbObject) {
+        externalID = entry.externalID
+        uploadState = entry.uploadState
+        uuid = entry.uuid
+        syncIdentifier = entry.syncIdentifier
+        syncVersion = entry.syncVersion
+    }
+
 }

@@ -50,6 +50,13 @@ class CachedCarbObject: NSManagedObject {
             primitiveUploadState = NSNumber(value: newValue.rawValue)
         }
     }
+
+    override func willSave() {
+        if !isDeleted {
+            setPrimitiveValue(Date(), forKey: "modifiedDate")
+        }
+        super.willSave()
+    }
 }
 
 

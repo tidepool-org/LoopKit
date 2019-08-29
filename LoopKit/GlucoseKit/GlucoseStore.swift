@@ -553,3 +553,62 @@ extension GlucoseStore {
         }
     }
 }
+
+
+extension GlucoseStore: GlucoseRemoteDataQueryDelegate {
+
+    public func queryGlucoseRemoteData(startDate: Date?, endDate: Date?, limit: Int?, anchor: RemoteDataAnchor?, completion: @escaping (Result<AnchoredGlucoseRemoteData, RemoteDataError>) -> Void) {
+        var pendingAnchor = anchor ?? RemoteDataAnchor()
+        var pendingData = GlucoseRemoteData()
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [.strictEndDate])
+        let query = HKAnchoredObjectQuery(type: sampleType, predicate: predicate, anchor: anchor?.healthKitAnchor, limit: limit ?? HKObjectQueryNoLimit) {
+            (query, samples, deletedObjects, anchor, error) in
+            if let error = error {
+                completion(.failure(.queryError(error)))
+                return
+            }
+
+            if let samples = samples {
+                pendingData.stored.append(contentsOf: samples.map { return StoredGlucoseSample(sample: $0 as! HKQuantitySample) })
+            }
+            if let deletedObjects = deletedObjects {
+                pendingData.deleted.append(contentsOf: deletedObjects.map { return DeletedGlucoseSample(deletedObject: $0) })
+            }
+            pendingAnchor.healthKitAnchor = anchor
+
+            completion(.success(AnchoredGlucoseRemoteData(anchor: pendingAnchor, data: pendingData.isEmpty ? nil : pendingData)))
+        }
+
+        healthStore.execute(query)
+    }
+
+}
+
+
+public struct DeletedGlucoseSample {
+
+    public let uuid: UUID
+    public let syncIdentifier: String?
+    public let syncVersion: Int?
+
+    public init(uuid: UUID, syncIdentifier: String? = nil, syncVersion: Int? = nil) {
+        self.uuid = uuid
+        self.syncIdentifier = syncIdentifier
+        self.syncVersion = syncVersion
+    }
+
+}
+
+
+extension DeletedGlucoseSample {
+
+    init(deletedObject: HKDeletedObject) {
+        self.init(
+            uuid: deletedObject.uuid,
+            syncIdentifier: deletedObject.metadata?[HKMetadataKeySyncIdentifier] as? String,
+            syncVersion: deletedObject.metadata?[HKMetadataKeySyncVersion] as? Int
+        )
+    }
+
+}
