@@ -76,9 +76,9 @@ open class ServiceTableViewController: UITableViewController {
 
                 switch self.operation {
                 case .create:
-                    self.notifyCreated()
+                    self.completeCreate()
                 case .update:
-                    self.notifyUpdated()
+                    self.completeUpdate()
                 }
             }
         }
@@ -88,36 +88,45 @@ open class ServiceTableViewController: UITableViewController {
         view.endEditing(true)
 
         let alert = UIAlertController(serviceDeletionHandler: {
-            self.notifyDeleted()
+            self.completeDelete()
         })
 
         present(alert, animated: true, completion: completion)
     }
 
-    private func notifyCreated() {
-        service.notifyCreated {
-            DispatchQueue.main.async {
-                if let serviceViewController = self.navigationController as? ServiceViewController {
-                    serviceViewController.notifySetupService(self.service)
-                }
-                self.notifyComplete()
+    private func completeCreate() {
+        service.completeCreate()
+        notifyServiceCreated(service)
+        notifyComplete()
+        }
+
+    private func completeUpdate() {
+        service.completeUpdate()
+        notifyServiceUpdated(service)
+        notifyComplete()
+    }
+
+    private func completeDelete() {
+        service.completeDelete()
+        notifyServiceDeleted(service)
+        notifyComplete()
             }
+
+    private func notifyServiceCreated(_ service: Service) {
+        if let serviceDelegate = navigationController as? ServiceDelegate {
+            serviceDelegate.notifyServiceCreated(service)
         }
     }
 
-    private func notifyUpdated() {
-        service.notifyUpdated {
-            DispatchQueue.main.async {
-                self.notifyComplete()
+    private func notifyServiceUpdated(_ service: Service) {
+        if let serviceDelegate = navigationController as? ServiceDelegate {
+            serviceDelegate.notifyServiceUpdated(service)
             }
         }
-    }
 
-    private func notifyDeleted() {
-        service.notifyDeleted {
-            DispatchQueue.main.async {
-                self.notifyComplete()
-            }
+    private func notifyServiceDeleted(_ service: Service) {
+        if let serviceDelegate = navigationController as? ServiceDelegate {
+            serviceDelegate.notifyServiceDeleted(service)
         }
     }
 

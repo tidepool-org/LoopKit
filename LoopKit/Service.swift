@@ -9,6 +9,14 @@
 
 public protocol ServiceDelegate: AnyObject {
 
+    /// Informs the delegate that the specified service was created.
+    /// The delegate should respond by adding the specified service
+    /// to persistent storage.
+    ///
+    /// - Parameters:
+    ///     - service: The service created.
+    func notifyServiceCreated(_ service: Service)
+
     /// Informs the delegate that the specified service was updated.
     /// An existing service is considered updated when the credentials,
     /// authorization, or any other configuration necessary for the
@@ -17,7 +25,7 @@ public protocol ServiceDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - service: The service updated.
-    func serviceUpdated(_ service: Service)
+    func notifyServiceUpdated(_ service: Service)
 
     /// Informs the delegate that the specified service was deleted.
     /// The delegate should respond by removing the specified service
@@ -25,14 +33,18 @@ public protocol ServiceDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - service: The service deleted.
-    func serviceDeleted(_ service: Service)
+    func notifyServiceDeleted(_ service: Service)
 
 }
 
+public protocol ServiceNotifying: AnyObject {
+
+    /// Delegate to notify about service changes.
+    var serviceDelegate: ServiceDelegate? { get set }
+
+}
 
 public protocol Service: DeviceManager {
-
-    var serviceDelegate: ServiceDelegate? { get set }
 
     /// Does the service have a configuration?
     var hasConfiguration: Bool { get }
@@ -43,23 +55,14 @@ public protocol Service: DeviceManager {
     ///     - completion: A closure called once upon completion with any error.
     func verifyConfiguration(completion: @escaping (Error?) -> Void)
 
-    /// Informs the service that it was created.
-    ///
-    /// - Parameters:
-    ///     - completion: A closure called once upon completion.
-    func notifyCreated(completion: @escaping () -> Void)
+    /// Complete any steps required for creating the service.
+    func completeCreate()
 
-    /// Informs the service that it was updated.
-    ///
-    /// - Parameters:
-    ///     - completion: A closure called once upon completion.
-    func notifyUpdated(completion: @escaping () -> Void)
+    /// Complete any steps required for updating the service.
+    func completeUpdate()
 
-    /// Informs the service that it was deleted.
-    ///
-    /// - Parameters:
-    ///     - completion: A closure called once upon completion.
-    func notifyDeleted(completion: @escaping () -> Void)
+    /// Complete any steps required for deleting the service.
+    func completeDelete()
 
 }
 
@@ -72,36 +75,10 @@ public extension Service {
         completion(nil)
     }
 
-    func notifyCreated(completion: @escaping () -> Void) {
-        notifyDelegateOfCreation(completion: completion)
-    }
+    func completeCreate() {}
 
-    func notifyDelegateOfCreation(completion: @escaping () -> Void) {
-        delegateQueue.async {
-            completion()
-        }
-    }
+    func completeUpdate() {}
 
-    func notifyUpdated(completion: @escaping () -> Void) {
-        notifyDelegateOfUpdation(completion: completion)
-    }
-
-    func notifyDelegateOfUpdation(completion: @escaping () -> Void) {
-        delegateQueue.async {
-            self.serviceDelegate?.serviceUpdated(self)
-            completion()
-        }
-    }
-
-    func notifyDeleted(completion: @escaping () -> Void) {
-        notifyDelegateOfDeletion(completion: completion)
-    }
-
-    func notifyDelegateOfDeletion(completion: @escaping () -> Void) {
-        delegateQueue.async {
-            self.serviceDelegate?.serviceDeleted(self)
-            completion()
-        }
-    }
+    func completeDelete() {}
 
 }
