@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 public protocol AnalyticsService {
 
     func recordAnalyticsEvent(_ name: String, withProperties properties: [AnyHashable: Any]?, outOfSession: Bool)

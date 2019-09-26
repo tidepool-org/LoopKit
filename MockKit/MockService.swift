@@ -9,7 +9,6 @@
 import os.log
 import LoopKit
 
-
 public final class MockService: Service {
 
     public static let managerIdentifier = "MockService"
@@ -87,7 +86,6 @@ extension MockService {
 
 }
 
-
 extension MockService: AnalyticsService {
 
     public func recordAnalyticsEvent(_ name: String, withProperties properties: [AnyHashable: Any]?, outOfSession: Bool) {
@@ -97,7 +95,6 @@ extension MockService: AnalyticsService {
     }
 
 }
-
 
 extension MockService: LoggingService {
 
@@ -112,7 +109,6 @@ extension MockService: LoggingService {
     }
 
 }
-
 
 extension MockService: RemoteDataService {
 

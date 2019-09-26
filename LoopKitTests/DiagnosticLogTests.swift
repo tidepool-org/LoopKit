@@ -11,7 +11,6 @@ import os.log
 
 @testable import LoopKit
 
-
 class DiagnosticLogTests: XCTestCase {
     
     fileprivate var testLoggingService: TestLoggingService!
@@ -127,7 +126,6 @@ class DiagnosticLogTests: XCTestCase {
     }
     
 }
-
 
 fileprivate class TestLoggingService: LoggingService {
     

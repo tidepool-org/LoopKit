@@ -98,38 +98,38 @@ open class ServiceTableViewController: UITableViewController {
         service.completeCreate()
         notifyServiceCreated(service)
         notifyComplete()
-        }
-
+    }
+    
     private func completeUpdate() {
         service.completeUpdate()
         notifyServiceUpdated(service)
         notifyComplete()
     }
-
+    
     private func completeDelete() {
         service.completeDelete()
         notifyServiceDeleted(service)
         notifyComplete()
-            }
-
+    }
+    
     private func notifyServiceCreated(_ service: Service) {
         if let serviceDelegate = navigationController as? ServiceDelegate {
             serviceDelegate.notifyServiceCreated(service)
         }
     }
-
+    
     private func notifyServiceUpdated(_ service: Service) {
         if let serviceDelegate = navigationController as? ServiceDelegate {
             serviceDelegate.notifyServiceUpdated(service)
-            }
         }
-
+    }
+    
     private func notifyServiceDeleted(_ service: Service) {
         if let serviceDelegate = navigationController as? ServiceDelegate {
             serviceDelegate.notifyServiceDeleted(service)
         }
     }
-
+    
     private func notifyComplete() {
         if let serviceViewController = navigationController as? ServiceViewController {
             serviceViewController.notifyComplete()
@@ -137,7 +137,6 @@ open class ServiceTableViewController: UITableViewController {
     }
 
 }
-
 
 extension UIAlertController {
 

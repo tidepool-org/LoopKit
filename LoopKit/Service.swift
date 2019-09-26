@@ -6,7 +6,6 @@
 //  Copyright © 2019 LoopKit Authors. All rights reserved.
 //
 
-
 public protocol ServiceDelegate: AnyObject {
 
     /// Informs the delegate that the specified service was created.
@@ -65,7 +64,6 @@ public protocol Service: DeviceManager {
     func completeDelete()
 
 }
-
 
 public extension Service {
 

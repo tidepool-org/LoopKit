@@ -11,7 +11,6 @@ import HealthKit
 
 @testable import LoopKit
 
-
 class GlucoseThresholdTests: XCTestCase {
     
     func testInitializer() {

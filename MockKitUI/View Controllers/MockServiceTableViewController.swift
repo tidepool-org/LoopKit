@@ -11,7 +11,6 @@ import LoopKit
 import LoopKitUI
 import MockKit
 
-
 final class MockServiceTableViewController: ServiceTableViewController {
 
     private let mockService: MockService
@@ -166,7 +165,6 @@ final class MockServiceTableViewController: ServiceTableViewController {
 
 }
 
-
 fileprivate class MockServiceHistoryViewController: UIViewController {
 
     private let mockService: MockService
@@ -221,7 +219,6 @@ fileprivate class MockServiceHistoryViewController: UIViewController {
 
 }
 
-
 fileprivate class SharedResponse: NSObject, UIActivityItemSource {
 
     private let text: String
@@ -264,7 +261,6 @@ fileprivate class SharedResponse: NSObject, UIActivityItemSource {
     }
 
 }
-
 
 fileprivate extension UIAlertController {
 

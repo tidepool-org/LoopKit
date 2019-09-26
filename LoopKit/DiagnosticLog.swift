@@ -8,7 +8,6 @@
 
 import os.log
 
-
 public class DiagnosticLog {
 
     private let subsystem: String

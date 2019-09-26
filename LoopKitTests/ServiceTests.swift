@@ -10,7 +10,6 @@ import XCTest
 
 @testable import LoopKit
 
-
 class ServiceTests: XCTestCase {
 
     fileprivate var testService: TestService!
@@ -47,9 +46,7 @@ class ServiceTests: XCTestCase {
 
 }
 
-
 fileprivate class TestError: Error {}
-
 
 fileprivate class TestService: Service {
 

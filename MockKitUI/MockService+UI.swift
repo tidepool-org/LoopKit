@@ -10,7 +10,6 @@ import LoopKit
 import LoopKitUI
 import MockKit
 
-
 extension MockService: ServiceUI {
 
     public static func setupViewController() -> (UIViewController & ServiceNotifying & CompletionNotifying)? {

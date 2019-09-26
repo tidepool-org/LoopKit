@@ -8,7 +8,6 @@
 
 import os.log
 
-
 public protocol LoggingService {
 
     /// Log a message for the specific subsystem, category, type, and optional arguments. Modeled after OSLog, but
@@ -27,7 +26,6 @@ public protocol LoggingService {
     func log(_ message: StaticString, subsystem: String, category: String, type: OSLogType, _ args: [CVarArg])
 
 }
-
 
 public class SharedLoggingService {
 

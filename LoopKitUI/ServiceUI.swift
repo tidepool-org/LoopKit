@@ -8,7 +8,6 @@
 
 import LoopKit
 
-
 public protocol ServiceUI: Service {
 
     /// Provides a view controller to create and configure a new service, if needed.
