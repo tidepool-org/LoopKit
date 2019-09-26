@@ -34,8 +34,8 @@ public protocol Service: DeviceManager {
 
     var serviceDelegate: ServiceDelegate? { get set }
 
-    /// Does the service have a valid configuration?
-    var hasValidConfiguration: Bool { get }
+    /// Does the service have a configuration?
+    var hasConfiguration: Bool { get }
 
     /// Verify the service configuration. Send any error to completion closure.
     ///
@@ -66,7 +66,7 @@ public protocol Service: DeviceManager {
 
 public extension Service {
 
-    var hasValidConfiguration: Bool { return true }
+    var hasConfiguration: Bool { return true }
 
     func verifyConfiguration(completion: @escaping (Error?) -> Void) {
         completion(nil)

@@ -28,8 +28,8 @@ class ServiceTests: XCTestCase {
         testService = nil
     }
 
-    func testHasValidConfiguration() {
-        XCTAssertTrue(testService.hasValidConfiguration)
+    func testHasConfiguration() {
+        XCTAssertTrue(testService.hasConfiguration)
     }
 
     func testVerifyConfiguration() {

@@ -43,7 +43,7 @@ open class ServiceTableViewController: UITableViewController {
     }
 
     public func updateButtonStates() {
-        navigationItem.rightBarButtonItem?.isEnabled = service.hasValidConfiguration
+        navigationItem.rightBarButtonItem?.isEnabled = service.hasConfiguration
     }
 
     @objc public func cancel() {
@@ -53,7 +53,7 @@ open class ServiceTableViewController: UITableViewController {
     }
 
     @objc public func done() {
-        guard service.hasValidConfiguration else {
+        guard service.hasConfiguration else {
             return
         }
 
