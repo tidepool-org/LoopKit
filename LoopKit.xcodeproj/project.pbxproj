@@ -440,16 +440,16 @@
 		89F53E9522B437570024A67C /* MutableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CA2B33226D15E0004D9350 /* MutableCollection.swift */; };
 		A9498D6F23386C0B00DAA9B9 /* TempBasalRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D6E23386C0B00DAA9B9 /* TempBasalRecommendation.swift */; };
 		A9498D7023386C0B00DAA9B9 /* TempBasalRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D6E23386C0B00DAA9B9 /* TempBasalRecommendation.swift */; };
-		A9498D7823386C3300DAA9B9 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7123386C3200DAA9B9 /* Logging.swift */; };
-		A9498D7923386C3300DAA9B9 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7123386C3200DAA9B9 /* Logging.swift */; };
+		A9498D7823386C3300DAA9B9 /* LoggingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7123386C3200DAA9B9 /* LoggingService.swift */; };
+		A9498D7923386C3300DAA9B9 /* LoggingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7123386C3200DAA9B9 /* LoggingService.swift */; };
 		A9498D7A23386C3300DAA9B9 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7223386C3200DAA9B9 /* Settings.swift */; };
 		A9498D7B23386C3300DAA9B9 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7223386C3200DAA9B9 /* Settings.swift */; };
-		A9498D7C23386C3300DAA9B9 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7323386C3200DAA9B9 /* Analytics.swift */; };
-		A9498D7D23386C3300DAA9B9 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7323386C3200DAA9B9 /* Analytics.swift */; };
+		A9498D7C23386C3300DAA9B9 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7323386C3200DAA9B9 /* AnalyticsService.swift */; };
+		A9498D7D23386C3300DAA9B9 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7323386C3200DAA9B9 /* AnalyticsService.swift */; };
 		A9498D7E23386C3300DAA9B9 /* GlucoseThreshold.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7423386C3200DAA9B9 /* GlucoseThreshold.swift */; };
 		A9498D7F23386C3300DAA9B9 /* GlucoseThreshold.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7423386C3200DAA9B9 /* GlucoseThreshold.swift */; };
-		A9498D8023386C3300DAA9B9 /* RemoteData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7523386C3300DAA9B9 /* RemoteData.swift */; };
-		A9498D8123386C3300DAA9B9 /* RemoteData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7523386C3300DAA9B9 /* RemoteData.swift */; };
+		A9498D8023386C3300DAA9B9 /* RemoteDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7523386C3300DAA9B9 /* RemoteDataService.swift */; };
+		A9498D8123386C3300DAA9B9 /* RemoteDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7523386C3300DAA9B9 /* RemoteDataService.swift */; };
 		A9498D8223386C3300DAA9B9 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7623386C3300DAA9B9 /* Service.swift */; };
 		A9498D8323386C3300DAA9B9 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7623386C3300DAA9B9 /* Service.swift */; };
 		A9498D8423386C3300DAA9B9 /* DiagnosticLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9498D7723386C3300DAA9B9 /* DiagnosticLog.swift */; };
@@ -1151,11 +1151,11 @@
 		89D204D121CC837A001238CC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		89DC540C21B75AE7005A1CE0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		A9498D6E23386C0B00DAA9B9 /* TempBasalRecommendation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TempBasalRecommendation.swift; sourceTree = "<group>"; };
-		A9498D7123386C3200DAA9B9 /* Logging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		A9498D7123386C3200DAA9B9 /* LoggingService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggingService.swift; sourceTree = "<group>"; };
 		A9498D7223386C3200DAA9B9 /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
-		A9498D7323386C3200DAA9B9 /* Analytics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
+		A9498D7323386C3200DAA9B9 /* AnalyticsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		A9498D7423386C3200DAA9B9 /* GlucoseThreshold.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseThreshold.swift; sourceTree = "<group>"; };
-		A9498D7523386C3300DAA9B9 /* RemoteData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteData.swift; sourceTree = "<group>"; };
+		A9498D7523386C3300DAA9B9 /* RemoteDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteDataService.swift; sourceTree = "<group>"; };
 		A9498D7623386C3300DAA9B9 /* Service.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		A9498D7723386C3300DAA9B9 /* DiagnosticLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiagnosticLog.swift; sourceTree = "<group>"; };
 		A9498D8623386CAF00DAA9B9 /* ServiceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceViewController.swift; sourceTree = "<group>"; };
@@ -1579,7 +1579,7 @@
 			children = (
 				43D8FDCE1C728FDF0073BE78 /* LoopKit.h */,
 				43D8FDD01C728FDF0073BE78 /* Info.plist */,
-				A9498D7323386C3200DAA9B9 /* Analytics.swift */,
+				A9498D7323386C3200DAA9B9 /* AnalyticsService.swift */,
 				43D8FDE51C7290340073BE78 /* BasalRateSchedule.swift */,
 				43D8FDE61C7290350073BE78 /* CarbRatioSchedule.swift */,
 				891A3FDA224BEC0D00378B27 /* CarbSensitivitySchedule.swift */,
@@ -1603,13 +1603,13 @@
 				43B17C88208EEC0B00AC27E9 /* HealthStoreUnitCache.swift */,
 				43F5034A21051FCD009FA89A /* KeychainManager.swift */,
 				89AC792E224C781200B8E9BA /* Locked.swift */,
-				A9498D7123386C3200DAA9B9 /* Logging.swift */,
+				A9498D7123386C3200DAA9B9 /* LoggingService.swift */,
 				43D8FDEF1C7290350073BE78 /* LoopMath.swift */,
 				432CF87220D774220066B889 /* PumpManager.swift */,
 				43FB610620DDF19B002B996B /* PumpManagerError.swift */,
 				43FB60E820DCBE64002B996B /* PumpManagerStatus.swift */,
 				434C5F9B2098352500B2FD1A /* QuantityFormatter.swift */,
-				A9498D7523386C3300DAA9B9 /* RemoteData.swift */,
+				A9498D7523386C3300DAA9B9 /* RemoteDataService.swift */,
 				43D8FDF31C7290350073BE78 /* SampleValue.swift */,
 				A9498D7623386C3300DAA9B9 /* Service.swift */,
 				43F5035421059A8A009FA89A /* ServiceAuthentication.swift */,
@@ -2574,7 +2574,7 @@
 				4322B77F202FA2AF0002837D /* PersistenceController.swift in Sources */,
 				4322B78D202FA2B30002837D /* InsulinDeliveryStore.swift in Sources */,
 				8974B0682215FE460043F01B /* Collection.swift in Sources */,
-				A9498D8023386C3300DAA9B9 /* RemoteData.swift in Sources */,
+				A9498D8023386C3300DAA9B9 /* RemoteDataService.swift in Sources */,
 				4379CFE321102A4100AADC79 /* DeviceManager.swift in Sources */,
 				4322B78A202FA2B30002837D /* DoseUnit.swift in Sources */,
 				434113AF20F2885300D05747 /* NSManagedObjectContext+CachedInsulinDeliveryObject.swift in Sources */,
@@ -2596,7 +2596,7 @@
 				89AE2229228BC54C00BDFD85 /* TemporaryScheduleOverrideHistory.swift in Sources */,
 				437AFF24203BE402008C4892 /* HKHealthStore.swift in Sources */,
 				89AE222B228BC56A00BDFD85 /* WeakSet.swift in Sources */,
-				A9498D7C23386C3300DAA9B9 /* Analytics.swift in Sources */,
+				A9498D7C23386C3300DAA9B9 /* AnalyticsService.swift in Sources */,
 				4322B783202FA2AF0002837D /* Reservoir.swift in Sources */,
 				437AFEF02036A156008C4892 /* DeletedCarbObject+CoreDataProperties.swift in Sources */,
 				4322B777202FA2790002837D /* CarbValue.swift in Sources */,
@@ -2639,7 +2639,7 @@
 				43D8FDFB1C7290350073BE78 /* GlucoseSchedule.swift in Sources */,
 				4322B77A202FA2790002837D /* NSUserDefaults.swift in Sources */,
 				4322B776202FA2790002837D /* CarbStore.swift in Sources */,
-				A9498D7823386C3300DAA9B9 /* Logging.swift in Sources */,
+				A9498D7823386C3300DAA9B9 /* LoggingService.swift in Sources */,
 				433BC7AA20538D4C000B1200 /* CachedGlucoseObject+CoreDataClass.swift in Sources */,
 				4322B786202FA2AF0002837D /* WalshInsulinModel.swift in Sources */,
 				4378B64B1ED61965000AE785 /* GlucoseEffectVelocity.swift in Sources */,
@@ -2796,7 +2796,7 @@
 				A9E6758A22713F4700E25293 /* DeletedCarbEntry.swift in Sources */,
 				A9E6758B22713F4700E25293 /* OSLog.swift in Sources */,
 				A9E6758C22713F4700E25293 /* DoseType.swift in Sources */,
-				A9498D7923386C3300DAA9B9 /* Logging.swift in Sources */,
+				A9498D7923386C3300DAA9B9 /* LoggingService.swift in Sources */,
 				A9E6758D22713F4700E25293 /* CachedCarbObject+CoreDataClass.swift in Sources */,
 				A9E6758E22713F4700E25293 /* DailyValueSchedule.swift in Sources */,
 				A9E6758F22713F4700E25293 /* NewPumpEvent.swift in Sources */,
@@ -2833,7 +2833,7 @@
 				A9E675AC22713F4700E25293 /* Reservoir.swift in Sources */,
 				A9E675AD22713F4700E25293 /* DeletedCarbObject+CoreDataProperties.swift in Sources */,
 				A9E675AE22713F4700E25293 /* CarbValue.swift in Sources */,
-				A9498D8123386C3300DAA9B9 /* RemoteData.swift in Sources */,
+				A9498D8123386C3300DAA9B9 /* RemoteDataService.swift in Sources */,
 				A9E675AF22713F4700E25293 /* PumpEventType.swift in Sources */,
 				A9E675B122713F4700E25293 /* NSData.swift in Sources */,
 				A9E675B222713F4700E25293 /* GlucoseRangeSchedule.swift in Sources */,
@@ -2845,7 +2845,7 @@
 				A9E675B722713F4700E25293 /* NSManagedObjectContext.swift in Sources */,
 				A9E675B822713F4700E25293 /* StoredCarbEntry.swift in Sources */,
 				A9498D7B23386C3300DAA9B9 /* Settings.swift in Sources */,
-				A9498D7D23386C3300DAA9B9 /* Analytics.swift in Sources */,
+				A9498D7D23386C3300DAA9B9 /* AnalyticsService.swift in Sources */,
 				A9E675BA22713F4700E25293 /* InsulinValue.swift in Sources */,
 				A9E675BB22713F4700E25293 /* NumberFormatter.swift in Sources */,
 				89AE2230228BC68100BDFD85 /* DoseProgressReporter.swift in Sources */,

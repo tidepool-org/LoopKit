@@ -88,7 +88,7 @@ extension MockService {
 }
 
 
-extension MockService: Analytics {
+extension MockService: AnalyticsService {
 
     public func recordAnalyticsEvent(_ name: String, withProperties properties: [AnyHashable: Any]?, outOfSession: Bool) {
         if analytics {
@@ -99,7 +99,7 @@ extension MockService: Analytics {
 }
 
 
-extension MockService: Logging {
+extension MockService: LoggingService {
 
     public func log (_ message: StaticString, subsystem: String, category: String, type: OSLogType, _ args: [CVarArg]) {
         if logging {
@@ -114,7 +114,7 @@ extension MockService: Logging {
 }
 
 
-extension MockService: RemoteData {
+extension MockService: RemoteDataService {
 
     public func uploadSettings(_ settings: Settings, lastUpdated: Date) {
         recordRemoteData("Upload settings (\(settings)) last updated (\(lastUpdated))")
