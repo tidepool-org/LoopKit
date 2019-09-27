@@ -1,5 +1,5 @@
 //
-//  Logging.swift
+//  LoggingService.swift
 //  LoopKit
 //
 //  Created by Darin Krauss on 6/17/19.
@@ -8,8 +8,7 @@
 
 import os.log
 
-
-public protocol Logging {
+public protocol LoggingService {
 
     /// Log a message for the specific subsystem, category, type, and optional arguments. Modeled after OSLog, but
     /// captures all of the necessary data in one function call per message. Note that like OSLog, the message may
@@ -28,10 +27,9 @@ public protocol Logging {
 
 }
 
+public class SharedLoggingService {
 
-public class SharedLogging {
-
-    /// A shared, global instance of Logging.
-    public static var instance: Logging?
+    /// A shared, global instance of LoggingService.
+    public static var instance: LoggingService?
 
 }

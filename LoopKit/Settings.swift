@@ -8,7 +8,6 @@
 
 import HealthKit
 
-
 public protocol Settings {
 
     var dosingEnabled: Bool { get }

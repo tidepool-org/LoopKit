@@ -8,15 +8,22 @@
 
 import LoopKit
 
+open class ServiceViewController: UINavigationController, ServiceDelegate, ServiceNotifying, CompletionNotifying {
 
-open class ServiceViewController: UINavigationController, ServiceSetupNotifying, CompletionNotifying {
-
-    public weak var serviceSetupDelegate: ServiceSetupDelegate?
+    public weak var serviceDelegate: ServiceDelegate?
 
     public weak var completionDelegate: CompletionDelegate?
 
-    public func notifySetupService(_ service: Service) {
-        serviceSetupDelegate?.serviceSetupNotifyingDidSetupService(self, service: service)
+    public func notifyServiceCreated(_ service: Service) {
+        serviceDelegate?.notifyServiceCreated(service)
+    }
+
+    public func notifyServiceUpdated(_ service: Service) {
+        serviceDelegate?.notifyServiceUpdated(service)
+    }
+
+    public func notifyServiceDeleted(_ service: Service) {
+        serviceDelegate?.notifyServiceDeleted(service)
     }
 
     public func notifyComplete() {

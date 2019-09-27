@@ -10,7 +10,6 @@ import XCTest
 
 @testable import LoopKit
 
-
 class TempBasalRecommendationTests: XCTestCase {
     
     func testCancel() {

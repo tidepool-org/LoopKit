@@ -1,5 +1,5 @@
 //
-//  RemoteData.swift
+//  RemoteDataService.swift
 //  LoopKit
 //
 //  Created by Darin Krauss on 5/21/19.
@@ -8,8 +8,7 @@
 
 import Foundation
 
-
-public protocol RemoteData {
+public protocol RemoteDataService {
 
     func uploadSettings(_ settings: Settings, lastUpdated: Date)
 

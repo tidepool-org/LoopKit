@@ -1,5 +1,5 @@
 //
-//  Analytics.swift
+//  AnalyticsService.swift
 //  LoopKit
 //
 //  Created by Darin Krauss on 5/11/19.
@@ -8,8 +8,7 @@
 
 import Foundation
 
-
-public protocol Analytics {
+public protocol AnalyticsService {
 
     func recordAnalyticsEvent(_ name: String, withProperties properties: [AnyHashable: Any]?, outOfSession: Bool)
 
