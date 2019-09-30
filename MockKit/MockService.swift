@@ -11,29 +11,9 @@ import LoopKit
 
 public final class MockService: Service {
 
-    public static let managerIdentifier = "MockService"
+    public static let serviceIdentifier = "MockService"
 
     public static let localizedTitle = "Simulator"
-
-    public var delegateQueue: DispatchQueue! {
-        get {
-            return delegate.queue
-        }
-        set {
-            delegate.queue = newValue
-        }
-    }
-
-    public weak var serviceDelegate: ServiceDelegate? {
-        get {
-            return delegate.delegate
-        }
-        set {
-            delegate.delegate = newValue
-        }
-    }
-
-    private let delegate = WeakSynchronizedDelegate<ServiceDelegate>()
 
     public var remoteData: Bool
 
@@ -72,16 +52,6 @@ public final class MockService: Service {
     private func record(_ message: String) {
         let timestamp = dateFormatter.string(from: Date())
         history.append("\(timestamp): \(message)")
-    }
-
-}
-
-extension MockService {
-
-    public var debugDescription: String {
-        return """
-        ## MockService
-        """
     }
 
 }
@@ -143,7 +113,7 @@ extension MockService: RemoteDataService {
     }
 
     public func upload(glucoseValues values: [GlucoseValue], sensorState: SensorDisplayable?) {
-        recordRemoteData("Upload gllucose values (\(values)) with sensor state (\(String(describing: sensorState)))")
+        recordRemoteData("Upload glucose values (\(values)) with sensor state (\(String(describing: sensorState)))")
     }
 
     public func upload(pumpEvents events: [PersistedPumpEvent], fromSource source: String, completion: @escaping (Result<[URL], Error>) -> Void) {

@@ -113,20 +113,20 @@ open class ServiceTableViewController: UITableViewController {
     }
     
     private func notifyServiceCreated(_ service: Service) {
-        if let serviceDelegate = navigationController as? ServiceDelegate {
-            serviceDelegate.notifyServiceCreated(service)
+        if let serviceViewController = navigationController as? ServiceViewController {
+            serviceViewController.notifyServiceCreated(service)
         }
     }
     
     private func notifyServiceUpdated(_ service: Service) {
-        if let serviceDelegate = navigationController as? ServiceDelegate {
-            serviceDelegate.notifyServiceUpdated(service)
+        if let serviceViewController = navigationController as? ServiceViewController {
+            serviceViewController.notifyServiceUpdated(service)
         }
     }
     
     private func notifyServiceDeleted(_ service: Service) {
-        if let serviceDelegate = navigationController as? ServiceDelegate {
-            serviceDelegate.notifyServiceDeleted(service)
+        if let serviceViewController = navigationController as? ServiceViewController {
+            serviceViewController.notifyServiceDeleted(service)
         }
     }
     

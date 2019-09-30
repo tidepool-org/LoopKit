@@ -22,6 +22,14 @@ class ServiceTests: XCTestCase {
         testService = nil
     }
 
+    func testServiceIdentifier() {
+        XCTAssertEqual(testService.serviceIdentifier, "TestService")
+    }
+
+    func testLocalizedTitle() {
+        XCTAssertEqual(testService.localizedTitle, "Test Service")
+    }
+
     func testHasConfiguration() {
         XCTAssertTrue(testService.hasConfiguration)
     }
@@ -50,20 +58,14 @@ fileprivate class TestError: Error {}
 
 fileprivate class TestService: Service {
 
-    static var managerIdentifier: String { return "" }
+    static var serviceIdentifier: String { return "TestService" }
 
-    static var localizedTitle: String { return "" }
-
-    var delegateQueue: DispatchQueue! = DispatchQueue(label: "com.loopkit.ServiceTests", qos: .utility)
-
-    var serviceDelegate: ServiceDelegate?
+    static var localizedTitle: String { return "Test Service" }
 
     init() {}
 
     required init?(rawState: RawStateValue) { return nil }
 
     var rawState: RawStateValue { return [:] }
-
-    var debugDescription: String { return "TestService" }
 
 }
