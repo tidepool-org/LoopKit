@@ -6,44 +6,27 @@
 //  Copyright © 2019 LoopKit Authors. All rights reserved.
 //
 
-public protocol ServiceDelegate: AnyObject {
+public protocol Service: AnyObject {
 
-    /// Informs the delegate that the specified service was created.
-    /// The delegate should respond by adding the specified service
-    /// to persistent storage.
+    typealias RawStateValue = [String: Any]
+
+    /// The unique identifier of this type of service.
+    static var serviceIdentifier: String { get }
+
+    /// The localized title of this type of service.
+    static var localizedTitle: String { get }
+
+    /// The localized title of this service.
+    var localizedTitle: String { get }
+
+    /// Initializes the service with the previously-serialized state.
     ///
     /// - Parameters:
-    ///     - service: The service created.
-    func notifyServiceCreated(_ service: Service)
+    ///     - rawState: The previously-serialized state of the service.
+    init?(rawState: RawStateValue)
 
-    /// Informs the delegate that the specified service was updated.
-    /// An existing service is considered updated when the credentials,
-    /// authorization, or any other configuration necessary for the
-    /// service are changed. The delegate should respond by writing
-    /// the specified service to persistent storage.
-    ///
-    /// - Parameters:
-    ///     - service: The service updated.
-    func notifyServiceUpdated(_ service: Service)
-
-    /// Informs the delegate that the specified service was deleted.
-    /// The delegate should respond by removing the specified service
-    /// from persistent storage.
-    ///
-    /// - Parameters:
-    ///     - service: The service deleted.
-    func notifyServiceDeleted(_ service: Service)
-
-}
-
-public protocol ServiceNotifying: AnyObject {
-
-    /// Delegate to notify about service changes.
-    var serviceDelegate: ServiceDelegate? { get set }
-
-}
-
-public protocol Service: DeviceManager {
+    /// The current, serializable state of the service.
+    var rawState: RawStateValue { get }
 
     /// Does the service have a configuration?
     var hasConfiguration: Bool { get }
@@ -66,6 +49,10 @@ public protocol Service: DeviceManager {
 }
 
 public extension Service {
+
+    var serviceIdentifier: String { return type(of: self).serviceIdentifier }
+
+    var localizedTitle: String { return type(of: self).localizedTitle }
 
     var hasConfiguration: Bool { return true }
 
