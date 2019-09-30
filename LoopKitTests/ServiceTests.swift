@@ -30,28 +30,6 @@ class ServiceTests: XCTestCase {
         XCTAssertEqual(testService.localizedTitle, "Test Service")
     }
 
-    func testHasConfiguration() {
-        XCTAssertTrue(testService.hasConfiguration)
-    }
-
-    func testVerifyConfiguration() {
-        var error: Error? = TestError()
-        testService.verifyConfiguration { error = $0 }
-        XCTAssertNil(error)
-    }
-
-    func testCompleteCreate() {
-        testService.completeCreate()
-    }
-
-    func testCompleteUpdate() {
-        testService.completeUpdate()
-    }
-
-    func testCompleteDelete() {
-        testService.completeDelete()
-    }
-
 }
 
 fileprivate class TestError: Error {}

@@ -11,14 +11,22 @@ import LoopKit
 import LoopKitUI
 import MockKit
 
-final class MockServiceTableViewController: ServiceTableViewController {
+final class MockServiceTableViewController: UITableViewController {
 
-    private let mockService: MockService
+    public enum Operation {
+        case create
+        case update
+    }
 
-    init(mockService: MockService, for operation: Operation) {
-        self.mockService = mockService
+    private let service: MockService
 
-        super.init(service: mockService, for: operation)
+    private let operation: Operation
+
+    init(service: MockService, for operation: Operation) {
+        self.service = service
+        self.operation = operation
+
+        super.init(style: .grouped)
     }
 
     required init?(coder: NSCoder) {
@@ -31,6 +39,49 @@ final class MockServiceTableViewController: ServiceTableViewController {
         tableView.register(SettingsTableViewCell.self, forCellReuseIdentifier: SettingsTableViewCell.className)
         tableView.register(SwitchTableViewCell.self, forCellReuseIdentifier: SwitchTableViewCell.className)
         tableView.register(TextButtonTableViewCell.self, forCellReuseIdentifier: TextButtonTableViewCell.className)
+
+        title = service.localizedTitle
+
+        if operation == .create {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
+        }
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(done))
+    }
+
+    @objc private func cancel() {
+        notifyComplete()
+    }
+
+    @objc private func done() {
+        switch operation {
+        case .create:
+            if let serviceViewController = navigationController as? ServiceViewController {
+                serviceViewController.notifyServiceCreated(service)
+            }
+        case .update:
+            if let serviceViewController = navigationController as? ServiceViewController {
+                serviceViewController.notifyServiceUpdated(service)
+            }
+        }
+
+        notifyComplete()
+    }
+
+    private func confirmDeletion(completion: (() -> Void)? = nil) {
+        let alert = UIAlertController(serviceDeletionHandler: {
+            if let serviceViewController = self.navigationController as? ServiceViewController {
+                serviceViewController.notifyServiceDeleted(self.service)
+            }
+            self.notifyComplete()
+        })
+
+        present(alert, animated: true, completion: completion)
+    }
+
+    private func notifyComplete() {
+        if let serviceViewController = navigationController as? ServiceViewController {
+            serviceViewController.notifyComplete()
+        }
     }
 
     // MARK: - Data Source
@@ -101,15 +152,15 @@ final class MockServiceTableViewController: ServiceTableViewController {
             switch Source(rawValue: indexPath.row)! {
             case .remoteData:
                 cell.textLabel?.text = "Remote Data"
-                cell.switch?.isOn = mockService.remoteData
+                cell.switch?.isOn = service.remoteData
                 cell.switch?.addTarget(self, action: #selector(remoteDataChanged(_:)), for: .valueChanged)
             case .logging:
                 cell.textLabel?.text = "Logging"
-                cell.switch?.isOn = mockService.logging
+                cell.switch?.isOn = service.logging
                 cell.switch?.addTarget(self, action: #selector(loggingChanged(_:)), for: .valueChanged)
             case .analytics:
                 cell.textLabel?.text = "Analytics"
-                cell.switch?.isOn = mockService.analytics
+                cell.switch?.isOn = service.analytics
                 cell.switch?.addTarget(self, action: #selector(analyticsChanged(_:)), for: .valueChanged)
             }
             return cell
@@ -136,15 +187,15 @@ final class MockServiceTableViewController: ServiceTableViewController {
     }
 
     @objc private func remoteDataChanged(_ sender: UISwitch) {
-        mockService.remoteData = sender.isOn
+        service.remoteData = sender.isOn
     }
 
     @objc private func loggingChanged(_ sender: UISwitch) {
-        mockService.logging = sender.isOn
+        service.logging = sender.isOn
     }
 
     @objc private func analyticsChanged(_ sender: UISwitch) {
-        mockService.analytics = sender.isOn
+        service.analytics = sender.isOn
     }
 
     // MARK: - UITableViewDelegate
@@ -156,10 +207,10 @@ final class MockServiceTableViewController: ServiceTableViewController {
         case .history:
             switch History(rawValue: indexPath.row)! {
             case .viewHistory:
-                show(MockServiceHistoryViewController.init(mockService: mockService), sender: tableView.cellForRow(at: indexPath))
+                show(MockServiceHistoryViewController.init(mockService: service), sender: tableView.cellForRow(at: indexPath))
             case .clearHistory:
                 let alert = UIAlertController(clearHistoryHandler: {
-                    self.mockService.history = []
+                    self.service.history = []
                 })
                 present(alert, animated: true) {
                     tableView.deselectRow(at: indexPath, animated: true)
@@ -277,6 +328,25 @@ fileprivate extension UIAlertController {
         self.init(title: nil, message: "Are you sure you want to clear the history?", preferredStyle: .actionSheet)
         addAction(UIAlertAction(title: "Clear History", style: .destructive, handler: { _ in handler() }))
         addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+    }
+
+    convenience init(serviceDeletionHandler handler: @escaping () -> Void) {
+        self.init(
+            title: nil,
+            message: NSLocalizedString("Are you sure you want to delete this service?", comment: "Confirmation message for deleting a service"),
+            preferredStyle: .actionSheet
+        )
+
+        addAction(UIAlertAction(
+            title: NSLocalizedString("Delete Service", comment: "Button title to delete a service"),
+            style: .destructive,
+            handler: { _ in
+                handler()
+        }
+        ))
+
+        let cancel = NSLocalizedString("Cancel", comment: "The title of the cancel action in an action sheet")
+        addAction(UIAlertAction(title: cancel, style: .cancel, handler: nil))
     }
 
 }
