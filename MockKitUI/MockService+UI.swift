@@ -13,11 +13,11 @@ import MockKit
 extension MockService: ServiceUI {
 
     public static func setupViewController() -> (UIViewController & ServiceSetupNotifying & CompletionNotifying)? {
-        return ServiceViewController(rootViewController: MockServiceTableViewController(mockService: MockService(), for: .create))
+        return ServiceViewController(rootViewController: MockServiceTableViewController(service: MockService(), for: .create))
     }
 
     public func settingsViewController() -> (UIViewController & ServiceSetupNotifying & CompletionNotifying) {
-      return ServiceViewController(rootViewController: MockServiceTableViewController(mockService: self, for: .update))
+      return ServiceViewController(rootViewController: MockServiceTableViewController(service: self, for: .update))
     }
     
 }
