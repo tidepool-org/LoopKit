@@ -12,17 +12,12 @@ import os.log
 
 
 public protocol DoseStoreDelegate: class {
-    /**
-     Asks the delegate to upload recently-added pump events not yet marked as uploaded.
-     
-     The completion handler must be called in all circumstances, with an array of object IDs that were successfully uploaded and can be purged when they are no longer recent.
-     
-     - parameter doseStore:  The store instance
-     - parameter pumpEvents: The pump events
-     - parameter completion: The closure to execute when the upload attempt has finished. If no events were uploaded, call the closure with an empty array.
-     - parameter uploadedObjects: The array of object IDs that were successfully uploaded
-     */
-    func doseStore(_ doseStore: DoseStore, hasEventsNeedingUpload pumpEvents: [PersistedPumpEvent], completion: @escaping (_ uploadedObjectIDURLs: [URL]) -> Void)
+
+    /// Ask the delegate to initiate remote data synchronization. Remote data synchronization is an asynchronous
+    /// process that pulls data from multiple local sources and synchronizes with any remote data services. The process
+    /// can take considerable time and no completion handler is provided.
+    func initiateRemoteDataSynchronization()
+
 }
 
 
@@ -78,13 +73,7 @@ public final class DoseStore {
         }
     }
 
-    public weak var delegate: DoseStoreDelegate? {
-        didSet {
-            persistenceController.managedObjectContext.perform {
-                self.isUploadRequestPending = false
-            }
-        }
-    }
+    public weak var delegate: DoseStoreDelegate?
 
     private let log = OSLog(category: "DoseStore")
 
@@ -389,12 +378,6 @@ public final class DoseStore {
     }
     private var _lastRecordedPrimeEventDate: Date?
 
-    /**
-     Whether there's an outstanding upload request to the delegate.
-
-     *Access should be isolated to a managed object context block*
-     */
-    private var isUploadRequestPending = false
 }
 
 
@@ -766,7 +749,7 @@ extension DoseStore {
             }
 
             self.persistenceController.save { (error) -> Void in
-                self.uploadPumpEventsIfNeeded()
+                self.delegate?.initiateRemoteDataSynchronization()
 
                 self.syncPumpEventsToHealthStore() { _ in
                     completion(DoseStoreError(error: error))
@@ -933,48 +916,6 @@ extension DoseStore {
 
             let reconciledDoses = doses.overlayBasalSchedule(basalSchedule, startingAt: startingAt, endingAt: endingAt, insertingBasalEntries: !self.pumpRecordsBasalProfileStartEvents)
             completion(.success(reconciledDoses))
-        }
-    }
-
-    /**
-     Asks the delegate to upload all non-uploaded pump events, and updates the store when the delegate calls its completion handler.
-
-     *This method should only be called from within a managed object context block.*
-     */
-    private func uploadPumpEventsIfNeeded() {
-        guard !isUploadRequestPending, let delegate = delegate else {
-            return
-        }
-
-        guard let objects = try? getPumpEventObjects(matching: NSPredicate(format: "uploaded = false"), chronological: true, limit: 5000), objects.count > 0 else {
-            return
-        }
-
-        let events = objects.map { $0.persistedPumpEvent }
-        isUploadRequestPending = true
-
-        delegate.doseStore(self, hasEventsNeedingUpload: events) { (uploadedObjectIDURLs) in
-            self.persistenceController.managedObjectContext.perform {
-                for url in uploadedObjectIDURLs {
-                    guard
-                        let id = self.persistenceController.managedObjectContext.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: url),
-                        let object = try? self.persistenceController.managedObjectContext.existingObject(with: id), let event = object as? PumpEvent else
-                    {
-                        continue
-                    }
-
-                    event.uploaded = true
-                }
-
-                // Remove uploaded events older than the
-                let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [self.purgeableValuesPredicate,
-                                                                                    NSPredicate(format: "uploaded = true")])
-                try? self.purgePumpEventObjects(matching: predicate)
-
-                self.persistenceController.save()
-
-                self.isUploadRequestPending = false
-            }
         }
     }
 
@@ -1332,7 +1273,6 @@ extension DoseStore {
             "* overrideHistory: \(overrideHistory.map(String.init(describing:)) ?? "nil")",
             "* egpSchedule: \(egpSchedule?.debugDescription ?? "nil")",
             "* areReservoirValuesValid: \(areReservoirValuesValid)",
-            "* isUploadRequestPending: \(isUploadRequestPending)",
             "* lastPumpEventsReconciliation: \(String(describing: lastPumpEventsReconciliation))",
             "* lastStoredReservoirValue: \(String(describing: lastStoredReservoirValue))",
             "* pumpEventQueryAfterDate: \(pumpEventQueryAfterDate)",
@@ -1430,4 +1370,67 @@ extension DoseStore {
             }
         }
     }
+}
+
+extension DoseStore: DoseRemoteDataQueryDelegate {
+    
+    public func queryDoseRemoteData(anchor: DatedQueryAnchor<DoseQueryAnchor>, limit: Int, completion: @escaping (Result<DoseQueryAnchoredRemoteData, Error>) -> Void) {
+        // TODO: Do we need to synchronize on a DispatchQueue?
+        
+        var result = DoseQueryAnchoredRemoteData(anchor: anchor, data: DoseRemoteData())
+        var cacheStoreError: Error?
+        
+        persistenceController.managedObjectContext.performAndWait {
+            let storedRequest: NSFetchRequest<PumpEvent> = PumpEvent.fetchRequest()
+            
+            storedRequest.predicate = self.queryDoseRemoteDataCachePredicate(startDate: anchor.startDate, endDate: anchor.endDate, modificationCounter: anchor.anchor.modificationCounter)
+            storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+            storedRequest.fetchLimit = limit - result.data.count
+            
+            do {
+                var stored = try self.persistenceController.managedObjectContext.fetch(storedRequest)
+                if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                    result.anchor.anchor.modificationCounter = modificationCounter
+                }
+                if let startDate = anchor.startDate {
+                    stored = stored.filter { $0.endDate >= startDate }
+                }
+                if let endDate = anchor.endDate {
+                    stored = stored.filter { $0.endDate < endDate }
+                }
+                result.data.append(contentsOf: stored.compactMap { $0.persistedPumpEvent })
+            } catch let error {
+                cacheStoreError = error
+                return
+            }
+        }
+        
+        if let cacheStoreError = cacheStoreError {
+            completion(.failure(RemoteDataError.queryFailure(cacheStoreError)))
+            return
+        }
+        
+        completion(.success(result))
+    }
+    
+    private func queryDoseRemoteDataCachePredicate(startDate: Date?, endDate: Date?, modificationCounter: Int64?) -> NSPredicate? {
+        var predicates: [NSPredicate] = []
+
+        // Note: Unable to use predicate to completely filter because PumpEvent endDate is a
+        // calculated property (date + duration). Final filtering is performed post-query.
+
+        if let endDate = endDate {
+            predicates.append(NSPredicate(format: "date < %@", endDate as NSDate))
+        }
+        if let modificationCounter = modificationCounter {
+            predicates.append(NSPredicate(format: "modificationCounter > %d", modificationCounter))
+        }
+
+        return predicates.isEmpty ? nil : NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+    }
+
+    // TODO: Consider edge-case scenarios for all remote data queries:
+    // - first query is only modification counter == 0 records, then subsequent query will miss any remaining
+    // modification counter == 0 records due to "modificationCounter > %d" predicate
+
 }

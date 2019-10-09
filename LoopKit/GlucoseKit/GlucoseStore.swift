@@ -554,3 +554,56 @@ extension GlucoseStore {
         }
     }
 }
+
+extension GlucoseStore: GlucoseRemoteDataQueryDelegate {
+    
+    public func queryGlucoseRemoteData(anchor: DatedQueryAnchor<GlucoseQueryAnchor>, limit: Int, completion: @escaping (Result<GlucoseQueryAnchoredRemoteData, Error>) -> Void) {
+        dataAccessQueue.async {
+            var result = GlucoseQueryAnchoredRemoteData(anchor: anchor, data: GlucoseRemoteData())
+            var cacheStoreError: Error?
+            
+            self.cacheStore.managedObjectContext.performAndWait {
+                let storedRequest: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
+                
+                storedRequest.predicate = self.queryGlucoseRemoteDataCachePredicate(startDate: anchor.startDate, endDate: anchor.endDate, modificationCounter: anchor.anchor.modificationCounter)
+                storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+                storedRequest.fetchLimit = limit - result.data.count
+                
+                do {
+                    let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
+                    if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                        result.anchor.anchor.modificationCounter = modificationCounter
+                    }
+                    result.data.append(contentsOf: stored.compactMap { StoredGlucoseSample(managedObject: $0) })
+                } catch let error {
+                    cacheStoreError = error
+                    return
+                }
+            }
+            
+            if let cacheStoreError = cacheStoreError {
+                completion(.failure(RemoteDataError.queryFailure(cacheStoreError)))
+                return
+            }
+            
+            completion(.success(result))
+        }
+    }
+    
+    private func queryGlucoseRemoteDataCachePredicate(startDate: Date?, endDate: Date?, modificationCounter: Int64?) -> NSPredicate? {
+        var predicates: [NSPredicate] = []
+
+        if let startDate = startDate {
+            predicates.append(NSPredicate(format: "startDate >= %@", startDate as NSDate))
+        }
+        if let endDate = endDate {
+            predicates.append(NSPredicate(format: "startDate < %@", endDate as NSDate)) // This data type does not have an end date
+        }
+        if let modificationCounter = modificationCounter {
+            predicates.append(NSPredicate(format: "modificationCounter > %d", modificationCounter))
+        }
+
+        return predicates.isEmpty ? nil : NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+    }
+
+}

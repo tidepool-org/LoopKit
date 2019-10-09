@@ -28,23 +28,11 @@ public protocol CarbStoreDelegate: class {
 
 public protocol CarbStoreSyncDelegate: class {
 
-    /// Asks the delegate to upload recently-added carb entries not yet marked as uploaded.
-    ///
-    /// The completion handler must be called in all circumstances with each entry passed to the delegate
-    ///
-    /// - parameter carbStore:  The store instance
-    /// - parameter entries:    The carb entries
-    /// - parameter completion: The closure to execute when the upload attempt(s) have completed. The closure takes a single argument of an array of entries. Populate `externalID` and set `isUploaded` for each entry that was uploaded, or pass back the entry unmodified for each entry that failed to upload.
-    func carbStore(_ carbStore: CarbStore, hasEntriesNeedingUpload entries: [StoredCarbEntry], completion: @escaping (_ entries: [StoredCarbEntry]) -> Void)
+    /// Ask the delegate to initiate remote data synchronization. Remote data synchronization is an asynchronous
+    /// process that pulls data from multiple local sources and synchronizes with any remote data services. The process
+    /// can take considerable time and no completion handler is provided.
+    func initiateRemoteDataSynchronization()
 
-    /// Asks the delegate to delete carb entries that were previously uploaded.
-    ///
-    /// The completion handler must be called in all circumstances with each entry passed to the delegate
-    ///
-    /// - parameter carbStore:  The store instance
-    /// - parameter entries:    The deleted entries
-    /// - parameter completion: The closure to execute when the deletion attempt(s) have finished. The closure takes a single argument of an array of entries. Set `isUploaded` to true for each entry that was uploaded, or pass back the entry unmodified for each entry that failed to upload.
-    func carbStore(_ carbStore: CarbStore, hasDeletedEntries entries: [DeletedCarbEntry], completion: @escaping (_ entries: [DeletedCarbEntry]) -> Void)
 }
 
 extension NSNotification.Name {
@@ -266,7 +254,7 @@ public final class CarbStore: HealthKitSampleStore {
             // Notify listeners only if a meaningful change was made
             if notificationRequired {
                 self.cacheStore.save()
-                self.syncExternalDB()
+                self.initiateRemoteDataSynchronization()
 
                 NotificationCenter.default.post(name: .CarbEntriesDidUpdate, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: UpdateSource.queriedByHealthKit.rawValue])
             }
@@ -395,7 +383,7 @@ extension CarbStore {
                     self.addCachedObject(for: stored)
                     completion(.success(stored))
                     NotificationCenter.default.post(name: .CarbEntriesDidUpdate, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: UpdateSource.changedInApp.rawValue])
-                    self.syncExternalDB()
+                    self.initiateRemoteDataSynchronization()
                 } else if let error = error {
                     self.log.error("Error saving entry %@: %@", sample.uuid.uuidString, String(describing: error))
                     completion(.failure(.healthStoreError(error)))
@@ -421,7 +409,7 @@ extension CarbStore {
                     self.replaceCachedObject(for: oldEntry, with: stored)
                     completion(.success(stored))
                     NotificationCenter.default.post(name: .CarbEntriesDidUpdate, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: UpdateSource.changedInApp.rawValue])
-                    self.syncExternalDB()
+                    self.initiateRemoteDataSynchronization()
                 } else if let error = error {
                     self.log.error("Error replacing entry %@: %@", oldEntry.sampleUUID.uuidString, String(describing: error))
                     completion(.failure(.healthStoreError(error)))
@@ -445,7 +433,7 @@ extension CarbStore {
                     self.deleteCachedObject(for: entry)
                     completion(.success(true))
                     NotificationCenter.default.post(name: .CarbEntriesDidUpdate, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: UpdateSource.changedInApp.rawValue])
-                    self.syncExternalDB()
+                    self.initiateRemoteDataSynchronization()
                 } else if let error = error {
                     self.log.error("Error deleting entry %@: %@", entry.sampleUUID.uuidString, String(describing: error))
                     completion(.failure(.healthStoreError(error)))
@@ -548,10 +536,8 @@ extension CarbStore {
 
         cacheStore.managedObjectContext.performAndWait {
             for object in self.cacheStore.managedObjectContext.cachedCarbObjectsWithUUID(uuid) {
-                if let externalID = object.externalID {
-                    let deletedObject = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
-                    deletedObject.externalID = externalID
-                }
+                let deletedObject = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
+                deletedObject.update(from: object)
 
                 self.cacheStore.managedObjectContext.delete(object)
                 deleted = true
@@ -606,99 +592,12 @@ extension CarbStore {
         }
     }
 
-    private func syncExternalDB() {
+    private func initiateRemoteDataSynchronization() {
         dispatchPrecondition(condition: .onQueue(queue))
 
         self.purgeCachedCarbEntries()
 
-        guard let syncDelegate = self.syncDelegate else {
-            return
-        }
-
-        var entriesToUpload: [StoredCarbEntry] = []
-        var entriesToDelete: [DeletedCarbEntry] = []
-
-        cacheStore.managedObjectContext.performAndWait {
-            let notUploaded = NSPredicate(format: "uploadState == %d", UploadState.notUploaded.rawValue)
-
-            let cachedRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
-            cachedRequest.predicate = notUploaded
-
-            if let objectsToUpload = try? self.cacheStore.managedObjectContext.fetch(cachedRequest) {
-                entriesToUpload = objectsToUpload.map { StoredCarbEntry(managedObject: $0) }
-                objectsToUpload.forEach { $0.uploadState = .uploading }
-            }
-
-            let deletedRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
-            deletedRequest.predicate = notUploaded
-
-            if let objectsToDelete = try? self.cacheStore.managedObjectContext.fetch(deletedRequest) {
-                entriesToDelete = objectsToDelete.compactMap { DeletedCarbEntry(managedObject: $0) }
-                objectsToDelete.forEach { $0.uploadState = .uploading }
-            }
-
-            self.cacheStore.save()
-        }
-
-        if entriesToUpload.count > 0 {
-            syncDelegate.carbStore(self, hasEntriesNeedingUpload: entriesToUpload) { (entries) in
-                self.cacheStore.managedObjectContext.perform {
-                    var hasMissingObjects = false
-
-                    for entry in entries {
-                        let objects = self.cacheStore.managedObjectContext.cachedCarbObjectsWithUUID(entry.sampleUUID)
-                        for object in objects {
-                            object.externalID = entry.externalID
-                            object.uploadState = entry.isUploaded ? .uploaded : .notUploaded
-                        }
-
-                        // If our delegate sent back uploaded entries we no longer know about,
-                        // consider them needing deletion.
-                        if  objects.count == 0,
-                            entry.isUploaded,
-                            entry.startDate > self.earliestCacheDate,
-                            let externalID = entry.externalID
-                        {
-                            self.log.info("Uploaded entry %@ not found in cache", entry.sampleUUID.uuidString)
-                            let deleted = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
-                            deleted.externalID = externalID
-                            hasMissingObjects = true
-                        }
-                    }
-
-                    self.cacheStore.save()
-
-                    if hasMissingObjects {
-                        self.queue.async {
-                            self.syncExternalDB()
-                        }
-                    }
-                }
-            }
-        }
-
-        if entriesToDelete.count > 0 {
-            syncDelegate.carbStore(self, hasDeletedEntries: entriesToDelete) { (entries) in
-                self.cacheStore.managedObjectContext.perform {
-                    for entry in entries {
-                        let request: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
-                        request.predicate = NSPredicate(format: "externalID == %@", entry.externalID)
-
-                        if let objects = try? self.cacheStore.managedObjectContext.fetch(request) {
-                            for object in objects {
-                                if entry.isUploaded {
-                                    self.cacheStore.managedObjectContext.delete(object)
-                                } else {
-                                    object.uploadState = .notUploaded
-                                }
-                            }
-                        }
-                    }
-
-                    self.cacheStore.save()
-                }
-            }
-        }
+        syncDelegate?.initiateRemoteDataSynchronization()
     }
 
     // MARK: - Helpers
@@ -936,7 +835,7 @@ extension CarbStore {
             report.append("deletedCarbEntries: [")
             report.append("\tDeletedCarbEntry(externalID, isUploaded)")
             for entry in self.cachedDeletedCarbEntries {
-                report.append("\t\(entry.externalID), \(entry.isUploaded)")
+                report.append("\t\(String(describing: entry.externalID)), \(entry.isUploaded)")
             }
             report.append("]")
             report.append("")
@@ -944,4 +843,78 @@ extension CarbStore {
             completionHandler(report.joined(separator: "\n"))
         }
     }
+}
+
+extension CarbStore: CarbRemoteDataQueryDelegate {
+
+    public func queryCarbRemoteData(anchor: DatedQueryAnchor<CarbQueryAnchor>, limit: Int, completion: @escaping (Result<CarbQueryAnchoredRemoteData, Error>) -> Void) {
+        queue.async {
+            var result = CarbQueryAnchoredRemoteData(anchor: anchor, data: CarbRemoteData())
+            var cacheStoreError: Error?
+
+            self.cacheStore.managedObjectContext.performAndWait {
+                let deletedRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
+
+                deletedRequest.predicate = self.queryCarbRemoteDataCachePredicate(startDate: anchor.startDate, endDate: anchor.endDate, modificationCounter: anchor.anchor.deletedModificationCounter)
+                deletedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+                deletedRequest.fetchLimit = limit - result.data.count
+
+                do {
+                    let deleted = try self.cacheStore.managedObjectContext.fetch(deletedRequest)
+                    if let modificationCounter = deleted.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                        result.anchor.anchor.deletedModificationCounter = modificationCounter
+                    }
+                    result.data.deleted.append(contentsOf: deleted.compactMap { DeletedCarbEntry(managedObject: $0) })
+                } catch let error {
+                    cacheStoreError = error
+                    return
+                }
+
+                if result.data.count >= limit {
+                    return
+                }
+
+                let storedRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
+
+                storedRequest.predicate = self.queryCarbRemoteDataCachePredicate(startDate: anchor.startDate, endDate: anchor.endDate, modificationCounter: anchor.anchor.storedModificationCounter)
+                storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+                storedRequest.fetchLimit = limit - result.data.count
+
+                do {
+                    let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
+                    if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                        result.anchor.anchor.storedModificationCounter = modificationCounter
+                    }
+                    result.data.stored.append(contentsOf: stored.compactMap { StoredCarbEntry(managedObject: $0) })
+                } catch let error {
+                    cacheStoreError = error
+                    return
+                }
+            }
+
+            if let cacheStoreError = cacheStoreError {
+                completion(.failure(RemoteDataError.queryFailure(cacheStoreError)))
+                return
+            }
+
+            completion(.success(result))
+        }
+    }
+
+    private func queryCarbRemoteDataCachePredicate(startDate: Date?, endDate: Date?, modificationCounter: Int64?) -> NSPredicate? {
+        var predicates: [NSPredicate] = []
+
+        if let startDate = startDate {
+            predicates.append(NSPredicate(format: "startDate >= %@", startDate as NSDate))
+        }
+        if let endDate = endDate {
+            predicates.append(NSPredicate(format: "startDate < %@", endDate as NSDate)) // This data type does not have an end date
+        }
+        if let modificationCounter = modificationCounter {
+            predicates.append(NSPredicate(format: "modificationCounter > %d", modificationCounter))
+        }
+
+        return predicates.isEmpty ? nil : NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+    }
+
 }
