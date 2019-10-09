@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14903" systemVersion="18G103" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15400" systemVersion="18G103" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CachedCarbObject" representedClassName=".CachedCarbObject" syncable="YES">
         <attribute name="absorptionTime" optional="YES" attributeType="Double" usesScalarValueType="NO"/>
         <attribute name="createdByCurrentApp" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="externalID" optional="YES" attributeType="String"/>
         <attribute name="foodType" optional="YES" attributeType="String"/>
         <attribute name="grams" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="modificationCounter" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="syncIdentifier" optional="YES" attributeType="String"/>
         <attribute name="syncVersion" attributeType="Integer 32" defaultValueString="1" usesScalarValueType="YES"/>
@@ -22,6 +23,7 @@
     </entity>
     <entity name="CachedGlucoseObject" representedClassName=".CachedGlucoseObject" syncable="YES">
         <attribute name="isDisplayOnly" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="modificationCounter" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="provenanceIdentifier" attributeType="String"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="syncIdentifier" attributeType="String"/>
@@ -55,7 +57,7 @@
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="endDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="hasLoopKitOrigin" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="programmedTempBasalRate" optional="YES" attributeType="Double" usesScalarValueType="NO" elementID="scheduledTempBasalRate"/>
+        <attribute name="programmedTempBasalRate" optional="YES" attributeType="Double" usesScalarValueType="NO"/>
         <attribute name="provenanceIdentifier" attributeType="String"/>
         <attribute name="reason" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO"/>
         <attribute name="scheduledBasalRate" optional="YES" attributeType="Double" usesScalarValueType="NO"/>
@@ -84,9 +86,13 @@
         </uniquenessConstraints>
     </entity>
     <entity name="DeletedCarbObject" representedClassName=".DeletedCarbObject" syncable="YES">
-        <attribute name="externalID" attributeType="String"/>
+        <attribute name="externalID" optional="YES" attributeType="String"/>
+        <attribute name="modificationCounter" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="syncIdentifier" optional="YES" attributeType="String"/>
+        <attribute name="syncVersion" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="uploadState" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="uuid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="externalID"/>
@@ -99,6 +105,7 @@
         <attribute name="deliveredUnits" optional="YES" attributeType="Double" usesScalarValueType="NO"/>
         <attribute name="doseType" optional="YES" attributeType="String"/>
         <attribute name="duration" attributeType="Double" minValueString="0" defaultValueString="0.0" usesScalarValueType="NO"/>
+        <attribute name="modificationCounter" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="mutable" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="raw" optional="YES" attributeType="Binary"/>
         <attribute name="title" optional="YES" attributeType="String"/>
@@ -134,11 +141,11 @@
         </fetchIndex>
     </entity>
     <elements>
-        <element name="CachedCarbObject" positionX="-63" positionY="72" width="128" height="195"/>
-        <element name="CachedGlucoseObject" positionX="-63" positionY="99" width="128" height="180"/>
+        <element name="CachedCarbObject" positionX="-63" positionY="72" width="128" height="208"/>
+        <element name="CachedGlucoseObject" positionX="-63" positionY="99" width="128" height="193"/>
         <element name="CachedInsulinDeliveryObject" positionX="-63" positionY="108" width="128" height="210"/>
-        <element name="DeletedCarbObject" positionX="-63" positionY="90" width="128" height="90"/>
-        <element name="PumpEvent" positionX="-63" positionY="18" width="128" height="225"/>
+        <element name="DeletedCarbObject" positionX="-63" positionY="90" width="128" height="148"/>
+        <element name="PumpEvent" positionX="-63" positionY="18" width="128" height="238"/>
         <element name="Reservoir" positionX="-63" positionY="-18" width="128" height="105"/>
     </elements>
 </model>
