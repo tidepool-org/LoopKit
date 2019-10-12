@@ -15,7 +15,7 @@ public final class MockService: Service {
 
     public static let localizedTitle = "Simulator"
 
-    public var serviceDelegate: ServiceDelegate?
+    public weak var serviceDelegate: ServiceDelegate?
 
     public var remoteData: Bool
 
