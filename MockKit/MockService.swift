@@ -54,7 +54,7 @@ public final class MockService: Service {
     public func completeCreate() {}
 
     public func completeUpdate() {
-        serviceDelegate?.serviceDidUpdate(self)
+        serviceDelegate?.serviceDidUpdateState(self)
     }
 
     public func completeDelete() {}

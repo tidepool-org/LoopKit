@@ -8,11 +8,12 @@
 
 public protocol ServiceDelegate: AnyObject {
 
-    /// Informs the delegate that the specified service was updated.
+    /// Informs the delegate that the state of the specified service was updated and the
+    /// delegate should persist the service.
     ///
     /// - Parameters:
-    ///     - service: The service updated.
-    func serviceDidUpdate(_ service: Service)
+    ///     - service: The service whose state was updated.
+    func serviceDidUpdateState(_ service: Service)
 
 }
 
