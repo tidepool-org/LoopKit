@@ -10,6 +10,9 @@ import Foundation
 
 public protocol RemoteDataService {
 
+    /// The unique identifier of this type of service.
+    var serviceIdentifier: String { get }
+
     func uploadSettings(_ settings: Settings, lastUpdated: Date)
 
     func uploadLoopStatus(

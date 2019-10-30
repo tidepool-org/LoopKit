@@ -128,6 +128,8 @@ class DiagnosticLogTests: XCTestCase {
 }
 
 fileprivate class TestLoggingService: LoggingService {
+
+    let serviceIdentifier = "TestLoggingService"
     
     var message: StaticString!
     

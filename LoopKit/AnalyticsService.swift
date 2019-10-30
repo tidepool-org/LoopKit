@@ -10,6 +10,9 @@ import Foundation
 
 public protocol AnalyticsService {
 
+    /// The unique identifier of this type of service.
+    var serviceIdentifier: String { get }
+
     func recordAnalyticsEvent(_ name: String, withProperties properties: [AnyHashable: Any]?, outOfSession: Bool)
 
 }

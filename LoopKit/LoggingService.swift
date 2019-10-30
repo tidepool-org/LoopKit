@@ -10,6 +10,9 @@ import os.log
 
 public protocol LoggingService {
 
+    /// The unique identifier of this type of service.
+    var serviceIdentifier: String { get }
+
     /// Log a message for the specific subsystem, category, type, and optional arguments. Modeled after OSLog, but
     /// captures all of the necessary data in one function call per message. Note that like OSLog, the message may
     /// contain "%{public}" and "%{private}" string substitution qualifiers that should be observed based upon the
