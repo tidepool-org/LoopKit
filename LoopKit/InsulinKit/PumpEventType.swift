@@ -53,3 +53,11 @@ extension PumpEventType {
         }
     }
 }
+
+extension PumpEventType {
+
+    static var doseTypes: [PumpEventType] {
+        return [.basal, .bolus, .resume, .suspend, .tempBasal]
+    }
+    
+}

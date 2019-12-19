@@ -10,16 +10,23 @@ import CoreData
 import HealthKit
 import os.log
 
+public protocol DoseStoreDelegate: AnyObject {
 
-public protocol DoseStoreDelegate: class {
+    /**
+     Informs the delegate that the dose store has updated dose data.
 
-    /// Ask the delegate to initiate remote data synchronization. Remote data synchronization is an asynchronous
-    /// process that pulls data from multiple local sources and synchronizes with any remote data services. The process
-    /// can take considerable time and no completion handler is provided.
-    func initiateRemoteDataSynchronization()
+     - Parameter doseStore: The dose store that has updated dose data.
+     */
+    func doseStoreHasUpdatedDoseData(_ doseStore: DoseStore)
+
+    /**
+     Informs the delegate that the dose store has updated pump event data.
+
+     - Parameter doseStore: The dose store that has updated pump event data.
+     */
+    func doseStoreHasUpdatedPumpEventData(_ doseStore: DoseStore)
 
 }
-
 
 public extension NSNotification.Name {
     /// Notification posted when data was modifed.
@@ -749,7 +756,12 @@ extension DoseStore {
             }
 
             self.persistenceController.save { (error) -> Void in
-                self.delegate?.initiateRemoteDataSynchronization()
+                if events.contains(where: { $0.dose != nil }) {
+                    self.delegate?.doseStoreHasUpdatedDoseData(self)
+                }
+                if events.contains(where: { $0.dose == nil }) {
+                    self.delegate?.doseStoreHasUpdatedPumpEventData(self)
+                }
 
                 self.syncPumpEventsToHealthStore() { _ in
                     completion(DoseStoreError(error: error))
@@ -1372,65 +1384,117 @@ extension DoseStore {
     }
 }
 
-extension DoseStore: DoseRemoteDataQueryDelegate {
-    
-    public func queryDoseRemoteData(anchor: DatedQueryAnchor<DoseQueryAnchor>, limit: Int, completion: @escaping (Result<DoseQueryAnchoredRemoteData, Error>) -> Void) {
-        // TODO: Do we need to synchronize on a DispatchQueue?
-        
-        var result = DoseQueryAnchoredRemoteData(anchor: anchor, data: DoseRemoteData())
-        var cacheStoreError: Error?
-        
+extension DoseStore {
+
+    public struct QueryAnchor: RawRepresentable {
+
+        public typealias RawValue = [String: Any]
+
+        public var modificationCounter: Int64
+
+        public init() {
+            self.modificationCounter = 0
+        }
+
+        public init?(rawValue: RawValue) {
+            guard let modificationCounter = rawValue["modificationCounter"] as? Int64 else {
+                return nil
+            }
+            self.modificationCounter = modificationCounter
+        }
+
+        public var rawValue: RawValue {
+            var rawValue: RawValue = [:]
+            rawValue["modificationCounter"] = modificationCounter
+            return rawValue
+        }
+    }
+
+    public enum DoseQueryResult {
+        case success(QueryAnchor, [DoseEntry])
+        case failure(Error)
+    }
+
+    public enum PumpEventQueryResult {
+        case success(QueryAnchor, [PersistedPumpEvent])
+        case failure(Error)
+    }
+
+    public func executeDoseQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (DoseQueryResult) -> Void) {
+        var queryAnchor = queryAnchor ?? QueryAnchor()
+        var queryResult = [DoseEntry]()
+        var queryError: Error?
+
         persistenceController.managedObjectContext.performAndWait {
             let storedRequest: NSFetchRequest<PumpEvent> = PumpEvent.fetchRequest()
-            
-            storedRequest.predicate = self.queryDoseRemoteDataCachePredicate(startDate: anchor.startDate, endDate: anchor.endDate, modificationCounter: anchor.anchor.modificationCounter)
+
+            storedRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter),
+                dosePredicate
+            ])
             storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
-            storedRequest.fetchLimit = limit - result.data.count
-            
+            storedRequest.fetchLimit = limit
+
             do {
-                var stored = try self.persistenceController.managedObjectContext.fetch(storedRequest)
+                let stored = try self.persistenceController.managedObjectContext.fetch(storedRequest)
                 if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                    result.anchor.anchor.modificationCounter = modificationCounter
+                    queryAnchor.modificationCounter = modificationCounter
                 }
-                if let startDate = anchor.startDate {
-                    stored = stored.filter { $0.endDate >= startDate }
-                }
-                if let endDate = anchor.endDate {
-                    stored = stored.filter { $0.endDate < endDate }
-                }
-                result.data.append(contentsOf: stored.compactMap { $0.persistedPumpEvent })
+                queryResult.append(contentsOf: stored.compactMap { $0.dose })
             } catch let error {
-                cacheStoreError = error
+                queryError = error
                 return
             }
         }
-        
-        if let cacheStoreError = cacheStoreError {
-            completion(.failure(RemoteDataError.queryFailure(cacheStoreError)))
+
+        if let queryError = queryError {
+            completion(.failure(queryError))
             return
         }
-        
-        completion(.success(result))
-    }
-    
-    private func queryDoseRemoteDataCachePredicate(startDate: Date?, endDate: Date?, modificationCounter: Int64?) -> NSPredicate? {
-        var predicates: [NSPredicate] = []
 
-        // Note: Unable to use predicate to completely filter because PumpEvent endDate is a
-        // calculated property (date + duration). Final filtering is performed post-query.
-
-        if let endDate = endDate {
-            predicates.append(NSPredicate(format: "date < %@", endDate as NSDate))
-        }
-        if let modificationCounter = modificationCounter {
-            predicates.append(NSPredicate(format: "modificationCounter > %d", modificationCounter))
-        }
-
-        return predicates.isEmpty ? nil : NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        completion(.success(queryAnchor, queryResult))
     }
 
-    // TODO: Consider edge-case scenarios for all remote data queries:
-    // - first query is only modification counter == 0 records, then subsequent query will miss any remaining
-    // modification counter == 0 records due to "modificationCounter > %d" predicate
+    public func executePumpEventQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (PumpEventQueryResult) -> Void) {
+        var queryAnchor = queryAnchor ?? QueryAnchor()
+        var queryResult = [PersistedPumpEvent]()
+        var queryError: Error?
+
+        persistenceController.managedObjectContext.performAndWait {
+            let storedRequest: NSFetchRequest<PumpEvent> = PumpEvent.fetchRequest()
+
+            storedRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter),
+                NSCompoundPredicate(notPredicateWithSubpredicate: dosePredicate)
+            ])
+            storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+            storedRequest.fetchLimit = limit
+
+            do {
+                let stored = try self.persistenceController.managedObjectContext.fetch(storedRequest)
+                if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                    queryAnchor.modificationCounter = modificationCounter
+                }
+                queryResult.append(contentsOf: stored.compactMap { $0.persistedPumpEvent })
+            } catch let error {
+                queryError = error
+                return
+            }
+        }
+
+        if let queryError = queryError {
+            completion(.failure(queryError))
+            return
+        }
+
+        completion(.success(queryAnchor, queryResult))
+    }
+
+    private var dosePredicate: NSPredicate {
+        return NSCompoundPredicate(orPredicateWithSubpredicates: [
+            NSPredicate(format: "type IN %@", PumpEventType.doseTypes.map { $0.rawValue }),
+            NSPredicate(format: "doseType IN %@", DoseType.allCases.map { $0.rawValue })
+        ])
+    }
 
 }

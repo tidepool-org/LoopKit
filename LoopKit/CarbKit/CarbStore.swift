@@ -19,19 +19,20 @@ public enum CarbStoreResult<T> {
 
 public protocol CarbStoreDelegate: class {
 
-    /// Informs the delegate that an internal error occurred
-    ///
-    /// - parameter carbStore: The carb store
-    /// - parameter error:     The error describing the issue
+    /**
+     Informs the delegate that the carb store has updated carb data.
+
+     - Parameter carbStore: The carb store that has updated carb data.
+     */
+    func carbStoreHasUpdatedCarbData(_ carbStore: CarbStore)
+
+    /**
+     Informs the delegate that an internal error occurred.
+
+     - parameter carbStore: The carb store
+     - parameter error:     The error describing the issue
+     */
     func carbStore(_ carbStore: CarbStore, didError error: CarbStore.CarbStoreError)
-}
-
-public protocol CarbStoreSyncDelegate: class {
-
-    /// Ask the delegate to initiate remote data synchronization. Remote data synchronization is an asynchronous
-    /// process that pulls data from multiple local sources and synchronizes with any remote data services. The process
-    /// can take considerable time and no completion handler is provided.
-    func initiateRemoteDataSynchronization()
 
 }
 
@@ -159,8 +160,6 @@ public final class CarbStore: HealthKitSampleStore {
 
     public weak var delegate: CarbStoreDelegate?
 
-    public weak var syncDelegate: CarbStoreSyncDelegate?
-
     private let queue = DispatchQueue(label: "com.loudnate.CarbKit.dataAccessQueue", qos: .utility)
 
     private let log = OSLog(category: "CarbStore")
@@ -254,7 +253,7 @@ public final class CarbStore: HealthKitSampleStore {
             // Notify listeners only if a meaningful change was made
             if notificationRequired {
                 self.cacheStore.save()
-                self.initiateRemoteDataSynchronization()
+                self.notifyDelegateOfUpdatedCarbData()
 
                 NotificationCenter.default.post(name: .CarbEntriesDidUpdate, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: UpdateSource.queriedByHealthKit.rawValue])
             }
@@ -383,7 +382,7 @@ extension CarbStore {
                     self.addCachedObject(for: stored)
                     completion(.success(stored))
                     NotificationCenter.default.post(name: .CarbEntriesDidUpdate, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: UpdateSource.changedInApp.rawValue])
-                    self.initiateRemoteDataSynchronization()
+                    self.notifyDelegateOfUpdatedCarbData()
                 } else if let error = error {
                     self.log.error("Error saving entry %@: %@", sample.uuid.uuidString, String(describing: error))
                     completion(.failure(.healthStoreError(error)))
@@ -409,7 +408,7 @@ extension CarbStore {
                     self.replaceCachedObject(for: oldEntry, with: stored)
                     completion(.success(stored))
                     NotificationCenter.default.post(name: .CarbEntriesDidUpdate, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: UpdateSource.changedInApp.rawValue])
-                    self.initiateRemoteDataSynchronization()
+                    self.notifyDelegateOfUpdatedCarbData()
                 } else if let error = error {
                     self.log.error("Error replacing entry %@: %@", oldEntry.sampleUUID.uuidString, String(describing: error))
                     completion(.failure(.healthStoreError(error)))
@@ -433,7 +432,7 @@ extension CarbStore {
                     self.deleteCachedObject(for: entry)
                     completion(.success(true))
                     NotificationCenter.default.post(name: .CarbEntriesDidUpdate, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: UpdateSource.changedInApp.rawValue])
-                    self.initiateRemoteDataSynchronization()
+                    self.notifyDelegateOfUpdatedCarbData()
                 } else if let error = error {
                     self.log.error("Error deleting entry %@: %@", entry.sampleUUID.uuidString, String(describing: error))
                     completion(.failure(.healthStoreError(error)))
@@ -592,12 +591,12 @@ extension CarbStore {
         }
     }
 
-    private func initiateRemoteDataSynchronization() {
+    private func notifyDelegateOfUpdatedCarbData() {
         dispatchPrecondition(condition: .onQueue(queue))
 
         self.purgeCachedCarbEntries()
 
-        syncDelegate?.initiateRemoteDataSynchronization()
+        delegate?.carbStoreHasUpdatedCarbData(self)
     }
 
     // MARK: - Helpers
@@ -845,76 +844,98 @@ extension CarbStore {
     }
 }
 
-extension CarbStore: CarbRemoteDataQueryDelegate {
-
-    public func queryCarbRemoteData(anchor: DatedQueryAnchor<CarbQueryAnchor>, limit: Int, completion: @escaping (Result<CarbQueryAnchoredRemoteData, Error>) -> Void) {
+extension CarbStore {
+    
+    public struct QueryAnchor: RawRepresentable {
+        
+        public typealias RawValue = [String: Any]
+        
+        public var deletedModificationCounter: Int64
+        
+        public var storedModificationCounter: Int64
+        
+        public init() {
+            self.deletedModificationCounter = 0
+            self.storedModificationCounter = 0
+        }
+        
+        public init?(rawValue: RawValue) {
+            guard let deletedModificationCounter = rawValue["deletedModificationCounter"] as? Int64,
+                let storedModificationCounter = rawValue["storedModificationCounter"] as? Int64
+                else {
+                    return nil
+            }
+            self.deletedModificationCounter = deletedModificationCounter
+            self.storedModificationCounter = storedModificationCounter
+        }
+        
+        public var rawValue: RawValue {
+            var rawValue: RawValue = [:]
+            rawValue["deletedModificationCounter"] = deletedModificationCounter
+            rawValue["storedModificationCounter"] = storedModificationCounter
+            return rawValue
+        }
+    }
+    
+    public enum CarbQueryResult {
+        case success(QueryAnchor, [DeletedCarbEntry], [StoredCarbEntry])
+        case failure(Error)
+    }
+    
+    public func executeCarbQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (CarbQueryResult) -> Void) {
         queue.async {
-            var result = CarbQueryAnchoredRemoteData(anchor: anchor, data: CarbRemoteData())
-            var cacheStoreError: Error?
-
+            var queryAnchor = queryAnchor ?? QueryAnchor()
+            var queryDeletedResult = [DeletedCarbEntry]()
+            var queryStoredResult = [StoredCarbEntry]()
+            var queryError: Error?
+            
             self.cacheStore.managedObjectContext.performAndWait {
                 let deletedRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
-
-                deletedRequest.predicate = self.queryCarbRemoteDataCachePredicate(startDate: anchor.startDate, endDate: anchor.endDate, modificationCounter: anchor.anchor.deletedModificationCounter)
+                
+                deletedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.deletedModificationCounter)
                 deletedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
-                deletedRequest.fetchLimit = limit - result.data.count
-
+                deletedRequest.fetchLimit = limit
+                
                 do {
                     let deleted = try self.cacheStore.managedObjectContext.fetch(deletedRequest)
                     if let modificationCounter = deleted.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                        result.anchor.anchor.deletedModificationCounter = modificationCounter
+                        queryAnchor.deletedModificationCounter = modificationCounter
                     }
-                    result.data.deleted.append(contentsOf: deleted.compactMap { DeletedCarbEntry(managedObject: $0) })
+                    queryDeletedResult.append(contentsOf: deleted.compactMap { DeletedCarbEntry(managedObject: $0) })
                 } catch let error {
-                    cacheStoreError = error
+                    queryError = error
                     return
                 }
-
-                if result.data.count >= limit {
+                
+                if queryDeletedResult.count >= limit {
                     return
                 }
-
+                
                 let storedRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
-
-                storedRequest.predicate = self.queryCarbRemoteDataCachePredicate(startDate: anchor.startDate, endDate: anchor.endDate, modificationCounter: anchor.anchor.storedModificationCounter)
+                
+                storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.storedModificationCounter)
                 storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
-                storedRequest.fetchLimit = limit - result.data.count
-
+                storedRequest.fetchLimit = limit - queryDeletedResult.count
+                
                 do {
                     let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
                     if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                        result.anchor.anchor.storedModificationCounter = modificationCounter
+                        queryAnchor.storedModificationCounter = modificationCounter
                     }
-                    result.data.stored.append(contentsOf: stored.compactMap { StoredCarbEntry(managedObject: $0) })
+                    queryStoredResult.append(contentsOf: stored.compactMap { StoredCarbEntry(managedObject: $0) })
                 } catch let error {
-                    cacheStoreError = error
+                    queryError = error
                     return
                 }
             }
-
-            if let cacheStoreError = cacheStoreError {
-                completion(.failure(RemoteDataError.queryFailure(cacheStoreError)))
+            
+            if let queryError = queryError {
+                completion(.failure(queryError))
                 return
             }
-
-            completion(.success(result))
+            
+            completion(.success(queryAnchor, queryDeletedResult, queryStoredResult))
         }
     }
-
-    private func queryCarbRemoteDataCachePredicate(startDate: Date?, endDate: Date?, modificationCounter: Int64?) -> NSPredicate? {
-        var predicates: [NSPredicate] = []
-
-        if let startDate = startDate {
-            predicates.append(NSPredicate(format: "startDate >= %@", startDate as NSDate))
-        }
-        if let endDate = endDate {
-            predicates.append(NSPredicate(format: "startDate < %@", endDate as NSDate)) // This data type does not have an end date
-        }
-        if let modificationCounter = modificationCounter {
-            predicates.append(NSPredicate(format: "modificationCounter > %d", modificationCounter))
-        }
-
-        return predicates.isEmpty ? nil : NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-    }
-
+    
 }

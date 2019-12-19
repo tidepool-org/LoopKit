@@ -11,6 +11,16 @@ import CoreData
 import HealthKit
 import os.log
 
+public protocol GlucoseStoreDelegate: AnyObject {
+    
+    /**
+     Informs the delegate that the glucose store has updated glucose data.
+     
+     - Parameter glucoseStore: The glucose store that has updated glucose data.
+     */
+    func glucoseStoreHasUpdatedGlucoseData(_ glucoseStore: GlucoseStore)
+    
+}
 
 public enum GlucoseStoreResult<T> {
     case success(T)
@@ -46,6 +56,8 @@ extension NSNotification.Name {
 ```
  */
 public final class GlucoseStore: HealthKitSampleStore {
+
+    public weak var delegate: GlucoseStoreDelegate?
 
     private let glucoseType = HKQuantityType.quantityType(forIdentifier: .bloodGlucose)!
 
@@ -202,6 +214,8 @@ extension GlucoseStore {
                 return $0.quantitySample
             }
         }
+
+        delegate?.glucoseStoreHasUpdatedGlucoseData(self)
 
         healthStore.save(glucose) { (completed, error) in
             self.dataAccessQueue.async {
@@ -525,6 +539,73 @@ extension GlucoseStore {
 }
 
 extension GlucoseStore {
+
+    public struct QueryAnchor: RawRepresentable {
+
+        public typealias RawValue = [String: Any]
+
+        public var modificationCounter: Int64
+
+        public init() {
+            self.modificationCounter = 0
+        }
+
+        public init?(rawValue: RawValue) {
+            guard let modificationCounter = rawValue["modificationCounter"] as? Int64 else {
+                return nil
+            }
+            self.modificationCounter = modificationCounter
+        }
+
+        public var rawValue: RawValue {
+            var rawValue: RawValue = [:]
+            rawValue["modificationCounter"] = modificationCounter
+            return rawValue
+        }
+    }
+
+    public enum GlucoseQueryResult {
+        case success(QueryAnchor, [StoredGlucoseSample])
+        case failure(Error)
+    }
+
+    public func executeGlucoseQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (GlucoseQueryResult) -> Void) {
+        dataAccessQueue.async {
+            var queryAnchor = queryAnchor ?? QueryAnchor()
+            var queryResult = [StoredGlucoseSample]()
+            var queryError: Error?
+
+            self.cacheStore.managedObjectContext.performAndWait {
+                let storedRequest: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
+
+                storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter)
+                storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+                storedRequest.fetchLimit = limit
+
+                do {
+                    let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
+                    if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                        queryAnchor.modificationCounter = modificationCounter
+                    }
+                    queryResult.append(contentsOf: stored.compactMap { StoredGlucoseSample(managedObject: $0) })
+                } catch let error {
+                    queryError = error
+                    return
+                }
+            }
+
+            if let queryError = queryError {
+                completion(.failure(queryError))
+                return
+            }
+
+            completion(.success(queryAnchor, queryResult))
+        }
+    }
+
+}
+
+extension GlucoseStore {
     /// Generates a diagnostic report about the current state
     ///
     /// This operation is performed asynchronously and the completion will be executed on an arbitrary background queue.
@@ -553,57 +634,4 @@ extension GlucoseStore {
             completionHandler(report.joined(separator: "\n"))
         }
     }
-}
-
-extension GlucoseStore: GlucoseRemoteDataQueryDelegate {
-    
-    public func queryGlucoseRemoteData(anchor: DatedQueryAnchor<GlucoseQueryAnchor>, limit: Int, completion: @escaping (Result<GlucoseQueryAnchoredRemoteData, Error>) -> Void) {
-        dataAccessQueue.async {
-            var result = GlucoseQueryAnchoredRemoteData(anchor: anchor, data: GlucoseRemoteData())
-            var cacheStoreError: Error?
-            
-            self.cacheStore.managedObjectContext.performAndWait {
-                let storedRequest: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
-                
-                storedRequest.predicate = self.queryGlucoseRemoteDataCachePredicate(startDate: anchor.startDate, endDate: anchor.endDate, modificationCounter: anchor.anchor.modificationCounter)
-                storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
-                storedRequest.fetchLimit = limit - result.data.count
-                
-                do {
-                    let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
-                    if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                        result.anchor.anchor.modificationCounter = modificationCounter
-                    }
-                    result.data.append(contentsOf: stored.compactMap { StoredGlucoseSample(managedObject: $0) })
-                } catch let error {
-                    cacheStoreError = error
-                    return
-                }
-            }
-            
-            if let cacheStoreError = cacheStoreError {
-                completion(.failure(RemoteDataError.queryFailure(cacheStoreError)))
-                return
-            }
-            
-            completion(.success(result))
-        }
-    }
-    
-    private func queryGlucoseRemoteDataCachePredicate(startDate: Date?, endDate: Date?, modificationCounter: Int64?) -> NSPredicate? {
-        var predicates: [NSPredicate] = []
-
-        if let startDate = startDate {
-            predicates.append(NSPredicate(format: "startDate >= %@", startDate as NSDate))
-        }
-        if let endDate = endDate {
-            predicates.append(NSPredicate(format: "startDate < %@", endDate as NSDate)) // This data type does not have an end date
-        }
-        if let modificationCounter = modificationCounter {
-            predicates.append(NSPredicate(format: "modificationCounter > %d", modificationCounter))
-        }
-
-        return predicates.isEmpty ? nil : NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-    }
-
 }
