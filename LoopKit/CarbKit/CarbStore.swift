@@ -839,9 +839,16 @@ extension CarbStore {
     ///   - start: The earliest date of effects to retrieve
     ///   - end: The latest date of effects to retrieve, if provided
     ///   - effectVelocities: A timeline of glucose effect velocities, ordered by start date
+    ///   - unstoredEntries: An array of unstored carb entries to include the effects of
     ///   - completion: A closure called once the effects have been retrieved
     ///   - result: An array of effects, in chronological order
-    public func getGlucoseEffects(start: Date, end: Date? = nil, effectVelocities: [GlucoseEffectVelocity]? = nil, completion: @escaping(_ result: CarbStoreResult<[GlucoseEffect]>) -> Void) {
+    public func getGlucoseEffects<Entry: CarbEntry>(
+        start: Date,
+        end: Date? = nil,
+        effectVelocities: [GlucoseEffectVelocity]? = nil,
+        unstoredEntries: [Entry],
+        completion: @escaping(_ result: CarbStoreResult<[GlucoseEffect]>) -> Void
+    ) {
         queue.async {
             guard let carbRatioSchedule = self.carbRatioScheduleApplyingOverrideHistory, let insulinSensitivitySchedule = self.insulinSensitivityScheduleApplyingOverrideHistory else {
                 completion(.failure(.notConfigured))
@@ -854,12 +861,18 @@ extension CarbStore {
             let absorptionTimeOverrun = self.absorptionTimeOverrun
             let delay = self.delay
             let delta = self.delta
+
+            let effectiveDateRange = foodStart..<(end ?? .distantFuture)
+            let unstoredEntries = Array(unstoredEntries.lazy
+                .filter { effectiveDateRange.contains($0.startDate) }
+                .map(AnyCarbEntry.init(_:)))
             
             self.getCachedCarbSamples(start: foodStart, end: end) { (samples) in
                 let effects: [GlucoseEffect]
 
+                let allSamples = (samples.map(AnyCarbEntry.init(_:)) + unstoredEntries).sorted(by: { $0.startDate < $1.startDate })
                 if let effectVelocities = effectVelocities {
-                    effects = samples.map(
+                    effects = allSamples.map(
                         to: effectVelocities,
                         carbRatio: carbRatioSchedule,
                         insulinSensitivity: insulinSensitivitySchedule,
@@ -881,7 +894,7 @@ extension CarbStore {
                         delta: delta
                     )
                 } else {
-                    effects = samples.glucoseEffects(
+                    effects = allSamples.glucoseEffects(
                         from: start,
                         to: end,
                         carbRatios: carbRatioSchedule,
@@ -896,6 +909,25 @@ extension CarbStore {
                 completion(.success(effects))
             }
         }
+    }
+
+    /// Retrieves a timeline of effect on blood glucose from carbohydrates
+    ///
+    /// This operation is performed asynchronously and the completion will be executed on an arbitrary background queue.
+    ///
+    /// - Parameters:
+    ///   - start: The earliest date of effects to retrieve
+    ///   - end: The latest date of effects to retrieve, if provided
+    ///   - effectVelocities: A timeline of glucose effect velocities, ordered by start date
+    ///   - completion: A closure called once the effects have been retrieved
+    ///   - result: An array of effects, in chronological order
+    public func getGlucoseEffects(
+        start: Date,
+        end: Date? = nil,
+        effectVelocities: [GlucoseEffectVelocity]? = nil,
+        completion: @escaping(_ result: CarbStoreResult<[GlucoseEffect]>) -> Void
+    ) {
+        getGlucoseEffects(start: start, end: end, effectVelocities: effectVelocities, unstoredEntries: [] as [AnyCarbEntry], completion: completion)
     }
 
     /// Retrieves the total number of recorded carbohydrates for the specified period.

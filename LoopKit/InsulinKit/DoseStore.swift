@@ -1246,9 +1246,16 @@ extension DoseStore {
     ///   - start: The earliest date of effects to retrieve
     ///   - end: The latest date of effects to retrieve, if provided
     ///   - basalDosingEnd: The date at which continuing doses should be assumed to be cancelled
+    ///   - unstoredDoses: An array of unstored dose entries to include the effects of
     ///   - completion: A closure called once the effects have been retrieved
     ///   - result: An array of effects, in chronological order
-    public func getGlucoseEffects(start: Date, end: Date? = nil, basalDosingEnd: Date? = Date(), completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void) {
+    public func getGlucoseEffects(
+        start: Date,
+        end: Date? = nil,
+        basalDosingEnd: Date? = Date(),
+        unstoredDoses: [DoseEntry] = [],
+        completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void
+    ) {
         guard let insulinModel = self.insulinModel,
               let insulinSensitivitySchedule = self.insulinSensitivityScheduleApplyingOverrideHistory
         else {
@@ -1258,12 +1265,16 @@ extension DoseStore {
 
         // To properly know glucose effects at startDate, we need to go back another DIA hours
         let doseStart = start.addingTimeInterval(-insulinModel.effectDuration)
+        let unstoredDoses = unstoredDoses.filter { entry in
+            entry.endDate >= start && entry.startDate < end ?? .distantFuture
+        }
         getNormalizedDoseEntries(start: doseStart, end: end) { (result) in
             switch result {
             case .failure(let error):
                 completion(.failure(error))
             case .success(let doses):
-                let trimmedDoses = doses.map { (dose) -> DoseEntry in
+                let allDoses = (doses + unstoredDoses).sorted(by: { $0.startDate < $1.startDate })
+                let trimmedDoses = allDoses.map { (dose) -> DoseEntry in
                     guard dose.type != .bolus else {
                         return dose
                     }
