@@ -868,11 +868,15 @@ extension CarbStore {
                 .map(AnyCarbEntry.init(_:)))
             
             self.getCachedCarbSamples(start: foodStart, end: end) { (samples) in
-                let effects: [GlucoseEffect]
+                var samples = samples.map(AnyCarbEntry.init(_:))
+                if !unstoredEntries.isEmpty {
+                    samples.append(contentsOf: unstoredEntries)
+                    samples.sort(by: { $0.startDate < $1.startDate })
+                }
 
-                let allSamples = (samples.map(AnyCarbEntry.init(_:)) + unstoredEntries).sorted(by: { $0.startDate < $1.startDate })
+                let effects: [GlucoseEffect]
                 if let effectVelocities = effectVelocities {
-                    effects = allSamples.map(
+                    effects = samples.map(
                         to: effectVelocities,
                         carbRatio: carbRatioSchedule,
                         insulinSensitivity: insulinSensitivitySchedule,
@@ -894,7 +898,7 @@ extension CarbStore {
                         delta: delta
                     )
                 } else {
-                    effects = allSamples.glucoseEffects(
+                    effects = samples.glucoseEffects(
                         from: start,
                         to: end,
                         carbRatios: carbRatioSchedule,

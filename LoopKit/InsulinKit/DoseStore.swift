@@ -1272,9 +1272,12 @@ extension DoseStore {
             switch result {
             case .failure(let error):
                 completion(.failure(error))
-            case .success(let doses):
-                let allDoses = (doses + unstoredDoses).sorted(by: { $0.startDate < $1.startDate })
-                let trimmedDoses = allDoses.map { (dose) -> DoseEntry in
+            case .success(var doses):
+                if !unstoredDoses.isEmpty {
+                    doses.append(contentsOf: unstoredDoses)
+                    doses.sort(by: { $0.startDate < $1.startDate })
+                }
+                let trimmedDoses = doses.map { (dose) -> DoseEntry in
                     guard dose.type != .bolus else {
                         return dose
                     }
