@@ -26,7 +26,7 @@ class DeletedCarbObject: NSManagedObject {
 
     override func willSave() {
         if isInserted || isUpdated {
-            setPrimitiveValue(managedObjectContext?.modificationCounter ?? 0, forKey: "modificationCounter")
+            setPrimitiveValue(managedObjectContext!.modificationCounter ?? 0, forKey: "modificationCounter")
         }
         super.willSave()
     }

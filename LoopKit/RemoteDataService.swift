@@ -11,87 +11,87 @@
 */
 public protocol RemoteDataService: Service {
 
-    /// The maximum number of carb data to synchronize with the remote data service.
-    var carbDataLimit: Int { get }
+    /// The maximum number of carb data to upload to the remote data service at one time.
+    var carbDataLimit: Int? { get }
 
     /**
-     Synchronize carb data with the remote data service.
+     Upload carb data to the remote data service.
 
-     - Parameter deleted: The deleted carb data to synchronize.
-     - Parameter stored: The stored carb data to synchronize.
+     - Parameter deleted: The deleted carb data to upload.
+     - Parameter stored: The stored carb data to upload.
      - Parameter completion: The completion function to call with any success or failure.
      */
-    func synchronizeCarbData(deleted: [DeletedCarbEntry], stored: [StoredCarbEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+    func uploadCarbData(deleted: [DeletedCarbEntry], stored: [StoredCarbEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
-    /// The maximum number of dose data to synchronize with the remote data service.
-    var doseDataLimit: Int { get }
+    /// The maximum number of dose data to upload to the remote data service at one time.
+    var doseDataLimit: Int? { get }
 
     /**
-     Synchronize dose data with the remote data service.
+     Upload dose data to the remote data service.
 
-     - Parameter stored: The stored dose data to synchronize.
+     - Parameter stored: The stored dose data to upload.
      - Parameter completion: The completion function to call with any success or failure.
      */
-    func synchronizeDoseData(_ stored: [DoseEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+    func uploadDoseData(_ stored: [DoseEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
-    /// The maximum number of glucose data to synchronize with the remote data service.
-    var glucoseDataLimit: Int { get }
+    /// The maximum number of glucose data to upload to the remote data service at one time.
+    var glucoseDataLimit: Int? { get }
 
     /**
-     Synchronize glucose data with the remote data service.
+     Upload glucose data to the remote data service.
 
-     - Parameter stored: The stored glucose data to synchronize.
+     - Parameter stored: The stored glucose data to upload.
      - Parameter completion: The completion function to call with any success or failure.
      */
-    func synchronizeGlucoseData(_ stored: [StoredGlucoseSample], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+    func uploadGlucoseData(_ stored: [StoredGlucoseSample], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
-    /// The maximum number of pump event data to synchronize with the remote data service.
-    var pumpEventDataLimit: Int { get }
+    /// The maximum number of pump event data to upload to the remote data service at one time.
+    var pumpEventDataLimit: Int? { get }
 
     /**
-     Synchronize pump event data with the remote data service.
+     Upload pump event data to the remote data service.
 
-     - Parameter stored: The stored pump event data to synchronize.
+     - Parameter stored: The stored pump event data to upload.
      - Parameter completion: The completion function to call with any success or failure.
      */
-    func synchronizePumpEventData(_ stored: [PersistedPumpEvent], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+    func uploadPumpEventData(_ stored: [PersistedPumpEvent], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
-    /// The maximum number of settings data to synchronize with the remote data service.
-    var settingsDataLimit: Int { get }
+    /// The maximum number of settings data to upload to the remote data service at one time.
+    var settingsDataLimit: Int? { get }
 
     /**
-     Synchronize settings data with the remote data service.
+     Upload settings data to the remote data service.
 
-     - Parameter stored: The stored settings data to synchronize.
+     - Parameter stored: The stored settings data to upload.
      - Parameter completion: The completion function to call with any success or failure.
      */
-    func synchronizeSettingsData(_ stored: [StoredSettings], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+    func uploadSettingsData(_ stored: [StoredSettings], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
-    /// The maximum number of status data to synchronize with the remote data service.
-    var statusDataLimit: Int { get }
+    /// The maximum number of status data to upload to the remote data service at one time.
+    var statusDataLimit: Int? { get }
 
     /**
-     Synchronize status data with the remote data service.
+     Upload status data to the remote data service.
 
-     - Parameter stored: The stored status data to synchronize.
+     - Parameter stored: The stored status data to upload.
      - Parameter completion: The completion function to call with any success or failure.
      */
-    func synchronizeStatusData(_ stored: [StoredStatus], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+    func uploadStatusData(_ stored: [StoredStatus], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
 }
 
 public extension RemoteDataService {
 
-    var carbDataLimit: Int { return Int.max }
+    var carbDataLimit: Int? { return nil }
 
-    var doseDataLimit: Int { return Int.max }
+    var doseDataLimit: Int? { return nil }
 
-    var glucoseDataLimit: Int { return Int.max }
+    var glucoseDataLimit: Int? { return nil }
 
-    var pumpEventDataLimit: Int { return Int.max }
+    var pumpEventDataLimit: Int? { return nil }
 
-    var settingsDataLimit: Int { return Int.max }
+    var settingsDataLimit: Int? { return nil }
 
-    var statusDataLimit: Int { return Int.max }
+    var statusDataLimit: Int? { return nil }
 
 }

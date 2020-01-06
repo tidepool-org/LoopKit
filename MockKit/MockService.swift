@@ -92,44 +92,44 @@ extension MockService: LoggingService {
 
 extension MockService: RemoteDataService {
     
-    public func synchronizeCarbData(deleted: [DeletedCarbEntry], stored: [StoredCarbEntry], completion: @escaping (Result<Bool, Error>) -> Void) {
+    public func uploadCarbData(deleted: [DeletedCarbEntry], stored: [StoredCarbEntry], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Synchronize carb data")
+            record("[RemoteDataService] Upload carb data")
         }
         completion(.success(false))
     }
     
-    public func synchronizeDoseData(_ stored: [DoseEntry], completion: @escaping (Result<Bool, Error>) -> Void) {
+    public func uploadDoseData(_ stored: [DoseEntry], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Synchronize dose data")
+            record("[RemoteDataService] Upload dose data")
         }
         completion(.success(false))
     }
     
-    public func synchronizeGlucoseData(_ stored: [StoredGlucoseSample], completion: @escaping (Result<Bool, Error>) -> Void) {
+    public func uploadGlucoseData(_ stored: [StoredGlucoseSample], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Synchronize glucose data")
+            record("[RemoteDataService] Upload glucose data")
         }
         completion(.success(false))
     }
     
-    public func synchronizePumpEventData(_ stored: [PersistedPumpEvent], completion: @escaping (Result<Bool, Error>) -> Void) {
+    public func uploadPumpEventData(_ stored: [PersistedPumpEvent], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Synchronize pump event data")
+            record("[RemoteDataService] Upload pump event data")
         }
         completion(.success(false))
     }
     
-    public func synchronizeSettingsData(_ stored: [StoredSettings], completion: @escaping (Result<Bool, Error>) -> Void) {
+    public func uploadSettingsData(_ stored: [StoredSettings], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Synchronize settings data")
+            record("[RemoteDataService] Upload settings data")
         }
         completion(.success(false))
     }
     
-    public func synchronizeStatusData(_ stored: [StoredStatus], completion: @escaping (Result<Bool, Error>) -> Void) {
+    public func uploadStatusData(_ stored: [StoredStatus], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Synchronize status data")
+            record("[RemoteDataService] Upload status data")
         }
         completion(.success(false))
     }
