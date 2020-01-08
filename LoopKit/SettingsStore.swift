@@ -91,7 +91,10 @@ extension SettingsStore {
         lock.withLock {
             if queryAnchor.modificationCounter < self.modificationCounter && limit > 0 {
                 let startModificationCounter = queryAnchor.modificationCounter + 1
-                let endModificationCounter = min(queryAnchor.modificationCounter + Int64(limit), self.modificationCounter)
+                var endModificationCounter = self.modificationCounter
+                if limit <= endModificationCounter - startModificationCounter {
+                    endModificationCounter = queryAnchor.modificationCounter + Int64(limit)
+                }
                 for modificationCounter in (startModificationCounter...endModificationCounter) {
                     if let settings = self.settings[modificationCounter] {
                         queryResult.append(settings)
