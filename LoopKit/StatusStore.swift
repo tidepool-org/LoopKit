@@ -20,26 +20,33 @@ public protocol StatusStoreDelegate: AnyObject {
     
 }
 
+public protocol StatusStoreCacheStore: AnyObject {
+
+    /// The status store modification counter
+    var statusStoreModificationCounter: Int64? { get set }
+
+}
+
 public class StatusStore {
     
     public weak var delegate: StatusStoreDelegate?
     
     private let lock = UnfairLock()
-    
-    private let userDefaults: UserDefaults?
-    
+
+    private let storeCache: StatusStoreCacheStore
+
     private var status: [Int64: StoredStatus]
     
     private var modificationCounter: Int64 {
         didSet {
-            userDefaults?.statusStoreModificationCounter = modificationCounter
+            storeCache.statusStoreModificationCounter = modificationCounter
         }
     }
     
-    public init(userDefaults: UserDefaults?) {
-        self.userDefaults = userDefaults
+    public init(storeCache: StatusStoreCacheStore) {
+        self.storeCache = storeCache
         self.status = [:]
-        self.modificationCounter = userDefaults?.statusStoreModificationCounter ?? 0
+        self.modificationCounter = storeCache.statusStoreModificationCounter ?? 0
     }
     
     public func storeStatus(_ status: StoredStatus, completion: @escaping () -> Void) {
@@ -87,9 +94,14 @@ extension StatusStore {
     public func executeStatusQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (StatusQueryResult) -> Void) {
         var queryAnchor = queryAnchor ?? QueryAnchor()
         var queryResult = [StoredStatus]()
-        
+
+        guard limit > 0 else {
+            completion(.success(queryAnchor, queryResult))
+            return
+        }
+
         lock.withLock {
-            if queryAnchor.modificationCounter < self.modificationCounter && limit > 0 {
+            if queryAnchor.modificationCounter < self.modificationCounter {
                 let startModificationCounter = queryAnchor.modificationCounter + 1
                 var endModificationCounter = self.modificationCounter
                 if limit <= endModificationCounter - startModificationCounter {
@@ -101,7 +113,7 @@ extension StatusStore {
                     }
                 }
                 
-                queryAnchor.modificationCounter = self.modificationCounter
+                queryAnchor.modificationCounter = endModificationCounter
             }
         }
         
@@ -135,8 +147,15 @@ public struct StoredStatus {
     public var glucoseTargetRangeScheduleApplyingOverrideIfActive: GlucoseRangeSchedule?
     
     public var error: Error?
-    
-    public init() {}
+
+    public var syncIdentifier: String
+
+    public var syncVersion: Int
+
+    public init() {
+        self.syncIdentifier = UUID().uuidString
+        self.syncVersion = 1
+    }
     
 }
 
@@ -166,13 +185,13 @@ public struct LastReservoirValue {
     
 }
 
-fileprivate extension UserDefaults {
+extension UserDefaults: StatusStoreCacheStore {
     
     private enum Key: String {
         case statusStoreModificationCounter = "com.loopkit.StatusStore.ModificationCounter"
     }
     
-    var statusStoreModificationCounter: Int64? {
+    public var statusStoreModificationCounter: Int64? {
         get {
             guard let value = object(forKey: Key.statusStoreModificationCounter.rawValue) as? NSNumber else {
                 return nil

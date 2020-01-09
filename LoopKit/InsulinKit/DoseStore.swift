@@ -1425,12 +1425,17 @@ extension DoseStore {
         var queryResult = [DoseEntry]()
         var queryError: Error?
 
+        guard limit > 0 else {
+            completion(.success(queryAnchor, queryResult))
+            return
+        }
+
         persistenceController.managedObjectContext.performAndWait {
             let storedRequest: NSFetchRequest<PumpEvent> = PumpEvent.fetchRequest()
 
             storedRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
                 NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter),
-                dosePredicate
+                NSPredicate(format: "type IN %@", PumpEventType.doseTypes.map { $0.rawValue })
             ])
             storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
             storedRequest.fetchLimit = limit
@@ -1460,12 +1465,17 @@ extension DoseStore {
         var queryResult = [PersistedPumpEvent]()
         var queryError: Error?
 
+        guard limit > 0 else {
+            completion(.success(queryAnchor, queryResult))
+            return
+        }
+
         persistenceController.managedObjectContext.performAndWait {
             let storedRequest: NSFetchRequest<PumpEvent> = PumpEvent.fetchRequest()
 
             storedRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
                 NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter),
-                NSCompoundPredicate(notPredicateWithSubpredicate: dosePredicate)
+                NSPredicate(format: "type IN %@", PumpEventType.nonDoseTypes.map { $0.rawValue })
             ])
             storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
             storedRequest.fetchLimit = limit
@@ -1488,13 +1498,6 @@ extension DoseStore {
         }
 
         completion(.success(queryAnchor, queryResult))
-    }
-
-    private var dosePredicate: NSPredicate {
-        return NSCompoundPredicate(orPredicateWithSubpredicates: [
-            NSPredicate(format: "type IN %@", PumpEventType.doseTypes.map { $0.rawValue }),
-            NSPredicate(format: "doseType IN %@", DoseType.allCases.map { $0.rawValue })
-        ])
     }
 
 }

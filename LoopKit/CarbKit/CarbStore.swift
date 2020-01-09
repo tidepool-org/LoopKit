@@ -888,6 +888,11 @@ extension CarbStore {
             var queryDeletedResult = [DeletedCarbEntry]()
             var queryStoredResult = [StoredCarbEntry]()
             var queryError: Error?
+
+            guard limit > 0 else {
+                completion(.success(queryAnchor, queryDeletedResult, queryStoredResult))
+                return
+            }
             
             self.cacheStore.managedObjectContext.performAndWait {
                 let deletedRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()

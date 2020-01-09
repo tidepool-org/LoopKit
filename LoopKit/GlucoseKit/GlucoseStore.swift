@@ -575,6 +575,11 @@ extension GlucoseStore {
             var queryResult = [StoredGlucoseSample]()
             var queryError: Error?
 
+            guard limit > 0 else {
+                completion(.success(queryAnchor, queryResult))
+                return
+            }
+
             self.cacheStore.managedObjectContext.performAndWait {
                 let storedRequest: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
 

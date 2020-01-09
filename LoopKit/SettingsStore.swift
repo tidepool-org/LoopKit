@@ -20,26 +20,33 @@ public protocol SettingsStoreDelegate: AnyObject {
     
 }
 
+public protocol SettingsStoreCacheStore: AnyObject {
+
+    /// The settings store modification counter
+    var settingsStoreModificationCounter: Int64? { get set }
+    
+}
+
 public class SettingsStore {
     
     public weak var delegate: SettingsStoreDelegate?
     
     private let lock = UnfairLock()
     
-    private let userDefaults: UserDefaults?
+    private let storeCache: SettingsStoreCacheStore
     
     private var settings: [Int64: StoredSettings]
     
     private var modificationCounter: Int64 {
         didSet {
-            userDefaults?.settingsStoreModificationCounter = modificationCounter
+            storeCache.settingsStoreModificationCounter = modificationCounter
         }
     }
     
-    public init(userDefaults: UserDefaults?) {
-        self.userDefaults = userDefaults
+    public init(storeCache: SettingsStoreCacheStore) {
+        self.storeCache = storeCache
         self.settings = [:]
-        self.modificationCounter = userDefaults?.settingsStoreModificationCounter ?? 0
+        self.modificationCounter = storeCache.settingsStoreModificationCounter ?? 0
     }
     
     public func storeSettings(_ settings: StoredSettings, completion: @escaping () -> Void) {
@@ -87,9 +94,14 @@ extension SettingsStore {
     public func executeSettingsQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (SettingsQueryResult) -> Void) {
         var queryAnchor = queryAnchor ?? QueryAnchor()
         var queryResult = [StoredSettings]()
-        
+
+        guard limit > 0 else {
+            completion(.success(queryAnchor, queryResult))
+            return
+        }
+
         lock.withLock {
-            if queryAnchor.modificationCounter < self.modificationCounter && limit > 0 {
+            if queryAnchor.modificationCounter < self.modificationCounter {
                 let startModificationCounter = queryAnchor.modificationCounter + 1
                 var endModificationCounter = self.modificationCounter
                 if limit <= endModificationCounter - startModificationCounter {
@@ -100,11 +112,11 @@ extension SettingsStore {
                         queryResult.append(settings)
                     }
                 }
-                
-                queryAnchor.modificationCounter = self.modificationCounter
+
+                queryAnchor.modificationCounter = endModificationCounter
             }
         }
-        
+
         completion(.success(queryAnchor, queryResult))
     }
     
@@ -140,17 +152,24 @@ public struct StoredSettings {
     
     public var carbRatioSchedule: CarbRatioSchedule?
     
-    public init() {}
-    
+    public var syncIdentifier: String
+
+    public var syncVersion: Int
+
+    public init() {
+        self.syncIdentifier = UUID().uuidString
+        self.syncVersion = 1
+    }
+
 }
 
-fileprivate extension UserDefaults {
+extension UserDefaults: SettingsStoreCacheStore {
     
     private enum Key: String {
         case settingsStoreModificationCounter = "com.loopkit.SettingsStore.ModificationCounter"
     }
     
-    var settingsStoreModificationCounter: Int64? {
+    public var settingsStoreModificationCounter: Int64? {
         get {
             guard let value = object(forKey: Key.settingsStoreModificationCounter.rawValue) as? NSNumber else {
                 return nil
