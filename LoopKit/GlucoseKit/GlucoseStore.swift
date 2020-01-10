@@ -544,7 +544,7 @@ extension GlucoseStore {
 
         public typealias RawValue = [String: Any]
 
-        public var modificationCounter: Int64
+        internal var modificationCounter: Int64
 
         public init() {
             self.modificationCounter = 0

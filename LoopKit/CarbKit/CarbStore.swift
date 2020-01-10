@@ -850,9 +850,9 @@ extension CarbStore {
         
         public typealias RawValue = [String: Any]
         
-        public var deletedModificationCounter: Int64
+        internal var deletedModificationCounter: Int64
         
-        public var storedModificationCounter: Int64
+        internal var storedModificationCounter: Int64
         
         public init() {
             self.deletedModificationCounter = 0
