@@ -1,5 +1,5 @@
 //
-//  StatusStore.swift
+//  DosingDecisionStore.swift
 //  LoopKit
 //
 //  Created by Darin Krauss on 10/14/19.
@@ -9,58 +9,58 @@
 import Foundation
 import HealthKit
 
-public protocol StatusStoreDelegate: AnyObject {
+public protocol DosingDecisionStoreDelegate: AnyObject {
     
     /**
-     Informs the delegate that the status store has updated status data.
+     Informs the delegate that the dosing decision store has updated dosing decision data.
      
-     - Parameter statusStore: The status store that has updated status data.
+     - Parameter dosingDecisionStore: The dosing decision store that has updated dosing decision data.
      */
-    func statusStoreHasUpdatedStatusData(_ statusStore: StatusStore)
+    func dosingDecisionStoreHasUpdatedDosingDecisionData(_ dosingDecisionStore: DosingDecisionStore)
     
 }
 
-public protocol StatusStoreCacheStore: AnyObject {
+public protocol DosingDecisionStoreCacheStore: AnyObject {
 
-    /// The status store modification counter
-    var statusStoreModificationCounter: Int64? { get set }
+    /// The dosing decision store modification counter
+    var dosingDecisionStoreModificationCounter: Int64? { get set }
 
 }
 
-public class StatusStore {
+public class DosingDecisionStore {
     
-    public weak var delegate: StatusStoreDelegate?
+    public weak var delegate: DosingDecisionStoreDelegate?
     
     private let lock = UnfairLock()
 
-    private let storeCache: StatusStoreCacheStore
+    private let storeCache: DosingDecisionStoreCacheStore
 
-    private var status: [Int64: StoredStatus]
+    private var dosingDecision: [Int64: StoredDosingDecision]
     
     private var modificationCounter: Int64 {
         didSet {
-            storeCache.statusStoreModificationCounter = modificationCounter
+            storeCache.dosingDecisionStoreModificationCounter = modificationCounter
         }
     }
     
-    public init(storeCache: StatusStoreCacheStore) {
+    public init(storeCache: DosingDecisionStoreCacheStore) {
         self.storeCache = storeCache
-        self.status = [:]
-        self.modificationCounter = storeCache.statusStoreModificationCounter ?? 0
+        self.dosingDecision = [:]
+        self.modificationCounter = storeCache.dosingDecisionStoreModificationCounter ?? 0
     }
     
-    public func storeStatus(_ status: StoredStatus, completion: @escaping () -> Void) {
+    public func storeDosingDecision(_ dosingDecision: StoredDosingDecision, completion: @escaping () -> Void) {
         lock.withLock {
             self.modificationCounter += 1
-            self.status[self.modificationCounter] = status
+            self.dosingDecision[self.modificationCounter] = dosingDecision
         }
-        self.delegate?.statusStoreHasUpdatedStatusData(self)
+        self.delegate?.dosingDecisionStoreHasUpdatedDosingDecisionData(self)
         completion()
     }
     
 }
 
-extension StatusStore {
+extension DosingDecisionStore {
     
     public struct QueryAnchor: RawRepresentable {
         
@@ -86,14 +86,14 @@ extension StatusStore {
         }
     }
     
-    public enum StatusQueryResult {
-        case success(QueryAnchor, [StoredStatus])
+    public enum DosingDecisionQueryResult {
+        case success(QueryAnchor, [StoredDosingDecision])
         case failure(Error)
     }
     
-    public func executeStatusQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (StatusQueryResult) -> Void) {
+    public func executeDosingDecisionQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (DosingDecisionQueryResult) -> Void) {
         var queryAnchor = queryAnchor ?? QueryAnchor()
-        var queryResult = [StoredStatus]()
+        var queryResult = [StoredDosingDecision]()
 
         guard limit > 0 else {
             completion(.success(queryAnchor, queryResult))
@@ -108,8 +108,8 @@ extension StatusStore {
                     endModificationCounter = queryAnchor.modificationCounter + Int64(limit)
                 }
                 for modificationCounter in (startModificationCounter...endModificationCounter) {
-                    if let status = self.status[modificationCounter] {
-                        queryResult.append(status)
+                    if let dosingDecision = self.dosingDecision[modificationCounter] {
+                        queryResult.append(dosingDecision)
                     }
                 }
                 
@@ -122,7 +122,7 @@ extension StatusStore {
     
 }
 
-public struct StoredStatus {
+public struct StoredDosingDecision {
     
     public let date: Date = Date()
     
@@ -185,24 +185,24 @@ public struct LastReservoirValue {
     
 }
 
-extension UserDefaults: StatusStoreCacheStore {
+extension UserDefaults: DosingDecisionStoreCacheStore {
     
     private enum Key: String {
-        case statusStoreModificationCounter = "com.loopkit.StatusStore.ModificationCounter"
+        case dosingDecisionStoreModificationCounter = "com.loopkit.DosingDecisionStore.ModificationCounter"
     }
     
-    public var statusStoreModificationCounter: Int64? {
+    public var dosingDecisionStoreModificationCounter: Int64? {
         get {
-            guard let value = object(forKey: Key.statusStoreModificationCounter.rawValue) as? NSNumber else {
+            guard let value = object(forKey: Key.dosingDecisionStoreModificationCounter.rawValue) as? NSNumber else {
                 return nil
             }
             return value.int64Value
         }
         set {
             if let newValue = newValue {
-                set(NSNumber(value: newValue), forKey: Key.statusStoreModificationCounter.rawValue)
+                set(NSNumber(value: newValue), forKey: Key.dosingDecisionStoreModificationCounter.rawValue)
             } else {
-                removeObject(forKey: Key.statusStoreModificationCounter.rawValue)
+                removeObject(forKey: Key.dosingDecisionStoreModificationCounter.rawValue)
             }
         }
     }

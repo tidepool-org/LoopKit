@@ -105,7 +105,14 @@ extension MockService: RemoteDataService {
         }
         completion(.success(false))
     }
-    
+
+    public func uploadDosingDecisionData(_ stored: [StoredDosingDecision], completion: @escaping (Result<Bool, Error>) -> Void) {
+        if remoteData {
+            record("[RemoteDataService] Upload dosing decision data")
+        }
+        completion(.success(false))
+    }
+
     public func uploadGlucoseData(_ stored: [StoredGlucoseSample], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
             record("[RemoteDataService] Upload glucose data")
@@ -123,13 +130,6 @@ extension MockService: RemoteDataService {
     public func uploadSettingsData(_ stored: [StoredSettings], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
             record("[RemoteDataService] Upload settings data")
-        }
-        completion(.success(false))
-    }
-    
-    public func uploadStatusData(_ stored: [StoredStatus], completion: @escaping (Result<Bool, Error>) -> Void) {
-        if remoteData {
-            record("[RemoteDataService] Upload status data")
         }
         completion(.success(false))
     }

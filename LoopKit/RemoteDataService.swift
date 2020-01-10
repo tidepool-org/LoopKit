@@ -34,6 +34,17 @@ public protocol RemoteDataService: Service {
      */
     func uploadDoseData(_ stored: [DoseEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
+    /// The maximum number of dosing decision data to upload to the remote data service at one time.
+    var dosingDecisionDataLimit: Int? { get }
+
+    /**
+     Upload dosing decision data to the remote data service.
+
+     - Parameter stored: The stored dosing decision data to upload.
+     - Parameter completion: The completion function to call with any success or failure.
+     */
+    func uploadDosingDecisionData(_ stored: [StoredDosingDecision], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+
     /// The maximum number of glucose data to upload to the remote data service at one time.
     var glucoseDataLimit: Int? { get }
 
@@ -67,17 +78,6 @@ public protocol RemoteDataService: Service {
      */
     func uploadSettingsData(_ stored: [StoredSettings], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
-    /// The maximum number of status data to upload to the remote data service at one time.
-    var statusDataLimit: Int? { get }
-
-    /**
-     Upload status data to the remote data service.
-
-     - Parameter stored: The stored status data to upload.
-     - Parameter completion: The completion function to call with any success or failure.
-     */
-    func uploadStatusData(_ stored: [StoredStatus], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
-
 }
 
 public extension RemoteDataService {
@@ -86,12 +86,12 @@ public extension RemoteDataService {
 
     var doseDataLimit: Int? { return nil }
 
+    var dosingDecisionDataLimit: Int? { return nil }
+
     var glucoseDataLimit: Int? { return nil }
 
     var pumpEventDataLimit: Int? { return nil }
 
     var settingsDataLimit: Int? { return nil }
-
-    var statusDataLimit: Int? { return nil }
 
 }

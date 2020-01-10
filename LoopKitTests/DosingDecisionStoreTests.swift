@@ -1,5 +1,5 @@
 //
-//  StatusStoreTests.swift
+//  DosingDecisionStoreTests.swift
 //  LoopKitTests
 //
 //  Created by Darin Krauss on 1/6/20.
@@ -9,138 +9,138 @@
 import XCTest
 @testable import LoopKit
 
-class StatusStorePersistenceTests: XCTestCase, StatusStoreCacheStore, StatusStoreDelegate {
+class DosingDecisionStorePersistenceTests: XCTestCase, DosingDecisionStoreCacheStore, DosingDecisionStoreDelegate {
 
-    var statusStore: StatusStore!
+    var dosingDecisionStore: DosingDecisionStore!
 
     override func setUp() {
         super.setUp()
 
-        statusStoreHasUpdatedStatusDataHandler = nil
-        statusStoreModificationCounter = nil
-        statusStore = StatusStore(storeCache: self)
-        statusStore.delegate = self
+        dosingDecisionStoreHasUpdatedDosingDecisionDataHandler = nil
+        dosingDecisionStoreModificationCounter = nil
+        dosingDecisionStore = DosingDecisionStore(storeCache: self)
+        dosingDecisionStore.delegate = self
     }
 
     override func tearDown() {
-        statusStore.delegate = nil
-        statusStore = nil
-        statusStoreModificationCounter = nil
-        statusStoreHasUpdatedStatusDataHandler = nil
+        dosingDecisionStore.delegate = nil
+        dosingDecisionStore = nil
+        dosingDecisionStoreModificationCounter = nil
+        dosingDecisionStoreHasUpdatedDosingDecisionDataHandler = nil
 
         super.tearDown()
     }
 
-    // MARK: - StatusStoreCacheStore
+    // MARK: - DosingDecisionStoreCacheStore
 
-    var statusStoreModificationCounter: Int64?
+    var dosingDecisionStoreModificationCounter: Int64?
 
-    // MARK: - StatusStoreDelegate
+    // MARK: - DosingDecisionStoreDelegate
 
-    var statusStoreHasUpdatedStatusDataHandler: ((_ : StatusStore) -> Void)?
+    var dosingDecisionStoreHasUpdatedDosingDecisionDataHandler: ((_ : DosingDecisionStore) -> Void)?
 
-    func statusStoreHasUpdatedStatusData(_ statusStore: StatusStore) {
-        statusStoreHasUpdatedStatusDataHandler?(statusStore)
+    func dosingDecisionStoreHasUpdatedDosingDecisionData(_ dosingDecisionStore: DosingDecisionStore) {
+        dosingDecisionStoreHasUpdatedDosingDecisionDataHandler?(dosingDecisionStore)
     }
 
     // MARK: -
 
-    func testStoreStatus() {
-        let storeStatusHandler = expectation(description: "Store status handler")
-        let storeStatusCompletion = expectation(description: "Store status completion")
+    func testStoreDosingDecision() {
+        let storeDosingDecisionHandler = expectation(description: "Store dosing decision handler")
+        let storeDosingDecisionCompletion = expectation(description: "Store dosing decision completion")
 
         var handlerInvocation = 0
 
-        statusStoreHasUpdatedStatusDataHandler = { statusStore in
+        dosingDecisionStoreHasUpdatedDosingDecisionDataHandler = { dosingDecisionStore in
             handlerInvocation += 1
 
             switch handlerInvocation {
             case 1:
-                storeStatusHandler.fulfill()
+                storeDosingDecisionHandler.fulfill()
             default:
                 XCTFail("Unexpected handler invocation")
             }
         }
 
-        statusStore.storeStatus(StoredStatus()) {
-            XCTAssertEqual(self.statusStoreModificationCounter, 1)
-            storeStatusCompletion.fulfill()
+        dosingDecisionStore.storeDosingDecision(StoredDosingDecision()) {
+            XCTAssertEqual(self.dosingDecisionStoreModificationCounter, 1)
+            storeDosingDecisionCompletion.fulfill()
         }
 
-        wait(for: [storeStatusHandler, storeStatusCompletion], timeout: 2, enforceOrder: true)
+        wait(for: [storeDosingDecisionHandler, storeDosingDecisionCompletion], timeout: 2, enforceOrder: true)
     }
 
-    func testStoreStatusMultiple() {
-        let storeStatusHandler1 = expectation(description: "Store status handler 1")
-        let storeStatusHandler2 = expectation(description: "Store status handler 2")
-        let storeStatusCompletion1 = expectation(description: "Store status completion 1")
-        let storeStatusCompletion2 = expectation(description: "Store status completion 2")
+    func testStoreDosingDecisionMultiple() {
+        let storeDosingDecisionHandler1 = expectation(description: "Store dosing decision handler 1")
+        let storeDosingDecisionHandler2 = expectation(description: "Store dosing decision handler 2")
+        let storeDosingDecisionCompletion1 = expectation(description: "Store dosing decision completion 1")
+        let storeDosingDecisionCompletion2 = expectation(description: "Store dosing decision completion 2")
 
         var handlerInvocation = 0
 
-        statusStoreHasUpdatedStatusDataHandler = { statusStore in
+        dosingDecisionStoreHasUpdatedDosingDecisionDataHandler = { dosingDecisionStore in
             handlerInvocation += 1
 
             switch handlerInvocation {
             case 1:
-                storeStatusHandler1.fulfill()
+                storeDosingDecisionHandler1.fulfill()
             case 2:
-                storeStatusHandler2.fulfill()
+                storeDosingDecisionHandler2.fulfill()
             default:
                 XCTFail("Unexpected handler invocation")
             }
         }
 
-        statusStore.storeStatus(StoredStatus()) {
-            XCTAssertEqual(self.statusStoreModificationCounter, 1)
-            storeStatusCompletion1.fulfill()
+        dosingDecisionStore.storeDosingDecision(StoredDosingDecision()) {
+            XCTAssertEqual(self.dosingDecisionStoreModificationCounter, 1)
+            storeDosingDecisionCompletion1.fulfill()
         }
 
-        statusStore.storeStatus(StoredStatus()) {
-            XCTAssertEqual(self.statusStoreModificationCounter, 2)
-            storeStatusCompletion2.fulfill()
+        dosingDecisionStore.storeDosingDecision(StoredDosingDecision()) {
+            XCTAssertEqual(self.dosingDecisionStoreModificationCounter, 2)
+            storeDosingDecisionCompletion2.fulfill()
         }
 
-        wait(for: [storeStatusHandler1, storeStatusCompletion1, storeStatusHandler2, storeStatusCompletion2], timeout: 2, enforceOrder: true)
+        wait(for: [storeDosingDecisionHandler1, storeDosingDecisionCompletion1, storeDosingDecisionHandler2, storeDosingDecisionCompletion2], timeout: 2, enforceOrder: true)
     }
 
 }
 
-class StatusStoreQueryAnchorTests: XCTestCase {
+class DosingDecisionStoreQueryAnchorTests: XCTestCase {
 
-    var rawValue: StatusStore.QueryAnchor.RawValue = [
+    var rawValue: DosingDecisionStore.QueryAnchor.RawValue = [
         "modificationCounter": Int64(123)
     ]
 
     func testInitializerDefault() {
-        let queryAnchor = StatusStore.QueryAnchor()
+        let queryAnchor = DosingDecisionStore.QueryAnchor()
         XCTAssertEqual(queryAnchor.modificationCounter, 0)
     }
 
     func testInitializerRawValue() {
-        let queryAnchor = StatusStore.QueryAnchor(rawValue: rawValue)
+        let queryAnchor = DosingDecisionStore.QueryAnchor(rawValue: rawValue)
         XCTAssertNotNil(queryAnchor)
         XCTAssertEqual(queryAnchor?.modificationCounter, 123)
     }
 
     func testInitializerRawValueMissingModificationCounter() {
         rawValue["modificationCounter"] = nil
-        XCTAssertNil(StatusStore.QueryAnchor(rawValue: rawValue))
+        XCTAssertNil(DosingDecisionStore.QueryAnchor(rawValue: rawValue))
     }
 
     func testInitializerRawValueInvalidModificationCounter() {
         rawValue["modificationCounter"] = "123"
-        XCTAssertNil(StatusStore.QueryAnchor(rawValue: rawValue))
+        XCTAssertNil(DosingDecisionStore.QueryAnchor(rawValue: rawValue))
     }
 
     func testRawValueWithDefault() {
-        let rawValue = StatusStore.QueryAnchor().rawValue
+        let rawValue = DosingDecisionStore.QueryAnchor().rawValue
         XCTAssertEqual(rawValue.count, 1)
         XCTAssertEqual(rawValue["modificationCounter"] as? Int64, Int64(0))
     }
 
     func testRawValueWithNonDefault() {
-        var queryAnchor = StatusStore.QueryAnchor()
+        var queryAnchor = DosingDecisionStore.QueryAnchor()
         queryAnchor.modificationCounter = 123
         let rawValue = queryAnchor.rawValue
         XCTAssertEqual(rawValue.count, 1)
@@ -149,20 +149,20 @@ class StatusStoreQueryAnchorTests: XCTestCase {
 
 }
 
-class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
+class DosingDecisionStoreQueryTests: XCTestCase, DosingDecisionStoreCacheStore {
 
-    var statusStore: StatusStore!
+    var dosingDecisionStore: DosingDecisionStore!
     var completion: XCTestExpectation!
-    var queryAnchor: StatusStore.QueryAnchor!
+    var queryAnchor: DosingDecisionStore.QueryAnchor!
     var limit: Int!
 
     override func setUp() {
         super.setUp()
 
-        statusStoreModificationCounter = nil
-        statusStore = StatusStore(storeCache: self)
+        dosingDecisionStoreModificationCounter = nil
+        dosingDecisionStore = DosingDecisionStore(storeCache: self)
         completion = expectation(description: "Completion")
-        queryAnchor = StatusStore.QueryAnchor()
+        queryAnchor = DosingDecisionStore.QueryAnchor()
         limit = Int.max
     }
 
@@ -170,20 +170,20 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
         limit = nil
         queryAnchor = nil
         completion = nil
-        statusStore = nil
-        statusStoreModificationCounter = nil
+        dosingDecisionStore = nil
+        dosingDecisionStoreModificationCounter = nil
 
         super.tearDown()
     }
 
-    // MARK: - StatusStoreCacheStore
+    // MARK: - DosingDecisionStoreCacheStore
 
-    var statusStoreModificationCounter: Int64?
+    var dosingDecisionStoreModificationCounter: Int64?
 
     // MARK: -
 
     func testEmptyWithDefaultQueryAnchor() {
-        statusStore.executeStatusQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        dosingDecisionStore.executeDosingDecisionQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -200,7 +200,7 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
     func testEmptyWithMissingQueryAnchor() {
         queryAnchor = nil
 
-        statusStore.executeStatusQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        dosingDecisionStore.executeDosingDecisionQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -217,7 +217,7 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
     func testEmptyWithNonDefaultQueryAnchor() {
         queryAnchor.modificationCounter = 1
 
-        statusStore.executeStatusQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        dosingDecisionStore.executeDosingDecisionQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -236,7 +236,7 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
 
         addData(withSyncIdentifiers: syncIdentifiers)
 
-        statusStore.executeStatusQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        dosingDecisionStore.executeDosingDecisionQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -261,7 +261,7 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
 
         queryAnchor.modificationCounter = 2
 
-        statusStore.executeStatusQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        dosingDecisionStore.executeDosingDecisionQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -284,7 +284,7 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
 
         queryAnchor.modificationCounter = 3
 
-        statusStore.executeStatusQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        dosingDecisionStore.executeDosingDecisionQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -305,7 +305,7 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
 
         limit = 0
 
-        statusStore.executeStatusQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        dosingDecisionStore.executeDosingDecisionQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -326,7 +326,7 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
 
         limit = 2
 
-        statusStore.executeStatusQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        dosingDecisionStore.executeDosingDecisionQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -346,10 +346,10 @@ class StatusStoreQueryTests: XCTestCase, StatusStoreCacheStore {
 
     private func addData(withSyncIdentifiers syncIdentifiers: [String]) {
         for (index, syncIdentifier) in syncIdentifiers.enumerated() {
-            var status = StoredStatus()
-            status.syncIdentifier = syncIdentifier
-            status.syncVersion = index
-            self.statusStore.storeStatus(status) {}
+            var dosingDecision = StoredDosingDecision()
+            dosingDecision.syncIdentifier = syncIdentifier
+            dosingDecision.syncVersion = index
+            self.dosingDecisionStore.storeDosingDecision(dosingDecision) {}
         }
     }
 
