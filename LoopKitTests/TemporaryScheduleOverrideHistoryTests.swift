@@ -11,8 +11,15 @@ import XCTest
 
 
 final class TemporaryScheduleOverrideHistoryTests: XCTestCase {
+
+    static let calendar: Calendar = {
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(abbreviation: "GMT")!
+        return calendar
+    }()
+
     // Midnight of an arbitrary date
-    let referenceDate = Calendar.current.startOfDay(for: Date(timeIntervalSinceReferenceDate: .hours(100_000)))
+    let referenceDate = TemporaryScheduleOverrideHistoryTests.calendar.startOfDay(for: Date(timeIntervalSinceReferenceDate: .hours(100_000)))
 
     let basalRateSchedule = BasalRateSchedule(
         dailyItems: [
@@ -20,7 +27,7 @@ final class TemporaryScheduleOverrideHistoryTests: XCTestCase {
             RepeatingScheduleValue(startTime: .hours(6), value: 1.4),
             RepeatingScheduleValue(startTime: .hours(20), value: 1.0)
         ],
-        timeZone: Calendar.current.timeZone
+        timeZone: TemporaryScheduleOverrideHistoryTests.calendar.timeZone
     )!
 
     let history = TemporaryScheduleOverrideHistory()
