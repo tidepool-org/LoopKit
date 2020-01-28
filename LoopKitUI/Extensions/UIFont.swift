@@ -36,10 +36,10 @@ extension UIFont {
     }
     
     public static var loopBolded: UIFont {
-        return .systemFont(ofSize: 17, weight: .bold)
+        return UIFontMetrics(forTextStyle: .headline).scaledFont(for: systemFont(ofSize: 17, weight: .bold))
     }
     
     public static var loopRegular: UIFont {
-        return .systemFont(ofSize: 17)
+        return preferredFont(forTextStyle: .body)
     }
 }
