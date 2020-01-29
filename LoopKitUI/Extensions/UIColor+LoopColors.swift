@@ -39,6 +39,11 @@ extension UIColor {
         }
     }
     
+    public static var loopWhite: UIColor {
+        // some views, like the barcode scanners are styled with dark backgrounds even in light mode
+        return .white
+    }
+    
     public static var loopGroupTableViewBackground: UIColor {
         if #available(iOSApplicationExtension 13.0, *) {
             return .systemGroupedBackground

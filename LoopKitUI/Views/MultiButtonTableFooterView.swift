@@ -10,30 +10,41 @@ import UIKit
 
 public class MultiButtonTableFooterView: UIView {
 
-    public let primaryButton: TableFooterButton!
-    
+    public let primaryButton: TableFooterButton?
+
     public let secondaryButton: TableFooterButton?
-    
+
+    public let destructiveButton: TableFooterButton?
+
     public let cancelButton: TableFooterButton?
 
     public init(frame: CGRect,
-                primaryButton: TableFooterButton = TableFooterButton(type: .custom),
+                primaryButton: TableFooterButton? = nil,
                 secondaryButton: TableFooterButton? = nil,
+                destructiveButton: TableFooterButton? = nil,
                 cancelButton: TableFooterButton? = nil) {
         self.primaryButton = primaryButton
         self.secondaryButton = secondaryButton
+        self.destructiveButton = destructiveButton
         self.cancelButton = cancelButton
         
         super.init(frame: frame)
         autoresizingMask = [.flexibleWidth]
 
-        primaryButton.setStyle(forColor: .loopSelectable)
+        primaryButton?.setStyle(forColor: .loopSelectable)
         secondaryButton?.setStyle(forColor: .loopSelectable, borderOnly: true)
+        destructiveButton?.setStyle(forColor: .loopDestructive)
         cancelButton?.setStyle(forColor: .loopDestructive, borderOnly: true)
 
-        var buttons = [primaryButton]
+        var buttons: [TableFooterButton] = []
+        if let primaryButton = primaryButton {
+            buttons.append(primaryButton)
+        }
         if let secondaryButton = secondaryButton {
             buttons.append(secondaryButton)
+        }
+        if let destructiveButton = destructiveButton {
+            buttons.append(destructiveButton)
         }
         if let cancelButton = cancelButton {
             buttons.append(cancelButton)
