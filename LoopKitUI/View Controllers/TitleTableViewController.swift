@@ -28,5 +28,5 @@ open class TitleTableViewController: UITableViewController {
     override open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return .loopSectionWithTitleHeaderHeight
     }
-
+    
 }

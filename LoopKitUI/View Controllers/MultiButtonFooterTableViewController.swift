@@ -10,7 +10,7 @@ import UIKit
 
 open class MultiButtonFooterTableViewController: TitleTableViewController {
 
-    public var footerView: MultiButtonTableFooterView!
+    public var footerView: SetupTableFooterView!
     
     public var padFooterToBottom: Bool = true
     
@@ -24,8 +24,7 @@ open class MultiButtonFooterTableViewController: TitleTableViewController {
             lastContentHeight = tableView.contentSize.height
             tableView.tableFooterView = nil
 
-            var footerSize = footerView.systemLayoutSizeFitting(CGSize(width: tableView.frame.size.width,
-                                                                       height: UIView.layoutFittingCompressedSize.height))
+            var footerSize = footerView.systemLayoutSizeFitting(CGSize(width: tableView.frame.size.width, height: UIView.layoutFittingCompressedSize.height))
             let visibleHeight = tableView.bounds.size.height - (tableView.adjustedContentInset.top + tableView.adjustedContentInset.bottom)
             let footerHeight = padFooterToBottom ? max(footerSize.height, visibleHeight - tableView.contentSize.height) : footerSize.height
 

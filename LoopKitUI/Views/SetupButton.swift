@@ -1,14 +1,15 @@
 //
 //  SetupButton.swift
-//  Loop
+//  LoopKitUI
 //
-//  Copyright © 2018 LoopKit Authors. All rights reserved.
+//  Created by Nathaniel Hamming on 2020-01-27.
+//  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
 import UIKit
 
 public class SetupButton: UIButton {
-
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -17,6 +18,8 @@ public class SetupButton: UIButton {
 
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        
+        setup()
     }
 
     public override func awakeFromNib() {
@@ -44,7 +47,7 @@ public class SetupButton: UIButton {
     public override func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
 
-        tintColor = .blue
+        tintColor = .loopSelectable
         tintColorDidChange()
     }
 
@@ -58,5 +61,15 @@ public class SetupButton: UIButton {
         didSet {
             tintAdjustmentMode = isEnabled ? .automatic : .dimmed
         }
+    }
+}
+
+public extension SetupButton {
+    func defaultTitle() {
+        setTitle(LocalizedString("Next", comment: "Default title of the table footer button to continue"), for: .normal)
+    }
+    
+    func resetTitle() {
+        setTitle(LocalizedString("Continue", comment: "Title of the setup button to continue"), for: .normal)
     }
 }

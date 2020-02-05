@@ -39,8 +39,7 @@ extension UIColor {
         }
     }
     
-    public static var loopWhite: UIColor {
-        // some views, like the barcode scanners are styled with dark backgrounds even in light mode
+    public static var loopAlwaysWhite: UIColor {
         return .white
     }
     

@@ -11,11 +11,6 @@ extension UINavigationController {
         self.navigationBar.setBackgroundImage(UIImage(), for: .default)
         self.navigationBar.backgroundColor = .loopGroupTableViewBackground
         self.navigationBar.shadowImage = UIImage()
-    }
-    
-    public func groupedTableViewNavBarStyle() {
-        self.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        self.navigationBar.backgroundColor = .loopGroupTableViewBackground
-    }
+    }    
 }
 

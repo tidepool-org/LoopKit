@@ -2,14 +2,13 @@
 //  UIButton.swift
 //  LoopKitUI
 //
-//  Created by Nathaniel Hamming on 2020-01-27.
+//  Created by Nathaniel Hamming on 2020-02-03.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
 extension UIButton {
-
-    public func setStyle(forColor color: UIColor, borderOnly: Bool = false) {
-        if borderOnly {
+    public func setTintColor(_ color: UIColor, forBorderOnly: Bool = false) {
+        if forBorderOnly {
             self.tintColor = .clear
             self.layer.cornerRadius = 5
             self.layer.borderWidth = 1
@@ -19,6 +18,4 @@ extension UIButton {
             self.tintColor = color
         }
     }
-
 }
-

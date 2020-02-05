@@ -1,5 +1,5 @@
 //
-//  MultiButtonTableFooterView.swift
+//  SetupTableFooterView.swift
 //  LoopKitUI
 //
 //  Created by Nathaniel Hamming on 2020-01-27.
@@ -8,21 +8,27 @@
 
 import UIKit
 
-public class MultiButtonTableFooterView: UIView {
+open class SetupTableFooterView: UIView {
 
-    public let primaryButton: TableFooterButton?
+    public let primaryButton: SetupButton?
 
-    public let secondaryButton: TableFooterButton?
+    public let secondaryButton: SetupButton?
 
-    public let destructiveButton: TableFooterButton?
+    public let destructiveButton: SetupButton?
 
-    public let cancelButton: TableFooterButton?
+    public let cancelButton: SetupButton?
 
+    public convenience override init(frame: CGRect) {
+        let primaryButton = SetupButton(type: .custom)
+        primaryButton.defaultTitle()
+        self.init(frame: frame, primaryButton: primaryButton)
+    }
+    
     public init(frame: CGRect,
-                primaryButton: TableFooterButton? = nil,
-                secondaryButton: TableFooterButton? = nil,
-                destructiveButton: TableFooterButton? = nil,
-                cancelButton: TableFooterButton? = nil) {
+                primaryButton: SetupButton? = nil,
+                secondaryButton: SetupButton? = nil,
+                destructiveButton: SetupButton? = nil,
+                cancelButton: SetupButton? = nil) {
         self.primaryButton = primaryButton
         self.secondaryButton = secondaryButton
         self.destructiveButton = destructiveButton
@@ -31,24 +37,12 @@ public class MultiButtonTableFooterView: UIView {
         super.init(frame: frame)
         autoresizingMask = [.flexibleWidth]
 
-        primaryButton?.setStyle(forColor: .loopSelectable)
-        secondaryButton?.setStyle(forColor: .loopSelectable, borderOnly: true)
-        destructiveButton?.setStyle(forColor: .loopDestructive)
-        cancelButton?.setStyle(forColor: .loopDestructive, borderOnly: true)
+        primaryButton?.setTintColor(.loopSelectable)
+        secondaryButton?.setTintColor(.loopSelectable, forBorderOnly: true)
+        destructiveButton?.setTintColor(.loopDestructive)
+        cancelButton?.setTintColor(.loopDestructive, forBorderOnly: true)
 
-        var buttons: [TableFooterButton] = []
-        if let primaryButton = primaryButton {
-            buttons.append(primaryButton)
-        }
-        if let secondaryButton = secondaryButton {
-            buttons.append(secondaryButton)
-        }
-        if let destructiveButton = destructiveButton {
-            buttons.append(destructiveButton)
-        }
-        if let cancelButton = cancelButton {
-            buttons.append(cancelButton)
-        }
+        let buttons = [primaryButton, secondaryButton, destructiveButton, cancelButton].compactMap { $0 }
         
         let buttonStack = UIStackView(arrangedSubviews: buttons)
         buttonStack.alignment = .center
