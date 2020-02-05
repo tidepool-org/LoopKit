@@ -575,20 +575,18 @@
 		A9E675EC22713F4700E25293 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F5DAB2B2118CE9300048054 /* Localizable.strings */; };
 		A9E675F3227140D800E25293 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9E675F2227140D800E25293 /* CoreData.framework */; };
 		A9E675F5227140DD00E25293 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9E675F4227140DD00E25293 /* HealthKit.framework */; };
-		B41A60AF23D1DB5B00636320 /* TableViewTitleLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41A60AE23D1DB5B00636320 /* TableViewTitleLabel.swift */; };
 		B41A60B223D1DBC700636320 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41A60B123D1DBC700636320 /* UIFont.swift */; };
 		B42A7472235885B600247B03 /* LoopNotificationUserInfoKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */; };
-		B436874C23DF1E0600456788 /* UIColor+LoopColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B436874623DF1E0600456788 /* UIColor+LoopColors.swift */; };
-		B436874E23DF1E0600456788 /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B436874823DF1E0600456788 /* UIButton.swift */; };
-		B436874F23DF1E0600456788 /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B436874923DF1E0600456788 /* CGFloat.swift */; };
-		B436875023DF1E0600456788 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B436874A23DF1E0600456788 /* UIFont.swift */; };
-		B436875123DF1E0600456788 /* UINavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B436874B23DF1E0600456788 /* UINavigationController.swift */; };
 		B436875323DF1E4E00456788 /* TableViewTitleLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B436875223DF1E4D00456788 /* TableViewTitleLabel.swift */; };
 		B4A5559523DF0A6D0068AA01 /* SectionHeaderGroupedInsetLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559423DF0A6D0068AA01 /* SectionHeaderGroupedInsetLabel.swift */; };
 		B4A5559923DF12D70068AA01 /* TitleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559823DF12D70068AA01 /* TitleTableViewController.swift */; };
 		B4A5559B23DF13090068AA01 /* MultiButtonFooterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559A23DF13090068AA01 /* MultiButtonFooterTableViewController.swift */; };
 		B4A5559D23DF134B0068AA01 /* MultiButtonTableFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559C23DF134B0068AA01 /* MultiButtonTableFooterView.swift */; };
 		B4A5559F23DF13840068AA01 /* TableFooterButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559E23DF13840068AA01 /* TableFooterButton.swift */; };
+		B4FD47C523EB078B00B7A385 /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FD47C123EB078A00B7A385 /* UIButton.swift */; };
+		B4FD47C623EB078B00B7A385 /* UIColor+LoopColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FD47C223EB078B00B7A385 /* UIColor+LoopColors.swift */; };
+		B4FD47C723EB078B00B7A385 /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FD47C323EB078B00B7A385 /* CGFloat.swift */; };
+		B4FD47C823EB078B00B7A385 /* UINavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FD47C423EB078B00B7A385 /* UINavigationController.swift */; };
 		C164A56022F14C73000E3FA5 /* UnfinalizedDose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C164A55F22F14C73000E3FA5 /* UnfinalizedDose.swift */; };
 		C164A56422F21081000E3FA5 /* MockPumpManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C164A56322F21081000E3FA5 /* MockPumpManagerState.swift */; };
 		C16DA83F22E8D88F008624C2 /* LoopPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16DA83E22E8D88F008624C2 /* LoopPlugin.swift */; };
@@ -1237,6 +1235,10 @@
 		B4A5559E23DF13840068AA01 /* TableFooterButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableFooterButton.swift; sourceTree = "<group>"; };
 		B4A555A023DF13A90068AA01 /* UIButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
 		B4A555A223DF15150068AA01 /* UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
+		B4FD47C123EB078A00B7A385 /* UIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
+		B4FD47C223EB078B00B7A385 /* UIColor+LoopColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+LoopColors.swift"; sourceTree = "<group>"; };
+		B4FD47C323EB078B00B7A385 /* CGFloat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
+		B4FD47C423EB078B00B7A385 /* UINavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
 		C1110E981EE98CF5009BB852 /* ice_35_min_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_35_min_input.json; sourceTree = "<group>"; };
 		C12EE16B1F2964B3007DB9F1 /* InsulinModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsulinModel.swift; sourceTree = "<group>"; };
 		C13E6D291EEB1CB9006F5880 /* ice_slow_absorption.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_slow_absorption.json; sourceTree = "<group>"; };
@@ -2030,6 +2032,10 @@
 		B41A60B023D1DBB700636320 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				B4FD47C323EB078B00B7A385 /* CGFloat.swift */,
+				B4FD47C123EB078A00B7A385 /* UIButton.swift */,
+				B4FD47C223EB078B00B7A385 /* UIColor+LoopColors.swift */,
+				B4FD47C423EB078B00B7A385 /* UINavigationController.swift */,
 				B41A60B123D1DBC700636320 /* UIFont.swift */,
 			);
 			path = Extensions;
@@ -2042,6 +2048,23 @@
 				B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */,
 			);
 			path = Notification;
+			sourceTree = "<group>";
+		};
+		B436874123DF1DAF00456788 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				B4A555A223DF15150068AA01 /* UINavigationController.swift */,
+				B4A555A023DF13A90068AA01 /* UIButton.swift */,
+				B4A5559623DF10DE0068AA01 /* CGFloat.swift */,
+				B4A5559223DF09290068AA01 /* UIColor+LoopColors.swift */,
+				B436874B23DF1E0600456788 /* UINavigationController.swift */,
+				B436874623DF1E0600456788 /* UIColor+LoopColors.swift */,
+				B436874923DF1E0600456788 /* CGFloat.swift */,
+				B436874823DF1E0600456788 /* UIButton.swift */,
+				B436874A23DF1E0600456788 /* UIFont.swift */,
+				B41A60AE23D1DB5B00636320 /* TableViewTitleLabel.swift */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		C17F39BD23CD239000FA1113 /* DeviceManager */ = {
@@ -2070,29 +2093,6 @@
 				C17F39CF23CE34B100FA1113 /* StoredDeviceLogEntry.swift */,
 			);
 			path = DeviceLog;
-			sourceTree = "<group>";
-		};
-		B436874123DF1DAF00456788 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				B4A555A223DF15150068AA01 /* UINavigationController.swift */,
-				B4A555A023DF13A90068AA01 /* UIButton.swift */,
-				B4A5559623DF10DE0068AA01 /* CGFloat.swift */,
-				B4A5559223DF09290068AA01 /* UIColor+LoopColors.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
-		B436874523DF1E0600456788 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				B436874623DF1E0600456788 /* UIColor+LoopColors.swift */,
-				B436874823DF1E0600456788 /* UIButton.swift */,
-				B436874923DF1E0600456788 /* CGFloat.swift */,
-				B436874A23DF1E0600456788 /* UIFont.swift */,
-				B436874B23DF1E0600456788 /* UINavigationController.swift */,
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2608,14 +2608,12 @@
 				892155182245FBEF009112BC /* InsulinSensitivityScalingTableViewCell.swift in Sources */,
 				892155132245C516009112BC /* SegmentedGaugeBarView.swift in Sources */,
 				43FB60E720DCBC55002B996B /* RadioSelectionTableViewController.swift in Sources */,
-				B436875123DF1E0600456788 /* UINavigationController.swift in Sources */,
 				43BA7182201EE7090058961E /* TextFieldTableViewCell.swift in Sources */,
 				8907E35921A9D0EC00335852 /* GlucoseEntryTableViewController.swift in Sources */,
 				43F5034D210599CC009FA89A /* AuthenticationViewController.swift in Sources */,
 				B4A5559523DF0A6D0068AA01 /* SectionHeaderGroupedInsetLabel.swift in Sources */,
 				895FE08922011F0C00FCF18A /* OverrideSelectionHeaderView.swift in Sources */,
 				898E6E67224179310019E459 /* BaseHUDView.swift in Sources */,
-				B436874C23DF1E0600456788 /* UIColor+LoopColors.swift in Sources */,
 				43F5034F210599DF009FA89A /* ValidatingIndicatorView.swift in Sources */,
 				43BA718C201EEE5A0058961E /* NSData.swift in Sources */,
 				43F5035A21059AF7009FA89A /* AuthenticationTableViewCell.swift in Sources */,
@@ -2632,10 +2630,12 @@
 				432CF86520D7692E0066B889 /* DeliveryLimitSettingsTableViewController.swift in Sources */,
 				895FE08322011F0C00FCF18A /* OverrideSelectionFooterView.swift in Sources */,
 				4369F08F208859E6000E3E45 /* PaddedTextField.swift in Sources */,
+				B4FD47C723EB078B00B7A385 /* CGFloat.swift in Sources */,
 				A9498D8823386CAF00DAA9B9 /* ServiceViewController.swift in Sources */,
 				892A5D9E2231E122008961AB /* StateColorPalette.swift in Sources */,
 				895FE08022011F0C00FCF18A /* EmojiDataSource.swift in Sources */,
 				432CF86920D76B320066B889 /* SetupButton.swift in Sources */,
+				B4FD47C523EB078B00B7A385 /* UIButton.swift in Sources */,
 				898E6E702241EDB70019E459 /* PercentageTextFieldTableViewController.swift in Sources */,
 				432CF87420D774520066B889 /* NumberFormatter.swift in Sources */,
 				1F5DAB212118C95700048054 /* LocalizedString.swift in Sources */,
@@ -2652,11 +2652,10 @@
 				43BA7183201EE7090058961E /* DailyQuantityScheduleTableViewController.swift in Sources */,
 				43F503632106C761009FA89A /* ServiceAuthenticationUI.swift in Sources */,
 				432CF86B20D76B9C0066B889 /* SetupIndicatorView.swift in Sources */,
-				B436874F23DF1E0600456788 /* CGFloat.swift in Sources */,
 				898E6E722241EDC10019E459 /* DateAndDurationTableViewController.swift in Sources */,
 				43BA716D201E49220058961E /* DatePickerTableViewCell.swift in Sources */,
 				895FE08222011F0C00FCF18A /* LabeledTextFieldTableViewCell.swift in Sources */,
-				B436874E23DF1E0600456788 /* UIButton.swift in Sources */,
+				B4FD47C623EB078B00B7A385 /* UIColor+LoopColors.swift in Sources */,
 				B4A5559D23DF134B0068AA01 /* MultiButtonTableFooterView.swift in Sources */,
 				892A5DB22231E191008961AB /* LoadingTableViewCell.swift in Sources */,
 				4369F094208BA001000E3E45 /* TextButtonTableViewCell.swift in Sources */,
@@ -2664,6 +2663,7 @@
 				892A5DB82231E1A0008961AB /* ReservoirVolumeHUDView.swift in Sources */,
 				43BA716C201E49220058961E /* CustomInputTextField.swift in Sources */,
 				43BA716F201E49220058961E /* FoodEmojiDataSource.swift in Sources */,
+				B4FD47C823EB078B00B7A385 /* UINavigationController.swift in Sources */,
 				43F89C9F22BDFB10006BB54E /* UIActivityIndicatorView.swift in Sources */,
 				432CF86D20D76C470066B889 /* SwitchTableViewCell.swift in Sources */,
 				B4A5559923DF12D70068AA01 /* TitleTableViewController.swift in Sources */,
@@ -2686,7 +2686,6 @@
 				43BA717F201EE7090058961E /* GlucoseRangeOverrideTableViewCell.swift in Sources */,
 				895FE09022011F4800FCF18A /* OverrideSelectionViewController.swift in Sources */,
 				43F5035721059A8A009FA89A /* ServiceCredential.swift in Sources */,
-				B436875023DF1E0600456788 /* UIFont.swift in Sources */,
 				43BA7169201E49220058961E /* CarbEntryEditViewController.swift in Sources */,
 				892A5DA22231E137008961AB /* HUDProvider.swift in Sources */,
 				892A5DBC2231E20C008961AB /* Comparable.swift in Sources */,
@@ -2701,7 +2700,6 @@
 				43BA7185201EE7090058961E /* DailyValueScheduleTableViewController.swift in Sources */,
 				892A5DB32231E191008961AB /* LevelHUDView.swift in Sources */,
 				B41A60B223D1DBC700636320 /* UIFont.swift in Sources */,
-				B41A60AF23D1DB5B00636320 /* TableViewTitleLabel.swift in Sources */,
 				43BA7162201E490D0058961E /* ErrorBackgroundView.swift in Sources */,
 				892A5D9A2231E0E4008961AB /* SettingsNavigationViewController.swift in Sources */,
 			);
