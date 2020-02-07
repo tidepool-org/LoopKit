@@ -37,10 +37,10 @@ open class SetupTableFooterView: UIView {
         super.init(frame: frame)
         autoresizingMask = [.flexibleWidth]
 
-        primaryButton?.setTintColor(.loopSelectable)
-        secondaryButton?.setTintColor(.loopSelectable, forBorderOnly: true)
-        destructiveButton?.setTintColor(.loopDestructive)
-        cancelButton?.setTintColor(.loopDestructive, forBorderOnly: true)
+        primaryButton?.setTintColor(.systemBlue)
+        secondaryButton?.setTintColor(.systemBlue, forBorderOnly: true)
+        destructiveButton?.setTintColor(.destructive)
+        cancelButton?.setTintColor(.destructive, forBorderOnly: true)
 
         let buttons = [primaryButton, secondaryButton, destructiveButton, cancelButton].compactMap { $0 }
         

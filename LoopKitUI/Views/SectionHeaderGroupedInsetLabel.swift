@@ -26,7 +26,7 @@ public class SectionHeaderGroupedInsetLabel: UILabel {
     }
 
     public func initFont() {
-        font = .loopSectionHeaderFontGroupedInset
+        font = .preferredFont(forTextStyle: .title1)
         self.adjustsFontForContentSizeCategory = true
     }
     

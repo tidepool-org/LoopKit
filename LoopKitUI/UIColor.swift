@@ -41,3 +41,9 @@ extension UIColor {
         return (red: r, green: g, blue: b, alpha: a)
     }
 }
+
+extension UIColor {
+    public static var destructive: UIColor {
+        return .systemRed
+    }
+}

@@ -26,7 +26,8 @@ public class TableViewTitleLabel: UILabel {
     }
     
     public func initFont() {
-        font = .loopTitleFontGroupedInset
+        font = .preferredFont(forTextStyle: .title2)
+        self.numberOfLines = 0
         self.adjustsFontForContentSizeCategory = true
     }
     

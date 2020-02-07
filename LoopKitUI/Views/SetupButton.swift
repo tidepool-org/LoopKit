@@ -47,7 +47,7 @@ public class SetupButton: UIButton {
     public override func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
 
-        tintColor = .loopSelectable
+        tintColor = .systemBlue
         tintColorDidChange()
     }
 

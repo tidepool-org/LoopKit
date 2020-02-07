@@ -574,7 +574,6 @@
 		A9E675EC22713F4700E25293 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F5DAB2B2118CE9300048054 /* Localizable.strings */; };
 		A9E675F3227140D800E25293 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9E675F2227140D800E25293 /* CoreData.framework */; };
 		A9E675F5227140DD00E25293 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9E675F4227140DD00E25293 /* HealthKit.framework */; };
-		B41A60B223D1DBC700636320 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41A60B123D1DBC700636320 /* UIFont.swift */; };
 		B42A7472235885B600247B03 /* LoopNotificationUserInfoKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */; };
 		B436875323DF1E4E00456788 /* TableViewTitleLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B436875223DF1E4D00456788 /* TableViewTitleLabel.swift */; };
 		B4A5559523DF0A6D0068AA01 /* SectionHeaderGroupedInsetLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559423DF0A6D0068AA01 /* SectionHeaderGroupedInsetLabel.swift */; };
@@ -582,10 +581,7 @@
 		B4A5559B23DF13090068AA01 /* MultiButtonFooterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559A23DF13090068AA01 /* MultiButtonFooterTableViewController.swift */; };
 		B4A5559D23DF134B0068AA01 /* SetupTableFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559C23DF134B0068AA01 /* SetupTableFooterView.swift */; };
 		B4A5559F23DF13840068AA01 /* SetupButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A5559E23DF13840068AA01 /* SetupButton.swift */; };
-		B4FD47C723EB078B00B7A385 /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FD47C323EB078B00B7A385 /* CGFloat.swift */; };
-		B4FD47C823EB078B00B7A385 /* UINavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FD47C423EB078B00B7A385 /* UINavigationController.swift */; };
 		B4FD47CA23EB09FB00B7A385 /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FD47C923EB09FB00B7A385 /* UIButton.swift */; };
-		B4FD47CB23EB0A4C00B7A385 /* UIColor+LoopColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FD47C223EB078B00B7A385 /* UIColor+LoopColors.swift */; };
 		C164A56022F14C73000E3FA5 /* UnfinalizedDose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C164A55F22F14C73000E3FA5 /* UnfinalizedDose.swift */; };
 		C164A56422F21081000E3FA5 /* MockPumpManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C164A56322F21081000E3FA5 /* MockPumpManagerState.swift */; };
 		C16DA83F22E8D88F008624C2 /* LoopPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16DA83E22E8D88F008624C2 /* LoopPlugin.swift */; };
@@ -1216,7 +1212,6 @@
 		A9E675F2227140D800E25293 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		A9E675F4227140DD00E25293 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
 		B41A60AE23D1DB5B00636320 /* TableViewTitleLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewTitleLabel.swift; sourceTree = "<group>"; };
-		B41A60B123D1DBC700636320 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopNotificationUserInfoKey.swift; sourceTree = "<group>"; };
 		B436874623DF1E0600456788 /* UIColor+LoopColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+LoopColors.swift"; sourceTree = "<group>"; };
 		B436874923DF1E0600456788 /* CGFloat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
@@ -1232,9 +1227,6 @@
 		B4A5559E23DF13840068AA01 /* SetupButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupButton.swift; sourceTree = "<group>"; };
 		B4A555A023DF13A90068AA01 /* UIButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
 		B4A555A223DF15150068AA01 /* UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
-		B4FD47C223EB078B00B7A385 /* UIColor+LoopColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+LoopColors.swift"; sourceTree = "<group>"; };
-		B4FD47C323EB078B00B7A385 /* CGFloat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
-		B4FD47C423EB078B00B7A385 /* UINavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
 		B4FD47C923EB09FB00B7A385 /* UIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
 		C1110E981EE98CF5009BB852 /* ice_35_min_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_35_min_input.json; sourceTree = "<group>"; };
 		C12EE16B1F2964B3007DB9F1 /* InsulinModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsulinModel.swift; sourceTree = "<group>"; };
@@ -2029,10 +2021,6 @@
 			isa = PBXGroup;
 			children = (
 				B4FD47C923EB09FB00B7A385 /* UIButton.swift */,
-				B4FD47C323EB078B00B7A385 /* CGFloat.swift */,
-				B4FD47C223EB078B00B7A385 /* UIColor+LoopColors.swift */,
-				B4FD47C423EB078B00B7A385 /* UINavigationController.swift */,
-				B41A60B123D1DBC700636320 /* UIFont.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2597,7 +2585,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4FD47CB23EB0A4C00B7A385 /* UIColor+LoopColors.swift in Sources */,
 				898E6E6E2241ED9F0019E459 /* SuspendResumeTableViewCell.swift in Sources */,
 				898E6E69224179310019E459 /* BatteryLevelHUDView.swift in Sources */,
 				B4A5559B23DF13090068AA01 /* MultiButtonFooterTableViewController.swift in Sources */,
@@ -2626,7 +2613,6 @@
 				432CF86520D7692E0066B889 /* DeliveryLimitSettingsTableViewController.swift in Sources */,
 				895FE08322011F0C00FCF18A /* OverrideSelectionFooterView.swift in Sources */,
 				4369F08F208859E6000E3E45 /* PaddedTextField.swift in Sources */,
-				B4FD47C723EB078B00B7A385 /* CGFloat.swift in Sources */,
 				A9498D8823386CAF00DAA9B9 /* ServiceViewController.swift in Sources */,
 				892A5D9E2231E122008961AB /* StateColorPalette.swift in Sources */,
 				895FE08022011F0C00FCF18A /* EmojiDataSource.swift in Sources */,
@@ -2657,7 +2643,6 @@
 				892A5DB82231E1A0008961AB /* ReservoirVolumeHUDView.swift in Sources */,
 				43BA716C201E49220058961E /* CustomInputTextField.swift in Sources */,
 				43BA716F201E49220058961E /* FoodEmojiDataSource.swift in Sources */,
-				B4FD47C823EB078B00B7A385 /* UINavigationController.swift in Sources */,
 				43F89C9F22BDFB10006BB54E /* UIActivityIndicatorView.swift in Sources */,
 				432CF86D20D76C470066B889 /* SwitchTableViewCell.swift in Sources */,
 				B4A5559923DF12D70068AA01 /* TitleTableViewController.swift in Sources */,
@@ -2693,7 +2678,6 @@
 				43BA716B201E49220058961E /* CarbEntryValidationNavigationDelegate.swift in Sources */,
 				43BA7185201EE7090058961E /* DailyValueScheduleTableViewController.swift in Sources */,
 				892A5DB32231E191008961AB /* LevelHUDView.swift in Sources */,
-				B41A60B223D1DBC700636320 /* UIFont.swift in Sources */,
 				43BA7162201E490D0058961E /* ErrorBackgroundView.swift in Sources */,
 				892A5D9A2231E0E4008961AB /* SettingsNavigationViewController.swift in Sources */,
 			);
