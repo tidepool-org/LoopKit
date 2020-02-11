@@ -14,4 +14,5 @@ public enum DeviceLogEntryType: String {
     case error
     case delegate
     case delegateResponse
+    case connection
 }
