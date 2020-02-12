@@ -21,4 +21,6 @@ public enum DeviceLogEntryType: String {
     case delegateResponse
     /// Log entry related to any device connection activities (e.g. scanning, connecting, disconnecting, reconnecting, etc.).
     case connection
+    /// Log entry related to any alert activity (e.g. changing alert configuration, posting alerts, acknowledging alerts).  Note: entry may not be strictly device-related.
+    case alert
 }
