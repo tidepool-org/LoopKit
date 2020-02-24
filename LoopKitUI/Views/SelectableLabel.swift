@@ -23,8 +23,10 @@ public struct SelectableLabel: View {
                 Text(label)
                     .foregroundColor(.primary)
                 Spacer()
-                Image(systemName: selectedLabel == label ? "checkmark.circle.fill" : "")
+                if selectedLabel == label {
+                    Image(systemName: "checkmark.circle.fill")
                     .foregroundColor(.accentColor)
+                }
             }
         }
     }
