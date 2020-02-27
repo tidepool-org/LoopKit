@@ -11,16 +11,8 @@ import SwiftUI
 public struct LabeledDateView: View {
     var label: String
     var date: Date?
-    var dateStyle: DateFormatter.Style
-    var timeStyle: DateFormatter.Style
-    
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateStyle = dateStyle
-        formatter.timeStyle = timeStyle
-        return formatter
-    }
-    
+    var dateFormatter: DateFormatter
+        
     private var dateString: String? {
         guard let date = self.date else {
             return nil
@@ -28,11 +20,10 @@ public struct LabeledDateView: View {
         return self.dateFormatter.string(from: date)
     }
     
-    public init(label: String, date: Date?, dateStyle: DateFormatter.Style = .short, timeStyle: DateFormatter.Style = .short) {
+    public init(label: String, date: Date?, dateFormatter: DateFormatter) {
         self.label = label
         self.date = date
-        self.dateStyle = dateStyle
-        self.timeStyle = timeStyle
+        self.dateFormatter = dateFormatter
     }
     
     public var body: some View {
@@ -43,7 +34,14 @@ public struct LabeledDateView: View {
 
 struct LabeledDateView_Previews: PreviewProvider {
     static var previews: some View {
-        LabeledDateView(label: "Last Calibration",
-                        date: Date())
+        var dateFormatter: DateFormatter {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+            return formatter
+        }
+        return LabeledDateView(label: "Last Calibration",
+                        date: Date(),
+                        dateFormatter: dateFormatter)
     }
 }
