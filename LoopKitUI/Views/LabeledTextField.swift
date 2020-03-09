@@ -21,16 +21,16 @@ public struct LabeledTextField: View {
     
     public var body: some View {
         GeometryReader { geometry in
-            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
                 Text(self.label)
                     .foregroundColor(.primary)
-                    .frame(width: geometry.size.width/2-5, alignment: .leading)
+                    .frame(maxWidth: geometry.size.width/2, alignment: .leading)
                 Spacer()
                 TextField(self.placeholder, text: self.$value)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.trailing)
                     .keyboardType(.alphabet)
-                    .frame(width: geometry.size.width/2-5, alignment: .trailing)
+                    .frame(maxWidth: geometry.size.width/2, alignment: .trailing)
             }
         }
     }
