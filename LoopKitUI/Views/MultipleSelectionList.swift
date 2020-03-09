@@ -1,5 +1,5 @@
 //
-//  ListMultipleSelection.swift
+//  MultipleSelectionList.swift
 //  LoopKitUI
 //
 //  Created by Nathaniel Hamming on 2020-02-27.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public struct ListMultipleSelection<Item>: View where Item: Hashable {
+public struct MultipleSelectionList<Item>: View where Item: Hashable {
     var items: [Item]
     @Binding var selectedItems: Set<Item>
     var itemToDisplayableString: (Item) -> String
@@ -70,7 +70,7 @@ struct SelectableList_Previews: PreviewProvider {
         @State(initialValue: [fruit[1], fruit[3]]) var selectedFruit: Set<String>
         
         var body: some View {
-            ListMultipleSelection<String>(items: SelectableList_Previews.PreviewWrapper.fruit,
+            MultipleSelectionList<String>(items: SelectableList_Previews.PreviewWrapper.fruit,
                                           selectedItems: $selectedFruit,
                                           itemToDisplayableString: { String(describing:$0) })
         }

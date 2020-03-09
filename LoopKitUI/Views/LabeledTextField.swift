@@ -1,5 +1,5 @@
 //
-//  LabelTextField.swift
+//  LabeledTextField.swift
 //  LoopKitUI
 //
 //  Created by Nathaniel Hamming on 2020-02-27.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public struct LabelTextField: View {
+public struct LabeledTextField: View {
     var label: String
     var placeholder: String
     @Binding var value: String
@@ -46,7 +46,7 @@ struct LabelTextField_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State(initialValue: "Overnight") var value: String
         var body: some View {
-            LabelTextField(label: "Name", placeholder: "Schedule Name", value: $value)
+            LabeledTextField(label: "Name", placeholder: "Schedule Name", value: $value)
         }
     }
 }
