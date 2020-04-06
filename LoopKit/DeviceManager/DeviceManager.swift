@@ -19,6 +19,8 @@ public protocol DeviceManagerDelegate {
     func removeNotificationRequests(for manager: DeviceManager, identifiers: [String])
     
     func deviceManager(_ manager: DeviceManager, logEventForDeviceIdentifier deviceIdentifier: String?, type: DeviceLogEntryType, message: String, completion: ((Error?) -> Void)?)
+    
+    func showAlert(_ manager: DeviceManager, title: String, message: String)
 }
 
 public protocol DeviceManager: class, CustomDebugStringConvertible {
