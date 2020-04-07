@@ -36,24 +36,13 @@ extension MockPumpManager: PumpManagerUI {
     }
 }
 
-private enum MockPumpManagerError: LocalizedError {
-    case missingSettings
-
-    public var failureReason: String? {
-        switch self {
-        case .missingSettings:
-            return "Missing Settings."
-        }
-    }
-}
-
 // MARK: - DeliveryLimitSettingsTableViewControllerSyncSource
 extension MockPumpManager {
     public func syncDeliveryLimitSettings(for viewController: DeliveryLimitSettingsTableViewController, completion: @escaping (DeliveryLimitSettingsResult) -> Void) {
         guard let maximumBasalRatePerHour = viewController.maximumBasalRatePerHour,
             let maximumBolus = viewController.maximumBolus else
         {
-            completion(.failure(PumpManagerError.configuration(MockPumpManagerError.missingSettings)))
+            completion(.failure(MockPumpManagerError.missingSettings))
             return
         }
         completion(.success(maximumBasalRatePerHour: maximumBasalRatePerHour, maximumBolus: maximumBolus))
