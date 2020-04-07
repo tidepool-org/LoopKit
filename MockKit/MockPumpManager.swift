@@ -19,6 +19,7 @@ private enum MockPumpManagerError: LocalizedError {
     case pumpSuspended
     case communicationFailure
     case bolusInProgress
+    case missingSettings
 
     var failureReason: String? {
         switch self {
@@ -28,6 +29,8 @@ private enum MockPumpManagerError: LocalizedError {
             return "Unable to communicate with pump"
         case .bolusInProgress:
             return "Bolus in progress"
+        case .missingSettings:
+            return "Missing Settings."
         }
     }
 }
