@@ -31,7 +31,7 @@ public enum MockPumpManagerError: LocalizedError {
         case .bolusInProgress:
             return "Bolus in progress"
         case .missingSettings:
-            return "Missing Settings."
+            return "Missing Settings"
         }
     }
 }
