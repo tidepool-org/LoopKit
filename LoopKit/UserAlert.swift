@@ -13,9 +13,9 @@ public protocol UserAlertHandler: class {
     /// Schedule the given alert for posting.
     func scheduleAlert(_ alert: UserAlert)
     /// Unschedule any pending alerts with the given identifier.
-    func unscheduleAlert(identifier: String)
-    /// Remove any alerts currently posted or pending with the given identifier.
-    func cancelAlert(identifier: String)
+    func unscheduleAlert(managerIdentifier: String, typeIdentifier: UserAlert.TypeIdentifier)
+    /// Remove any alerts currently posted with the given identifier.  It ignores any pending alerts.
+    func cancelAlert(managerIdentifier: String, typeIdentifier: UserAlert.TypeIdentifier)
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.
@@ -26,14 +26,14 @@ public protocol UserAlertResponder {
 
 /// Structure that represents an Alert that needs to be shown to the User.
 public struct UserAlert {
-    /// Representation of an alert Trigger, when it is not immediate.
-    public struct Trigger {
-        public let timeInterval: TimeInterval
-        public let repeats: Bool
-        public init(timeInterval: TimeInterval, repeats: Bool) {
-            self.timeInterval = timeInterval
-            self.repeats = repeats
-        }
+    /// Representation of an alert Trigger
+    public enum Trigger {
+        /// Trigger the alert immediately
+        case immediate
+        /// Delay triggering the alert by `interval`, but issue it only once.
+        case delayed(interval: TimeInterval)
+        /// Delay triggering the alert by `repeatInterval`, and repeat at that interval until cancelled or unscheduled.
+        case repeating(repeatInterval: TimeInterval)
     }
     public struct Content {
         public let title: String
@@ -60,8 +60,8 @@ public struct UserAlert {
     public let foregroundContent: Content?
     /// Alert content to show while app is in the background.  If nil, there shall be no alert while app is in the background.
     public let backgroundContent: Content?
-    /// Triggrer for the alert.  Specify nil to deliver the notification right away.
-    public let trigger: Trigger?
+    /// Trigger for the alert.
+    public let trigger: Trigger
     /// A completion block to call once the user has "officially" acknowledged the alert.
     public let acknowledgeCompletion: AcknowledgeCompletion?
 
@@ -73,7 +73,7 @@ public struct UserAlert {
         return "\(managerIdentifier).\(typeIdentifier)"
     }
     
-    public init(managerIdentifier: String, typeIdentifier: TypeIdentifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger?, acknowledgeCompletion: AcknowledgeCompletion?) {
+    public init(managerIdentifier: String, typeIdentifier: TypeIdentifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, acknowledgeCompletion: AcknowledgeCompletion?) {
         self.managerIdentifier = managerIdentifier
         self.typeIdentifier = typeIdentifier
         self.foregroundContent = foregroundContent
