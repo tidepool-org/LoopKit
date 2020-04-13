@@ -1351,13 +1351,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1D81EC2A243FE3E5006A650C /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		1F5DAB1B2118C91C00048054 /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -1666,7 +1659,6 @@
 				892A5D35222F03CB008961AB /* LoopTestingKit */,
 				43BA718D202020140058961E /* Frameworks */,
 				43D8FDCC1C728FDF0073BE78 /* Products */,
-				1D81EC2A243FE3E5006A650C /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
