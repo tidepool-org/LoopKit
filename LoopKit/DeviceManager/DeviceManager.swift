@@ -10,14 +10,15 @@ import UserNotifications
 
 public protocol DeviceManagerDelegate: UserAlertHandler {
     
-//    func scheduleNotification(for manager: DeviceManager,
-//                              identifier: String,
-//                              content: UNNotificationContent,
-//                              trigger: UNNotificationTrigger?)
-//
-//    func clearNotification(for manager: DeviceManager, identifier: String)
-//    
-//    func removeNotificationRequests(for manager: DeviceManager, identifiers: [String])
+    // TODO: Remove these three functions once dependents don't need them.
+    func scheduleNotification(for manager: DeviceManager,
+                              identifier: String,
+                              content: UNNotificationContent,
+                              trigger: UNNotificationTrigger?)
+
+    func clearNotification(for manager: DeviceManager, identifier: String)
+
+    func removeNotificationRequests(for manager: DeviceManager, identifiers: [String])
 
     func deviceManager(_ manager: DeviceManager, logEventForDeviceIdentifier deviceIdentifier: String?, type: DeviceLogEntryType, message: String, completion: ((Error?) -> Void)?)
 
