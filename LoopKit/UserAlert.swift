@@ -8,21 +8,25 @@
 
 import Foundation
 
+/// Protocol that describes any class that handles Alert posting.
 public protocol UserAlertHandler: class {
+    /// Schedule the given alert for posting.
     func scheduleAlert(_ alert: UserAlert)
+    /// Unschedule any pending alerts with the given identifier.
     func unscheduleAlert(identifier: String)
+    /// Remove any alerts currently posted or pending with the given identifier.
     func cancelAlert(identifier: String)
 }
 
-public protocol UserAlertResponder: class {
-    /// Acknowledges the alert identified
-    ///
-    /// - Parameters:
-    ///   - alertID: identifier of the alert to acknowledge
-    func acknowledgeAlert(alertID: Int) -> Void
+/// Protocol that describes something that can deal with a user's response to an alert.
+public protocol UserAlertResponder {
+    /// Acknowledge alerts with a given type identifier
+    func acknowledgeAlert(typeIdentifier: UserAlert.TypeIdentifier) -> Void
 }
 
+/// Structure that represents an Alert that needs to be shown to the User.
 public struct UserAlert {
+    /// Representation of an alert Trigger, when it is not immediate.
     public struct Trigger {
         public let timeInterval: TimeInterval
         public let repeats: Bool
@@ -35,35 +39,43 @@ public struct UserAlert {
         public let title: String
         public let body: String
         public let isCritical: Bool
-        // TODO: when we have more complicated actions
+        // TODO: when we have more complicated actions.  For now, all we have is "acknowledge".
 //        let actions: [UserAlertAction]
-        public let dismissAction: String
-        public init(title: String, body: String, dismissAction: String, isCritical: Bool = false) {
+        public let acknowledgeAction: String
+        public init(title: String, body: String, acknowledgeAction: String, isCritical: Bool = false) {
             self.title = title
             self.body = body
-            self.dismissAction = dismissAction
+            self.acknowledgeAction = acknowledgeAction
             self.isCritical = isCritical
         }
     }
-    public let managerIdentifier: String  // Unique device manager identifier to direct responses to
-    public let alertTypeId: Int   // Per-alert unique identifier to group alerts into, by type (TODO: is Int the right type?)
-    public let foregroundContent: Content
-    public let backgroundContent: Content? // If nil, it implies both foreground and background content is the same, so use `foregroundContent`
-    /// Specify nil to deliver the notification right away
+    public typealias TypeIdentifier = String
+    public typealias AcknowledgeCompletion = (TypeIdentifier) -> Void
+
+    /// Unique device manager identifier from whence the alert came, and to which alert acknowledgements should be directed.
+    public let managerIdentifier: String
+    /// Per-alert unique identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
+    public let typeIdentifier: TypeIdentifier
+    /// Alert content to show while app is in the foreground.  If nil, there shall be no alert while app is in the foreground.
+    public let foregroundContent: Content?
+    /// Alert content to show while app is in the background.  If nil, there shall be no alert while app is in the background.
+    public let backgroundContent: Content?
+    /// Triggrer for the alert.  Specify nil to deliver the notification right away.
     public let trigger: Trigger?
-    public let acknowledgeCompletion: ((UserAlert)->Void)?
+    /// A completion block to call once the user has "officially" acknowledged the alert.
+    public let acknowledgeCompletion: AcknowledgeCompletion?
 
     public var identifier: String {
-        return UserAlert.getIdentifier(managerIdentifier: managerIdentifier, alertTypeId: alertTypeId)
+        return UserAlert.getIdentifier(managerIdentifier: managerIdentifier, typeIdentifier: typeIdentifier)
     }
     
-    public static func getIdentifier(managerIdentifier: String, alertTypeId: Int) -> String {
-        return "\(managerIdentifier).\(alertTypeId)"
+    public static func getIdentifier(managerIdentifier: String, typeIdentifier: TypeIdentifier) -> String {
+        return "\(managerIdentifier).\(typeIdentifier)"
     }
     
-    public init(managerIdentifier: String, alertTypeId: Int, foregroundContent: Content, backgroundContent: Content?, trigger: Trigger?, acknowledgeCompletion: ((UserAlert) -> Void)?) {
+    public init(managerIdentifier: String, typeIdentifier: TypeIdentifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger?, acknowledgeCompletion: AcknowledgeCompletion?) {
         self.managerIdentifier = managerIdentifier
-        self.alertTypeId = alertTypeId
+        self.typeIdentifier = typeIdentifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger

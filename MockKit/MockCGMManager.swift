@@ -170,7 +170,7 @@ public final class MockCGMManager: TestingCGMManager {
         sendCGMResult(CGMResult.newData(samples))
     }
 
-    public func acknowledgeAlert(alertID: Int) { }
+    public func acknowledgeAlert(typeIdentifier: String) { }
 }
 
 extension MockCGMManager {

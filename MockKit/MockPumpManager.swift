@@ -406,7 +406,7 @@ public final class MockPumpManager: TestingPumpManager {
         state.finalizedDoses += pumpEvents.compactMap { $0.unfinalizedDose }
     }
 
-    public func acknowledgeAlert(alertID: Int) { }
+    public func acknowledgeAlert(typeIdentifier: String) { }
 }
 
 extension MockPumpManager {
