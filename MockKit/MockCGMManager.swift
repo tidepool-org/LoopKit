@@ -169,6 +169,8 @@ public final class MockCGMManager: TestingCGMManager {
         samples.mutateEach { $0.device = device }
         sendCGMResult(CGMResult.newData(samples))
     }
+
+    public func acknowledgeAlert(alertID: Int) { }
 }
 
 extension MockCGMManager {

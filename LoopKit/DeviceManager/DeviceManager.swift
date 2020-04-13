@@ -8,22 +8,24 @@
 import Foundation
 import UserNotifications
 
-public protocol DeviceManagerDelegate {
-    func scheduleNotification(for manager: DeviceManager,
-                              identifier: String,
-                              content: UNNotificationContent,
-                              trigger: UNNotificationTrigger?)
+public protocol DeviceManagerDelegate: UserAlertHandler {
+    
+//    func scheduleNotification(for manager: DeviceManager,
+//                              identifier: String,
+//                              content: UNNotificationContent,
+//                              trigger: UNNotificationTrigger?)
+//
+//    func clearNotification(for manager: DeviceManager, identifier: String)
+//    
+//    func removeNotificationRequests(for manager: DeviceManager, identifiers: [String])
 
-    func clearNotification(for manager: DeviceManager, identifier: String)
-    
-    func removeNotificationRequests(for manager: DeviceManager, identifiers: [String])
-    
     func deviceManager(_ manager: DeviceManager, logEventForDeviceIdentifier deviceIdentifier: String?, type: DeviceLogEntryType, message: String, completion: ((Error?) -> Void)?)
-    
-    func showAlert(_ manager: DeviceManager, title: String, message: String)
+
+    var alertHandler: UserAlertHandler? { get set }
 }
 
-public protocol DeviceManager: class, CustomDebugStringConvertible {
+
+public protocol DeviceManager: class, CustomDebugStringConvertible, UserAlertResponder {
     typealias RawStateValue = [String: Any]
 
     /// The identifier of the manager. This should be unique
