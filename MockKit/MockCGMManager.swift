@@ -22,6 +22,7 @@ public struct MockCGMState: SensorDisplayable {
 }
 
 public final class MockCGMManager: TestingCGMManager {
+    
     public static let managerIdentifier = "MockCGMManager"
     public static let localizedTitle = "Simulator"
 
@@ -170,7 +171,8 @@ public final class MockCGMManager: TestingCGMManager {
         sendCGMResult(CGMResult.newData(samples))
     }
 
-    public func acknowledgeAlert(typeIdentifier: String) { }
+    public func acknowledgeAlert(typeIdentifier: UserAlert.TypeIdentifier) {
+    }
 }
 
 extension MockCGMManager {

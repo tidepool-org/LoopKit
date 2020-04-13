@@ -35,9 +35,11 @@ public struct UserAlert {
         /// Delay triggering the alert by `repeatInterval`, and repeat at that interval until cancelled or unscheduled.
         case repeating(repeatInterval: TimeInterval)
     }
+    /// Content of the alert, either for foreground or background alerts
     public struct Content {
         public let title: String
         public let body: String
+        /// Should this alert be deemed "critical" for the User?  Handlers will determine how that is manifested.
         public let isCritical: Bool
         // TODO: when we have more complicated actions.  For now, all we have is "acknowledge".
 //        let actions: [UserAlertAction]

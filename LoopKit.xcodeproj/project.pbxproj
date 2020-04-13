@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1DA649AB2445174400F61E75 /* UserAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA649AA2445174400F61E75 /* UserAlert.swift */; };
+		1DD3DEB624451C3300BD8E40 /* UserAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA649AA2445174400F61E75 /* UserAlert.swift */; };
 		1F5DAB1D2118C95700048054 /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
 		1F5DAB1F2118C95700048054 /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
 		1F5DAB202118C95700048054 /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
@@ -3057,6 +3058,7 @@
 				A9E675C122713F4700E25293 /* NewGlucoseSample.swift in Sources */,
 				A9E675C222713F4700E25293 /* InsulinMath.swift in Sources */,
 				A9E675C322713F4700E25293 /* UnfairLock.swift in Sources */,
+				1DD3DEB624451C3300BD8E40 /* UserAlert.swift in Sources */,
 				A9E675C422713F4700E25293 /* HealthStoreUnitCache.swift in Sources */,
 				A9E675C622713F4700E25293 /* CarbStatus.swift in Sources */,
 				A9498D7023386C0B00DAA9B9 /* TempBasalRecommendation.swift in Sources */,
