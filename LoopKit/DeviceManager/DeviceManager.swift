@@ -10,7 +10,7 @@ import UserNotifications
 
 public protocol DeviceManagerDelegate: UserAlertHandler {
     
-    // TODO: Remove these three functions once dependents don't need them.
+    #if !USE_NEW_ALERT_FACILITY
     func scheduleNotification(for manager: DeviceManager,
                               identifier: String,
                               content: UNNotificationContent,
@@ -19,7 +19,7 @@ public protocol DeviceManagerDelegate: UserAlertHandler {
     func clearNotification(for manager: DeviceManager, identifier: String)
 
     func removeNotificationRequests(for manager: DeviceManager, identifiers: [String])
-
+    #endif
     func deviceManager(_ manager: DeviceManager, logEventForDeviceIdentifier deviceIdentifier: String?, type: DeviceLogEntryType, message: String, completion: ((Error?) -> Void)?)
 
     var alertHandler: UserAlertHandler? { get set }
