@@ -13,9 +13,9 @@ public protocol UserAlertHandler: class {
     /// Schedule the given alert for posting.
     func scheduleAlert(_ alert: UserAlert)
     /// Unschedule any pending alerts with the given identifier.
-    func unscheduleAlert(managerIdentifier: String, typeIdentifier: UserAlert.TypeIdentifier)
+    func unscheduleAlert(identifier: UserAlert.Identifier)
     /// Remove any alerts currently posted with the given identifier.  It ignores any pending alerts.
-    func cancelAlert(managerIdentifier: String, typeIdentifier: UserAlert.TypeIdentifier)
+    func cancelAlert(identifier: UserAlert.Identifier)
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.
@@ -51,13 +51,25 @@ public struct UserAlert {
             self.isCritical = isCritical
         }
     }
+    public struct Identifier: Equatable {
+        /// Unique device manager identifier from whence the alert came, and to which alert acknowledgements should be directed.
+        public let deviceManagerInstanceIdentifier: String
+        /// Per-alert unique identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
+        public let typeIdentifier: TypeIdentifier
+        public init(deviceManagerInstanceIdentifier: String, typeIdentifier: TypeIdentifier) {
+            self.deviceManagerInstanceIdentifier = deviceManagerInstanceIdentifier
+            self.typeIdentifier = typeIdentifier
+        }
+        /// An opaque value for this tuple for unique identification of the alert across devices.
+        public var value: String {
+            return "\(deviceManagerInstanceIdentifier).\(typeIdentifier)"
+        }
+    }
+    /// This type represents a per-alert-type identifier, but not necessarily unique across devices.  Each device may have its own Swift type for this,
+    /// so conversion to String is the most convenient, but aliasing the type is helpful because it is not just "any String".
     public typealias TypeIdentifier = String
     public typealias AcknowledgeCompletion = (TypeIdentifier) -> Void
 
-    /// Unique device manager identifier from whence the alert came, and to which alert acknowledgements should be directed.
-    public let managerIdentifier: String
-    /// Per-alert unique identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
-    public let typeIdentifier: TypeIdentifier
     /// Alert content to show while app is in the foreground.  If nil, there shall be no alert while app is in the foreground.
     public let foregroundContent: Content?
     /// Alert content to show while app is in the background.  If nil, there shall be no alert while app is in the background.
@@ -69,18 +81,10 @@ public struct UserAlert {
 
     /// An alert's "identifier" is a tuple of `managerIdentifier` and `typeIdentifier`.  It's purpose is to uniquely identify an alert so we can
     /// find which device issued it, and send acknowledgment of that alert to the proper device manager.
-    public var identifier: String {
-        return UserAlert.getIdentifier(managerIdentifier: managerIdentifier, typeIdentifier: typeIdentifier)
-    }
-    
-    /// Composes an identifier from a `(managerIdentifier, typeIdentifier)` tuple.  See `identifier` for more information.`
-    public static func getIdentifier(managerIdentifier: String, typeIdentifier: TypeIdentifier) -> String {
-        return "\(managerIdentifier).\(typeIdentifier)"
-    }
-    
-    public init(managerIdentifier: String, typeIdentifier: TypeIdentifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, acknowledgeCompletion: AcknowledgeCompletion?) {
-        self.managerIdentifier = managerIdentifier
-        self.typeIdentifier = typeIdentifier
+    public var identifier: Identifier
+        
+    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, acknowledgeCompletion: AcknowledgeCompletion?) {
+        self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger
