@@ -21,8 +21,6 @@ public protocol DeviceManagerDelegate: DeviceAlertHandler {
     func removeNotificationRequests(for manager: DeviceManager, identifiers: [String])
     #endif
     func deviceManager(_ manager: DeviceManager, logEventForDeviceIdentifier deviceIdentifier: String?, type: DeviceLogEntryType, message: String, completion: ((Error?) -> Void)?)
-
-    var alertHandler: DeviceAlertHandler? { get set }
 }
 
 

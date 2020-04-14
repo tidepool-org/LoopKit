@@ -19,7 +19,7 @@ public protocol DeviceAlertHandler: class {
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.
-public protocol DeviceAlertResponder {
+public protocol DeviceAlertResponder: class {
     /// Acknowledge alerts with a given type identifier
     func acknowledgeAlert(typeIdentifier: DeviceAlert.TypeIdentifier) -> Void
 }
