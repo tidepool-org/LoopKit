@@ -8,7 +8,7 @@
 import Foundation
 import UserNotifications
 
-public protocol DeviceManagerDelegate: UserAlertHandler {
+public protocol DeviceManagerDelegate: DeviceAlertHandler {
     
     #if !USE_NEW_ALERT_FACILITY
     func scheduleNotification(for manager: DeviceManager,
@@ -22,11 +22,11 @@ public protocol DeviceManagerDelegate: UserAlertHandler {
     #endif
     func deviceManager(_ manager: DeviceManager, logEventForDeviceIdentifier deviceIdentifier: String?, type: DeviceLogEntryType, message: String, completion: ((Error?) -> Void)?)
 
-    var alertHandler: UserAlertHandler? { get set }
+    var alertHandler: DeviceAlertHandler? { get set }
 }
 
 
-public protocol DeviceManager: class, CustomDebugStringConvertible, UserAlertResponder {
+public protocol DeviceManager: class, CustomDebugStringConvertible, DeviceAlertResponder {
     typealias RawStateValue = [String: Any]
 
     /// The identifier of the manager. This should be unique

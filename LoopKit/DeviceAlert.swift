@@ -1,5 +1,5 @@
 //
-//  UserAlert.swift
+//  DeviceAlert.swift
 //  LoopKit
 //
 //  Created by Rick Pasetto on 4/8/20.
@@ -9,23 +9,23 @@
 import Foundation
 
 /// Protocol that describes any class that handles Alert posting.
-public protocol UserAlertHandler: class {
-    /// Schedule the given alert for posting.
-    func scheduleAlert(_ alert: UserAlert)
+public protocol DeviceAlertHandler: class {
+    /// Issue (post) the given alert, according to its trigger schedule.
+    func issueAlert(_ alert: DeviceAlert)
     /// Unschedule any pending alerts with the given identifier.
-    func unscheduleAlert(identifier: UserAlert.Identifier)
+    func removePendingAlerts(identifier: DeviceAlert.Identifier)
     /// Remove any alerts currently posted with the given identifier.  It ignores any pending alerts.
-    func cancelAlert(identifier: UserAlert.Identifier)
+    func removeDeliveredAlerts(identifier: DeviceAlert.Identifier)
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.
-public protocol UserAlertResponder {
+public protocol DeviceAlertResponder {
     /// Acknowledge alerts with a given type identifier
-    func acknowledgeAlert(typeIdentifier: UserAlert.TypeIdentifier) -> Void
+    func acknowledgeAlert(typeIdentifier: DeviceAlert.TypeIdentifier) -> Void
 }
 
-/// Structure that represents an Alert that needs to be shown to the User.
-public struct UserAlert {
+/// Structure that represents an Alert that is issued from a Device.
+public struct DeviceAlert {
     /// Representation of an alert Trigger
     public enum Trigger {
         /// Trigger the alert immediately
