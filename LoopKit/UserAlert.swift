@@ -43,11 +43,11 @@ public struct UserAlert {
         public let isCritical: Bool
         // TODO: when we have more complicated actions.  For now, all we have is "acknowledge".
 //        let actions: [UserAlertAction]
-        public let acknowledgeAction: String
-        public init(title: String, body: String, acknowledgeAction: String, isCritical: Bool = false) {
+        public let acknowledgeActionButtonLabel: String
+        public init(title: String, body: String, acknowledgeActionButtonLabel: String, isCritical: Bool = false) {
             self.title = title
             self.body = body
-            self.acknowledgeAction = acknowledgeAction
+            self.acknowledgeActionButtonLabel = acknowledgeActionButtonLabel
             self.isCritical = isCritical
         }
     }
@@ -67,10 +67,13 @@ public struct UserAlert {
     /// A completion block to call once the user has "officially" acknowledged the alert.
     public let acknowledgeCompletion: AcknowledgeCompletion?
 
+    /// An alert's "identifier" is a tuple of `managerIdentifier` and `typeIdentifier`.  It's purpose is to uniquely identify an alert so we can
+    /// find which device issued it, and send acknowledgment of that alert to the proper device manager.
     public var identifier: String {
         return UserAlert.getIdentifier(managerIdentifier: managerIdentifier, typeIdentifier: typeIdentifier)
     }
     
+    /// Composes an identifier from a `(managerIdentifier, typeIdentifier)` tuple.  See `identifier` for more information.`
     public static func getIdentifier(managerIdentifier: String, typeIdentifier: TypeIdentifier) -> String {
         return "\(managerIdentifier).\(typeIdentifier)"
     }
