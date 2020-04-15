@@ -53,16 +53,16 @@ public struct DeviceAlert {
     }
     public struct Identifier: Hashable {
         /// Unique device manager identifier from whence the alert came, and to which alert acknowledgements should be directed.
-        public let deviceManagerIdentifier: String
+        public let managerIdentifier: String
         /// Per-alert-type identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
         public let typeIdentifier: TypeIdentifier
-        public init(deviceManagerIdentifier: String, typeIdentifier: TypeIdentifier) {
-            self.deviceManagerIdentifier = deviceManagerIdentifier
+        public init(managerIdentifier: String, typeIdentifier: TypeIdentifier) {
+            self.managerIdentifier = managerIdentifier
             self.typeIdentifier = typeIdentifier
         }
         /// An opaque value for this tuple for unique identification of the alert across devices.
         public var value: String {
-            return "\(deviceManagerIdentifier).\(typeIdentifier)"
+            return "\(managerIdentifier).\(typeIdentifier)"
         }
     }
     /// This type represents a per-alert-type identifier, but not necessarily unique across devices.  Each device may have its own Swift type for this,

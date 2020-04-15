@@ -24,7 +24,7 @@ public protocol DeviceManagerDelegate: DeviceAlertHandler {
 }
 
 
-public protocol DeviceManager: class, CustomDebugStringConvertible, DeviceAlertResponder {
+public protocol DeviceManager: CustomDebugStringConvertible, DeviceAlertResponder {
     typealias RawStateValue = [String: Any]
 
     /// The identifier of the manager. This should be unique
@@ -57,7 +57,8 @@ public extension DeviceManager {
         return type(of: self).localizedTitle
     }
     
-    var deviceManagerIdentifier: String {
+    /// Represents a per-device-manager-Type identifier that can uniquely identify a class of this type.
+    var managerIdentifier: String {
         return Self.managerIdentifier
     }
 
