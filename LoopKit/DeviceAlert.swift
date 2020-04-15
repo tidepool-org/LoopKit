@@ -51,10 +51,10 @@ public struct DeviceAlert {
             self.isCritical = isCritical
         }
     }
-    public struct Identifier: Equatable {
+    public struct Identifier: Hashable {
         /// Unique device manager identifier from whence the alert came, and to which alert acknowledgements should be directed.
         public let deviceManagerIdentifier: String
-        /// Per-alert unique identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
+        /// Per-alert-type identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
         public let typeIdentifier: TypeIdentifier
         public init(deviceManagerIdentifier: String, typeIdentifier: TypeIdentifier) {
             self.deviceManagerIdentifier = deviceManagerIdentifier
