@@ -8,7 +8,7 @@
 import Foundation
 import UserNotifications
 
-public protocol DeviceManagerDelegate: DeviceAlertHandler {
+public protocol DeviceManagerDelegate: DeviceAlertPresenter {
     
     #if !USE_NEW_ALERT_FACILITY
     func scheduleNotification(for manager: DeviceManager,

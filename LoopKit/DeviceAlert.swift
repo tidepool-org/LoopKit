@@ -8,8 +8,8 @@
 
 import Foundation
 
-/// Protocol that describes any class that handles Alert posting.
-public protocol DeviceAlertHandler: class {
+/// Protocol that describes any class that presents Alerts.
+public protocol DeviceAlertPresenter: class {
     /// Issue (post) the given alert, according to its trigger schedule.
     func issueAlert(_ alert: DeviceAlert)
     /// Unschedule any pending alerts with the given identifier.
