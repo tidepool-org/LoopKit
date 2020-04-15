@@ -13,9 +13,9 @@ public protocol DeviceAlertHandler: class {
     /// Issue (post) the given alert, according to its trigger schedule.
     func issueAlert(_ alert: DeviceAlert)
     /// Unschedule any pending alerts with the given identifier.
-    func removePendingAlerts(identifier: DeviceAlert.Identifier)
+    func removePendingAlert(identifier: DeviceAlert.Identifier)
     /// Remove any alerts currently posted with the given identifier.  It ignores any pending alerts.
-    func removeDeliveredAlerts(identifier: DeviceAlert.Identifier)
+    func removeDeliveredAlert(identifier: DeviceAlert.Identifier)
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.
@@ -53,16 +53,16 @@ public struct DeviceAlert {
     }
     public struct Identifier: Equatable {
         /// Unique device manager identifier from whence the alert came, and to which alert acknowledgements should be directed.
-        public let deviceManagerInstanceIdentifier: String
+        public let deviceManagerIdentifier: String
         /// Per-alert unique identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
         public let typeIdentifier: TypeIdentifier
-        public init(deviceManagerInstanceIdentifier: String, typeIdentifier: TypeIdentifier) {
-            self.deviceManagerInstanceIdentifier = deviceManagerInstanceIdentifier
+        public init(deviceManagerIdentifier: String, typeIdentifier: TypeIdentifier) {
+            self.deviceManagerIdentifier = deviceManagerIdentifier
             self.typeIdentifier = typeIdentifier
         }
         /// An opaque value for this tuple for unique identification of the alert across devices.
         public var value: String {
-            return "\(deviceManagerInstanceIdentifier).\(typeIdentifier)"
+            return "\(deviceManagerIdentifier).\(typeIdentifier)"
         }
     }
     /// This type represents a per-alert-type identifier, but not necessarily unique across devices.  Each device may have its own Swift type for this,

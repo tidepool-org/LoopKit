@@ -57,7 +57,7 @@ public extension DeviceManager {
         return type(of: self).localizedTitle
     }
     
-    var deviceManagerInstanceIdentifier: String {
+    var deviceManagerIdentifier: String {
         return Self.managerIdentifier
     }
 
