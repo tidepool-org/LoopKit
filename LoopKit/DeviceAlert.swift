@@ -68,7 +68,6 @@ public struct DeviceAlert {
     /// This type represents a per-alert-type identifier, but not necessarily unique across devices.  Each device may have its own Swift type for this,
     /// so conversion to String is the most convenient, but aliasing the type is helpful because it is not just "any String".
     public typealias TypeIdentifier = String
-    public typealias AcknowledgeCompletion = (TypeIdentifier) -> Void
 
     /// Alert content to show while app is in the foreground.  If nil, there shall be no alert while app is in the foreground.
     public let foregroundContent: Content?
@@ -76,19 +75,16 @@ public struct DeviceAlert {
     public let backgroundContent: Content?
     /// Trigger for the alert.
     public let trigger: Trigger
-    /// A completion block to call once the user has "officially" acknowledged the alert.
-    public let acknowledgeCompletion: AcknowledgeCompletion?
 
     /// An alert's "identifier" is a tuple of `managerIdentifier` and `typeIdentifier`.  It's purpose is to uniquely identify an alert so we can
     /// find which device issued it, and send acknowledgment of that alert to the proper device manager.
     public var identifier: Identifier
         
-    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, acknowledgeCompletion: AcknowledgeCompletion?) {
+    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger) {
         self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger
-        self.acknowledgeCompletion = acknowledgeCompletion
     }
 }
 
