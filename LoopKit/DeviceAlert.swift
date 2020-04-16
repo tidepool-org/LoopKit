@@ -26,7 +26,7 @@ public protocol DeviceAlertPresenter: class {
 /// Protocol that describes something that can deal with a user's response to an alert.
 public protocol DeviceAlertResponder: class {
     /// Acknowledge alerts with a given type identifier
-    func acknowledgeAlert(typeIdentifier: DeviceAlert.TypeIdentifier) -> Void
+    func acknowledgeAlert(alertIdentifier: DeviceAlert.AlertIdentifier) -> Void
 }
 
 /// Structure that represents an Alert that is issued from a Device.
@@ -60,19 +60,19 @@ public struct DeviceAlert {
         /// Unique device manager identifier from whence the alert came, and to which alert acknowledgements should be directed.
         public let managerIdentifier: String
         /// Per-alert-type identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
-        public let typeIdentifier: TypeIdentifier
-        public init(managerIdentifier: String, typeIdentifier: TypeIdentifier) {
+        public let alertIdentifier: AlertIdentifier
+        public init(managerIdentifier: String, alertIdentifier: AlertIdentifier) {
             self.managerIdentifier = managerIdentifier
-            self.typeIdentifier = typeIdentifier
+            self.alertIdentifier = alertIdentifier
         }
         /// An opaque value for this tuple for unique identification of the alert across devices.
         public var value: String {
-            return "\(managerIdentifier).\(typeIdentifier)"
+            return "\(managerIdentifier).\(alertIdentifier)"
         }
     }
     /// This type represents a per-alert-type identifier, but not necessarily unique across devices.  Each device may have its own Swift type for this,
     /// so conversion to String is the most convenient, but aliasing the type is helpful because it is not just "any String".
-    public typealias TypeIdentifier = String
+    public typealias AlertIdentifier = String
 
     /// Alert content to show while app is in the foreground.  If nil, there shall be no alert while app is in the foreground.
     public let foregroundContent: Content?
@@ -81,9 +81,9 @@ public struct DeviceAlert {
     /// Trigger for the alert.
     public let trigger: Trigger
 
-    /// An alert's "identifier" is a tuple of `managerIdentifier` and `typeIdentifier`.  It's purpose is to uniquely identify an alert so we can
+    /// An alert's "identifier" is a tuple of `managerIdentifier` and `alertIdentifier`.  It's purpose is to uniquely identify an alert so we can
     /// find which device issued it, and send acknowledgment of that alert to the proper device manager.
-    public var identifier: Identifier
+    public let identifier: Identifier
         
     public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger) {
         self.identifier = identifier

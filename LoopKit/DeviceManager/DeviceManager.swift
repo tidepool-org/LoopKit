@@ -65,7 +65,7 @@ public extension DeviceManager {
 //#if TO BE REMOVED
 public extension DeviceManager {
     // Temporary default implementation
-    func acknowledgeAlert(typeIdentifier: DeviceAlert.TypeIdentifier) -> Void { }
+    func acknowledgeAlert(alertIdentifier: DeviceAlert.AlertIdentifier) -> Void { }
 }
 public extension DeviceManagerDelegate {
     // Temporary default implementation
