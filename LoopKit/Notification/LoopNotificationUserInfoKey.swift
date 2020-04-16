@@ -15,7 +15,7 @@ public enum LoopNotificationUserInfoKey: String {
 // #endif
     case alertTypeID
     case managerIDForAlert
-//    #if !USE_NEW_ALERT_FACILITY
+//    #if TO BE REMOVED
     case cgmAlertID
 //    #endif
 }

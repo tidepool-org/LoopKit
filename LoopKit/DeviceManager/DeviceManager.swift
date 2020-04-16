@@ -10,7 +10,7 @@ import UserNotifications
 
 public protocol DeviceManagerDelegate: DeviceAlertPresenter {
     
-//    #if !USE_NEW_ALERT_FACILITY
+//    #if TO BE REMOVED
     func scheduleNotification(for manager: DeviceManager,
                               identifier: String,
                               content: UNNotificationContent,
@@ -62,7 +62,7 @@ public extension DeviceManager {
     }
 }
 
-//#if !USE_NEW_ALERT_FACILITY
+//#if TO BE REMOVED
 public extension DeviceManager {
     // Temporary default implementation
     func acknowledgeAlert(typeIdentifier: DeviceAlert.TypeIdentifier) -> Void { }
