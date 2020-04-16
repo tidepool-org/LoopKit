@@ -61,7 +61,7 @@ public struct Card {
     }
 
     init<Data: RandomAccessCollection, Content: View>(
-        _ data: Data,
+        of data: Data,
         @ViewBuilder rowContent:  (Data.Element) -> Content
     ) where Data.Element: Identifiable {
         self.init(of: data, id: \.id, rowContent: rowContent)

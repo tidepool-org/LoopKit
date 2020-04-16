@@ -60,12 +60,16 @@ struct ActionPage_Previews: PreviewProvider {
         ConfigurationPage(
             title: Text("Example"),
             cards: {
-                Text("One")
-                Text("Two")
-                Text("Three")
+                Text("A simple card")
+                Text("A card whose text will wrap onto multiple lines if I continue to type for long enough—this length should do")
+
                 Card {
-                    Text("Four")
-                    Text("Five")
+                    Text("Top component")
+                    Text("Bottom component")
+                }
+
+                Card(of: 1...3, id: \.self) { value in
+                    Text("Dynamic component #\(value)")
                 }
             },
             actionAreaContent: {
