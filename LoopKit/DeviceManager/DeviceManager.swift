@@ -72,5 +72,8 @@ public extension DeviceManagerDelegate {
     func issueAlert(_ alert: DeviceAlert) { }
     func removePendingAlert(identifier: DeviceAlert.Identifier) { }
     func removeDeliveredAlert(identifier: DeviceAlert.Identifier) { }
+    func scheduleNotification(for manager: DeviceManager, identifier: String, content: UNNotificationContent, trigger: UNNotificationTrigger?) { }
+    func clearNotification(for manager: DeviceManager, identifier: String) { }
+    func removeNotificationRequests(for manager: DeviceManager, identifiers: [String]) { }
 }
 //#endif

@@ -8,6 +8,9 @@
 
 import Foundation
 
+// Temporary until the rename follows through to Loop
+public typealias DeviceAlertHandler = DeviceAlertPresenter
+
 /// Protocol that describes any class that presents Alerts.
 public protocol DeviceAlertPresenter: class {
     /// Issue (post) the given alert, according to its trigger schedule.
