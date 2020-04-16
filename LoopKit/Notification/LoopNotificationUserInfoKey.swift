@@ -10,6 +10,7 @@ public enum LoopNotificationUserInfoKey: String {
     case bolusAmount
     case bolusStartDate
 // #if TO BE REMOVED
+// Temporary until the rename follows through to Loop
     case alertTypeId
 // #endif
     case alertTypeID
