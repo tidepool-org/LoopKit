@@ -357,7 +357,6 @@
 		895FE09022011F4800FCF18A /* OverrideSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895FE08C22011F4800FCF18A /* OverrideSelectionViewController.swift */; };
 		895FE09122011F4800FCF18A /* AddEditOverrideTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895FE08D22011F4800FCF18A /* AddEditOverrideTableViewController.swift */; };
 		895FE09322011F4800FCF18A /* EmojiInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895FE08F22011F4800FCF18A /* EmojiInputController.swift */; };
-		89627B1224410D4F00BEB424 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89627B1124410D4F00BEB424 /* CardView.swift */; };
 		89627B16244115A400BEB424 /* CardList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89627B15244115A400BEB424 /* CardList.swift */; };
 		89627B182441168900BEB424 /* ConfigurationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89627B172441168900BEB424 /* ConfigurationPage.swift */; };
 		8974AFC022120D7A0043F01B /* TemporaryScheduleOverrideTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974AFBF22120D7A0043F01B /* TemporaryScheduleOverrideTests.swift */; };
@@ -408,7 +407,7 @@
 		89AE223D228BCB0B00BDFD85 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974B0672215FE460043F01B /* Collection.swift */; };
 		89AE223E228BD3C400BDFD85 /* SetConstrainedScheduleEntryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 892A5D62222F6B13008961AB /* SetConstrainedScheduleEntryTableViewCell.xib */; };
 		89AE2245228D0B5C00BDFD85 /* TimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4303C4901E2D664200ADEDC8 /* TimeZone.swift */; };
-		89AF78C02447E285002B4FCC /* CardListBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89AF78BF2447E285002B4FCC /* CardListBuilder.swift */; };
+		89AF78C02447E285002B4FCC /* CardStackBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89AF78BF2447E285002B4FCC /* CardStackBuilder.swift */; };
 		89AF78C22447E353002B4FCC /* Splat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89AF78C12447E353002B4FCC /* Splat.swift */; };
 		89AF78C624482269002B4FCC /* ActionButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89AF78C524482268002B4FCC /* ActionButtonStyle.swift */; };
 		89CA2B35226D1624004D9350 /* MutableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CA2B33226D15E0004D9350 /* MutableCollection.swift */; };
@@ -447,6 +446,7 @@
 		89D204D221CC837A001238CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 89D204D121CC837A001238CC /* Assets.xcassets */; };
 		89F53E9422B4328E0024A67C /* MutableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CA2B33226D15E0004D9350 /* MutableCollection.swift */; };
 		89F53E9522B437570024A67C /* MutableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CA2B33226D15E0004D9350 /* MutableCollection.swift */; };
+		89F6E30D2449713600CB9E15 /* CardStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F6E30C2449713600CB9E15 /* CardStack.swift */; };
 		9E78433F236653F00016C583 /* ice_35_min_none_piecewiselinear_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E78433E236653F00016C583 /* ice_35_min_none_piecewiselinear_output.json */; };
 		9E784341236656770016C583 /* ice_35_min_partial_piecewiselinear_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E784340236656770016C583 /* ice_35_min_partial_piecewiselinear_output.json */; };
 		9E784343236659BD0016C583 /* ice_slow_absorption_piecewiselinear_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E784342236659BD0016C583 /* ice_slow_absorption_piecewiselinear_output.json */; };
@@ -1156,7 +1156,6 @@
 		895FE08C22011F4800FCF18A /* OverrideSelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OverrideSelectionViewController.swift; sourceTree = "<group>"; };
 		895FE08D22011F4800FCF18A /* AddEditOverrideTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddEditOverrideTableViewController.swift; sourceTree = "<group>"; };
 		895FE08F22011F4800FCF18A /* EmojiInputController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmojiInputController.swift; sourceTree = "<group>"; };
-		89627B1124410D4F00BEB424 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		89627B15244115A400BEB424 /* CardList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardList.swift; sourceTree = "<group>"; };
 		89627B172441168900BEB424 /* ConfigurationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationPage.swift; sourceTree = "<group>"; };
 		8974AFBF22120D7A0043F01B /* TemporaryScheduleOverrideTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemporaryScheduleOverrideTests.swift; sourceTree = "<group>"; };
@@ -1192,7 +1191,7 @@
 		89AE2224228BC54C00BDFD85 /* TemporaryScheduleOverrideSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemporaryScheduleOverrideSettings.swift; sourceTree = "<group>"; };
 		89AE2225228BC54C00BDFD85 /* TemporaryScheduleOverrideHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemporaryScheduleOverrideHistory.swift; sourceTree = "<group>"; };
 		89AE222A228BC56A00BDFD85 /* WeakSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeakSet.swift; sourceTree = "<group>"; };
-		89AF78BF2447E285002B4FCC /* CardListBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardListBuilder.swift; sourceTree = "<group>"; };
+		89AF78BF2447E285002B4FCC /* CardStackBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStackBuilder.swift; sourceTree = "<group>"; };
 		89AF78C12447E353002B4FCC /* Splat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Splat.swift; sourceTree = "<group>"; };
 		89AF78C524482268002B4FCC /* ActionButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonStyle.swift; sourceTree = "<group>"; };
 		89CA2B33226D15E0004D9350 /* MutableCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutableCollection.swift; sourceTree = "<group>"; };
@@ -1212,6 +1211,7 @@
 		89D2049221CC7C13001238CC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		89D204D121CC837A001238CC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		89DC540C21B75AE7005A1CE0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
+		89F6E30C2449713600CB9E15 /* CardStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStack.swift; sourceTree = "<group>"; };
 		9E78433E236653F00016C583 /* ice_35_min_none_piecewiselinear_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ice_35_min_none_piecewiselinear_output.json; sourceTree = "<group>"; };
 		9E784340236656770016C583 /* ice_35_min_partial_piecewiselinear_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ice_35_min_partial_piecewiselinear_output.json; sourceTree = "<group>"; };
 		9E784342236659BD0016C583 /* ice_slow_absorption_piecewiselinear_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ice_slow_absorption_piecewiselinear_output.json; sourceTree = "<group>"; };
@@ -2005,8 +2005,8 @@
 				892ADDFF2446C858007CE08C /* Card.swift */,
 				893C9F8B2447DBD900CD4185 /* CardBuilder.swift */,
 				89627B15244115A400BEB424 /* CardList.swift */,
-				89AF78BF2447E285002B4FCC /* CardListBuilder.swift */,
-				89627B1124410D4F00BEB424 /* CardView.swift */,
+				89F6E30C2449713600CB9E15 /* CardStack.swift */,
+				89AF78BF2447E285002B4FCC /* CardStackBuilder.swift */,
 				89AF78C12447E353002B4FCC /* Splat.swift */,
 			);
 			path = CardList;
@@ -2704,6 +2704,7 @@
 				892ADE002446C858007CE08C /* Card.swift in Sources */,
 				432CF86D20D76C470066B889 /* SwitchTableViewCell.swift in Sources */,
 				43BA7188201EE85B0058961E /* HKUnit.swift in Sources */,
+				89F6E30D2449713600CB9E15 /* CardStack.swift in Sources */,
 				C1E4B306242E98E900E70CCB /* ProgressIndicatorView.swift in Sources */,
 				4369F092208B0DFF000E3E45 /* DateAndDurationTableViewCell.swift in Sources */,
 				43BA7189201EE8980058961E /* UITableViewCell.swift in Sources */,
@@ -2719,7 +2720,6 @@
 				43BA718B201EE93C0058961E /* TimeZone.swift in Sources */,
 				A991161423426A0A00A4B2E9 /* ServiceSetupNotifying.swift in Sources */,
 				43BA717B201EE6A40058961E /* NibLoadable.swift in Sources */,
-				89627B1224410D4F00BEB424 /* CardView.swift in Sources */,
 				895FE08122011F0C00FCF18A /* OverridePresetCollectionViewCell.swift in Sources */,
 				43FB60E320DCB9E0002B996B /* PumpManagerUI.swift in Sources */,
 				8974B0692215FE460043F01B /* Collection.swift in Sources */,
@@ -2739,7 +2739,7 @@
 				895FE06E22011E9A00FCF18A /* OverrideEmojiDataSource.swift in Sources */,
 				43BA716A201E49220058961E /* CarbEntryTableViewController.swift in Sources */,
 				43BA716B201E49220058961E /* CarbEntryValidationNavigationDelegate.swift in Sources */,
-				89AF78C02447E285002B4FCC /* CardListBuilder.swift in Sources */,
+				89AF78C02447E285002B4FCC /* CardStackBuilder.swift in Sources */,
 				43BA7185201EE7090058961E /* DailyValueScheduleTableViewController.swift in Sources */,
 				892A5DB32231E191008961AB /* LevelHUDView.swift in Sources */,
 				B41A60B223D1DBC700636320 /* UIFont.swift in Sources */,

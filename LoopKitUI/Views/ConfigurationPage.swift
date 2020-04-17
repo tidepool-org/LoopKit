@@ -12,14 +12,14 @@ import SwiftUI
 public struct ConfigurationPage<ActionAreaContent: View>: View {
     var title: Text
     var isSaveButtonEnabled: Bool
-    var cards: [CardView?]
+    var cards: CardStack
     var actionAreaContent: ActionAreaContent
     var save: () -> Void
 
     public init(
         title: Text,
         isSaveButtonEnabled: Bool = true,
-        @CardListBuilder cards: () -> [CardView?],
+        @CardStackBuilder cards: () -> CardStack,
         @ViewBuilder actionAreaContent: () -> ActionAreaContent,
         onSave save: @escaping () -> Void
     ) {
@@ -55,7 +55,7 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
     }
 }
 
-struct ActionPage_Previews: PreviewProvider {
+struct ConfigurationPage_Previews: PreviewProvider {
     static var previews: some View {
         ConfigurationPage(
             title: Text("Example"),

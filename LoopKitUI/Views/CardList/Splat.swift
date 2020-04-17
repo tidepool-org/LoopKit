@@ -9,7 +9,7 @@
 import SwiftUI
 
 
-/// A data structure representing multiple components of one `Card`.
+/// A structure representing multiple components of one `Card`.
 ///
 /// Use `Splat` to intermix static and dynamic card components:
 /// ```
@@ -21,10 +21,10 @@ import SwiftUI
 ///     Text("Below dynamic data")
 /// }
 /// ```
-public struct Splat {
+public struct Splat: View {
     var identifiedViews: [(view: AnyView, id: AnyHashable)]
 
-    init<Data: RandomAccessCollection, ID: Hashable, Content: View>(
+    public init<Data: RandomAccessCollection, ID: Hashable, Content: View>(
         _ data: Data,
         id: KeyPath<Data.Element, ID>,
         @ViewBuilder rowContent:  (Data.Element) -> Content
@@ -34,10 +34,14 @@ public struct Splat {
         }
     }
 
-    init<Data: RandomAccessCollection, Content: View>(
+    public init<Data: RandomAccessCollection, Content: View>(
         _ data: Data,
         @ViewBuilder rowContent:  (Data.Element) -> Content
     ) where Data.Element: Identifiable {
         self.init(data, id: \.id, rowContent: rowContent)
+    }
+
+    public var body: some View {
+        Card(components: [.dynamic(identifiedViews)])
     }
 }
