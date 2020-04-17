@@ -9,8 +9,8 @@
 import SwiftUI
 
 extension Color {
-    public static var destructive: Color {
-        return .red
-    }
-}
+    public static let destructive = red
 
+    public static let severeWarning = red
+    public static let warning = Color(red: 0.86, green: 0.45, blue: 0)
+}
