@@ -12,5 +12,9 @@ extension Color {
     public static let destructive = red
 
     public static let severeWarning = red
-    public static let warning = Color(red: 0.86, green: 0.45, blue: 0)
+    public static let warning = Color(UIColor(dynamicProvider: { traitCollection in
+        return traitCollection.userInterfaceStyle == .dark
+            ? UIColor(red: 0.902, green: 0.494, blue: 0.039, alpha: 1)
+            : UIColor(red: 0.863, green: 0.455, blue: 0, alpha: 1)
+    }))
 }
