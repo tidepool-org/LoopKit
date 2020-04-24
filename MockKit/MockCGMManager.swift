@@ -9,8 +9,6 @@
 import HealthKit
 import LoopKit
 import LoopTestingKit
-import BackgroundTasks
-
 
 public struct MockCGMState: SensorDisplayable {
     public var isStateValid: Bool
@@ -196,24 +194,26 @@ public final class MockCGMManager: TestingCGMManager {
 
 extension MockCGMManager {
     
-    public func getDefaultAlertSoundMappings() -> [DeviceAlert.SoundName : DeviceAlert.AlertIdentifier?] {
-        return Dictionary(alerts.map({ ($1.soundName, $0) }), uniquingKeysWith: { $1 })
-    }
-    
-    public func getBundleURL() -> URL? {
+    public func getSoundBaseURL() -> URL? {
         return Bundle(for: type(of: self)).bundleURL
     }
     
+    public func getSoundNames() -> [DeviceAlert.SoundName] {
+        return alerts.map { $1.soundName }
+    }
+    
     public func issueAlert(identifier: DeviceAlert.AlertIdentifier, trigger: DeviceAlert.Trigger, delay: TimeInterval?) {
+        guard let alert = alerts[identifier] else {
+            return
+        }
         registerBackgroundTask()
         delegate.notifyDelayed(by: delay ?? 0) { delegate in
             self.logDeviceComms(.delegate, message: "\(#function): \(identifier) \(trigger)")
-            delegate?.issueAlert(DeviceAlert(identifier:
-                DeviceAlert.Identifier(managerIdentifier: self.managerIdentifier, alertIdentifier: identifier),
-                                             foregroundContent: self.alerts[identifier]?.foregroundContent,
-                                             backgroundContent: self.alerts[identifier]?.backgroundContent,
-                                             trigger: trigger
-            ))
+            delegate?.issueAlert(DeviceAlert(identifier: DeviceAlert.Identifier(managerIdentifier: self.managerIdentifier, alertIdentifier: identifier),
+                                             foregroundContent: alert.foregroundContent,
+                                             backgroundContent: alert.backgroundContent,
+                                             trigger: trigger,
+                                             soundName: alert.soundName))
         }
     }
     

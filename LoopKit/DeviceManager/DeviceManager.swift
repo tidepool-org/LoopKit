@@ -70,8 +70,8 @@ public extension DeviceManager {
 
 public extension DeviceManager {
     // Default implementation of DeviceAlertSoundVendor
-    func getBundleURL() -> URL? { return nil }
-    func getDefaultAlertSoundMappings() -> [DeviceAlert.SoundName: DeviceAlert.AlertIdentifier?] { return [:] }
+    func getSoundBaseURL() -> URL? { return nil }
+    func getSoundNames() -> [DeviceAlert.SoundName] { return [] }
 }
 
 public extension DeviceManagerDelegate {

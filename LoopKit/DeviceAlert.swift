@@ -80,28 +80,16 @@ public struct DeviceAlert {
     /// find which device issued it, and send acknowledgment of that alert to the proper device manager.
     public let identifier: Identifier
 
-    // Name of the sound file suitable for finding in the bundle
+    // Name of the sound file suitable for using to play back
     public typealias SoundName = String
-
-    /// Sound to play
-    public enum Sound {
-        case silence
-        case vibrate
-        case audioFile(name: String)
-    }
+    public let soundName: SoundName?
     
-    public let sound: Sound?
-    
-    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, sound: Sound? = nil) {
+    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, soundName: SoundName? = nil) {
         self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger
-        self.sound = sound
-    }
-    
-    public func with(sound: SoundName?) -> DeviceAlert {
-        return DeviceAlert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: trigger, sound: Sound(named: sound))
+        self.soundName = soundName
     }
 }
 
@@ -111,32 +99,20 @@ public extension DeviceAlert.SoundName {
     static let silence: DeviceAlert.SoundName = "__silence__"
 }
 
-public extension DeviceAlert.Sound {
-
-    init(named soundName: DeviceAlert.SoundName?) {
-        switch soundName {
-        case .some(let name):
-            switch name {
-            case .vibrate:
-                self = .vibrate
-            case .silence:
-                self = .silence
-            default:
-                self = .audioFile(name: name)
-            }
-        case .none:
-            self = .silence
-        }
-    }
-}
-
 public protocol DeviceAlertSoundVendor {
-    func getBundleURL() -> URL?
+    // Get the base URL for where to find all the vendor's sounds.  It is under here that all of the SoundNames should
+    // be, as file names.  Returns nil if the vendor has no sounds.
+    func getSoundBaseURL() -> URL?
+    // Gets all the sounds names for this vendor.  Returns an empty array if the vendor has no sounds.
+    func getSoundNames() -> [DeviceAlert.SoundName]
     // Retrieve the default mapping of sound names to Alert identifiers.  An alert identifier value of "nil"
-    // indicates that there isn't a mapping, but the sound name is available for usage.
+    // indicates that there isn't a mapping, but the sound name is available for usage.  Returns an empty dictionary
+    // if there are no sounds.
     // (NOTE: idea: put this into its own table, and then make a separate table of "user preference overrides".  That
     // way if the device SDK changes their default mappings, it is easy to update without messing with user prefs...)
-    func getDefaultAlertSoundMappings() -> [DeviceAlert.SoundName: DeviceAlert.AlertIdentifier?]
+//    func getDefaultAlertSoundMappings() -> [DeviceAlert.SoundName: DeviceAlert.AlertIdentifier?]
+    
+    
 }
 
 // For later:
