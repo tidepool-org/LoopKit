@@ -214,7 +214,6 @@ extension MockCGMManager {
     }
     
     private func endBackgroundTask() {
-        print("Background task ended.")
         UIApplication.shared.endBackgroundTask(backgroundTask)
         backgroundTask = .invalid
     }

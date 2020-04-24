@@ -20,14 +20,16 @@ final class IssueAlertTableViewController: UITableViewController {
         case delayed
         case repeating
         case issueLater
+        
         var description: String {
             switch self {
             case .immediate: return "Immediate"
             case .delayed: return "Delayed 5 seconds"
             case .repeating: return "Repeating every 8 seconds"
-            case .issueLater: return "10 seconds Later"
+            case .issueLater: return "10 seconds later"
             }
         }
+        
         var trigger: DeviceAlert.Trigger {
             switch self {
             case .immediate: return .immediate
@@ -36,12 +38,14 @@ final class IssueAlertTableViewController: UITableViewController {
             case .issueLater: return .immediate
             }
         }
+        
         var delayBeforeIssue: TimeInterval? {
             switch self {
             case .issueLater: return 10
             default: return nil
             }
         }
+        
         var identifier: DeviceAlert.AlertIdentifier {
             return "alert1"
         }
