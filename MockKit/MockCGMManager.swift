@@ -9,8 +9,6 @@
 import HealthKit
 import LoopKit
 import LoopTestingKit
-import BackgroundTasks
-
 
 public struct MockCGMState: SensorDisplayable {
     public var isStateValid: Bool
