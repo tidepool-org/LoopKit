@@ -27,7 +27,7 @@ public protocol DeviceAlertResponder: class {
 /// Structure that represents an Alert that is issued from a Device.
 public struct DeviceAlert {
     /// Representation of an alert Trigger
-    public enum Trigger {
+    public enum Trigger: Equatable {
         /// Trigger the alert immediately
         case immediate
         /// Delay triggering the alert by `interval`, but issue it only once.
@@ -79,13 +79,64 @@ public struct DeviceAlert {
     /// An alert's "identifier" is a tuple of `managerIdentifier` and `alertIdentifier`.  It's purpose is to uniquely identify an alert so we can
     /// find which device issued it, and send acknowledgment of that alert to the proper device manager.
     public let identifier: Identifier
-        
-    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger) {
+
+    // Name of the sound file suitable for finding in the bundle
+    public typealias SoundName = String
+
+    /// Sound to play
+    public enum Sound {
+        case silence
+        case vibrate
+        case audioFile(name: String)
+    }
+    
+    public let sound: Sound?
+    
+    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, sound: Sound? = nil) {
         self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger
+        self.sound = sound
     }
+    
+    public func with(sound: SoundName?) -> DeviceAlert {
+        return DeviceAlert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: trigger, sound: Sound(named: sound))
+    }
+}
+
+// Special name to mean "vibrate"
+public extension DeviceAlert.SoundName {
+    static let vibrate: DeviceAlert.SoundName = "__vibrate__"
+    static let silence: DeviceAlert.SoundName = "__silence__"
+}
+
+public extension DeviceAlert.Sound {
+
+    init(named soundName: DeviceAlert.SoundName?) {
+        switch soundName {
+        case .some(let name):
+            switch name {
+            case .vibrate:
+                self = .vibrate
+            case .silence:
+                self = .silence
+            default:
+                self = .audioFile(name: name)
+            }
+        case .none:
+            self = .silence
+        }
+    }
+}
+
+public protocol DeviceAlertSoundVendor {
+    func getBundleURL() -> URL?
+    // Retrieve the default mapping of sound names to Alert identifiers.  An alert identifier value of "nil"
+    // indicates that there isn't a mapping, but the sound name is available for usage.
+    // (NOTE: idea: put this into its own table, and then make a separate table of "user preference overrides".  That
+    // way if the device SDK changes their default mappings, it is easy to update without messing with user prefs...)
+    func getDefaultAlertSoundMappings() -> [DeviceAlert.SoundName: DeviceAlert.AlertIdentifier?]
 }
 
 // For later:
