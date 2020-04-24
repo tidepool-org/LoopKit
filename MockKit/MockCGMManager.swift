@@ -9,6 +9,7 @@
 import HealthKit
 import LoopKit
 import LoopTestingKit
+import BackgroundTasks
 
 
 public struct MockCGMState: SensorDisplayable {
@@ -25,6 +26,23 @@ public final class MockCGMManager: TestingCGMManager {
     
     public static let managerIdentifier = "MockCGMManager"
     public static let localizedTitle = "Simulator"
+
+    public struct MockAlert {
+        public let soundName: DeviceAlert.SoundName
+        public let identifier: DeviceAlert.AlertIdentifier
+        public let foregroundContent: DeviceAlert.Content
+        public let backgroundContent: DeviceAlert.Content
+    }
+    let alerts: [DeviceAlert.AlertIdentifier: MockAlert] = [
+        submarine.identifier: submarine, buzz.identifier: buzz
+    ]
+    
+    public static let submarine = MockAlert(soundName: "sub.caf", identifier: "submarine",
+                                            foregroundContent: DeviceAlert.Content(title: "Alert: FG Title", body: "Alert: Foreground Body", acknowledgeActionButtonLabel: "FG OK"),
+                                            backgroundContent: DeviceAlert.Content(title: "Alert: BG Title", body: "Alert: Background Body", acknowledgeActionButtonLabel: "BG OK"))
+    public static let buzz = MockAlert(soundName: .vibrate, identifier: "buzz",
+                                       foregroundContent: DeviceAlert.Content(title: "Alert: FG Title", body: "FG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
+                                       backgroundContent: DeviceAlert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"))
 
     public var mockSensorState: MockCGMState {
         didSet {
@@ -75,7 +93,9 @@ public final class MockCGMManager: TestingCGMManager {
     }
 
     private var glucoseUpdateTimer: Timer?
-    
+
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+
     public init?(rawState: RawStateValue) {
         if let mockSensorStateRawValue = rawState["mockSensorState"] as? MockCGMState.RawValue,
             let mockSensorState = MockCGMState(rawValue: mockSensorStateRawValue) {
@@ -170,8 +190,51 @@ public final class MockCGMManager: TestingCGMManager {
         samples.mutateEach { $0.device = device }
         sendCGMResult(CGMResult.newData(samples))
     }
+}
 
-    public func acknowledgeAlert(alertIdentifier: DeviceAlert.AlertIdentifier) { }
+// MARK: Alert Stuff
+
+extension MockCGMManager {
+    
+    public func getDefaultAlertSoundMappings() -> [DeviceAlert.SoundName : DeviceAlert.AlertIdentifier?] {
+        return Dictionary(alerts.map({ ($1.soundName, $0) }), uniquingKeysWith: { $1 })
+    }
+    
+    public func getBundleURL() -> URL? {
+        return Bundle(for: type(of: self)).bundleURL
+    }
+    
+    public func issueAlert(identifier: DeviceAlert.AlertIdentifier, trigger: DeviceAlert.Trigger, delay: TimeInterval?) {
+        registerBackgroundTask()
+        delegate.notifyDelayed(by: delay ?? 0) { delegate in
+            self.logDeviceComms(.delegate, message: "\(#function): \(identifier) \(trigger)")
+            delegate?.issueAlert(DeviceAlert(identifier:
+                DeviceAlert.Identifier(managerIdentifier: self.managerIdentifier, alertIdentifier: identifier),
+                                             foregroundContent: self.alerts[identifier]?.foregroundContent,
+                                             backgroundContent: self.alerts[identifier]?.backgroundContent,
+                                             trigger: trigger
+            ))
+        }
+    }
+    
+    public func acknowledgeAlert(alertIdentifier: DeviceAlert.AlertIdentifier) {
+        endBackgroundTask()
+        self.logDeviceComms(.delegateResponse, message: "\(#function): Alert \(alertIdentifier) acknowledged.")
+    }
+
+    private func registerBackgroundTask() {
+        backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+            self?.endBackgroundTask()
+        }
+        assert(backgroundTask != .invalid)
+    }
+    
+    private func endBackgroundTask() {
+        print("Background task ended.")
+        UIApplication.shared.endBackgroundTask(backgroundTask)
+        backgroundTask = .invalid
+    }
+    
 }
 
 extension MockCGMManager {
