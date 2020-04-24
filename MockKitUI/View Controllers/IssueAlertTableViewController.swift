@@ -21,6 +21,7 @@ final class IssueAlertTableViewController: UITableViewController {
         case repeating
         case issueLater
         case buzz
+       
         var description: String {
             switch self {
             case .immediate: return "Immediate"
@@ -30,6 +31,7 @@ final class IssueAlertTableViewController: UITableViewController {
             case .buzz: return "Vibrate"
             }
         }
+        
         var trigger: DeviceAlert.Trigger {
             switch self {
             case .immediate: return .immediate
@@ -39,12 +41,14 @@ final class IssueAlertTableViewController: UITableViewController {
             case .buzz: return .immediate
             }
         }
+        
         var delayBeforeIssue: TimeInterval? {
             switch self {
             case .issueLater: return 10
             default: return nil
             }
         }
+        
         var identifier: DeviceAlert.AlertIdentifier {
             switch self {
             case .buzz: return MockCGMManager.buzz.identifier
