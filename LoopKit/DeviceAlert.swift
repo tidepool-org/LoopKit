@@ -103,16 +103,8 @@ public protocol DeviceAlertSoundVendor {
     // Get the base URL for where to find all the vendor's sounds.  It is under here that all of the SoundNames should
     // be, as file names.  Returns nil if the vendor has no sounds.
     func getSoundBaseURL() -> URL?
-    // Gets all the sounds names for this vendor.  Returns an empty array if the vendor has no sounds.
+    // Get all the sounds names for this vendor.  Returns an empty array if the vendor has no sounds.
     func getSoundNames() -> [DeviceAlert.SoundName]
-    // Retrieve the default mapping of sound names to Alert identifiers.  An alert identifier value of "nil"
-    // indicates that there isn't a mapping, but the sound name is available for usage.  Returns an empty dictionary
-    // if there are no sounds.
-    // (NOTE: idea: put this into its own table, and then make a separate table of "user preference overrides".  That
-    // way if the device SDK changes their default mappings, it is easy to update without messing with user prefs...)
-//    func getDefaultAlertSoundMappings() -> [DeviceAlert.SoundName: DeviceAlert.AlertIdentifier?]
-    
-    
 }
 
 // For later:
