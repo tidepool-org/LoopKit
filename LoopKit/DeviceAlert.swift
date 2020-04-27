@@ -81,7 +81,11 @@ public struct DeviceAlert {
     public let identifier: Identifier
 
     // Name of the sound file suitable for using to play back
-    public typealias SoundName = String
+    public struct SoundName: RawRepresentable, Equatable, CustomStringConvertible {
+        public init(rawValue: String) { self.rawValue = rawValue}
+        public var description: String { return rawValue }
+        public let rawValue: String
+    }
     public let soundName: SoundName?
     
     public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, soundName: SoundName? = nil) {
@@ -95,8 +99,8 @@ public struct DeviceAlert {
 
 // Special name to mean "vibrate"
 public extension DeviceAlert.SoundName {
-    static let vibrate: DeviceAlert.SoundName = "__vibrate__"
-    static let silence: DeviceAlert.SoundName = "__silence__"
+    static let vibrate = DeviceAlert.SoundName(rawValue: "__vibrate__")
+    static let silence = DeviceAlert.SoundName(rawValue: "__silence__")
 }
 
 public protocol DeviceAlertSoundVendor {

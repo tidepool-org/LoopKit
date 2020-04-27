@@ -35,7 +35,7 @@ public final class MockCGMManager: TestingCGMManager {
         submarine.identifier: submarine, buzz.identifier: buzz
     ]
     
-    public static let submarine = MockAlert(soundName: "sub.caf", identifier: "submarine",
+    public static let submarine = MockAlert(soundName: DeviceAlert.SoundName(rawValue: "sub.caf"), identifier: "submarine",
                                             foregroundContent: DeviceAlert.Content(title: "Alert: FG Title", body: "Alert: Foreground Body", acknowledgeActionButtonLabel: "FG OK"),
                                             backgroundContent: DeviceAlert.Content(title: "Alert: BG Title", body: "Alert: Background Body", acknowledgeActionButtonLabel: "BG OK"))
     public static let buzz = MockAlert(soundName: .vibrate, identifier: "buzz",
