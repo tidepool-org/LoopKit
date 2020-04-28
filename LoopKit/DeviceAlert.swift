@@ -80,31 +80,38 @@ public struct DeviceAlert {
     /// find which device issued it, and send acknowledgment of that alert to the proper device manager.
     public let identifier: Identifier
 
-    // Name of the sound file suitable for using to play back
-    public typealias SoundName = String
-    public let soundName: SoundName?
+    /// Representation of a "sound" (or other sound-like action, like vibrate) to perform when the alert is issued.
+    public enum Sound: Equatable {
+        case vibrate
+        case silence
+        case sound(name: String)
+    }
+    public let sound: Sound?
     
-    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, soundName: SoundName? = nil) {
+    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, sound: Sound? = nil) {
         self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger
-        self.soundName = soundName
+        self.sound = sound
     }
 }
 
-// Special name to mean "vibrate"
-public extension DeviceAlert.SoundName {
-    static let vibrate: DeviceAlert.SoundName = "__vibrate__"
-    static let silence: DeviceAlert.SoundName = "__silence__"
+public extension DeviceAlert.Sound {
+    var filename: String? {
+        switch self {
+        case .sound(let name): return name
+        case .silence, .vibrate: return nil
+        }
+    }
 }
 
 public protocol DeviceAlertSoundVendor {
-    // Get the base URL for where to find all the vendor's sounds.  It is under here that all of the SoundNames should
-    // be, as file names.  Returns nil if the vendor has no sounds.
+    // Get the base URL for where to find all the vendor's sounds.  It is under here that all of the sound files should be.
+    // Returns nil if the vendor has no sounds.
     func getSoundBaseURL() -> URL?
-    // Get all the sounds names for this vendor.  Returns an empty array if the vendor has no sounds.
-    func getSoundNames() -> [DeviceAlert.SoundName]
+    // Get all the sounds for this vendor.  Returns an empty array if the vendor has no sounds.
+    func getSounds() -> [DeviceAlert.Sound]
 }
 
 // For later:

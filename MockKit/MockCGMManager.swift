@@ -26,7 +26,7 @@ public final class MockCGMManager: TestingCGMManager {
     public static let localizedTitle = "Simulator"
 
     public struct MockAlert {
-        public let soundName: DeviceAlert.SoundName
+        public let sound: DeviceAlert.Sound
         public let identifier: DeviceAlert.AlertIdentifier
         public let foregroundContent: DeviceAlert.Content
         public let backgroundContent: DeviceAlert.Content
@@ -35,10 +35,10 @@ public final class MockCGMManager: TestingCGMManager {
         submarine.identifier: submarine, buzz.identifier: buzz
     ]
     
-    public static let submarine = MockAlert(soundName: "sub.caf", identifier: "submarine",
+    public static let submarine = MockAlert(sound: .sound(name: "sub.caf"), identifier: "submarine",
                                             foregroundContent: DeviceAlert.Content(title: "Alert: FG Title", body: "Alert: Foreground Body", acknowledgeActionButtonLabel: "FG OK"),
                                             backgroundContent: DeviceAlert.Content(title: "Alert: BG Title", body: "Alert: Background Body", acknowledgeActionButtonLabel: "BG OK"))
-    public static let buzz = MockAlert(soundName: .vibrate, identifier: "buzz",
+    public static let buzz = MockAlert(sound: .vibrate, identifier: "buzz",
                                        foregroundContent: DeviceAlert.Content(title: "Alert: FG Title", body: "FG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
                                        backgroundContent: DeviceAlert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"))
 
@@ -198,8 +198,8 @@ extension MockCGMManager {
         return Bundle(for: type(of: self)).bundleURL
     }
     
-    public func getSoundNames() -> [DeviceAlert.SoundName] {
-        return alerts.map { $1.soundName }
+    public func getSounds() -> [DeviceAlert.Sound] {
+        return alerts.map { $1.sound }
     }
     
     public func issueAlert(identifier: DeviceAlert.AlertIdentifier, trigger: DeviceAlert.Trigger, delay: TimeInterval?) {
@@ -213,7 +213,7 @@ extension MockCGMManager {
                                              foregroundContent: alert.foregroundContent,
                                              backgroundContent: alert.backgroundContent,
                                              trigger: trigger,
-                                             soundName: alert.soundName))
+                                             sound: alert.sound))
         }
     }
     

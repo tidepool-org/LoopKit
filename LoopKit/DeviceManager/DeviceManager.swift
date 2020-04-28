@@ -71,7 +71,7 @@ public extension DeviceManager {
 public extension DeviceManager {
     // Default implementation of DeviceAlertSoundVendor
     func getSoundBaseURL() -> URL? { return nil }
-    func getSoundNames() -> [DeviceAlert.SoundName] { return [] }
+    func getSounds() -> [DeviceAlert.Sound] { return [] }
 }
 
 public extension DeviceManagerDelegate {
