@@ -58,9 +58,9 @@ public class DeviceAVSoundPlayer: DeviceAlertSoundPlayer {
 }
 
 public extension DeviceAVSoundPlayer {
-    
-    func playAlertSound(named name: DeviceAlert.SoundName) {
-        switch name {
+
+    func playAlert(sound: DeviceAlert.Sound) {
+        switch sound {
         case .silence:
             // noop
             break
@@ -68,9 +68,13 @@ public extension DeviceAVSoundPlayer {
             vibrate()
         default:
             if let baseURL = baseURL {
-                self.play(url: baseURL.appendingPathComponent(name))
+                if let name = sound.filename {
+                    self.play(url: baseURL.appendingPathComponent(name))
+                } else {
+                    log.default("No file to play for %@", "\(sound)")
+                }
             } else {
-                log.error("No base URL, could not play %@", name)
+                log.error("No base URL, could not play %@", sound.filename ?? "")
             }
         }
     }
