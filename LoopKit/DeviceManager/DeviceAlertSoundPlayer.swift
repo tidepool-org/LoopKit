@@ -48,7 +48,7 @@ public class DeviceAVSoundPlayer: DeviceAlertSoundPlayer {
                 let soundEffect = try AVAudioPlayer(contentsOf: url)
                 self.soundEffect = soundEffect
                 if !soundEffect.play() {
-                    self.log.error("couldn't play sound %@", url.absoluteString)
+                    self.log.default("couldn't play sound (app may be in the background): %@", url.absoluteString)
                 }
             } catch {
                 self.log.error("couldn't play sound %@: %@", url.absoluteString, String(describing: error))
