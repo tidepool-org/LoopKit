@@ -65,6 +65,6 @@ public struct GuardrailConstrainedQuantityView: View {
 fileprivate extension AnyTransition {
     static let springInScaleOut = asymmetric(
         insertion: AnyTransition.scale.animation(.spring(dampingFraction: 0.5)),
-        removal: AnyTransition.scale.combined(with: .opacity)
+        removal: AnyTransition.scale.combined(with: .opacity).animation(.default)
     )
 }
