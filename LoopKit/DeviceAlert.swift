@@ -129,6 +129,8 @@ extension DeviceAlert: Codable {
 
 extension DeviceAlert.Content: Codable { }
 extension DeviceAlert.Identifier: Codable { }
+// These Codable implementations of enums with associated values cannot be synthesized (yet) in Swift.
+// The code below follows a pattern described by https://medium.com/@hllmandel/codable-enum-with-associated-values-swift-4-e7d75d6f4370
 extension DeviceAlert.Trigger: Codable {
     private enum CodingKeys: String, CodingKey {
       case base, delayInterval, repeatInterval
@@ -164,6 +166,42 @@ extension DeviceAlert.Trigger: Codable {
         case .repeating(let repeatInterval):
             try container.encode(Base.repeating, forKey: .base)
             try container.encode(repeatInterval, forKey: .repeatInterval)
+        }
+    }
+}
+
+extension DeviceAlert.Sound: Codable {
+    private enum CodingKeys: String, CodingKey {
+      case base, name
+    }
+    private enum Base: String, Codable {
+      case silence, vibrate, sound
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let base = try container.decode(Base.self, forKey: .base)
+        switch base {
+        case .silence:
+            self = .silence
+        case .vibrate:
+            self = .vibrate
+        case .sound:
+            let name = try container.decode(String.self, forKey: .name)
+            self = .sound(name: name)
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .silence:
+            try container.encode(Base.silence, forKey: .base)
+        case .vibrate:
+            try container.encode(Base.vibrate, forKey: .base)
+        case .sound(let name):
+            try container.encode(Base.sound, forKey: .base)
+            try container.encode(name, forKey: .name)
         }
     }
 }
