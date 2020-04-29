@@ -20,12 +20,22 @@ public protocol DeviceAlertSoundPlayer {
 }
 
 public class DeviceAVSoundPlayer: DeviceAlertSoundPlayer {
-    private var soundEffect: AVAudioPlayer?
     private let log = OSLog(category: "DeviceAVSoundPlayer")
     private let baseURL: URL?
-
+    private var delegate: Delegate!
+    private var players = [AVAudioPlayer]()
+    
+    @objc class Delegate: NSObject, AVAudioPlayerDelegate {
+        weak var parent: DeviceAVSoundPlayer?
+        init(parent: DeviceAVSoundPlayer) { self.parent = parent }
+        func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+            parent?.players.removeAll { $0 == player }
+        }
+    }
+    
     public init(baseURL: URL? = nil) {
         self.baseURL = baseURL
+        self.delegate = Delegate(parent: self)
     }
     
     enum Error: Swift.Error {
@@ -46,7 +56,8 @@ public class DeviceAVSoundPlayer: DeviceAlertSoundPlayer {
                 // The AVAudioPlayer has to remain around until the sound completes playing.  A cleaner way might be
                 // to wait until that completes, then delete it, but seems overkill.
                 let soundEffect = try AVAudioPlayer(contentsOf: url)
-                self.soundEffect = soundEffect
+                soundEffect.delegate = self.delegate
+                self.players.append(soundEffect)
                 if !soundEffect.play() {
                     self.log.default("couldn't play sound (app may be in the background): %@", url.absoluteString)
                 }
