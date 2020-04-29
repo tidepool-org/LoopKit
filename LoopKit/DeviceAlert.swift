@@ -114,6 +114,60 @@ public protocol DeviceAlertSoundVendor {
     func getSounds() -> [DeviceAlert.Sound]
 }
 
+// MARK: Codable implementations
+
+extension DeviceAlert: Codable {
+    public func encode() throws -> Data {
+        let encoder = JSONEncoder()
+        return try encoder.encode(self)
+    }
+    public static func decode(from data: Data) throws -> DeviceAlert {
+        let decoder = JSONDecoder()
+        return try decoder.decode(DeviceAlert.self, from: data)
+    }
+}
+
+extension DeviceAlert.Content: Codable { }
+extension DeviceAlert.Identifier: Codable { }
+extension DeviceAlert.Trigger: Codable {
+    private enum CodingKeys: String, CodingKey {
+      case base, delayInterval, repeatInterval
+    }
+    private enum Base: String, Codable {
+      case immediate, delayed, repeating
+    }
+    private enum CodingError: Swift.Error { case invalidTriggerValue }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let base = try container.decode(Base.self, forKey: .base)
+        switch base {
+        case .immediate:
+            self = .immediate
+        case .delayed:
+            let delayInterval = try container.decode(TimeInterval.self, forKey: .delayInterval)
+            self = .delayed(interval: delayInterval)
+        case .repeating:
+            let repeatInterval = try container.decode(TimeInterval.self, forKey: .repeatInterval)
+            self = .repeating(repeatInterval: repeatInterval)
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .immediate:
+            try container.encode(Base.immediate, forKey: .base)
+        case .delayed(let interval):
+            try container.encode(Base.delayed, forKey: .base)
+            try container.encode(interval, forKey: .delayInterval)
+        case .repeating(let repeatInterval):
+            try container.encode(Base.repeating, forKey: .base)
+            try container.encode(repeatInterval, forKey: .repeatInterval)
+        }
+    }
+}
+
 // For later:
 //public struct UserAlertAction {
 //    let identifier: UniqueCommonIdentifier
