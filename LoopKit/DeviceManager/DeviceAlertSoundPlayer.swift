@@ -53,10 +53,10 @@ public class DeviceAVSoundPlayer: DeviceAlertSoundPlayer {
     public func play(url: URL) {
         DispatchQueue.main.async {
             do {
-                // The AVAudioPlayer has to remain around until the sound completes playing.  A cleaner way might be
-                // to wait until that completes, then delete it, but seems overkill.
                 let soundEffect = try AVAudioPlayer(contentsOf: url)
                 soundEffect.delegate = self.delegate
+                // The AVAudioPlayer has to remain around until the sound completes playing, which is why we hold
+                // onto it until it completes.
                 self.players.append(soundEffect)
                 if !soundEffect.play() {
                     self.log.default("couldn't play sound (app may be in the background): %@", url.absoluteString)
