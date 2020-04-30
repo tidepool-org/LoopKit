@@ -117,6 +117,7 @@ public protocol DeviceAlertSoundVendor {
 // MARK: Codable implementations
 
 extension DeviceAlert: Codable {
+    enum CodableError: Swift.Error { case encodeFailed, decodeFailed }
     public func encode() throws -> Data {
         let encoder = JSONEncoder()
         return try encoder.encode(self)
@@ -124,6 +125,19 @@ extension DeviceAlert: Codable {
     public static func decode(from data: Data) throws -> DeviceAlert {
         let decoder = JSONDecoder()
         return try decoder.decode(DeviceAlert.self, from: data)
+    }
+    public func encodeToString() throws -> String {
+        let data = try encode()
+        guard let result = String(data: data, encoding: .utf8) else {
+            throw CodableError.encodeFailed
+        }
+        return result
+    }
+    public static func decode(from string: String) throws -> DeviceAlert {
+        guard let data = string.data(using: .utf8) else {
+            throw CodableError.decodeFailed
+        }
+        return try decode(from: data)
     }
 }
 
@@ -133,76 +147,94 @@ extension DeviceAlert.Identifier: Codable { }
 // The code below follows a pattern described by https://medium.com/@hllmandel/codable-enum-with-associated-values-swift-4-e7d75d6f4370
 extension DeviceAlert.Trigger: Codable {
     private enum CodingKeys: String, CodingKey {
-      case base, delayInterval, repeatInterval
-    }
-    private enum Base: String, Codable {
       case immediate, delayed, repeating
     }
-    private enum CodingError: Swift.Error { case invalidTriggerValue }
-
+    private struct Delayed: Codable {
+        let delayInterval: TimeInterval
+    }
+    private struct Repeating: Codable {
+        let repeatInterval: TimeInterval
+    }
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let base = try container.decode(Base.self, forKey: .base)
-        switch base {
-        case .immediate:
-            self = .immediate
-        case .delayed:
-            let delayInterval = try container.decode(TimeInterval.self, forKey: .delayInterval)
-            self = .delayed(interval: delayInterval)
-        case .repeating:
-            let repeatInterval = try container.decode(TimeInterval.self, forKey: .repeatInterval)
-            self = .repeating(repeatInterval: repeatInterval)
+        if let singleValue = try? decoder.singleValueContainer().decode(CodingKeys.RawValue.self) {
+            switch singleValue {
+            case CodingKeys.immediate.rawValue:
+                self = .immediate
+            default:
+                throw decoder.enumDecodingError
+            }
+        } else {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            if let delayInterval = try? container.decode(Delayed.self, forKey: .delayed) {
+                self = .delayed(interval: delayInterval.delayInterval)
+            } else if let repeatInterval = try? container.decode(Repeating.self, forKey: .repeating) {
+                self = .repeating(repeatInterval: repeatInterval.repeatInterval)
+            } else {
+                throw decoder.enumDecodingError
+            }
         }
     }
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case .immediate:
-            try container.encode(Base.immediate, forKey: .base)
+            var container = encoder.singleValueContainer()
+            try container.encode(CodingKeys.immediate.rawValue)
         case .delayed(let interval):
-            try container.encode(Base.delayed, forKey: .base)
-            try container.encode(interval, forKey: .delayInterval)
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(Delayed(delayInterval: interval), forKey: .delayed)
         case .repeating(let repeatInterval):
-            try container.encode(Base.repeating, forKey: .base)
-            try container.encode(repeatInterval, forKey: .repeatInterval)
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(Repeating(repeatInterval: repeatInterval), forKey: .repeating)
         }
     }
 }
 
 extension DeviceAlert.Sound: Codable {
     private enum CodingKeys: String, CodingKey {
-      case base, name
-    }
-    private enum Base: String, Codable {
       case silence, vibrate, sound
     }
-
+    private struct SoundName: Codable {
+        let name: String
+    }
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let base = try container.decode(Base.self, forKey: .base)
-        switch base {
-        case .silence:
-            self = .silence
-        case .vibrate:
-            self = .vibrate
-        case .sound:
-            let name = try container.decode(String.self, forKey: .name)
-            self = .sound(name: name)
+        if let singleValue = try? decoder.singleValueContainer().decode(CodingKeys.RawValue.self) {
+            switch singleValue {
+            case CodingKeys.silence.rawValue:
+                self = .silence
+            case CodingKeys.vibrate.rawValue:
+                self = .vibrate
+            default:
+                throw decoder.enumDecodingError
+            }
+        } else {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            if let name = try? container.decode(SoundName.self, forKey: .sound) {
+                self = .sound(name: name.name); return
+            } else {
+                throw decoder.enumDecodingError
+            }
         }
     }
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case .silence:
-            try container.encode(Base.silence, forKey: .base)
+            var container = encoder.singleValueContainer()
+            try container.encode(CodingKeys.silence.rawValue)
         case .vibrate:
-            try container.encode(Base.vibrate, forKey: .base)
+            var container = encoder.singleValueContainer()
+            try container.encode(CodingKeys.vibrate.rawValue)
         case .sound(let name):
-            try container.encode(Base.sound, forKey: .base)
-            try container.encode(name, forKey: .name)
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(SoundName(name: name), forKey: .sound)
         }
+    }
+}
+
+extension Decoder {
+    var enumDecodingError: DecodingError {
+        return DecodingError.dataCorrupted(DecodingError.Context(codingPath: codingPath, debugDescription: "invalid enumeration"))
     }
 }
 
