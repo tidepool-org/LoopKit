@@ -9,7 +9,7 @@
 import XCTest
 @testable import LoopKit
 
-class SettingsStorePersistenceTests: XCTestCase, SettingsStoreCacheStore, SettingsStoreDelegate {
+class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStoreDelegate {
 
     var settingsStore: SettingsStore!
 
@@ -17,23 +17,17 @@ class SettingsStorePersistenceTests: XCTestCase, SettingsStoreCacheStore, Settin
         super.setUp()
 
         settingsStoreHasUpdatedSettingsDataHandler = nil
-        settingsStoreModificationCounter = nil
-        settingsStore = SettingsStore(storeCache: self)
+        settingsStore = SettingsStore(cacheStore: cacheStore, cacheLength: .hours(24))
         settingsStore.delegate = self
     }
 
     override func tearDown() {
         settingsStore.delegate = nil
         settingsStore = nil
-        settingsStoreModificationCounter = nil
         settingsStoreHasUpdatedSettingsDataHandler = nil
 
         super.tearDown()
     }
-
-    // MARK: - SettingsStoreCacheStore
-
-    var settingsStoreModificationCounter: Int64?
 
     // MARK: - SettingsStoreDelegate
 
@@ -63,7 +57,6 @@ class SettingsStorePersistenceTests: XCTestCase, SettingsStoreCacheStore, Settin
         }
 
         settingsStore.storeSettings(StoredSettings()) {
-            XCTAssertEqual(self.settingsStoreModificationCounter, 1)
             storeSettingsCompletion.fulfill()
         }
 
@@ -92,12 +85,10 @@ class SettingsStorePersistenceTests: XCTestCase, SettingsStoreCacheStore, Settin
         }
 
         settingsStore.storeSettings(StoredSettings()) {
-            XCTAssertEqual(self.settingsStoreModificationCounter, 1)
             storeSettingsCompletion1.fulfill()
         }
 
         settingsStore.storeSettings(StoredSettings()) {
-            XCTAssertEqual(self.settingsStoreModificationCounter, 2)
             storeSettingsCompletion2.fulfill()
         }
 
@@ -149,7 +140,7 @@ class SettingsStoreQueryAnchorTests: XCTestCase {
 
 }
 
-class SettingsStoreQueryTests: XCTestCase, SettingsStoreCacheStore {
+class SettingsStoreQueryTests: PersistenceControllerTestCase {
 
     var settingsStore: SettingsStore!
     var completion: XCTestExpectation!
@@ -159,8 +150,7 @@ class SettingsStoreQueryTests: XCTestCase, SettingsStoreCacheStore {
     override func setUp() {
         super.setUp()
 
-        settingsStoreModificationCounter = nil
-        settingsStore = SettingsStore(storeCache: self)
+        settingsStore = SettingsStore(cacheStore: cacheStore, cacheLength: .hours(24))
         completion = expectation(description: "Completion")
         queryAnchor = SettingsStore.QueryAnchor()
         limit = Int.max
@@ -171,14 +161,9 @@ class SettingsStoreQueryTests: XCTestCase, SettingsStoreCacheStore {
         queryAnchor = nil
         completion = nil
         settingsStore = nil
-        settingsStoreModificationCounter = nil
 
         super.tearDown()
     }
-
-    // MARK: - SettingsStoreCacheStore
-
-    var settingsStoreModificationCounter: Int64?
 
     // MARK: -
 
@@ -341,9 +326,11 @@ class SettingsStoreQueryTests: XCTestCase, SettingsStoreCacheStore {
     }
 
     private func addData(withSyncIdentifiers syncIdentifiers: [String]) {
+        let semaphore = DispatchSemaphore(value: 0)
         for (_, syncIdentifier) in syncIdentifiers.enumerated() {
-            self.settingsStore.storeSettings(StoredSettings(syncIdentifier: syncIdentifier)) {}
+            self.settingsStore.storeSettings(StoredSettings(syncIdentifier: syncIdentifier)) { semaphore.signal() }
         }
+        for _ in syncIdentifiers { semaphore.wait() }
     }
 
     private func generateSyncIdentifier() -> String {
