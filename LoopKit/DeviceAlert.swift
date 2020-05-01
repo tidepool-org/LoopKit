@@ -25,7 +25,7 @@ public protocol DeviceAlertResponder: class {
 }
 
 /// Structure that represents an Alert that is issued from a Device.
-public struct DeviceAlert {
+public struct DeviceAlert: Equatable {
     /// Representation of an alert Trigger
     public enum Trigger: Equatable {
         /// Trigger the alert immediately
@@ -36,7 +36,7 @@ public struct DeviceAlert {
         case repeating(repeatInterval: TimeInterval)
     }
     /// Content of the alert, either for foreground or background alerts
-    public struct Content {
+    public struct Content: Equatable  {
         public let title: String
         public let body: String
         /// Should this alert be deemed "critical" for the User?  Handlers will determine how that is manifested.
@@ -51,7 +51,7 @@ public struct DeviceAlert {
             self.isCritical = isCritical
         }
     }
-    public struct Identifier: Hashable {
+    public struct Identifier: Equatable, Hashable {
         /// Unique device manager identifier from whence the alert came, and to which alert acknowledgements should be directed.
         public let managerIdentifier: String
         /// Per-alert-type identifier, for instance to group alert types.  This is the identifier that will be used to acknowledge the alert.
