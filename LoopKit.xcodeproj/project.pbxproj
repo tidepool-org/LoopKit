@@ -12,6 +12,7 @@
 		1DA649AB2445174400F61E75 /* DeviceAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA649AA2445174400F61E75 /* DeviceAlert.swift */; };
 		1DABAD3A2453615200ACF708 /* IssueAlertTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DABAD392453615200ACF708 /* IssueAlertTableViewController.swift */; };
 		1DD3DEB624451C3300BD8E40 /* DeviceAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA649AA2445174400F61E75 /* DeviceAlert.swift */; };
+		1DFB99D6245CB2E900DCC8C9 /* DeviceAlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB99D5245CB2E900DCC8C9 /* DeviceAlertTests.swift */; };
 		1F5DAB1D2118C95700048054 /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
 		1F5DAB1F2118C95700048054 /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
 		1F5DAB202118C95700048054 /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
@@ -497,6 +498,8 @@
 		A99C7375233993FE00C80963 /* DiagnosticLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99C7374233993FE00C80963 /* DiagnosticLogTests.swift */; };
 		A99C73772339A67A00C80963 /* GlucoseThresholdTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99C73762339A67A00C80963 /* GlucoseThresholdTests.swift */; };
 		A99C73792339ACDC00C80963 /* ServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99C73782339ACDC00C80963 /* ServiceTests.swift */; };
+		A9D77A2F242E8BDE0009F62C /* BolusRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D77A2E242E8BDE0009F62C /* BolusRecommendation.swift */; };
+		A9D77A30242E8BDE0009F62C /* BolusRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D77A2E242E8BDE0009F62C /* BolusRecommendation.swift */; };
 		A9E6758222713F4700E25293 /* LoopNotificationCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1814B83225B9ED5008D2D8E /* LoopNotificationCategory.swift */; };
 		A9E6758322713F4700E25293 /* HKUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FDEE1C7290350073BE78 /* HKUnit.swift */; };
 		A9E6758422713F4700E25293 /* NewCarbEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE5B1C7291D80073BE78 /* NewCarbEntry.swift */; };
@@ -746,6 +749,7 @@
 		1D841AAC24577EE10069DBFF /* DeviceAlertSoundPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceAlertSoundPlayer.swift; sourceTree = "<group>"; };
 		1DA649AA2445174400F61E75 /* DeviceAlert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceAlert.swift; sourceTree = "<group>"; };
 		1DABAD392453615200ACF708 /* IssueAlertTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueAlertTableViewController.swift; sourceTree = "<group>"; };
+		1DFB99D5245CB2E900DCC8C9 /* DeviceAlertTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAlertTests.swift; sourceTree = "<group>"; };
 		1F50C31F212B20D300C18FAB /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		1F50C320212B20D300C18FAB /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Main.strings; sourceTree = "<group>"; };
 		1F50C321212B20D300C18FAB /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/CarbKit.strings; sourceTree = "<group>"; };
@@ -1263,6 +1267,7 @@
 		A99C7374233993FE00C80963 /* DiagnosticLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticLogTests.swift; sourceTree = "<group>"; };
 		A99C73762339A67A00C80963 /* GlucoseThresholdTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseThresholdTests.swift; sourceTree = "<group>"; };
 		A99C73782339ACDC00C80963 /* ServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceTests.swift; sourceTree = "<group>"; };
+		A9D77A2E242E8BDE0009F62C /* BolusRecommendation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusRecommendation.swift; sourceTree = "<group>"; };
 		A9E675F022713F4700E25293 /* LoopKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LoopKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9E675F2227140D800E25293 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		A9E675F4227140DD00E25293 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -1810,6 +1815,7 @@
 				43D8FE411C7291900073BE78 /* CarbMathTests.swift */,
 				437AFF192039F149008C4892 /* CarbStoreTests.swift */,
 				891A3FD6224BE62100378B27 /* DailyValueScheduleTests.swift */,
+				1DFB99D5245CB2E900DCC8C9 /* DeviceAlertTests.swift */,
 				A99C7374233993FE00C80963 /* DiagnosticLogTests.swift */,
 				43A067121F245A2F00E9E90F /* DoseStoreTests.swift */,
 				A971C8A323C6B1890099BEFC /* DosingDecisionStoreTests.swift */,
@@ -1927,6 +1933,7 @@
 		43D8FEB21C7294520073BE78 /* InsulinKit */ = {
 			isa = PBXGroup;
 			children = (
+				A9D77A2E242E8BDE0009F62C /* BolusRecommendation.swift */,
 				434113A820F171CB00D05747 /* CachedInsulinDeliveryObject+CoreDataClass.swift */,
 				434113A920F171CB00D05747 /* CachedInsulinDeliveryObject+CoreDataProperties.swift */,
 				43D8FEDC1C7294D50073BE78 /* DoseEntry.swift */,
@@ -2924,6 +2931,7 @@
 				433BC7AA20538D4C000B1200 /* CachedGlucoseObject+CoreDataClass.swift in Sources */,
 				4322B786202FA2AF0002837D /* WalshInsulinModel.swift in Sources */,
 				4378B64B1ED61965000AE785 /* GlucoseEffectVelocity.swift in Sources */,
+				A9D77A2F242E8BDE0009F62C /* BolusRecommendation.swift in Sources */,
 				4322B780202FA2AF0002837D /* PumpEvent+CoreDataClass.swift in Sources */,
 				89AE2227228BC54C00BDFD85 /* TemporaryScheduleOverride.swift in Sources */,
 				433BC7B120562705000B1200 /* UpdateSource.swift in Sources */,
@@ -2976,6 +2984,7 @@
 				434113BE20F2C72000D05747 /* CachedCarbObjectTests.swift in Sources */,
 				43260F6E21C4BF7A00DD6837 /* UUID.swift in Sources */,
 				A971C8A223C6B17D0099BEFC /* SettingsStoreTests.swift in Sources */,
+				1DFB99D6245CB2E900DCC8C9 /* DeviceAlertTests.swift in Sources */,
 				4303C4941E2D665F00ADEDC8 /* TimeZone.swift in Sources */,
 				4322B76D202F9EF20002837D /* GlucoseMathTests.swift in Sources */,
 				43025DAF1D5AB2E300106C28 /* NSTimeInterval.swift in Sources */,
@@ -3156,6 +3165,7 @@
 				A9E675C322713F4700E25293 /* UnfairLock.swift in Sources */,
 				1DD3DEB624451C3300BD8E40 /* DeviceAlert.swift in Sources */,
 				A9E675C422713F4700E25293 /* HealthStoreUnitCache.swift in Sources */,
+				A9D77A30242E8BDE0009F62C /* BolusRecommendation.swift in Sources */,
 				A9E675C622713F4700E25293 /* CarbStatus.swift in Sources */,
 				A9498D7023386C0B00DAA9B9 /* TempBasalRecommendation.swift in Sources */,
 				A9E675C722713F4700E25293 /* DoseEntry.swift in Sources */,
