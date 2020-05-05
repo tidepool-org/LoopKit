@@ -38,7 +38,7 @@ public class SettingsStore {
         dataAccessQueue.async {
             if let data = self.encodeSettings(settings) {
                 self.cacheStore.managedObjectContext.performAndWait {
-                    let object = CachedSettingsObject(context: self.cacheStore.managedObjectContext)
+                    let object = SettingsObject(context: self.cacheStore.managedObjectContext)
                     object.data = data
                     object.date = settings.date
                     self.cacheStore.save()
@@ -61,12 +61,12 @@ public class SettingsStore {
 
         cacheStore.managedObjectContext.performAndWait {
             do {
-                let fetchRequest: NSFetchRequest<CachedSettingsObject> = CachedSettingsObject.fetchRequest()
+                let fetchRequest: NSFetchRequest<SettingsObject> = SettingsObject.fetchRequest()
                 fetchRequest.predicate = NSPredicate(format: "date < %@", earliestCacheDate as NSDate)
                 let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
-                self.log.info("Deleted %d CachedSettingsObjects", count)
+                self.log.info("Deleted %d SettingsObjects", count)
             } catch let error {
-                self.log.error("Unable to purge CachedSettingsObjects: %@", String(describing: error))
+                self.log.error("Unable to purge SettingsObjects: %@", String(describing: error))
             }
         }
     }
@@ -135,7 +135,7 @@ extension SettingsStore {
             }
 
             self.cacheStore.managedObjectContext.performAndWait {
-                let storedRequest: NSFetchRequest<CachedSettingsObject> = CachedSettingsObject.fetchRequest()
+                let storedRequest: NSFetchRequest<SettingsObject> = SettingsObject.fetchRequest()
 
                 storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter)
                 storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
@@ -163,7 +163,7 @@ extension SettingsStore {
     }
 }
 
-public struct StoredSettings: Codable {
+public struct StoredSettings {
     public let date: Date
     public let dosingEnabled: Bool
     public let glucoseTargetRangeSchedule: GlucoseRangeSchedule?
@@ -180,7 +180,7 @@ public struct StoredSettings: Codable {
     public let basalRateSchedule: BasalRateSchedule?
     public let insulinSensitivitySchedule: InsulinSensitivitySchedule?
     public let carbRatioSchedule: CarbRatioSchedule?
-    public let bloodGlucoseUnit: String?
+    public let bloodGlucoseUnit: HKUnit?
     public let syncIdentifier: String
 
     public init(date: Date = Date(),
@@ -199,7 +199,7 @@ public struct StoredSettings: Codable {
                 basalRateSchedule: BasalRateSchedule? = nil,
                 insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
                 carbRatioSchedule: CarbRatioSchedule? = nil,
-                bloodGlucoseUnit: String? = nil,
+                bloodGlucoseUnit: HKUnit? = nil,
                 syncIdentifier: String = UUID().uuidString) {
         self.date = date
         self.dosingEnabled = dosingEnabled
@@ -221,7 +221,7 @@ public struct StoredSettings: Codable {
         self.syncIdentifier = syncIdentifier
     }
 
-    public struct InsulinModel: Codable {
+    public struct InsulinModel: Codable, Equatable {
         public enum ModelType: String, Codable {
             case fiasp
             case rapidAdult
@@ -238,6 +238,77 @@ public struct StoredSettings: Codable {
             self.actionDuration = actionDuration
             self.peakActivity = peakActivity
         }
+    }
+}
+
+extension StoredSettings: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        var bloodGlucoseUnit: HKUnit?
+        if let bloodGlucoseUnitString = try container.decodeIfPresent(String.self, forKey: .bloodGlucoseUnit) {
+            bloodGlucoseUnit = HKUnit(from: bloodGlucoseUnitString)
+        }
+        self.init(date: try container.decode(Date.self, forKey: .date),
+                  dosingEnabled: try container.decode(Bool.self, forKey: .dosingEnabled),
+                  glucoseTargetRangeSchedule: try container.decodeIfPresent(GlucoseRangeSchedule.self, forKey: .glucoseTargetRangeSchedule),
+                  preMealTargetRange: try container.decodeIfPresent(DoubleRange.self, forKey: .preMealTargetRange),
+                  workoutTargetRange: try container.decodeIfPresent(DoubleRange.self, forKey: .workoutTargetRange),
+                  overridePresets: try container.decodeIfPresent([TemporaryScheduleOverridePreset].self, forKey: .overridePresets),
+                  scheduleOverride: try container.decodeIfPresent(TemporaryScheduleOverride.self, forKey: .scheduleOverride),
+                  preMealOverride: try container.decodeIfPresent(TemporaryScheduleOverride.self, forKey: .preMealOverride),
+                  maximumBasalRatePerHour: try container.decodeIfPresent(Double.self, forKey: .maximumBasalRatePerHour),
+                  maximumBolus: try container.decodeIfPresent(Double.self, forKey: .maximumBolus),
+                  suspendThreshold: try container.decodeIfPresent(GlucoseThreshold.self, forKey: .suspendThreshold),
+                  deviceToken: try container.decodeIfPresent(String.self, forKey: .deviceToken),
+                  insulinModel: try container.decodeIfPresent(InsulinModel.self, forKey: .insulinModel),
+                  basalRateSchedule: try container.decodeIfPresent(BasalRateSchedule.self, forKey: .basalRateSchedule),
+                  insulinSensitivitySchedule: try container.decodeIfPresent(InsulinSensitivitySchedule.self, forKey: .insulinSensitivitySchedule),
+                  carbRatioSchedule: try container.decodeIfPresent(CarbRatioSchedule.self, forKey: .carbRatioSchedule),
+                  bloodGlucoseUnit: bloodGlucoseUnit,
+                  syncIdentifier: try container.decode(String.self, forKey: .syncIdentifier))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(date, forKey: .date)
+        try container.encode(dosingEnabled, forKey: .dosingEnabled)
+        try container.encodeIfPresent(glucoseTargetRangeSchedule, forKey: .glucoseTargetRangeSchedule)
+        try container.encodeIfPresent(preMealTargetRange, forKey: .preMealTargetRange)
+        try container.encodeIfPresent(workoutTargetRange, forKey: .workoutTargetRange)
+        try container.encodeIfPresent(overridePresets, forKey: .overridePresets)
+        try container.encodeIfPresent(scheduleOverride, forKey: .scheduleOverride)
+        try container.encodeIfPresent(preMealOverride, forKey: .preMealOverride)
+        try container.encodeIfPresent(maximumBasalRatePerHour, forKey: .maximumBasalRatePerHour)
+        try container.encodeIfPresent(maximumBolus, forKey: .maximumBolus)
+        try container.encodeIfPresent(suspendThreshold, forKey: .suspendThreshold)
+        try container.encodeIfPresent(deviceToken, forKey: .deviceToken)
+        try container.encodeIfPresent(insulinModel, forKey: .insulinModel)
+        try container.encodeIfPresent(basalRateSchedule, forKey: .basalRateSchedule)
+        try container.encodeIfPresent(insulinSensitivitySchedule, forKey: .insulinSensitivitySchedule)
+        try container.encodeIfPresent(carbRatioSchedule, forKey: .carbRatioSchedule)
+        try container.encodeIfPresent(bloodGlucoseUnit?.unitString, forKey: .bloodGlucoseUnit)
+        try container.encode(syncIdentifier, forKey: .syncIdentifier)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case date
+        case dosingEnabled
+        case glucoseTargetRangeSchedule
+        case preMealTargetRange
+        case workoutTargetRange
+        case overridePresets
+        case scheduleOverride
+        case preMealOverride
+        case maximumBasalRatePerHour
+        case maximumBolus
+        case suspendThreshold
+        case deviceToken
+        case insulinModel
+        case basalRateSchedule
+        case insulinSensitivitySchedule
+        case carbRatioSchedule
+        case bloodGlucoseUnit
+        case syncIdentifier
     }
 }
 

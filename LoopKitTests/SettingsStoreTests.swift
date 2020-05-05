@@ -338,3 +338,94 @@ class SettingsStoreQueryTests: PersistenceControllerTestCase {
     }
 
 }
+
+class StoredSettingsCodableTests: XCTestCase {
+    func testCodable() throws {
+        let settings = StoredSettings(date: Date(),
+                                      dosingEnabled: true,
+                                      glucoseTargetRangeSchedule: GlucoseRangeSchedule(rangeSchedule: DailyQuantitySchedule(unit: .milligramsPerDeciliter,
+                                                                                                                            dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
+                                                                                                                                         RepeatingScheduleValue(startTime: .hours(7), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
+                                                                                                                                         RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
+                                                                                                                            timeZone: TimeZone.currentFixed)!,
+                                                                                       override: GlucoseRangeSchedule.Override(value: DoubleRange(minValue: 105.0, maxValue: 115.0),
+                                                                                                                               start: Date(),
+                                                                                                                               end: Date().addingTimeInterval(.minutes(30)))),
+                                      preMealTargetRange: DoubleRange(minValue: 80.0, maxValue: 90.0),
+                                      workoutTargetRange: DoubleRange(minValue: 150.0, maxValue: 160.0),
+                                      overridePresets: [TemporaryScheduleOverridePreset(id: UUID(),
+                                                                                        symbol: "🍎",
+                                                                                        name: "Apple",
+                                                                                        settings: TemporaryScheduleOverrideSettings(unit: .milligramsPerDeciliter,
+                                                                                                                                    targetRange: DoubleRange(minValue: 130.0, maxValue: 140.0),
+                                                                                                                                    insulinNeedsScaleFactor: 2.0),
+                                                                                        duration: .finite(.minutes(60)))],
+                                      scheduleOverride: TemporaryScheduleOverride(context: .preMeal,
+                                                                                  settings: TemporaryScheduleOverrideSettings(unit: .milligramsPerDeciliter,
+                                                                                                                              targetRange: DoubleRange(minValue: 110.0, maxValue: 120.0),
+                                                                                                                              insulinNeedsScaleFactor: 1.5),
+                                                                                  startDate: Date(),
+                                                                                  duration: .finite(.minutes(60)),
+                                                                                  enactTrigger: .remote("127.0.0.1"),
+                                                                                  syncIdentifier: UUID()),
+                                      preMealOverride: TemporaryScheduleOverride(context: .preMeal,
+                                                                                 settings: TemporaryScheduleOverrideSettings(unit: .milligramsPerDeciliter,
+                                                                                                                             targetRange: DoubleRange(minValue: 80.0, maxValue: 90.0),
+                                                                                                                             insulinNeedsScaleFactor: 0.5),
+                                                                                 startDate: Date(),
+                                                                                 duration: .indefinite,
+                                                                                 enactTrigger: .local,
+                                                                                 syncIdentifier: UUID()),
+                                      maximumBasalRatePerHour: 3.5,
+                                      maximumBolus: 10.0,
+                                      suspendThreshold: GlucoseThreshold(unit: .milligramsPerDeciliter, value: 75.0),
+                                      deviceToken: "DeviceTokenString",
+                                      insulinModel: StoredSettings.InsulinModel(modelType: .rapidAdult, actionDuration: .hours(6), peakActivity: .hours(3)),
+                                      basalRateSchedule: BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0),
+                                                                                        RepeatingScheduleValue(startTime: .hours(6), value: 1.5),
+                                                                                        RepeatingScheduleValue(startTime: .hours(18), value: 1.25)],
+                                                                           timeZone: TimeZone.currentFixed),
+                                      insulinSensitivitySchedule: InsulinSensitivitySchedule(unit: .milligramsPerDeciliter,
+                                                                                             dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 45.0),
+                                                                                                          RepeatingScheduleValue(startTime: .hours(3), value: 40.0),
+                                                                                                          RepeatingScheduleValue(startTime: .hours(15), value: 50.0)],
+                                                                                             timeZone: TimeZone.currentFixed),
+                                      carbRatioSchedule: CarbRatioSchedule(unit: .gram(),
+                                                                           dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 15.0),
+                                                                                        RepeatingScheduleValue(startTime: .hours(9), value: 14.0),
+                                                                                        RepeatingScheduleValue(startTime: .hours(20), value: 18.0)],
+                                                                           timeZone: TimeZone.currentFixed),
+                                      bloodGlucoseUnit: .milligramsPerDeciliter,
+                                      syncIdentifier: UUID().uuidString)
+        try assertStoredSettingsCodable(settings)
+    }
+
+    func assertStoredSettingsCodable(_ original: StoredSettings) throws {
+        let data = try PropertyListEncoder().encode(original)
+        let decoded = try PropertyListDecoder().decode(StoredSettings.self, from: data)
+        XCTAssertEqual(decoded, original)
+    }
+}
+
+extension StoredSettings: Equatable {
+    public static func == (lhs: StoredSettings, rhs: StoredSettings) -> Bool {
+        return lhs.date == rhs.date &&
+            lhs.dosingEnabled == rhs.dosingEnabled &&
+            lhs.glucoseTargetRangeSchedule == rhs.glucoseTargetRangeSchedule &&
+            lhs.preMealTargetRange == rhs.preMealTargetRange &&
+            lhs.workoutTargetRange == rhs.workoutTargetRange &&
+            lhs.overridePresets == rhs.overridePresets &&
+            lhs.scheduleOverride == rhs.scheduleOverride &&
+            lhs.preMealOverride == rhs.preMealOverride &&
+            lhs.maximumBasalRatePerHour == rhs.maximumBasalRatePerHour &&
+            lhs.maximumBolus == rhs.maximumBolus &&
+            lhs.suspendThreshold == rhs.suspendThreshold &&
+            lhs.deviceToken == rhs.deviceToken &&
+            lhs.insulinModel == rhs.insulinModel &&
+            lhs.basalRateSchedule == rhs.basalRateSchedule &&
+            lhs.insulinSensitivitySchedule == rhs.insulinSensitivitySchedule &&
+            lhs.carbRatioSchedule == rhs.carbRatioSchedule &&
+            lhs.bloodGlucoseUnit == rhs.bloodGlucoseUnit &&
+            lhs.syncIdentifier == rhs.syncIdentifier
+    }
+}

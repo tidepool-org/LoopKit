@@ -1,5 +1,5 @@
 //
-//  CachedSettingsObject+CoreDataProperties.swift
+//  SettingsObject+CoreDataProperties.swift
 //  LoopKit
 //
 //  Created by Darin Krauss on 4/30/20.
@@ -9,9 +9,9 @@
 import Foundation
 import CoreData
 
-extension CachedSettingsObject {
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<CachedSettingsObject> {
-        return NSFetchRequest<CachedSettingsObject>(entityName: "CachedSettingsObject")
+extension SettingsObject {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<SettingsObject> {
+        return NSFetchRequest<SettingsObject>(entityName: "SettingsObject")
     }
 
     @NSManaged public var data: Data

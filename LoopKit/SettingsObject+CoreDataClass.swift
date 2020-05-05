@@ -1,5 +1,5 @@
 //
-//  CachedSettingsObject+CoreDataClass.swift
+//  SettingsObject+CoreDataClass.swift
 //  LoopKit
 //
 //  Created by Darin Krauss on 4/30/20.
@@ -8,7 +8,7 @@
 
 import CoreData
 
-class CachedSettingsObject: NSManagedObject {
+class SettingsObject: NSManagedObject {
     override func willSave() {
         if isInserted || isUpdated {
             setPrimitiveValue(managedObjectContext!.modificationCounter ?? 0, forKey: "modificationCounter")
