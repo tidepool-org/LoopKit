@@ -24,46 +24,46 @@ public protocol SettingsStoreDelegate: AnyObject {
 public class SettingsStore {
     public weak var delegate: SettingsStoreDelegate?
     
-    private let cacheStore: PersistenceController
-    private let cacheLength: TimeInterval
+    private let store: PersistenceController
+    private let expireAfter: TimeInterval
     private let dataAccessQueue = DispatchQueue(label: "com.loopkit.SettingsStore.dataAccessQueue", qos: .utility)
     private let log = OSLog(category: "SettingsStore")
 
-    public init(cacheStore: PersistenceController, cacheLength: TimeInterval) {
-        self.cacheStore = cacheStore
-        self.cacheLength = cacheLength
+    public init(store: PersistenceController, expireAfter: TimeInterval) {
+        self.store = store
+        self.expireAfter = expireAfter
     }
     
     public func storeSettings(_ settings: StoredSettings, completion: @escaping () -> Void) {
         dataAccessQueue.async {
             if let data = self.encodeSettings(settings) {
-                self.cacheStore.managedObjectContext.performAndWait {
-                    let object = SettingsObject(context: self.cacheStore.managedObjectContext)
+                self.store.managedObjectContext.performAndWait {
+                    let object = SettingsObject(context: self.store.managedObjectContext)
                     object.data = data
                     object.date = settings.date
-                    self.cacheStore.save()
+                    self.store.save()
                 }
             }
 
-            self.purgeCachedSettings()
+            self.purgeExpiredSettingsObjects()
 
             self.delegate?.settingsStoreHasUpdatedSettingsData(self)
             completion()
         }
     }
 
-    private var earliestCacheDate: Date {
-        return Date(timeIntervalSinceNow: -cacheLength)
+    private var expireDate: Date {
+        return Date(timeIntervalSinceNow: -expireAfter)
     }
 
-    private func purgeCachedSettings() {
+    private func purgeExpiredSettingsObjects() {
         dispatchPrecondition(condition: .onQueue(dataAccessQueue))
 
-        cacheStore.managedObjectContext.performAndWait {
+        store.managedObjectContext.performAndWait {
             do {
                 let fetchRequest: NSFetchRequest<SettingsObject> = SettingsObject.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "date < %@", earliestCacheDate as NSDate)
-                let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
+                fetchRequest.predicate = NSPredicate(format: "date < %@", expireDate as NSDate)
+                let count = try self.store.managedObjectContext.deleteObjects(matching: fetchRequest)
                 self.log.info("Deleted %d SettingsObjects", count)
             } catch let error {
                 self.log.error("Unable to purge SettingsObjects: %@", String(describing: error))
@@ -134,7 +134,7 @@ extension SettingsStore {
                 return
             }
 
-            self.cacheStore.managedObjectContext.performAndWait {
+            self.store.managedObjectContext.performAndWait {
                 let storedRequest: NSFetchRequest<SettingsObject> = SettingsObject.fetchRequest()
 
                 storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter)
@@ -142,7 +142,7 @@ extension SettingsStore {
                 storedRequest.fetchLimit = limit
 
                 do {
-                    let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
+                    let stored = try self.store.managedObjectContext.fetch(storedRequest)
                     if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
                         queryAnchor.modificationCounter = modificationCounter
                     }
