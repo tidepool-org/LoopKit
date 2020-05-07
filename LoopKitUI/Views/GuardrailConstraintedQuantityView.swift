@@ -18,6 +18,8 @@ public struct GuardrailConstrainedQuantityView: View {
     var isEditing: Bool
     var formatter: NumberFormatter
 
+    @State private var hasAppeared = false
+
     public init(value: HKQuantity, unit: HKUnit, guardrail: Guardrail<HKQuantity>, isEditing: Bool) {
         self.value = value
         self.unit = unit
@@ -44,7 +46,12 @@ public struct GuardrailConstrainedQuantityView: View {
             Text(unit.shortLocalizedUnitString())
                 .foregroundColor(Color(.secondaryLabel))
         }
-        .animation(nil) // Prevent the warning icon from sliding as the width of the value string changes
+        // A conditional implicit animation seems to behave funky on first appearance.
+        // Disable animations until the view has appeared.
+        .onAppear { self.hasAppeared = true }
+        // While editing, the text width is liable to change, which can cause a slow-feeling animation
+        // of the guardrail warning icon. Disable animations
+        .animation(!hasAppeared || isEditing ? nil : .default)
     }
 
     private var warningColor: Color {
