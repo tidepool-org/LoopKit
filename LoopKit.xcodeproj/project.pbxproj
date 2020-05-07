@@ -423,6 +423,8 @@
 		89BE75C124649C2E00B145D9 /* PseudoNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BE75C024649C2E00B145D9 /* PseudoNavigationBar.swift */; };
 		89BE75C324649C4C00B145D9 /* RoundedCorners.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BE75C224649C4C00B145D9 /* RoundedCorners.swift */; };
 		89BE75C524649C8100B145D9 /* NewScheduleItemEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BE75C424649C8100B145D9 /* NewScheduleItemEditor.swift */; };
+		89BE75C72464B4A900B145D9 /* Environment+Dismiss.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BE75C62464B4A900B145D9 /* Environment+Dismiss.swift */; };
+		89BE75CB2464BC2000B145D9 /* AlertContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BE75CA2464BC2000B145D9 /* AlertContent.swift */; };
 		89CA2B35226D1624004D9350 /* MutableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CA2B33226D15E0004D9350 /* MutableCollection.swift */; };
 		89CA2B36226D1627004D9350 /* MutableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CA2B33226D15E0004D9350 /* MutableCollection.swift */; };
 		89CA2B38226D4456004D9350 /* DateRelativeQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CA2B37226D4456004D9350 /* DateRelativeQuantity.swift */; };
@@ -1235,6 +1237,8 @@
 		89BE75C024649C2E00B145D9 /* PseudoNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PseudoNavigationBar.swift; sourceTree = "<group>"; };
 		89BE75C224649C4C00B145D9 /* RoundedCorners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCorners.swift; sourceTree = "<group>"; };
 		89BE75C424649C8100B145D9 /* NewScheduleItemEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewScheduleItemEditor.swift; sourceTree = "<group>"; };
+		89BE75C62464B4A900B145D9 /* Environment+Dismiss.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Environment+Dismiss.swift"; sourceTree = "<group>"; };
+		89BE75CA2464BC2000B145D9 /* AlertContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertContent.swift; sourceTree = "<group>"; };
 		89CA2B33226D15E0004D9350 /* MutableCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutableCollection.swift; sourceTree = "<group>"; };
 		89CA2B37226D4456004D9350 /* DateRelativeQuantity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRelativeQuantity.swift; sourceTree = "<group>"; };
 		89CC35D32403450E008FB633 /* ThumbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbView.swift; sourceTree = "<group>"; };
@@ -1626,6 +1630,7 @@
 				89FC688E245A2D680075CF59 /* ScheduleItemView.swift */,
 				89BE75C224649C4C00B145D9 /* RoundedCorners.swift */,
 				89BE75C424649C8100B145D9 /* NewScheduleItemEditor.swift */,
+				89BE75CA2464BC2000B145D9 /* AlertContent.swift */,
 				89904031245B5CA500F1C0A2 /* Deletable.swift */,
 			);
 			path = Views;
@@ -2176,8 +2181,9 @@
 		B41A60B023D1DBB700636320 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				C1E4B309242E99A800E70CCB /* Image.swift */,
 				B4C004B8241085FE00B40429 /* Color.swift */,
+				89BE75C62464B4A900B145D9 /* Environment+Dismiss.swift */,
+				C1E4B309242E99A800E70CCB /* Image.swift */,
 				B41A60B123D1DBC700636320 /* UIFont.swift */,
 			);
 			path = Extensions;
@@ -2831,6 +2837,7 @@
 				895FE08122011F0C00FCF18A /* OverridePresetCollectionViewCell.swift in Sources */,
 				43FB60E320DCB9E0002B996B /* PumpManagerUI.swift in Sources */,
 				8974B0692215FE460043F01B /* Collection.swift in Sources */,
+				89BE75C72464B4A900B145D9 /* Environment+Dismiss.swift in Sources */,
 				43BA717F201EE7090058961E /* GlucoseRangeOverrideTableViewCell.swift in Sources */,
 				895FE09022011F4800FCF18A /* OverrideSelectionViewController.swift in Sources */,
 				89904032245B5CA500F1C0A2 /* Deletable.swift in Sources */,
@@ -2840,6 +2847,7 @@
 				892A5DBC2231E20C008961AB /* Comparable.swift in Sources */,
 				898E6E6C224194060019E459 /* UIColor.swift in Sources */,
 				43BA717D201EE7090058961E /* GlucoseRangeTableViewCell.swift in Sources */,
+				89BE75CB2464BC2000B145D9 /* AlertContent.swift in Sources */,
 				43BA7184201EE7090058961E /* TextFieldTableViewController.swift in Sources */,
 				895FE09122011F4800FCF18A /* AddEditOverrideTableViewController.swift in Sources */,
 				C1E4B305242E98E900E70CCB /* ProgressView.swift in Sources */,

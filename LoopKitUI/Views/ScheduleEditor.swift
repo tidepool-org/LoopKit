@@ -32,10 +32,13 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         }
     }
 
+    @Environment(\.dismiss) var dismiss
+
     init(
         title: Text,
         description: Text,
         scheduleItems: Binding<[RepeatingScheduleValue<Value>]>,
+        initialScheduleItems: [RepeatingScheduleValue<Value>],
         scheduleItemLimit: Int = 48,
         @ViewBuilder valueContent: @escaping (_ value: Value, _ isEditing: Bool) -> ValueContent,
         @ViewBuilder valuePicker: @escaping (_ item: Binding<RepeatingScheduleValue<Value>>) -> ValuePicker,
@@ -44,7 +47,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     ) {
         self.title = title
         self.description = description
-        self.initialScheduleItems = scheduleItems.wrappedValue
+        self.initialScheduleItems = initialScheduleItems
         self._scheduleItems = scheduleItems
         self.scheduleItemLimit = scheduleItemLimit
         self.valueContent = valueContent
@@ -210,7 +213,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     }
 
     var cancelButton: some View {
-        Button(action: {}, label: { Text("Cancel") })
+        Button(action: dismiss, label: { Text("Cancel") })
     }
 
     var editButton: some View {

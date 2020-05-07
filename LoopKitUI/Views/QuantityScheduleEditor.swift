@@ -10,16 +10,20 @@ import SwiftUI
 import HealthKit
 import LoopKit
 
-
 struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     var title: Text
     var description: Text
+    var initialScheduleItems: [RepeatingScheduleValue<Double>]
     @State var scheduleItems: [RepeatingScheduleValue<Double>]
     var unit: HKUnit
     var selectableValues: [Double]
     var guardrail: Guardrail<HKQuantity>
+    var confirmationAlertContent: AlertContent
     var guardrailWarning: (_ crossedThresholds: [SafetyClassification.Threshold]) -> ActionAreaContent
     var save: (DailyQuantitySchedule<Double>) -> Void
+
+    @Environment(\.dismiss) var dismiss
+    @State var showingConfirmationAlert = false
 
     init(
         title: Text,
@@ -28,15 +32,18 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         unit: HKUnit,
         selectableValues: [Double],
         guardrail: Guardrail<HKQuantity>,
+        confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void
     ) {
         self.title = title
         self.description = description
+        self.initialScheduleItems = schedule?.items ?? []
         self._scheduleItems = State(initialValue: schedule?.items ?? [])
         self.unit = unit
         self.selectableValues = selectableValues
         self.guardrail = guardrail
+        self.confirmationAlertContent = confirmationAlertContent
         self.guardrailWarning = guardrailWarning
         self.save = save
     }
@@ -48,6 +55,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         unit: HKUnit,
         guardrail: Guardrail<HKQuantity>,
         selectableValueStride: HKQuantity,
+        confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void
     ) {
@@ -59,6 +67,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
             unit: unit,
             selectableValues: selectableValues,
             guardrail: guardrail,
+            confirmationAlertContent: confirmationAlertContent,
             guardrailWarning: guardrailWarning,
             onSave: save
         )
@@ -69,6 +78,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
             title: title,
             description: description,
             scheduleItems: $scheduleItems,
+            initialScheduleItems: initialScheduleItems,
             valueContent: { value, isEditing in
                 GuardrailConstrainedQuantityView(
                     value: HKQuantity(unit: self.unit, doubleValue: value),
@@ -88,10 +98,15 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
             actionAreaContent: {
                 guardrailWarningIfNecessary
             },
-            onSave: {
-                self.save(DailyQuantitySchedule(unit: self.unit, dailyItems: $0)!)
+            onSave: { _ in
+                if self.crossedThresholds.isEmpty {
+                    self.saveAndDismiss()
+                } else {
+                    self.showingConfirmationAlert = true
+                }
             }
         )
+        .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
     }
 
     private var guardrailWarningIfNecessary: some View {
@@ -114,6 +129,23 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                     return threshold
                 }
         }
+    }
+
+    private func saveAndDismiss() {
+        save(DailyQuantitySchedule(unit: unit, dailyItems: scheduleItems)!)
+        dismiss()
+    }
+
+    private func confirmationAlert() -> Alert {
+        Alert(
+            title: confirmationAlertContent.title,
+            message: confirmationAlertContent.message,
+            primaryButton: .cancel(Text("Go Back")),
+            secondaryButton: .default(
+                Text("Continue"),
+                action: saveAndDismiss
+            )
+        )
     }
 }
 

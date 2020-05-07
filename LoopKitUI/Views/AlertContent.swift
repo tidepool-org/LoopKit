@@ -6,4 +6,10 @@
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
+
+
+public struct AlertContent {
+    public var title: Text
+    public var message: Text
+}

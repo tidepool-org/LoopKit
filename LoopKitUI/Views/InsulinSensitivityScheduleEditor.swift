@@ -49,6 +49,7 @@ public struct InsulinSensitivityScheduleEditor: View {
             unit: sensitivityUnit,
             guardrail: .insulinSensitivity,
             selectableValueStride: stride,
+            confirmationAlertContent: confirmationAlertContent,
             guardrailWarning: InsulinSensitivityGuardrailWarning.init(crossedThresholds:),
             onSave: {
                 // Convert back to the expected glucose-unit-only schedule.
@@ -59,6 +60,10 @@ public struct InsulinSensitivityScheduleEditor: View {
 
     private var description: Text {
         Text("Your insulin sensitivity factor (ISF) is the drop in glucose expected from one unit of insulin.", comment: "Insulin sensitivity setting description")
+    }
+
+    private var sensitivityUnit: HKUnit {
+         glucoseUnit.unitDivided(by: .internationalUnit())
     }
 
     private var stride: HKQuantity {
@@ -75,12 +80,15 @@ public struct InsulinSensitivityScheduleEditor: View {
         return HKQuantity(unit: sensitivityUnit, doubleValue: doubleValue)
     }
 
-    private var sensitivityUnit: HKUnit {
-         glucoseUnit.unitDivided(by: .internationalUnit())
+    private var confirmationAlertContent: AlertContent {
+        AlertContent(
+            title: Text("Save Insulin Sensitivities?", comment: "Alert title for confirming insulin sensitivities outside the recommended range"),
+            message: Text("Some of the values you have entered are outside of what Tidepool generally recommends.", comment: "Alert message for confirming insulin sensitivities outside the recommended range")
+        )
     }
 }
 
-struct InsulinSensitivityGuardrailWarning: View {
+private struct InsulinSensitivityGuardrailWarning: View {
     var crossedThresholds: [SafetyClassification.Threshold]
 
     var body: some View {
