@@ -327,7 +327,7 @@ class SettingsStoreQueryTests: PersistenceControllerTestCase {
 
     private func addData(withSyncIdentifiers syncIdentifiers: [String]) {
         let semaphore = DispatchSemaphore(value: 0)
-        for (_, syncIdentifier) in syncIdentifiers.enumerated() {
+        for syncIdentifier in syncIdentifiers {
             self.settingsStore.storeSettings(StoredSettings(syncIdentifier: syncIdentifier)) { semaphore.signal() }
         }
         for _ in syncIdentifiers { semaphore.wait() }
