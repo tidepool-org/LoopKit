@@ -17,10 +17,11 @@ public struct GuardrailConstrainedQuantityView: View {
     var guardrail: Guardrail<HKQuantity>
     var isEditing: Bool
     var formatter: NumberFormatter
+    var forceDisableAnimations: Bool
 
     @State private var hasAppeared = false
 
-    public init(value: HKQuantity, unit: HKUnit, guardrail: Guardrail<HKQuantity>, isEditing: Bool) {
+    public init(value: HKQuantity, unit: HKUnit, guardrail: Guardrail<HKQuantity>, isEditing: Bool, forceDisableAnimations: Bool = false) {
         self.value = value
         self.unit = unit
         self.guardrail = guardrail
@@ -30,6 +31,7 @@ public struct GuardrailConstrainedQuantityView: View {
             quantityFormatter.setPreferredNumberFormatter(for: unit)
             return quantityFormatter.numberFormatter
         }()
+        self.forceDisableAnimations = forceDisableAnimations
     }
 
     public var body: some View {
@@ -46,12 +48,20 @@ public struct GuardrailConstrainedQuantityView: View {
             Text(unit.shortLocalizedUnitString())
                 .foregroundColor(Color(.secondaryLabel))
         }
+        .onAppear { self.hasAppeared = true }
+        .animation(animation)
+    }
+
+    private var animation: Animation? {
         // A conditional implicit animation seems to behave funky on first appearance.
         // Disable animations until the view has appeared.
-        .onAppear { self.hasAppeared = true }
+        if forceDisableAnimations || !hasAppeared {
+            return nil
+        }
+
         // While editing, the text width is liable to change, which can cause a slow-feeling animation
-        // of the guardrail warning icon. Disable animations
-        .animation(!hasAppeared || isEditing ? nil : .default)
+        // of the guardrail warning icon. Disable animations while editing.
+        return isEditing ? nil : .default
     }
 
     private var warningColor: Color {
