@@ -23,7 +23,15 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     var save: ([RepeatingScheduleValue<Value>]) -> Void
 
     @State var editingIndex: Int?
-    @State var isAddingNewItem = false
+
+    @State var isAddingNewItem = false {
+        didSet {
+            if isAddingNewItem {
+                editingIndex = nil
+            }
+        }
+    }
+
     @State var tableDeletionState: TableDeletionState = .disabled {
         didSet {
             if tableDeletionState == .enabled {
@@ -130,6 +138,10 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                     // In Xcode 11.4, using `remove(at:)` here is ambiguous to the compiler.
                     // Remove a length one subrange instead.
                     self.scheduleItems.removeSubrange(index...index)
+
+                    if self.scheduleItems.count == 1 {
+                        self.tableDeletionState = .disabled
+                    }
                 }
             }
         ) {
@@ -227,6 +239,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 Text("Edit")
             }
         )
+        .disabled(scheduleItems.count == 1)
     }
 
     var doneButton: some View {
