@@ -12,10 +12,8 @@ import Foundation
 public protocol DeviceAlertPresenter: class {
     /// Issue (post) the given alert, according to its trigger schedule.
     func issueAlert(_ alert: DeviceAlert)
-    /// Unschedule any pending alerts with the given identifier.
-    func removePendingAlert(identifier: DeviceAlert.Identifier)
-    /// Remove any alerts currently posted with the given identifier.  It ignores any pending alerts.
-    func removeDeliveredAlert(identifier: DeviceAlert.Identifier)
+    /// Retract any alerts with the given identifier.  This includes both pending and delivered alerts.
+    func retractAlert(identifier: DeviceAlert.Identifier)
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.
