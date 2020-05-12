@@ -1,5 +1,5 @@
 //
-//  PseudoNavigationBar.swift
+//  NavigationViewHeader.swift
 //  LoopKitUI
 //
 //  Created by Michael Pangburn on 5/7/20.
@@ -9,7 +9,7 @@
 import SwiftUI
 
 
-struct PseudoNavigationBar<Leading: View, Center: View, Trailing: View>: View {
+struct NavigationViewHeader<Leading: View, Center: View, Trailing: View>: View {
     var leading: Leading
     var center: Center
     var trailing: Trailing
