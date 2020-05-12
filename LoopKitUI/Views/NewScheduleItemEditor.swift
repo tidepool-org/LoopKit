@@ -35,10 +35,10 @@ struct NewScheduleItemEditor<Value, ValuePicker: View>: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            PseudoNavigationBar(
+            NavigationViewHeader(
                 leading: { cancelButton },
                 center: {
-                    Text("New Entry")
+                    Text("New Entry", comment: "Title for mini-modal to add a new schedule entry")
                         .font(.headline)
                 },
                 trailing: { addButton }
@@ -66,7 +66,7 @@ struct NewScheduleItemEditor<Value, ValuePicker: View>: View {
                     self.isPresented = false
                 }
             }, label: {
-                Text("Add")
+                Text("Add", comment: "Button text to confirm adding a new schedule item")
             }
         )
     }
@@ -78,7 +78,7 @@ struct NewScheduleItemEditor<Value, ValuePicker: View>: View {
                     self.isPresented = false
                 }
             }, label: {
-                Text("Cancel")
+                Text("Cancel", comment: "Button text to cancel adding a new schedule item")
             }
         )
     }
