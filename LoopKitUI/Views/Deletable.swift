@@ -33,6 +33,10 @@ enum TableDeletionState: Equatable {
 
 
 /// Mimics the behavior of UITableViewCell deletion.
+///
+/// As of Xcode 11.4, SwiftUI's List does not play nicely with resizing cells.
+/// CardList solves this issue while retaining the appearance of an inset grouped table.
+/// However, by avoiding List, we also lose built-in deletion functionality, requiring this implementation.
 struct Deletable<Content: View>: View {
     @Binding var tableDeletionState: TableDeletionState
     var index: Int
