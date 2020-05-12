@@ -1,5 +1,5 @@
 //
-//  NavigationViewHeader.swift
+//  ModalHeaderButtonBar.swift
 //  LoopKitUI
 //
 //  Created by Michael Pangburn on 5/7/20.
@@ -9,7 +9,7 @@
 import SwiftUI
 
 
-struct NavigationViewHeader<Leading: View, Center: View, Trailing: View>: View {
+struct ModalHeaderButtonBar<Leading: View, Center: View, Trailing: View>: View {
     var leading: Leading
     var center: Center
     var trailing: Trailing
