@@ -93,13 +93,17 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                     isEditing: isEditing
                 )
             },
-            valuePicker: { item in
+            valuePicker: { item, availableWidth in
                 QuantityPicker(
                     value: item.value.animation().withUnit(self.unit),
                     unit: self.unit,
                     guardrail: self.guardrail,
                     selectableValues: self.selectableValues
                 )
+                .frame(width: availableWidth / 3)
+                // Ensure overlaid unit label is not clipped
+                .padding(.trailing, self.unitLabelWidth + self.unitLabelSpacing)
+                .clipped()
             },
             actionAreaContent: {
                 guardrailWarningIfNecessary
@@ -114,6 +118,16 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
     }
+
+    private var unitLabelWidth: CGFloat {
+        let attributedUnitString = NSAttributedString(
+            string: unit.shortLocalizedUnitString(),
+            attributes: [.font: UIFont.preferredFont(forTextStyle: .body)]
+        )
+        return attributedUnitString.size().width
+    }
+
+    private var unitLabelSpacing: CGFloat { 8 }
 
     private var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds

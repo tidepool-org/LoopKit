@@ -20,14 +20,14 @@ struct NewScheduleItemEditor<Value, ValuePicker: View>: View {
     @State var item: RepeatingScheduleValue<Value>
     var initialItem: RepeatingScheduleValue<Value>
     var selectableTimes: SelectableTimes
-    var valuePicker: (_ item: Binding<RepeatingScheduleValue<Value>>) -> ValuePicker
+    var valuePicker: (_ item: Binding<RepeatingScheduleValue<Value>>, _ availableWidth: CGFloat) -> ValuePicker
     var save: (RepeatingScheduleValue<Value>) -> Void
 
     init(
         isPresented: Binding<Bool>,
         initialItem: RepeatingScheduleValue<Value>,
         selectableTimes: SelectableTimes,
-        @ViewBuilder valuePicker: @escaping (_ item: Binding<RepeatingScheduleValue<Value>>) -> ValuePicker,
+        @ViewBuilder valuePicker: @escaping (_ item: Binding<RepeatingScheduleValue<Value>>, _ availableWidth: CGFloat) -> ValuePicker,
         onSave save: @escaping (RepeatingScheduleValue<Value>) -> Void
     ) {
         self._isPresented = isPresented
@@ -52,7 +52,7 @@ struct NewScheduleItemEditor<Value, ValuePicker: View>: View {
             ScheduleItemPicker(
                 item: $item,
                 isTimeSelectable: isTimeSelectable,
-                valuePicker: { valuePicker($item) }
+                valuePicker: { self.valuePicker(self.$item, $0) }
             )
             .padding(.horizontal)
             .background(

@@ -19,7 +19,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     var defaultFirstScheduleItemValue: Value
     var scheduleItemLimit: Int
     var valueContent: (_ value: Value, _ isEditing: Bool) -> ValueContent
-    var valuePicker: (_ item: Binding<RepeatingScheduleValue<Value>>) -> ValuePicker
+    var valuePicker: (_ item: Binding<RepeatingScheduleValue<Value>>, _ availableWidth: CGFloat) -> ValuePicker
     var actionAreaContent: ActionAreaContent
     var save: ([RepeatingScheduleValue<Value>]) -> Void
 
@@ -51,7 +51,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         defaultFirstScheduleItemValue: Value,
         scheduleItemLimit: Int = 48,
         @ViewBuilder valueContent: @escaping (_ value: Value, _ isEditing: Bool) -> ValueContent,
-        @ViewBuilder valuePicker: @escaping (_ item: Binding<RepeatingScheduleValue<Value>>) -> ValuePicker,
+        @ViewBuilder valuePicker: @escaping (_ item: Binding<RepeatingScheduleValue<Value>>, _ availableWidth: CGFloat) -> ValuePicker,
         @ViewBuilder actionAreaContent: () -> ActionAreaContent,
         onSave save: @escaping ([RepeatingScheduleValue<Value>]) -> Void
     ) {
@@ -160,7 +160,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                     ScheduleItemPicker(
                         item: $scheduleItems[index],
                         isTimeSelectable: { self.isTimeSelectable($0, at: index) },
-                        valuePicker: { self.valuePicker(self.$scheduleItems[index]) }
+                        valuePicker: { self.valuePicker(self.$scheduleItems[index], $0) }
                     )
                 }
             )
