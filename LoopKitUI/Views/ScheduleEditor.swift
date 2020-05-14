@@ -16,6 +16,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     var description: Text
     var initialScheduleItems: [RepeatingScheduleValue<Value>]
     @Binding var scheduleItems: [RepeatingScheduleValue<Value>]
+    var defaultFirstScheduleItemValue: Value
     var scheduleItemLimit: Int
     var valueContent: (_ value: Value, _ isEditing: Bool) -> ValueContent
     var valuePicker: (_ item: Binding<RepeatingScheduleValue<Value>>) -> ValuePicker
@@ -47,6 +48,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         description: Text,
         scheduleItems: Binding<[RepeatingScheduleValue<Value>]>,
         initialScheduleItems: [RepeatingScheduleValue<Value>],
+        defaultFirstScheduleItemValue: Value,
         scheduleItemLimit: Int = 48,
         @ViewBuilder valueContent: @escaping (_ value: Value, _ isEditing: Bool) -> ValueContent,
         @ViewBuilder valuePicker: @escaping (_ item: Binding<RepeatingScheduleValue<Value>>) -> ValuePicker,
@@ -57,6 +59,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         self.description = description
         self.initialScheduleItems = initialScheduleItems
         self._scheduleItems = scheduleItems
+        self.defaultFirstScheduleItemValue = defaultFirstScheduleItemValue
         self.scheduleItemLimit = scheduleItemLimit
         self.valueContent = valueContent
         self.valuePicker = valuePicker
@@ -107,7 +110,9 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 NewScheduleItemEditor(
                     isPresented: $isAddingNewItem,
                     initialItem: initialNewScheduleItem,
-                    unavailableTimes: Set(scheduleItems.map { $0.startTime }),
+                    selectableTimes: scheduleItems.isEmpty
+                        ? .only(.hours(0))
+                        : .allExcept(Set(scheduleItems.map { $0.startTime })),
                     valuePicker: valuePicker,
                     onSave: { newItem in
                         self.scheduleItems.append(newItem)
@@ -193,6 +198,10 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
 
     private var initialNewScheduleItem: RepeatingScheduleValue<Value> {
         assert(scheduleItems.count <= scheduleItemLimit)
+
+        if scheduleItems.isEmpty {
+            return RepeatingScheduleValue(startTime: .hours(0), value: defaultFirstScheduleItemValue)
+        }
 
         if scheduleItems.last!.startTime == .hours(23.5) {
             let firstItemFollowedByOpening = scheduleItems.adjacentPairs().first(where: { item, next in

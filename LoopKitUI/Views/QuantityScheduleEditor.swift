@@ -18,6 +18,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     var unit: HKUnit
     var selectableValues: [Double]
     var guardrail: Guardrail<HKQuantity>
+    var defaultFirstScheduleItemValue: HKQuantity
     var confirmationAlertContent: AlertContent
     var guardrailWarning: (_ crossedThresholds: [SafetyClassification.Threshold]) -> ActionAreaContent
     var save: (DailyQuantitySchedule<Double>) -> Void
@@ -32,6 +33,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         unit: HKUnit,
         selectableValues: [Double],
         guardrail: Guardrail<HKQuantity>,
+        defaultFirstScheduleItemValue: HKQuantity,
         confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void
@@ -43,6 +45,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         self.unit = unit
         self.selectableValues = selectableValues
         self.guardrail = guardrail
+        self.defaultFirstScheduleItemValue = defaultFirstScheduleItemValue
         self.confirmationAlertContent = confirmationAlertContent
         self.guardrailWarning = guardrailWarning
         self.save = save
@@ -55,6 +58,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         unit: HKUnit,
         guardrail: Guardrail<HKQuantity>,
         selectableValueStride: HKQuantity,
+        defaultFirstScheduleItemValue: HKQuantity,
         confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void
@@ -67,6 +71,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
             unit: unit,
             selectableValues: selectableValues,
             guardrail: guardrail,
+            defaultFirstScheduleItemValue: defaultFirstScheduleItemValue,
             confirmationAlertContent: confirmationAlertContent,
             guardrailWarning: guardrailWarning,
             onSave: save
@@ -79,6 +84,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
             description: description,
             scheduleItems: $scheduleItems,
             initialScheduleItems: initialScheduleItems,
+            defaultFirstScheduleItemValue: defaultFirstScheduleItemValue.doubleValue(for: unit),
             valueContent: { value, isEditing in
                 GuardrailConstrainedQuantityView(
                     value: HKQuantity(unit: self.unit, doubleValue: value),
@@ -145,15 +151,6 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                 Text("Continue"),
                 action: saveAndDismiss
             )
-        )
-    }
-}
-
-extension Binding where Value == Double {
-    func withUnit(_ unit: HKUnit) -> Binding<HKQuantity> {
-        Binding<HKQuantity>(
-            get: { HKQuantity(unit: unit, doubleValue: self.wrappedValue) },
-            set: { self.wrappedValue = $0.doubleValue(for: unit) }
         )
     }
 }

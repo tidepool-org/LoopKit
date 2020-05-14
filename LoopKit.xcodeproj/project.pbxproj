@@ -368,6 +368,7 @@
 		8974AFC022120D7A0043F01B /* TemporaryScheduleOverrideTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974AFBF22120D7A0043F01B /* TemporaryScheduleOverrideTests.swift */; };
 		8974B0682215FE460043F01B /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974B0672215FE460043F01B /* Collection.swift */; };
 		8974B0692215FE460043F01B /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974B0672215FE460043F01B /* Collection.swift */; };
+		898B4E75246CCAB50053C484 /* Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898B4E74246CCAB50053C484 /* Binding.swift */; };
 		898E6E5D2241783C0019E459 /* SetConstrainedScheduleEntryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 892A5D63222F6B13008961AB /* SetConstrainedScheduleEntryTableViewCell.swift */; };
 		898E6E67224179310019E459 /* BaseHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E64224179300019E459 /* BaseHUDView.swift */; };
 		898E6E68224179310019E459 /* BatteryLevelHUDView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 898E6E65224179300019E459 /* BatteryLevelHUDView.xib */; };
@@ -1205,6 +1206,7 @@
 		89627B172441168900BEB424 /* ConfigurationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationPage.swift; sourceTree = "<group>"; };
 		8974AFBF22120D7A0043F01B /* TemporaryScheduleOverrideTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemporaryScheduleOverrideTests.swift; sourceTree = "<group>"; };
 		8974B0672215FE460043F01B /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
+		898B4E74246CCAB50053C484 /* Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Binding.swift; sourceTree = "<group>"; };
 		898E6E64224179300019E459 /* BaseHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseHUDView.swift; sourceTree = "<group>"; };
 		898E6E65224179300019E459 /* BatteryLevelHUDView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BatteryLevelHUDView.xib; sourceTree = "<group>"; };
 		898E6E66224179300019E459 /* BatteryLevelHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatteryLevelHUDView.swift; sourceTree = "<group>"; };
@@ -2204,6 +2206,7 @@
 		B41A60B023D1DBB700636320 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				898B4E74246CCAB50053C484 /* Binding.swift */,
 				B4C004B8241085FE00B40429 /* Color.swift */,
 				89BE75C62464B4A900B145D9 /* Environment+Dismiss.swift */,
 				C1E4B309242E99A800E70CCB /* Image.swift */,
@@ -2762,6 +2765,7 @@
 				B4C004D12416961300B40429 /* GuidePage.swift in Sources */,
 				898E6E69224179310019E459 /* BatteryLevelHUDView.swift in Sources */,
 				89B0B2AA2453C0AB0063D4A7 /* GuardrailConstraintedQuantityView.swift in Sources */,
+				898B4E75246CCAB50053C484 /* Binding.swift in Sources */,
 				892155182245FBEF009112BC /* InsulinSensitivityScalingTableViewCell.swift in Sources */,
 				892155132245C516009112BC /* SegmentedGaugeBarView.swift in Sources */,
 				B4A2AAB3240832350066563F /* MultipleSelectionList.swift in Sources */,
