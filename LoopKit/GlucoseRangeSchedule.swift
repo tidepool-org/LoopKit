@@ -165,6 +165,11 @@ public struct GlucoseRangeSchedule: DailySchedule, Equatable {
     public var rawValue: RawValue {
         return rangeSchedule.rawValue
     }
+
+    public func minLowerBound() -> HKQuantity {
+        let minDoubleValue = items.lazy.map { $0.value.minValue }.min()!
+        return HKQuantity(unit: unit, doubleValue: minDoubleValue)
+    }
 }
 
 extension GlucoseRangeSchedule: Codable {}

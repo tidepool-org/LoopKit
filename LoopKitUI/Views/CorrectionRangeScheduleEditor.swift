@@ -20,6 +20,7 @@ public struct CorrectionRangeScheduleEditor: View {
     var initialSchedule: GlucoseRangeSchedule?
     @State var scheduleItems: [RepeatingScheduleValue<DoubleRange>]
     var unit: HKUnit
+    var minValue: HKQuantity?
     var save: (GlucoseRangeSchedule) -> Void
     let guardrail = Guardrail.correctionRange
 
@@ -29,11 +30,13 @@ public struct CorrectionRangeScheduleEditor: View {
     public init(
         schedule: GlucoseRangeSchedule?,
         unit: HKUnit,
+        minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void
     ) {
         self.initialSchedule = schedule
         self._scheduleItems = State(initialValue: schedule?.items ?? [])
         self.unit = unit
+        self.minValue = minValue
         self.save = save
     }
 
@@ -58,6 +61,7 @@ public struct CorrectionRangeScheduleEditor: View {
                         }
                     ),
                     unit: self.unit,
+                    minValue: self.minValue,
                     guardrail: self.guardrail,
                     stride: self.stride,
                     availableWidth: availableWidth
