@@ -59,7 +59,8 @@ public struct CorrectionRangeScheduleEditor: View {
                     ),
                     unit: self.unit,
                     guardrail: self.guardrail,
-                    stride: self.stride
+                    stride: self.stride,
+                    availableWidth: availableWidth
                 )
             },
             actionAreaContent: {
