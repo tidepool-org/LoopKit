@@ -86,7 +86,7 @@ public class SettingsStore {
         }
     }
 
-    private static var decoder: PropertyListDecoder = PropertyListDecoder()
+    private static var decoder = PropertyListDecoder()
 
     private func decodeSettings(fromData data: Data) -> StoredSettings? {
         do {
