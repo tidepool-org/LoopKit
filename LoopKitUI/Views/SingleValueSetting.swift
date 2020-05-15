@@ -10,16 +10,17 @@ import SwiftUI
 
 
 public struct SingleValueSetting<ValueContent: View, ValuePicker: View>: View {
-    var valueContent: (_ isEditing: Bool) -> ValueContent
+    @Binding var isEditing: Bool
+    var valueContent: ValueContent
     var valuePicker: ValuePicker
 
-    @State var isEditing = false
-
     public init(
-        @ViewBuilder valueContent: @escaping (_ isEditing: Bool) -> ValueContent,
+        isEditing: Binding<Bool>,
+        @ViewBuilder valueContent: () -> ValueContent,
         @ViewBuilder valuePicker: () -> ValuePicker
     ) {
-        self.valueContent = valueContent
+        self._isEditing = isEditing
+        self.valueContent = valueContent()
         self.valuePicker = valuePicker()
     }
 
@@ -27,7 +28,7 @@ public struct SingleValueSetting<ValueContent: View, ValuePicker: View>: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                valueContent(isEditing)
+                valueContent
             }
             .contentShape(Rectangle())
             .onTapGesture {
