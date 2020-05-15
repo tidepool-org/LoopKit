@@ -57,7 +57,7 @@ struct ScheduleItemView<ValueContent: View, ExpandedContent: View>: View {
     }
 }
 
-fileprivate extension AnyTransition {
+extension AnyTransition {
     static let fadeInFromTop = move(edge: .top).combined(with: .opacity)
         .delayingInsertion(by: 0.1)
         .speedingUpRemoval(by: 1.8)
