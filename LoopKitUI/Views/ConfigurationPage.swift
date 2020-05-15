@@ -39,7 +39,8 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
 
             VStack {
                 actionAreaContent
-                    .padding(.top)
+                    .padding([.top, .horizontal])
+                    .transition(AnyTransition.opacity.combined(with: .move(edge: .bottom)))
 
                 Button(
                     action: action,

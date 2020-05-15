@@ -87,8 +87,6 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                     },
                     actionAreaContent: {
                         actionAreaContent
-                            .padding(.horizontal)
-                            .transition(AnyTransition.opacity.combined(with: .move(edge: .bottom)))
                     },
                     onSave: {
                         self.save(self.scheduleItems)
