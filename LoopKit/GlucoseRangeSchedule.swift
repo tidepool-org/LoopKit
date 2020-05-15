@@ -180,7 +180,7 @@ extension DoubleRange {
 }
 
 extension ClosedRange where Bound == HKQuantity {
-    func doubleRange(for unit: HKUnit) -> DoubleRange {
+    public func doubleRange(for unit: HKUnit) -> DoubleRange {
         return DoubleRange(minValue: lowerBound.doubleValue(for: unit), maxValue: upperBound.doubleValue(for: unit))
     }
 }
