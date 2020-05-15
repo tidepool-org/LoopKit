@@ -92,7 +92,7 @@ public struct CorrectionRangeScheduleEditor: View {
     }
 
     var description: Text {
-        Text("The correction range is the glucose range that you would like the App to correct your glucose to by adjusting insulin dosing.", comment: "Description of correction range setting")
+        Text("The app adjusts insulin delivery in an effort to bring your glucose into your correction range.", comment: "Description of correction range setting")
     }
 
     var guardrailWarningIfNecessary: some View {
