@@ -45,37 +45,41 @@ struct GlucoseRangePicker: View {
 
     var body: some View {
         GeometryReader { geometry in
-            HStack(spacing: 0) {
-                GlucoseValuePicker(
-                    value: self.$lowerBound,
-                    unit: self.unit,
-                    guardrail: self.guardrail,
-                    bounds: self.lowerBoundRange,
-                    isUnitLabelVisible: false
-                )
-                // Ensure the selectable picker values update when either bound changes
-                .id(self.lowerBound...self.upperBound)
-                .frame(width: geometry.size.width / 3.5)
-                .overlay(
-                    Text(self.separator)
-                        .foregroundColor(Color(.secondaryLabel))
-                        .offset(x: self.spacing + self.separatorWidth),
-                    alignment: .trailing
-                )
-                .padding(.trailing, self.spacing + self.separatorWidth + self.spacing)
-                .clipped()
+            HStack {
+                Spacer()
+                HStack(spacing: 0) {
+                    GlucoseValuePicker(
+                        value: self.$lowerBound,
+                        unit: self.unit,
+                        guardrail: self.guardrail,
+                        bounds: self.lowerBoundRange,
+                        isUnitLabelVisible: false
+                    )
+                    // Ensure the selectable picker values update when either bound changes
+                    .id(self.lowerBound...self.upperBound)
+                    .frame(width: geometry.size.width / 3.5)
+                    .overlay(
+                        Text(self.separator)
+                            .foregroundColor(Color(.secondaryLabel))
+                            .offset(x: self.spacing + self.separatorWidth),
+                        alignment: .trailing
+                    )
+                    .padding(.trailing, self.spacing + self.separatorWidth + self.spacing)
+                    .clipped()
 
-                GlucoseValuePicker(
-                    value: self.$upperBound,
-                    unit: self.unit,
-                    guardrail: self.guardrail,
-                    bounds: self.upperBoundRange
-                )
-                // Ensure the selectable picker values update when either bound changes
-                .id(self.lowerBound...self.upperBound)
-                .frame(width: geometry.size.width / 3.5)
-                .padding(.trailing, self.spacing + self.unitLabelWidth)
-                .clipped()
+                    GlucoseValuePicker(
+                        value: self.$upperBound,
+                        unit: self.unit,
+                        guardrail: self.guardrail,
+                        bounds: self.upperBoundRange
+                    )
+                    // Ensure the selectable picker values update when either bound changes
+                    .id(self.lowerBound...self.upperBound)
+                    .frame(width: geometry.size.width / 3.5)
+                    .padding(.trailing, self.spacing + self.unitLabelWidth)
+                    .clipped()
+                }
+                Spacer()
             }
         }
     }
