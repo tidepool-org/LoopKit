@@ -39,13 +39,27 @@ struct GuardrailConstrainedQuantityRangeView: View {
 
     var body: some View {
         HStack {
-            GuardrailConstrainedQuantityView(value: range.lowerBound, unit: unit, guardrail: guardrail, isEditing: isEditing, iconSpacing: 4, isUnitLabelVisible: false)
+            GuardrailConstrainedQuantityView(
+                value: range.lowerBound,
+                unit: unit,
+                guardrail: guardrail,
+                isEditing: isEditing,
+                iconSpacing: 4,
+                isUnitLabelVisible: false
+            )
 
             Text("–")
                 .foregroundColor(Color(.secondaryLabel))
                 .animation(isEditing || !hasAppeared ? nil : .default)
 
-            GuardrailConstrainedQuantityView(value: range.upperBound, unit: unit, guardrail: guardrail, isEditing: isEditing, iconSpacing: 4)
+            GuardrailConstrainedQuantityView(
+                value: range.upperBound,
+                unit: unit,
+                guardrail: guardrail,
+                isEditing: isEditing,
+                iconSpacing: 4,
+                iconAnimatesOut: false
+            )
         }
         .onAppear { self.hasAppeared = true }
     }

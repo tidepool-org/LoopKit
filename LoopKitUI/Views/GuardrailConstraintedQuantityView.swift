@@ -19,11 +19,21 @@ public struct GuardrailConstrainedQuantityView: View {
     var formatter: NumberFormatter
     var iconSpacing: CGFloat
     var isUnitLabelVisible: Bool
+    var iconAnimatesOut: Bool
     var forceDisableAnimations: Bool
 
     @State private var hasAppeared = false
 
-    public init(value: HKQuantity, unit: HKUnit, guardrail: Guardrail<HKQuantity>, isEditing: Bool, iconSpacing: CGFloat = 8, isUnitLabelVisible: Bool = true, forceDisableAnimations: Bool = false) {
+    public init(
+        value: HKQuantity,
+        unit: HKUnit,
+        guardrail: Guardrail<HKQuantity>,
+        isEditing: Bool,
+        iconSpacing: CGFloat = 8,
+        isUnitLabelVisible: Bool = true,
+        iconAnimatesOut: Bool = true,
+        forceDisableAnimations: Bool = false
+    ) {
         self.value = value
         self.unit = unit
         self.guardrail = guardrail
@@ -35,6 +45,7 @@ public struct GuardrailConstrainedQuantityView: View {
             return quantityFormatter.numberFormatter
         }()
         self.isUnitLabelVisible = isUnitLabelVisible
+        self.iconAnimatesOut = iconAnimatesOut
         self.forceDisableAnimations = forceDisableAnimations
     }
 
@@ -44,7 +55,7 @@ public struct GuardrailConstrainedQuantityView: View {
                 if guardrail.classification(for: value) != .withinRecommendedRange {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(warningColor)
-                        .transition(.springInScaleOut)
+                        .transition(iconAnimatesOut ? .springInScaleOut : .springInDisappear)
                 }
 
                 Text(formatter.string(from: value.doubleValue(for: unit)) ?? "\(value.doubleValue(for: unit))")
@@ -91,5 +102,10 @@ fileprivate extension AnyTransition {
     static let springInScaleOut = asymmetric(
         insertion: AnyTransition.scale.animation(.spring(dampingFraction: 0.5)),
         removal: AnyTransition.scale.combined(with: .opacity).animation(.default)
+    )
+
+    static let springInDisappear = asymmetric(
+        insertion: AnyTransition.scale.animation(.spring(dampingFraction: 0.5)),
+        removal: .identity
     )
 }
