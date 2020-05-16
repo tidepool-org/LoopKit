@@ -10,10 +10,12 @@ import SwiftUI
 
 
 public struct CardListSection: View {
+    var icon: AnyView?
     var title: Text
     var stack: CardStack
 
-    public init(title: Text, @CardStackBuilder cards: () -> CardStack) {
+    public init<V: View>(icon: V? = nil, title: Text, @CardStackBuilder cards: () -> CardStack) {
+        self.icon = AnyView(icon)
         self.title = title
         self.stack = cards()
     }
@@ -21,12 +23,13 @@ public struct CardListSection: View {
     public var body: some View {
         VStack(spacing: 6) {
             HStack {
+                icon
                 title
                     .font(Font(UIFont.preferredFont(forTextStyle: .title3)))
                     .bold()
-                    .padding(.leading)
                 Spacer()
             }
+            .padding(.leading)
 
             stack
         }
