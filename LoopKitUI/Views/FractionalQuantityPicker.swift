@@ -11,16 +11,7 @@ import HealthKit
 import LoopKit
 
 
-fileprivate extension FloatingPoint {
-    var whole: Self { modf(self).0 }
-    var fraction: Self { modf(self).1 }
-
-    func roundedToHundredths() -> Self {
-        (self * 100).rounded() / 100
-    }
-}
-
-/// Enables selecting the whole and fractional (to hundredths precision) parts of an HKQuantity value in independent pickers.
+/// Enables selecting the whole and fractional parts of an HKQuantity value in independent pickers.
 struct FractionalQuantityPicker: View {
     enum UsageContext: Equatable {
         /// This picker is one component of a larger multi-component picker (e.g. a schedule item picker).
@@ -34,6 +25,7 @@ struct FractionalQuantityPicker: View {
     @Binding var fraction: Double
     var unit: HKUnit
     var guardrail: Guardrail<HKQuantity>
+    var fractionalValuesByWhole: [Double: [Double]]
     var usageContext: UsageContext
 
     private static let wholeFormatter: NumberFormatter = {
@@ -47,11 +39,16 @@ struct FractionalQuantityPicker: View {
         let formatter = NumberFormatter()
         formatter.decimalSeparator = ""
         formatter.maximumIntegerDigits = 0
-        formatter.minimumFractionDigits = 2
         return formatter
     }()
 
-    init(value: Binding<HKQuantity>, unit: HKUnit, guardrail: Guardrail<HKQuantity>, usageContext: UsageContext = .independent) {
+    init(
+        value: Binding<HKQuantity>,
+        unit: HKUnit,
+        guardrail: Guardrail<HKQuantity>,
+        selectableValues: [Double],
+        usageContext: UsageContext = .independent
+    ) {
         let doubleValue = value.doubleValue(for: unit)
         self._whole = Binding(
             get: { doubleValue.wrappedValue.whole },
@@ -63,12 +60,18 @@ struct FractionalQuantityPicker: View {
                 }
             }
         )
+
+        let fractionalValuesByWhole = selectableValues.reduce(into: [:], { fractionalValuesByWhole, selectableValue in
+            fractionalValuesByWhole[selectableValue.whole, default: []].append(selectableValue.fraction)
+        })
+
         self._fraction = Binding<Double>(
-            get: { doubleValue.wrappedValue.fraction.roundedToHundredths() },
+            get: { doubleValue.wrappedValue.fraction.roundedToNearest(of: fractionalValuesByWhole[doubleValue.wrappedValue.whole]!) },
             set: { doubleValue.wrappedValue = doubleValue.wrappedValue.whole + $0 }
         )
         self.unit = unit
         self.guardrail = guardrail
+        self.fractionalValuesByWhole = fractionalValuesByWhole
         self.usageContext = usageContext
     }
 
@@ -114,9 +117,8 @@ struct FractionalQuantityPicker: View {
             QuantityPicker(
                 value: $fraction.withUnit(unit),
                 unit: unit,
-                guardrail: fractionalGuardrail,
-                selectableValues: selectableFractionValues,
-                formatter: Self.fractionalFormatter
+                selectableValues: fractionalValuesByWhole[whole]!,
+                formatter: fractionalFormatter
             )
             // Ensure fractional picker values update when whole value updates
             .id(whole + fraction)
@@ -126,14 +128,13 @@ struct FractionalQuantityPicker: View {
         }
     }
 
-    var fractionalGuardrail: Guardrail<HKQuantity> {
-        Guardrail(absoluteBounds: 0...0.99, recommendedBounds: 0...0.99, unit: unit)
-    }
-
-    var selectableFractionValues: [Double] {
-        whole == guardrail.absoluteBounds.upperBound.doubleValue(for: unit)
-            ? [0]
-            : fractionalGuardrail.allValues(stridingBy: HKQuantity(unit: unit, doubleValue: 0.01), unit: unit)
+    private var fractionalFormatter: NumberFormatter {
+        // Mutate the shared instance to avoid extra allocations.
+        Self.fractionalFormatter.minimumFractionDigits = fractionalValuesByWhole[whole]!
+            .lazy
+            .map { Decimal($0) }
+            .deltaScale(boundedBy: 3)
+        return Self.fractionalFormatter
     }
 
     var separator: String { "." }
@@ -156,5 +157,49 @@ struct FractionalQuantityPicker: View {
         )
 
         return attributedUnitString.size().width
+    }
+}
+
+fileprivate extension FloatingPoint {
+    var whole: Self { modf(self).0 }
+    var fraction: Self { modf(self).1 }
+
+    func roundedToNearest(of sortedOptions: [Self]) -> Self {
+        guard !sortedOptions.isEmpty else {
+            return self
+        }
+
+        let splitPoint = sortedOptions.partitioningIndex(where: { $0 > self })
+        switch splitPoint {
+        case sortedOptions.startIndex:
+            return sortedOptions.first!
+        case sortedOptions.endIndex:
+            return sortedOptions.last!
+        default:
+            let (lesser, greater) = (sortedOptions[splitPoint - 1], sortedOptions[splitPoint])
+            return (self - lesser) < (greater - self) ? lesser : greater
+        }
+    }
+}
+
+fileprivate extension Decimal {
+    func rounded(toPlaces scale: Int, roundingMode: NSDecimalNumber.RoundingMode = .plain) -> Decimal {
+        var result = Decimal()
+        var localCopy = self
+        NSDecimalRound(&result, &localCopy, scale, roundingMode)
+        return result
+    }
+}
+
+fileprivate extension Collection where Element == Decimal {
+    /// Returns the maximum number of decimal places necessary to meaningfully distinguish between adjacent values.
+    /// - Precondition: The collection is sorted in ascending order.
+    func deltaScale(boundedBy maxScale: Int) -> Int {
+        let roundedToMaxScale = lazy.map { $0.rounded(toPlaces: maxScale) }
+        guard let maxDelta = roundedToMaxScale.adjacentPairs().map(-).map(abs).max() else {
+            return 0
+        }
+
+        return abs(Swift.min(maxDelta.exponent, 0))
     }
 }

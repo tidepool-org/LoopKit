@@ -122,6 +122,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                         value: item.value.animation().withUnit(self.unit),
                         unit: self.unit,
                         guardrail: self.guardrail,
+                        selectableValues: self.selectableValues,
                         usageContext: .component(availableWidth: availableWidth)
                     )
                 }

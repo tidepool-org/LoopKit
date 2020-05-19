@@ -22,7 +22,7 @@ private struct PickerValueBoundsKey: PreferenceKey {
 public struct QuantityPicker: View {
     @Binding var value: HKQuantity
     var unit: HKUnit
-    var guardrail: Guardrail<HKQuantity>
+    var guardrail: Guardrail<HKQuantity>?
     var isUnitLabelVisible: Bool
 
     private let selectableValues: [Double]
@@ -43,7 +43,7 @@ public struct QuantityPicker: View {
     public init(
         value: Binding<HKQuantity>,
         unit: HKUnit,
-        guardrail: Guardrail<HKQuantity>,
+        guardrail: Guardrail<HKQuantity>? = nil,
         selectableValues: [Double],
         formatter: NumberFormatter? = nil,
         isUnitLabelVisible: Bool = true
@@ -75,6 +75,10 @@ public struct QuantityPicker: View {
     }
 
     private func pickerTextColor(for value: Double) -> Color {
+        guard let guardrail = guardrail else {
+            return .primary
+        }
+
         let quantity = HKQuantity(unit: unit, doubleValue: value)
         switch guardrail.classification(for: quantity) {
         case .withinRecommendedRange:
