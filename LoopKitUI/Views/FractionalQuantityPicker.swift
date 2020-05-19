@@ -50,22 +50,22 @@ struct FractionalQuantityPicker: View {
         usageContext: UsageContext = .independent
     ) {
         let doubleValue = value.doubleValue(for: unit)
+        let fractionalValuesByWhole = selectableValues.reduce(into: [:], { fractionalValuesByWhole, selectableValue in
+            fractionalValuesByWhole[selectableValue.whole, default: []].append(selectableValue.fraction)
+        })
+
         self._whole = Binding(
             get: { doubleValue.wrappedValue.whole },
             set: { newValue in
                 if newValue == guardrail.absoluteBounds.upperBound.doubleValue(for: unit) {
                     doubleValue.wrappedValue = newValue
                 } else {
-                    doubleValue.wrappedValue = newValue + doubleValue.wrappedValue.fraction
+                    doubleValue.wrappedValue = newValue
+                        + doubleValue.wrappedValue.fraction.truncating(toOneOf: fractionalValuesByWhole[newValue]!)
                 }
             }
         )
-
-        let fractionalValuesByWhole = selectableValues.reduce(into: [:], { fractionalValuesByWhole, selectableValue in
-            fractionalValuesByWhole[selectableValue.whole, default: []].append(selectableValue.fraction)
-        })
-
-        self._fraction = Binding<Double>(
+        self._fraction = Binding(
             get: { doubleValue.wrappedValue.fraction.roundedToNearest(of: fractionalValuesByWhole[doubleValue.wrappedValue.whole]!) },
             set: { doubleValue.wrappedValue = doubleValue.wrappedValue.whole + $0 }
         )
@@ -128,12 +128,15 @@ struct FractionalQuantityPicker: View {
         }
     }
 
+    /// The maximum number of decimal places supported by the picker.
+    private var maximumSupportedPrecision: Int { 3 }
+
     private var fractionalFormatter: NumberFormatter {
         // Mutate the shared instance to avoid extra allocations.
         Self.fractionalFormatter.minimumFractionDigits = fractionalValuesByWhole[whole]!
             .lazy
             .map { Decimal($0) }
-            .deltaScale(boundedBy: 3)
+            .deltaScale(boundedBy: maximumSupportedPrecision)
         return Self.fractionalFormatter
     }
 
@@ -164,21 +167,34 @@ fileprivate extension FloatingPoint {
     var whole: Self { modf(self).0 }
     var fraction: Self { modf(self).1 }
 
-    func roundedToNearest(of sortedOptions: [Self]) -> Self {
-        guard !sortedOptions.isEmpty else {
+    /// Precondition: - `supportedValues` is sorted in ascending order.
+    func roundedToNearest(of supportedValues: [Self]) -> Self {
+        guard !supportedValues.isEmpty else {
             return self
         }
 
-        let splitPoint = sortedOptions.partitioningIndex(where: { $0 > self })
+        let splitPoint = supportedValues.partitioningIndex(where: { $0 > self })
         switch splitPoint {
-        case sortedOptions.startIndex:
-            return sortedOptions.first!
-        case sortedOptions.endIndex:
-            return sortedOptions.last!
+        case supportedValues.startIndex:
+            return supportedValues.first!
+        case supportedValues.endIndex:
+            return supportedValues.last!
         default:
-            let (lesser, greater) = (sortedOptions[splitPoint - 1], sortedOptions[splitPoint])
-            return (self - lesser) < (greater - self) ? lesser : greater
+            let (lesser, greater) = (supportedValues[splitPoint - 1], supportedValues[splitPoint])
+            return (self - lesser) <= (greater - self) ? lesser : greater
         }
+    }
+
+    /// Precondition: - `supportedValues` is sorted in ascending order.
+    func truncating(toOneOf supportedValues: [Self]) -> Self {
+        guard !supportedValues.isEmpty else {
+            return self
+        }
+
+        let splitPoint = supportedValues.partitioningIndex(where: { $0 > self })
+        return splitPoint == supportedValues.startIndex
+            ? supportedValues.first!
+            : supportedValues[splitPoint - 1]
     }
 }
 
