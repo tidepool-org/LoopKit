@@ -33,10 +33,11 @@ public struct QuantityPicker: View {
         unit: HKUnit,
         stride: HKQuantity,
         guardrail: Guardrail<HKQuantity>,
+        formatter: NumberFormatter? = nil,
         isUnitLabelVisible: Bool = true
     ) {
         let selectableValues = guardrail.allValues(stridingBy: stride, unit: unit)
-        self.init(value: value, unit: unit, guardrail: guardrail, selectableValues: selectableValues, isUnitLabelVisible: isUnitLabelVisible)
+        self.init(value: value, unit: unit, guardrail: guardrail, selectableValues: selectableValues, formatter: formatter, isUnitLabelVisible: isUnitLabelVisible)
     }
 
     public init(
@@ -44,13 +45,14 @@ public struct QuantityPicker: View {
         unit: HKUnit,
         guardrail: Guardrail<HKQuantity>,
         selectableValues: [Double],
+        formatter: NumberFormatter? = nil,
         isUnitLabelVisible: Bool = true
     ) {
         self._value = value
         self.unit = unit
         self.guardrail = guardrail
         self.selectableValues = selectableValues
-        self.formatter = {
+        self.formatter = formatter ?? {
             let quantityFormatter = QuantityFormatter()
             quantityFormatter.setPreferredNumberFormatter(for: unit)
             return quantityFormatter.numberFormatter
@@ -58,15 +60,8 @@ public struct QuantityPicker: View {
         self.isUnitLabelVisible = isUnitLabelVisible
     }
 
-    private var selection: Binding<Double> {
-        Binding(
-            get: { self.value.doubleValue(for: self.unit) },
-            set: { self.value = HKQuantity(unit: self.unit, doubleValue: $0) }
-        )
-    }
-
     public var body: some View {
-        Picker("Quantity", selection: selection) {
+        Picker("Quantity", selection: $value.doubleValue(for: unit)) {
             ForEach(selectableValues, id: \.self) { value in
                 Text(self.formatter.string(from: value) ?? "\(value)")
                     .foregroundColor(self.pickerTextColor(for: value))
