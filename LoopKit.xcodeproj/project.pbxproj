@@ -370,6 +370,9 @@
 		8974B0682215FE460043F01B /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974B0672215FE460043F01B /* Collection.swift */; };
 		8974B0692215FE460043F01B /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974B0672215FE460043F01B /* Collection.swift */; };
 		898B4E75246CCAB50053C484 /* Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898B4E74246CCAB50053C484 /* Binding.swift */; };
+		898B4E77246DAE280053C484 /* GlucoseRangePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898B4E76246DAE280053C484 /* GlucoseRangePicker.swift */; };
+		898B4E7B246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */; };
+		898B4E7E246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898B4E7D246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift */; };
 		898E6E5D2241783C0019E459 /* SetConstrainedScheduleEntryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 892A5D63222F6B13008961AB /* SetConstrainedScheduleEntryTableViewCell.swift */; };
 		898E6E67224179310019E459 /* BaseHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E64224179300019E459 /* BaseHUDView.swift */; };
 		898E6E68224179310019E459 /* BatteryLevelHUDView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 898E6E65224179300019E459 /* BatteryLevelHUDView.xib */; };
@@ -380,6 +383,7 @@
 		898E6E702241EDB70019E459 /* PercentageTextFieldTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E6F2241EDB70019E459 /* PercentageTextFieldTableViewController.swift */; };
 		898E6E722241EDC10019E459 /* DateAndDurationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E712241EDC10019E459 /* DateAndDurationTableViewController.swift */; };
 		898E6E732241EE000019E459 /* Comparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 892A5DBB2231E20C008961AB /* Comparable.swift */; };
+		899012C1246F1D8F007B88BA /* ExpandableSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 899012C0246F1D8F007B88BA /* ExpandableSetting.swift */; };
 		89904032245B5CA500F1C0A2 /* Deletable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89904031245B5CA500F1C0A2 /* Deletable.swift */; };
 		8992426521EC138000EA512B /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8992426421EC138000EA512B /* UIColor.swift */; };
 		8997B4F523727E8A00061132 /* CustomOverrideCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997B4F423727E8A00061132 /* CustomOverrideCollectionViewCell.swift */; };
@@ -1209,6 +1213,9 @@
 		8974AFBF22120D7A0043F01B /* TemporaryScheduleOverrideTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemporaryScheduleOverrideTests.swift; sourceTree = "<group>"; };
 		8974B0672215FE460043F01B /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		898B4E74246CCAB50053C484 /* Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Binding.swift; sourceTree = "<group>"; };
+		898B4E76246DAE280053C484 /* GlucoseRangePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseRangePicker.swift; sourceTree = "<group>"; };
+		898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeScheduleEditor.swift; sourceTree = "<group>"; };
+		898B4E7D246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardrailConstrainedQuantityRangeView.swift; sourceTree = "<group>"; };
 		898E6E64224179300019E459 /* BaseHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseHUDView.swift; sourceTree = "<group>"; };
 		898E6E65224179300019E459 /* BatteryLevelHUDView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BatteryLevelHUDView.xib; sourceTree = "<group>"; };
 		898E6E66224179300019E459 /* BatteryLevelHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatteryLevelHUDView.swift; sourceTree = "<group>"; };
@@ -1216,6 +1223,7 @@
 		898E6E6D2241ED9F0019E459 /* SuspendResumeTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuspendResumeTableViewCell.swift; sourceTree = "<group>"; };
 		898E6E6F2241EDB70019E459 /* PercentageTextFieldTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PercentageTextFieldTableViewController.swift; sourceTree = "<group>"; };
 		898E6E712241EDC10019E459 /* DateAndDurationTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateAndDurationTableViewController.swift; sourceTree = "<group>"; };
+		899012C0246F1D8F007B88BA /* ExpandableSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableSetting.swift; sourceTree = "<group>"; };
 		89904031245B5CA500F1C0A2 /* Deletable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deletable.swift; sourceTree = "<group>"; };
 		8992426421EC138000EA512B /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		8997B4F423727E8A00061132 /* CustomOverrideCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomOverrideCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -1643,16 +1651,20 @@
 				89F6E312244A1AB500CB9E15 /* GuardrailWarning.swift */,
 				89AC9DCC24529D9B004A6B8A /* TimePicker.swift */,
 				89B0B2A92453C0AB0063D4A7 /* GuardrailConstraintedQuantityView.swift */,
+				898B4E7D246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift */,
 				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
 				89FC688B245A2D670075CF59 /* QuantityScheduleEditor.swift */,
 				89FC688D245A2D680075CF59 /* ScheduleEditor.swift */,
 				89BE75C024649C2E00B145D9 /* ModalHeaderButtonBar.swift */,
 				89FC688C245A2D680075CF59 /* ScheduleItemPicker.swift */,
+				898B4E76246DAE280053C484 /* GlucoseRangePicker.swift */,
+				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
 				89FC688E245A2D680075CF59 /* ScheduleItemView.swift */,
 				89BE75C224649C4C00B145D9 /* RoundedCorners.swift */,
 				89BE75C424649C8100B145D9 /* NewScheduleItemEditor.swift */,
 				89BE75CA2464BC2000B145D9 /* AlertContent.swift */,
 				89904031245B5CA500F1C0A2 /* Deletable.swift */,
+				899012C0246F1D8F007B88BA /* ExpandableSetting.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2767,6 +2779,7 @@
 			files = (
 				898E6E6E2241ED9F0019E459 /* SuspendResumeTableViewCell.swift in Sources */,
 				B4C004D12416961300B40429 /* GuidePage.swift in Sources */,
+				898B4E7E246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift in Sources */,
 				898E6E69224179310019E459 /* BatteryLevelHUDView.swift in Sources */,
 				89B0B2AA2453C0AB0063D4A7 /* GuardrailConstraintedQuantityView.swift in Sources */,
 				898B4E75246CCAB50053C484 /* Binding.swift in Sources */,
@@ -2796,6 +2809,7 @@
 				892155152245C57E009112BC /* SegmentedGaugeBarLayer.swift in Sources */,
 				B4C004D42416962600B40429 /* Color.swift in Sources */,
 				432CF86720D76AB90066B889 /* SettingsTableViewCell.swift in Sources */,
+				898B4E7B246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift in Sources */,
 				898E6E6A224179530019E459 /* BasalScheduleTableViewController.swift in Sources */,
 				892A5DB42231E191008961AB /* LevelMaskView.swift in Sources */,
 				892A5DA02231E130008961AB /* CompletionNotifying.swift in Sources */,
@@ -2827,6 +2841,7 @@
 				B46B62AF23FF0BF6001E69BA /* SectionHeader.swift in Sources */,
 				43BA7183201EE7090058961E /* DailyQuantityScheduleTableViewController.swift in Sources */,
 				43F503632106C761009FA89A /* ServiceAuthenticationUI.swift in Sources */,
+				899012C1246F1D8F007B88BA /* ExpandableSetting.swift in Sources */,
 				89FC6890245A2D680075CF59 /* QuantityScheduleEditor.swift in Sources */,
 				432CF86B20D76B9C0066B889 /* SetupIndicatorView.swift in Sources */,
 				898E6E722241EDC10019E459 /* DateAndDurationTableViewController.swift in Sources */,
@@ -2843,6 +2858,7 @@
 				43BA716F201E49220058961E /* FoodEmojiDataSource.swift in Sources */,
 				43F89C9F22BDFB10006BB54E /* UIActivityIndicatorView.swift in Sources */,
 				892ADE002446C858007CE08C /* Card.swift in Sources */,
+				898B4E77246DAE280053C484 /* GlucoseRangePicker.swift in Sources */,
 				432CF86D20D76C470066B889 /* SwitchTableViewCell.swift in Sources */,
 				43BA7188201EE85B0058961E /* HKUnit.swift in Sources */,
 				89F6E30D2449713600CB9E15 /* CardStack.swift in Sources */,

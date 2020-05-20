@@ -23,16 +23,29 @@ public struct QuantityPicker: View {
     @Binding var value: HKQuantity
     var unit: HKUnit
     var guardrail: Guardrail<HKQuantity>
+    var isUnitLabelVisible: Bool
 
     private let selectableValues: [Double]
     private let formatter: NumberFormatter
 
-    public init(value: Binding<HKQuantity>, unit: HKUnit, stride: HKQuantity, guardrail: Guardrail<HKQuantity>) {
+    public init(
+        value: Binding<HKQuantity>,
+        unit: HKUnit,
+        stride: HKQuantity,
+        guardrail: Guardrail<HKQuantity>,
+        isUnitLabelVisible: Bool = true
+    ) {
         let selectableValues = guardrail.allValues(stridingBy: stride, unit: unit)
-        self.init(value: value, unit: unit, guardrail: guardrail, selectableValues: selectableValues)
+        self.init(value: value, unit: unit, guardrail: guardrail, selectableValues: selectableValues, isUnitLabelVisible: isUnitLabelVisible)
     }
 
-    public init(value: Binding<HKQuantity>, unit: HKUnit, guardrail: Guardrail<HKQuantity>, selectableValues: [Double]) {
+    public init(
+        value: Binding<HKQuantity>,
+        unit: HKUnit,
+        guardrail: Guardrail<HKQuantity>,
+        selectableValues: [Double],
+        isUnitLabelVisible: Bool = true
+    ) {
         self._value = value
         self.unit = unit
         self.guardrail = guardrail
@@ -42,6 +55,7 @@ public struct QuantityPicker: View {
             quantityFormatter.setPreferredNumberFormatter(for: unit)
             return quantityFormatter.numberFormatter
         }()
+        self.isUnitLabelVisible = isUnitLabelVisible
     }
 
     private var selection: Binding<Double> {
@@ -62,6 +76,7 @@ public struct QuantityPicker: View {
         .labelsHidden()
         .pickerStyle(WheelPickerStyle())
         .overlayPreferenceValue(PickerValueBoundsKey.self, unitLabel(positionedFrom:))
+        .accessibility(identifier: "quantity_picker")
     }
 
     private func pickerTextColor(for value: Double) -> Color {
@@ -81,7 +96,7 @@ public struct QuantityPicker: View {
 
     private func unitLabel(positionedFrom pickerValueBounds: [Anchor<CGRect>]) -> some View {
         GeometryReader { geometry in
-            if !pickerValueBounds.isEmpty {
+            if self.isUnitLabelVisible && !pickerValueBounds.isEmpty {
                 Text(self.unit.shortLocalizedUnitString())
                     .foregroundColor(.gray)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)

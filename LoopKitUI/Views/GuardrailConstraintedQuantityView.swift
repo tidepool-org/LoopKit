@@ -17,36 +17,52 @@ public struct GuardrailConstrainedQuantityView: View {
     var guardrail: Guardrail<HKQuantity>
     var isEditing: Bool
     var formatter: NumberFormatter
+    var iconSpacing: CGFloat
+    var isUnitLabelVisible: Bool
     var forceDisableAnimations: Bool
 
     @State private var hasAppeared = false
 
-    public init(value: HKQuantity, unit: HKUnit, guardrail: Guardrail<HKQuantity>, isEditing: Bool, forceDisableAnimations: Bool = false) {
+    public init(
+        value: HKQuantity,
+        unit: HKUnit,
+        guardrail: Guardrail<HKQuantity>,
+        isEditing: Bool,
+        iconSpacing: CGFloat = 8,
+        isUnitLabelVisible: Bool = true,
+        forceDisableAnimations: Bool = false
+    ) {
         self.value = value
         self.unit = unit
         self.guardrail = guardrail
         self.isEditing = isEditing
+        self.iconSpacing = iconSpacing
         self.formatter = {
             let quantityFormatter = QuantityFormatter()
             quantityFormatter.setPreferredNumberFormatter(for: unit)
             return quantityFormatter.numberFormatter
         }()
+        self.isUnitLabelVisible = isUnitLabelVisible
         self.forceDisableAnimations = forceDisableAnimations
     }
 
     public var body: some View {
         HStack {
-            if guardrail.classification(for: value) != .withinRecommendedRange {
-                Image(systemName: "exclamationmark.triangle.fill")
+            HStack(spacing: iconSpacing) {
+                if guardrail.classification(for: value) != .withinRecommendedRange {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(warningColor)
+                        .transition(.springInDisappear)
+                }
+
+                Text(formatter.string(from: value.doubleValue(for: unit)) ?? "\(value.doubleValue(for: unit))")
                     .foregroundColor(warningColor)
-                    .transition(.springInScaleOut)
             }
 
-            Text(formatter.string(from: value.doubleValue(for: unit)) ?? "\(value.doubleValue(for: unit))")
-                .foregroundColor(warningColor)
-
-            Text(unit.shortLocalizedUnitString())
-                .foregroundColor(Color(.secondaryLabel))
+            if isUnitLabelVisible {
+                Text(unit.shortLocalizedUnitString())
+                    .foregroundColor(Color(.secondaryLabel))
+            }
         }
         .onAppear { self.hasAppeared = true }
         .animation(animation)
@@ -80,8 +96,8 @@ public struct GuardrailConstrainedQuantityView: View {
 }
 
 fileprivate extension AnyTransition {
-    static let springInScaleOut = asymmetric(
+    static let springInDisappear = asymmetric(
         insertion: AnyTransition.scale.animation(.spring(dampingFraction: 0.5)),
-        removal: AnyTransition.scale.combined(with: .opacity).animation(.default)
+        removal: .identity
     )
 }
