@@ -163,6 +163,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 }
             )
         }
+        .accessibility(identifier: "schedule_item_\(index)")
     }
 
     private func isEditing(_ index: Int) -> Binding<Bool> {
