@@ -19,7 +19,7 @@ fileprivate extension HKUnit {
 extension Guardrail where Value == HKQuantity {
     static let carbRatio = Guardrail(
         absoluteBounds: 1...150,
-        recommendedBounds: 4...27,
+        recommendedBounds: 3.0.nextUp...28.0.nextDown,
         unit: .realCarbRatioScheduleUnit
     )
 }
