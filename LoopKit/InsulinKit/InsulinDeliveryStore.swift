@@ -46,7 +46,7 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
     /// The interval of insulin delivery data to keep in cache
     public let cacheLength: TimeInterval
 
-    public let cacheStore: PersistenceController
+    private let cacheStore: PersistenceController
 
     public init(
         healthStore: HKHealthStore,
@@ -452,5 +452,28 @@ extension InsulinDeliveryStore {
                 self.lastBasalEndDate = newValue
             }
         }
+    }
+}
+
+extension NSManagedObjectContext {
+    fileprivate func cachedInsulinDeliveryObjectsWithUUID(_ uuid: UUID, fetchLimit: Int? = nil) -> [CachedInsulinDeliveryObject] {
+        let request: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
+        if let limit = fetchLimit {
+            request.fetchLimit = limit
+        }
+        request.predicate = NSPredicate(format: "uuid == %@", uuid as NSUUID)
+        request.sortDescriptors = [NSSortDescriptor(key: "uuid", ascending: true)]
+
+        return (try? fetch(request)) ?? []
+    }
+
+    fileprivate func cachedInsulinDeliveryObjectsWithSyncIdentifier(_ syncIdentifier: String, fetchLimit: Int? = nil) -> [CachedInsulinDeliveryObject] {
+        let request: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
+        if let limit = fetchLimit {
+            request.fetchLimit = limit
+        }
+        request.predicate = NSPredicate(format: "syncIdentifier == %@", syncIdentifier)
+
+        return (try? fetch(request)) ?? []
     }
 }

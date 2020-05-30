@@ -47,9 +47,10 @@ public protocol CarbStoreDelegate: class {
 
  There are two tiers of storage:
 
- * Short-term persistant cache, stored in Core Data, used to ensure access if the app is suspended and re-launched while the Health database is protected
+ * Persistant cache, stored in Core Data, used to ensure access if the app is suspended and re-launched while the Health database
+   is protected and to provide data for upload to remote data services. Backfilled from HealthKit data up to observation interval.
  ```
- 0       [cacheLength]
+ 0       [max(cacheLength, observationInterval, defaultAbsorptionTimes.slow * 2)]
  |––––––––––––|
  ```
  * HealthKit data, managed by the current application and persisted indefinitely
@@ -159,7 +160,10 @@ public final class CarbStore: HealthKitSampleStore {
     /// The interval of carb data to keep in cache
     public let cacheLength: TimeInterval
 
-    public let cacheStore: PersistenceController
+    /// The interval to observe HealthKit data to populate the cache
+    public let observationInterval: TimeInterval
+
+    private let cacheStore: PersistenceController
 
     /// The sync version used for new samples written to HealthKit
     /// Choose a lower or higher sync version if the same sample might be written twice (e.g. from an extension and from an app) for deterministic conflict resolution
@@ -185,6 +189,7 @@ public final class CarbStore: HealthKitSampleStore {
         observationEnabled: Bool = true,
         cacheLength: TimeInterval = defaultAbsorptionTimes.slow * 2,
         defaultAbsorptionTimes: DefaultAbsorptionTimes = defaultAbsorptionTimes,
+        observationInterval: TimeInterval? = nil,
         carbRatioSchedule: CarbRatioSchedule? = nil,
         insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
         overrideHistory: TemporaryScheduleOverrideHistory? = nil,
@@ -203,10 +208,11 @@ public final class CarbStore: HealthKitSampleStore {
         self.absorptionTimeOverrun = absorptionTimeOverrun
         self.delta = calculationDelta
         self.delay = effectDelay
-        self.cacheLength = max(cacheLength, defaultAbsorptionTimes.slow * 2)
+        self.cacheLength = max(cacheLength, observationInterval ?? 0, defaultAbsorptionTimes.slow * 2)
+        self.observationInterval = max(observationInterval ?? 0, defaultAbsorptionTimes.slow * 2)
         self.carbAbsorptionModel = carbAbsorptionModel
 
-        super.init(healthStore: healthStore, type: carbType, observationStart: Date(timeIntervalSinceNow: -cacheLength), observationEnabled: observationEnabled)
+        super.init(healthStore: healthStore, type: carbType, observationStart: Date(timeIntervalSinceNow: -self.observationInterval), observationEnabled: observationEnabled)
 
         cacheStore.onReady { (error) in
             guard error == nil else { return }
@@ -317,8 +323,8 @@ extension CarbStore {
     ///   - samples: An array of samples, in chronological order by startDate
     public func getCachedCarbSamples(start: Date, end: Date? = nil, completion: @escaping (_ samples: [StoredCarbEntry]) -> Void) {
         #if os(iOS)
-        // If we're within our cache duration, skip the HealthKit query
-        guard start <= earliestCacheDate else {
+        // If we're within our observation duration, skip the HealthKit query
+        guard start <= earliestObservationDate else {
             self.queue.async {
                 completion(self.getCachedCarbEntries().filterDateRange(start, end))
             }
@@ -481,20 +487,6 @@ extension NSManagedObjectContext {
 
         return (try? fetch(request)) ?? []
     }
-
-    fileprivate func deleteObjects<T>(matching fetchRequest: NSFetchRequest<T>) throws -> Int where T: NSManagedObject {
-        let objects = try fetch(fetchRequest)
-
-        for object in objects {
-            delete(object)
-        }
-
-        if hasChanges {
-            try save()
-        }
-
-        return objects.count
-    }
 }
 
 
@@ -502,6 +494,10 @@ extension NSManagedObjectContext {
 extension CarbStore {
     private var earliestCacheDate: Date {
         return Date(timeIntervalSinceNow: -cacheLength)
+    }
+
+    private var earliestObservationDate: Date {
+        return Date(timeIntervalSinceNow: -observationInterval)
     }
 
     @discardableResult
@@ -901,7 +897,9 @@ extension CarbStore {
                 "",
                 "* carbRatioSchedule: \(self.carbRatioSchedule?.debugDescription ?? "")",
                 "* carbRatioScheduleApplyingOverrideHistory: \(self.carbRatioScheduleApplyingOverrideHistory?.debugDescription ?? "nil")",
+                "* cacheLength: \(self.cacheLength)",
                 "* defaultAbsorptionTimes: \(self.defaultAbsorptionTimes)",
+                "* observationInterval: \(self.observationInterval)",
                 "* insulinSensitivitySchedule: \(self.insulinSensitivitySchedule?.debugDescription ?? "")",
                 "* insulinSensitivityScheduleApplyingOverrideHistory: \(self.insulinSensitivityScheduleApplyingOverrideHistory?.debugDescription ?? "nil")",
                 "* overrideHistory: \(self.overrideHistory.map(String.init(describing:)) ?? "nil")",
@@ -1049,4 +1047,105 @@ extension CarbStore {
         }
     }
     
+}
+
+// MARK: - Simulated Core Data
+
+extension CarbStore {
+    private var historicalEndDate: Date { Date(timeIntervalSinceNow: -.hours(24)) }
+    private var historicalCachedPerDay: Int { 8 }
+    private var historicalDeletedPerDay: Int { 3 }
+
+    public func generateSimulatedHistoricalCarbObjects(completion: @escaping (Error?) -> Void) {
+        queue.async {
+            var startDate = Calendar.current.startOfDay(for: self.earliestCacheDate)
+            let endDate = Calendar.current.startOfDay(for: self.historicalEndDate)
+            var generateError: Error?
+            var cachedCount = 0
+            var deletedCount = 0
+
+            self.cacheStore.managedObjectContext.performAndWait {
+                while startDate < endDate {
+                    for index in 0..<self.historicalCachedPerDay {
+                        let cached = CachedCarbObject(context: self.cacheStore.managedObjectContext)
+                        cached.simulated(startDate: startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalCachedPerDay))),
+                                       grams: Double(20 + 10 * (index % 3)),
+                                       absorptionTime: .hours(Double(2 + index % 3)))
+                        cachedCount += 1
+                    }
+
+                    for index in 0..<self.historicalDeletedPerDay {
+                        let deleted = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
+                        deleted.simulated(startDate: startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalDeletedPerDay))))
+                        deletedCount += 1
+                    }
+
+                    startDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)!
+                }
+
+                self.cacheStore.save { error in
+                    guard error == nil else {
+                        generateError = error
+                        return
+                    }
+
+                    self.log.info("Generated %d historical CachedCarbObjects", cachedCount)
+                    self.log.info("Generated %d historical DeletedCarbObjects", deletedCount)
+                }
+            }
+
+            self.delegate?.carbStoreHasUpdatedCarbData(self)
+            completion(generateError)
+        }
+    }
+
+    public func purgeHistoricalCarbObjects(completion: @escaping (Error?) -> Void) {
+        queue.async {
+            let predicate = NSPredicate(format: "startDate < %@", self.historicalEndDate as NSDate)
+            var purgeError: Error?
+
+            do {
+                let count = try self.cacheStore.managedObjectContext.purgeObjects(of: CachedCarbObject.self, matching: predicate)
+                self.log.info("Purged %d historical CachedCarbObjects", count)
+            } catch let error {
+                self.log.error("Unable to purge historical CachedCarbObjects: %@", String(describing: error))
+                purgeError = error
+            }
+
+            do {
+                let count = try self.cacheStore.managedObjectContext.purgeObjects(of: DeletedCarbObject.self, matching: predicate)
+                self.log.info("Purged %d historical DeletedCarbObjects", count)
+            } catch let error {
+                self.log.error("Unable to purge historical DeletedCarbObjects: %@", String(describing: error))
+                purgeError = error
+            }
+
+            self.delegate?.carbStoreHasUpdatedCarbData(self)
+            completion(purgeError)
+        }
+    }
+}
+
+fileprivate extension CachedCarbObject {
+    func simulated(startDate: Date, grams: Double, absorptionTime: TimeInterval) {
+        self.absorptionTime = absorptionTime
+        self.createdByCurrentApp = true
+        self.externalID = UUID().uuidString
+        self.foodType = "Historical"
+        self.grams = grams
+        self.startDate = startDate
+        self.uploadState = .notUploaded
+        self.uuid = UUID()
+        self.syncIdentifier = UUID().uuidString
+    }
+}
+
+fileprivate extension DeletedCarbObject {
+    func simulated(startDate: Date) {
+        self.externalID = UUID().uuidString
+        self.uploadState = .notUploaded
+        self.startDate = startDate
+        self.uuid = UUID()
+        self.syncIdentifier = UUID().uuidString
+    }
 }
