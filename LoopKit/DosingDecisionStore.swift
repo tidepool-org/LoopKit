@@ -322,37 +322,45 @@ fileprivate extension StoredDosingDecision {
         let carbsOnBoard = CarbValue(startDate: date,
                                      endDate: date.addingTimeInterval(.minutes(5)),
                                      quantity: HKQuantity(unit: .gram(), doubleValue: 45.5))
-        let scheduleOverride = TemporaryScheduleOverride(context: .custom,
+        let scheduleOverride = TemporaryScheduleOverride(context: .preMeal,
                                                          settings: TemporaryScheduleOverrideSettings(unit: .milligramsPerDeciliter,
-                                                                                                     targetRange: DoubleRange(minValue: 110.0,
-                                                                                                                              maxValue: 120.0),
+                                                                                                     targetRange: DoubleRange(minValue: 80.0,
+                                                                                                                              maxValue: 90.0),
                                                                                                      insulinNeedsScaleFactor: 1.5),
-                                                         startDate: date.addingTimeInterval(-.hours(1)),
-                                                         duration: .finite(.hours(3)),
+                                                         startDate: date.addingTimeInterval(-.hours(1.5)),
+                                                         duration: .finite(.hours(1)),
                                                          enactTrigger: .local,
                                                          syncIdentifier: UUID())
         let glucoseTargetRangeSchedule = GlucoseRangeSchedule(rangeSchedule: DailyQuantitySchedule(unit: .milligramsPerDeciliter,
                                                                                                    dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-                                                                                                                RepeatingScheduleValue(startTime: .hours(7), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
+                                                                                                                RepeatingScheduleValue(startTime: .hours(8), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
+                                                                                                                RepeatingScheduleValue(startTime: .hours(10), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
+                                                                                                                RepeatingScheduleValue(startTime: .hours(12), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
+                                                                                                                RepeatingScheduleValue(startTime: .hours(14), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
+                                                                                                                RepeatingScheduleValue(startTime: .hours(16), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
+                                                                                                                RepeatingScheduleValue(startTime: .hours(18), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
                                                                                                                 RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
                                                                                                    timeZone: timeZone)!)
         let glucoseTargetRangeScheduleApplyingOverrideIfActive = GlucoseRangeSchedule(rangeSchedule: DailyQuantitySchedule(unit: .milligramsPerDeciliter,
                                                                                                                            dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-                                                                                                                                        RepeatingScheduleValue(startTime: .hours(7), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
+                                                                                                                                        RepeatingScheduleValue(startTime: .hours(8), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
+                                                                                                                                        RepeatingScheduleValue(startTime: .hours(10), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
+                                                                                                                                        RepeatingScheduleValue(startTime: .hours(12), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
+                                                                                                                                        RepeatingScheduleValue(startTime: .hours(14), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
+                                                                                                                                        RepeatingScheduleValue(startTime: .hours(16), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
+                                                                                                                                        RepeatingScheduleValue(startTime: .hours(18), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
                                                                                                                                         RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
                                                                                                                            timeZone: timeZone)!)
-        let predictedGlucose = [PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(5)),
-                                                      quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 123.3)),
-                                PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(10)),
-                                                      quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 125.5)),
-                                PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(15)),
-                                                      quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 127.8))]
-        let predictedGlucoseIncludingPendingInsulin = [PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(5)),
-                                                                             quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 113.3)),
-                                                       PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(10)),
-                                                                             quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 115.5)),
-                                                       PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(15)),
-                                                                             quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 117.8))]
+        var predictedGlucose = [PredictedGlucoseValue]()
+        for minutes in stride(from: 0.0, to: 360.0, by: 5.0) {
+            predictedGlucose.append(PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(minutes)),
+                                                          quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 125 + minutes / 10)))
+        }
+        var predictedGlucoseIncludingPendingInsulin = [PredictedGlucoseValue]()
+        for minutes in stride(from: 0.0, to: 360.0, by: 5.0) {
+            predictedGlucoseIncludingPendingInsulin.append(PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(minutes)),
+                                                                                 quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 95 + minutes / 10)))
+        }
         let lastReservoirValue = StoredDosingDecision.LastReservoirValue(startDate: date.addingTimeInterval(-.minutes(1)),
                                                                          unitVolume: 113.3)
         let recommendedTempBasal = StoredDosingDecision.TempBasalRecommendationWithDate(recommendation: TempBasalRecommendation(unitsPerHour: 0.75,
