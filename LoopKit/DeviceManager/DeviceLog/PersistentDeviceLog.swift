@@ -15,8 +15,6 @@ import os.log
 class PersistentContainer: NSPersistentContainer { }
 
 public class PersistentDeviceLog {
-    
-    public static let maxEntryAgeDefault = TimeInterval(7 * 24 * 60 * 60)
 
     private let storageFile: URL
     
@@ -32,9 +30,9 @@ public class PersistentDeviceLog {
     
     private let log = OSLog(category: "PersistentDeviceLog")
     
-    public init(storageFile: URL, maxEntryAge: TimeInterval = PersistentDeviceLog.maxEntryAgeDefault) {
+    public init(storageFile: URL, maxEntryAge: TimeInterval = TimeInterval(7 * 24 * 60 * 60)) {
         self.storageFile = storageFile
-        self.maxEntryAge = max(maxEntryAge, PersistentDeviceLog.maxEntryAgeDefault)
+        self.maxEntryAge = maxEntryAge
 
         managedObjectContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         managedObjectContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
