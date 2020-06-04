@@ -15,7 +15,6 @@ jobs:
     working_directory: *project_directory
     macos:
       xcode: 11.5.0
-    resource_class: large # Uses the "large" macOS executor
     steps:
       - checkout
       - run:
@@ -29,15 +28,12 @@ jobs:
     working_directory: *project_directory
     macos:
       xcode: 11.5.0
-    resource_class: large # Uses the "large" macOS executor
     steps:
       - checkout
       - run:
-          name: Test
+          name: Build Example
           command: |
             set -o pipefail && xcodebuild -project LoopKit.xcodeproj -scheme "LoopKit Example" build -destination 'name=iPhone 8' CODE_SIGNING_ALLOWED=NO | xcpretty
-      - store_test_results:
-          path: test_output
 
 #
 # Workflows
