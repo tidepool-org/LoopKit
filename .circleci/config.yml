@@ -9,6 +9,7 @@ project_directory: &project_directory ~/project
 #
 # Jobs
 #
+
 jobs:
   test:
     working_directory: *project_directory
