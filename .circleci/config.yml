@@ -45,7 +45,7 @@ jobs:
 
 workflows:
   version: 2.1
-  build_and_test_Tidepool:
+  build_and_test:
     jobs:
       - test
       - build-example
