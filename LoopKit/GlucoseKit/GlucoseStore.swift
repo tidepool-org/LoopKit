@@ -450,7 +450,7 @@ extension GlucoseStore {
         return deleted
     }
 
-    private var earliestCacheDate: Date {
+    public var earliestCacheDate: Date {
         return Date(timeIntervalSinceNow: -cacheLength)
     }
 
@@ -458,17 +458,35 @@ extension GlucoseStore {
         return Date(timeIntervalSinceNow: -observationInterval)
     }
 
-    private func purgeCachedGlucoseObjects(matching predicate: NSPredicate?) {
+    public func purgeCachedGlucoseObjects(before date: Date, completion: @escaping (Error?) -> Void) {
+        dataAccessQueue.async {
+            self.purgeCachedGlucoseObjects(matching: NSPredicate(format: "startDate < %@", date as NSDate)) { error in
+                guard error == nil else {
+                    completion(error)
+                    return
+                }
+                self.delegate?.glucoseStoreHasUpdatedGlucoseData(self)
+                completion(nil)
+            }
+        }
+    }
+
+    private func purgeCachedGlucoseObjects(matching predicate: NSPredicate?, completion: ((Error?) -> Void)? = nil) {
         dispatchPrecondition(condition: .onQueue(dataAccessQueue))
+
+        var purgeError: Error?
 
         cacheStore.managedObjectContext.performAndWait {
             do {
                 let count = try cacheStore.managedObjectContext.purgeObjects(of: CachedGlucoseObject.self, matching: predicate)
-                self.log.default("Deleted %d CachedGlucoseObjects", count)
+                self.log.default("Purged %d CachedGlucoseObjects", count)
             } catch let error {
-                self.log.error("Unable to purge CachedGlucoseObjects: %@", String(describing: error))
+                self.log.error("Unable to purge CachedGlucoseObjects: %{public}@", String(describing: error))
+                purgeError = error
             }
         }
+
+        completion?(purgeError)
     }
 }
 
@@ -673,77 +691,34 @@ extension NSManagedObjectContext {
     }
 }
 
-// MARK: - Simulated Core Data
+// MARK: - Core Data (Bulk) - TEST ONLY
 
 extension GlucoseStore {
-    private var historicalEndDate: Date { Date(timeIntervalSinceNow: -.hours(24)) }
-    private var historicalGlucosePerDay: Int { 288 }
-    private var historicalGlucoseValueBase: Double { 110 }
-    private var historicalGlucoseValueAmplitude: Double { 40 }
-    private var historicalGlucoseValuePeriod: Double { 72 }
+    public func addGlucoseSamples(samples: [StoredGlucoseSample], completion: @escaping (Error?) -> Void) {
+        guard !samples.isEmpty else {
+            completion(nil)
+            return
+        }
 
-    public func generateSimulatedHistoricalGlucoseObjects(completion: @escaping (Error?) -> Void) {
         dataAccessQueue.async {
-            var startDate = Calendar.current.startOfDay(for: self.earliestCacheDate)
-            let endDate = Calendar.current.startOfDay(for: self.historicalEndDate)
-            var generateError: Error?
-            var glucoseCount = 0
+            var error: Error?
 
             self.cacheStore.managedObjectContext.performAndWait {
-                while startDate < endDate {
-                    for index in 0..<self.historicalGlucosePerDay {
-                        let glucose = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
-                        glucose.simulated(startDate: startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalGlucosePerDay))),
-                                        value: self.historicalGlucoseValueBase + self.historicalGlucoseValueAmplitude * sin(2.0 * .pi / self.historicalGlucoseValuePeriod * Double(index)))
-                        glucoseCount += 1
-                    }
-
-                    startDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)!
+                for sample in samples {
+                    let object = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
+                    object.update(from: sample)
                 }
-
-                self.cacheStore.save { error in
-                    guard error == nil else {
-                        generateError = error
-                        return
-                    }
-
-                    self.log.info("Generated %d historical CachedGlucoseObjects", glucoseCount)
-                }
+                self.cacheStore.save { error = $0 }
             }
 
-            self.delegate?.glucoseStoreHasUpdatedGlucoseData(self)
-            completion(generateError)
-        }
-    }
-
-    public func purgeHistoricalGlucoseObjects(completion: @escaping (Error?) -> Void) {
-        dataAccessQueue.async {
-            let predicate = NSPredicate(format: "startDate < %@", self.historicalEndDate as NSDate)
-            var purgeError: Error?
-
-            do {
-                let count = try self.cacheStore.managedObjectContext.purgeObjects(of: CachedGlucoseObject.self, matching: predicate)
-                self.log.info("Purged %d historical CachedGlucoseObjects", count)
-            } catch let error {
-                self.log.error("Unable to purge historical CachedGlucoseObjects: %@", String(describing: error))
-                purgeError = error
+            guard error == nil else {
+                completion(error)
+                return
             }
 
+            self.log.info("Added %d CachedGlucoseObjects", samples.count)
             self.delegate?.glucoseStoreHasUpdatedGlucoseData(self)
-            completion(purgeError)
+            completion(nil)
         }
-    }
-}
-
-fileprivate extension CachedGlucoseObject {
-    func simulated(startDate: Date, value: Double, unit: HKUnit = HKUnit.milligramsPerDeciliter) {
-        self.startDate = startDate
-        self.value = value
-        self.unitString = unit.unitString
-        self.isDisplayOnly = false
-        self.uploadState = .notUploaded
-        self.uuid = UUID()
-        self.syncIdentifier = UUID().uuidString
-        self.provenanceIdentifier = Bundle.main.bundleIdentifier!
     }
 }

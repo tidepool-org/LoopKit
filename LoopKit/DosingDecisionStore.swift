@@ -43,27 +43,37 @@ public class DosingDecisionStore {
                 self.store.save()
             }
 
-            self.purgeExpiredDosingDecisionObjects()
+            self.purgeExpiredDosingDecisions()
             completion()
         }
     }
 
-    private var expireDate: Date {
+    public var expireDate: Date {
         return Date(timeIntervalSinceNow: -expireAfter)
     }
 
-    private func purgeExpiredDosingDecisionObjects() {
+    private func purgeExpiredDosingDecisions() {
+        purgeDosingDecisionObjects(before: expireDate)
+    }
+
+    public func purgeDosingDecisions(before date: Date, completion: @escaping (Error?) -> Void) {
+        dataAccessQueue.async {
+            self.purgeDosingDecisionObjects(before: date, completion: completion)
+        }
+    }
+
+    private func purgeDosingDecisionObjects(before date: Date, completion: ((Error?) -> Void)? = nil) {
         dispatchPrecondition(condition: .onQueue(dataAccessQueue))
 
         do {
-            let predicate = NSPredicate(format: "date < %@", expireDate as NSDate)
-            let count = try self.store.managedObjectContext.purgeObjects(of: DosingDecisionObject.self, matching: predicate)
+            let count = try self.store.managedObjectContext.purgeObjects(of: DosingDecisionObject.self, matching: NSPredicate(format: "date < %@", date as NSDate))
             self.log.info("Purged %d DosingDecisionObjects", count)
+            self.delegate?.dosingDecisionStoreHasUpdatedDosingDecisionData(self)
+            completion?(nil)
         } catch let error {
             self.log.error("Unable to purge DosingDecisionObjects: %@", String(describing: error))
+            completion?(error)
         }
-
-        self.delegate?.dosingDecisionStoreHasUpdatedDosingDecisionData(self)
     }
 }
 
@@ -256,166 +266,35 @@ public struct StoredDosingDecision {
     }
 }
 
-// MARK: - Simulated Core Data
+// MARK: - Core Data (Bulk) - TEST ONLY
 
 extension DosingDecisionStore {
-    private var historicalEndDate: Date { Date(timeIntervalSinceNow: -.hours(24)) }
-    private var historicalDosingDecisionsPerDay: Int { 288 }
+    public func addStoredDosingDecisionDatas(dosingDecisionDatas: [StoredDosingDecisionData], completion: @escaping (Error?) -> Void) {
+        guard !dosingDecisionDatas.isEmpty else {
+            completion(nil)
+            return
+        }
 
-    public func generateSimulatedHistoricalDosingDecisionObjects(encoder: @escaping (StoredDosingDecision) -> Data?, completion: @escaping (Error?) -> Void) {
         dataAccessQueue.async {
-            var startDate = Calendar.current.startOfDay(for: self.expireDate)
-            let endDate = Calendar.current.startOfDay(for: self.historicalEndDate)
-            var generateError: Error?
-            var dosingDecisionCount = 0
+            var error: Error?
 
             self.store.managedObjectContext.performAndWait {
-                while startDate < endDate {
-                    for index in 0..<self.historicalDosingDecisionsPerDay {
-                        let dosingDecision = DosingDecisionObject(context: self.store.managedObjectContext)
-                        dosingDecision.date = startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalDosingDecisionsPerDay)))
-                        dosingDecision.data = encoder(StoredDosingDecision.simulated(date: dosingDecision.date))!
-                        dosingDecisionCount += 1
-                    }
-
-                    startDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)!
+                for dosingDecisionData in dosingDecisionDatas {
+                    let object = DosingDecisionObject(context: self.store.managedObjectContext)
+                    object.date = dosingDecisionData.date
+                    object.data = dosingDecisionData.data
                 }
-
-                self.store.save { error in
-                    guard error == nil else {
-                        generateError = error
-                        return
-                    }
-
-                    self.log.info("Generated %d historical DosingDecisionObjects", dosingDecisionCount)
-                }
+                self.store.save { error = $0 }
             }
 
-            self.delegate?.dosingDecisionStoreHasUpdatedDosingDecisionData(self)
-            completion(generateError)
-        }
-    }
-
-    public func purgeHistoricalDosingDecisionObjects(completion: @escaping (Error?) -> Void) {
-        dataAccessQueue.async {
-            let predicate = NSPredicate(format: "date < %@", self.historicalEndDate as NSDate)
-            var purgeError: Error?
-
-            do {
-                let count = try self.store.managedObjectContext.purgeObjects(of: DosingDecisionObject.self, matching: predicate)
-                self.log.info("Purged %d historical DosingDecisionObjects", count)
-            } catch let error {
-                self.log.error("Unable to purge historical DosingDecisionObjects: %@", String(describing: error))
-                purgeError = error
+            guard error == nil else {
+                completion(error)
+                return
             }
 
+            self.log.info("Added %d DosingDecisionObjects", dosingDecisionDatas.count)
             self.delegate?.dosingDecisionStoreHasUpdatedDosingDecisionData(self)
-            completion(purgeError)
+            completion(nil)
         }
     }
 }
-
-fileprivate extension StoredDosingDecision {
-    static func simulated(date: Date) -> StoredDosingDecision {
-        let timeZone = TimeZone(identifier: "America/Los_Angeles")!
-        let insulinOnBoard = InsulinValue(startDate: date, value: 1.5)
-        let carbsOnBoard = CarbValue(startDate: date,
-                                     endDate: date.addingTimeInterval(.minutes(5)),
-                                     quantity: HKQuantity(unit: .gram(), doubleValue: 45.5))
-        let scheduleOverride = TemporaryScheduleOverride(context: .preMeal,
-                                                         settings: TemporaryScheduleOverrideSettings(unit: .milligramsPerDeciliter,
-                                                                                                     targetRange: DoubleRange(minValue: 80.0,
-                                                                                                                              maxValue: 90.0),
-                                                                                                     insulinNeedsScaleFactor: 1.5),
-                                                         startDate: date.addingTimeInterval(-.hours(1.5)),
-                                                         duration: .finite(.hours(1)),
-                                                         enactTrigger: .local,
-                                                         syncIdentifier: UUID())
-        let glucoseTargetRangeSchedule = GlucoseRangeSchedule(rangeSchedule: DailyQuantitySchedule(unit: .milligramsPerDeciliter,
-                                                                                                   dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-                                                                                                                RepeatingScheduleValue(startTime: .hours(8), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                RepeatingScheduleValue(startTime: .hours(10), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
-                                                                                                                RepeatingScheduleValue(startTime: .hours(12), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                RepeatingScheduleValue(startTime: .hours(14), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                RepeatingScheduleValue(startTime: .hours(16), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-                                                                                                                RepeatingScheduleValue(startTime: .hours(18), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
-                                                                                                                RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
-                                                                                                   timeZone: timeZone)!)
-        let glucoseTargetRangeScheduleApplyingOverrideIfActive = GlucoseRangeSchedule(rangeSchedule: DailyQuantitySchedule(unit: .milligramsPerDeciliter,
-                                                                                                                           dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-                                                                                                                                        RepeatingScheduleValue(startTime: .hours(8), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                                        RepeatingScheduleValue(startTime: .hours(10), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
-                                                                                                                                        RepeatingScheduleValue(startTime: .hours(12), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                                        RepeatingScheduleValue(startTime: .hours(14), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                                        RepeatingScheduleValue(startTime: .hours(16), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-                                                                                                                                        RepeatingScheduleValue(startTime: .hours(18), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
-                                                                                                                                        RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
-                                                                                                                           timeZone: timeZone)!)
-        var predictedGlucose = [PredictedGlucoseValue]()
-        for minutes in stride(from: 0.0, to: 360.0, by: 5.0) {
-            predictedGlucose.append(PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(minutes)),
-                                                          quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 125 + minutes / 10)))
-        }
-        var predictedGlucoseIncludingPendingInsulin = [PredictedGlucoseValue]()
-        for minutes in stride(from: 0.0, to: 360.0, by: 5.0) {
-            predictedGlucoseIncludingPendingInsulin.append(PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(minutes)),
-                                                                                 quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 95 + minutes / 10)))
-        }
-        let lastReservoirValue = StoredDosingDecision.LastReservoirValue(startDate: date.addingTimeInterval(-.minutes(1)),
-                                                                         unitVolume: 113.3)
-        let recommendedTempBasal = StoredDosingDecision.TempBasalRecommendationWithDate(recommendation: TempBasalRecommendation(unitsPerHour: 0.75,
-                                                                                                                                duration: .minutes(30)),
-                                                                                        date: date.addingTimeInterval(-.minutes(1)))
-        let recommendedBolus = StoredDosingDecision.BolusRecommendationWithDate(recommendation: BolusRecommendation(amount: 0.2,
-                                                                                                                    pendingInsulin: 0.75,
-                                                                                                                    notice: .predictedGlucoseBelowTarget(minGlucose: PredictedGlucoseValue(startDate: date.addingTimeInterval(.minutes(30)),
-                                                                                                                                                                                           quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 95.0)))),
-                                                                                date: date.addingTimeInterval(-.minutes(1)))
-        let pumpManagerStatus = PumpManagerStatus(timeZone: timeZone,
-                                                  device: HKDevice(name: "Device Name",
-                                                                   manufacturer: "Device Manufacturer",
-                                                                   model: "Device Model",
-                                                                   hardwareVersion: "Device Hardware Version",
-                                                                   firmwareVersion: "Device Firmware Version",
-                                                                   softwareVersion: "Device Software Version",
-                                                                   localIdentifier: "Device Local Identifier",
-                                                                   udiDeviceIdentifier: "Device UDI Device Identifier"),
-                                                  pumpBatteryChargeRemaining: 3.5,
-                                                  basalDeliveryState: .initiatingTempBasal,
-                                                  bolusState: .none)
-        let deviceSettings = StoredDosingDecision.DeviceSettings(name: "Device Name",
-                                                                 systemName: "Device System Name",
-                                                                 systemVersion: "Device System Version",
-                                                                 model: "Device Model",
-                                                                 modelIdentifier: "Device Model Identifier",
-                                                                 batteryLevel: 0.5,
-                                                                 batteryState: .charging)
-
-        return StoredDosingDecision(date: date,
-                                    insulinOnBoard: insulinOnBoard,
-                                    carbsOnBoard: carbsOnBoard,
-                                    scheduleOverride: scheduleOverride,
-                                    glucoseTargetRangeSchedule: glucoseTargetRangeSchedule,
-                                    glucoseTargetRangeScheduleApplyingOverrideIfActive: glucoseTargetRangeScheduleApplyingOverrideIfActive,
-                                    predictedGlucose: predictedGlucose,
-                                    predictedGlucoseIncludingPendingInsulin: predictedGlucoseIncludingPendingInsulin,
-                                    lastReservoirValue: lastReservoirValue,
-                                    recommendedTempBasal: recommendedTempBasal,
-                                    recommendedBolus: recommendedBolus,
-                                    pumpManagerStatus: pumpManagerStatus,
-                                    notificationSettings: historicalNotificationSettings,
-                                    deviceSettings: deviceSettings,
-                                    errors: nil,
-                                    syncIdentifier: UUID().uuidString)
-    }
-}
-
-fileprivate let historicalNotificationSettingsBase64 = "YnBsaXN0MDDUAQIDBAUGBwpYJHZlcnNpb25ZJGFyY2hpdmVyVCR0b3BYJG9iamVjdHMSAAGGoF8QD05TS2V" +
-    "5ZWRBcmNoaXZlctEICVRyb290gAGjCwwgVSRudWxs3g0ODxAREhMUFRYXGBkaGxsbGxscHBwdHhsfHBtcYmFkZ2VTZXR0aW5nXxATYXV0aG9yaXphdGlvblN0YXR" +
-    "1c1xzb3VuZFNldHRpbmdfEBlub3RpZmljYXRpb25DZW50ZXJTZXR0aW5nXxAUY3JpdGljYWxBbGVydFNldHRpbmdfEBNzaG93UHJldmlld3NTZXR0aW5nXxAPZ3J" +
-    "vdXBpbmdTZXR0aW5nXmNhclBsYXlTZXR0aW5nXxAfcHJvdmlkZXNBcHBOb3RpZmljYXRpb25TZXR0aW5nc1YkY2xhc3NfEBFsb2NrU2NyZWVuU2V0dGluZ1phbGV" +
-    "ydFN0eWxlXxATYW5ub3VuY2VtZW50U2V0dGluZ1xhbGVydFNldHRpbmcQAhAACIACEAHSISIjJFokY2xhc3NuYW1lWCRjbGFzc2VzXxAWVU5Ob3RpZmljYXRpb25" +
-    "TZXR0aW5nc6IlJl8QFlVOTm90aWZpY2F0aW9uU2V0dGluZ3NYTlNPYmplY3QACAARABoAJAApADIANwBJAEwAUQBTAFcAXQB6AIcAnQCqAMYA3QDzAQUBFAE2AT0" +
-"BUQFcAXIBfwGBAYMBhAGGAYgBjQGYAaEBugG9AdYAAAAAAAACAQAAAAAAAAAnAAAAAAAAAAAAAAAAAAAB3w=="
-fileprivate let historicalNotificationSettingsData = Data(base64Encoded: historicalNotificationSettingsBase64)!
-fileprivate let historicalNotificationSettings = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(historicalNotificationSettingsData) as! UNNotificationSettings

@@ -24,7 +24,7 @@ public class PersistentDeviceLog {
     
     private let maxEntryAge: TimeInterval
     
-    private var earliestLogEntryDate: Date {
+    public var earliestLogEntryDate: Date {
         return Date(timeIntervalSinceNow: -maxEntryAge)
     }
     
@@ -93,78 +93,50 @@ public class PersistentDeviceLog {
     
     // Should only be called from managed object context queue
     private func purgeExpiredLogEntries() {
-        let predicate = NSPredicate(format: "timestamp < %@", earliestLogEntryDate as NSDate)
+        purgeLogEntries(before: earliestLogEntryDate)
+    }
 
+    public func purgeLogEntries(before date: Date, completion: ((Error?) -> Void)? = nil) {
         do {
             let fetchRequest: NSFetchRequest<DeviceLogEntry> = DeviceLogEntry.fetchRequest()
-            fetchRequest.predicate = predicate
+            fetchRequest.predicate = NSPredicate(format: "timestamp < %@", date as NSDate)
             let count = try managedObjectContext.deleteObjects(matching: fetchRequest)
-            log.info("Deleted %d DeviceLogEntries", count)
+            log.info("Purged %d DeviceLogEntries", count)
+            completion?(nil)
         } catch let error {
-            log.error("Could not purge expired log entry %{public}@", String(describing: error))
+            log.error("Unable to purge DeviceLogEntries: %{public}@", String(describing: error))
+            completion?(error)
         }
     }
 }
 
-// MARK: - Simulated Core Data
+// MARK: - Core Data (Bulk) - TEST ONLY
 
 extension PersistentDeviceLog {
-    private var historicalEndDate: Date { Date(timeIntervalSinceNow: -.hours(24)) }
-    private var historicalEntriesPerDay: Int { 6000 }
+    public func addStoredDeviceLogEntries(entries: [StoredDeviceLogEntry]) -> Error? {
+        guard !entries.isEmpty else {
+            return nil
+        }
 
-    public func generateSimulatedHistoricalDeviceLogEntries(completion: @escaping (Error?) -> Void) {
-        var startDate = Calendar.current.startOfDay(for: self.earliestLogEntryDate)
-        let endDate = Calendar.current.startOfDay(for: self.historicalEndDate)
-        var generateError: Error?
-        var entryCount = 0
+        var error: Error?
 
         self.managedObjectContext.performAndWait {
-            while startDate < endDate {
-                for index in 0..<self.historicalEntriesPerDay {
-                    let entry = DeviceLogEntry(context: self.managedObjectContext)
-                    entry.simulated(timestamp: startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalEntriesPerDay))))
-                    entryCount += 1
-                }
-
-                // We must save each day since there are so many historical entries
-                do {
-                    try self.managedObjectContext.save()
-                } catch let error {
-                    generateError = error
-                    return
-                }
-
-                startDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)!
+            for entry in entries {
+                let object = DeviceLogEntry(context: self.managedObjectContext)
+                object.update(from: entry)
             }
-
-            self.log.info("Generated %d historical DeviceLogEntries", entryCount)
+            do {
+                try self.managedObjectContext.save()
+            } catch let saveError {
+                error = saveError
+            }
         }
 
-        completion(generateError)
-    }
-
-    public func purgeHistoricalDeviceLogEntries(completion: @escaping (Error?) -> Void) {
-        let predicate = NSPredicate(format: "timestamp < %@", self.historicalEndDate as NSDate)
-        var purgeError: Error?
-
-        do {
-            let count = try self.managedObjectContext.purgeObjects(of: DeviceLogEntry.self, matching: predicate)
-            self.log.info("Purged %d historical DeviceLogEntries", count)
-        } catch let error {
-            self.log.error("Unable to purge historical DeviceLogEntries: %@", String(describing: error))
-            purgeError = error
+        guard error == nil else {
+            return error
         }
 
-        completion(purgeError)
-    }
-}
-
-fileprivate extension DeviceLogEntry {
-    func simulated(timestamp: Date) {
-        self.timestamp = timestamp
-        self.type = .connection
-        self.managerIdentifier = "SimulatedMId"
-        self.deviceIdentifier = "SimulatedDId"
-        self.message = "This is an simulated message for the PersistentDeviceLog. In an analysis performed on June 1, 2020, the current average length of these messages is about 225 characters. This string should also be approximately that length."
+        self.log.info("Added %d StoredDeviceLogEntries", entries.count)
+        return nil
     }
 }

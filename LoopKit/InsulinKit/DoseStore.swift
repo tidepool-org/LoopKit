@@ -281,7 +281,7 @@ public final class DoseStore {
 
     /// The maximum length of time to keep data around.
     /// Dose data is unprotected on disk, and should only remain persisted long enough to support dosing algorithms and until its persisted by the delegate.
-    private var cacheStartDate: Date {
+    public var cacheStartDate: Date {
         return currentDate(timeIntervalSinceNow: -cacheLength)
     }
 
@@ -1060,6 +1060,19 @@ extension DoseStore {
         return normalizedDoses
     }
 
+    public func purgePumpEventObjects(before date: Date, completion: (Error?) -> Void) {
+        do {
+            let count = try purgePumpEventObjects(matching: NSPredicate(format: "date < %@", date as NSDate))
+            self.log.info("Purged %d PumpEvents", count)
+            self.delegate?.doseStoreHasUpdatedDoseData(self)
+            self.delegate?.doseStoreHasUpdatedPumpEventData(self)
+            completion(nil)
+        } catch let error {
+            self.log.error("Unable to purge PumpEvents: %@", String(describing: error))
+            completion(error)
+        }
+    }
+
     /**
      Removes uploaded pump event objects older than the recency predicate
 
@@ -1067,7 +1080,8 @@ extension DoseStore {
 
      - throws: A core data exception if the delete request failed
      */
-    private func purgePumpEventObjects(matching predicate: NSPredicate? = nil) throws {
+    @discardableResult
+    private func purgePumpEventObjects(matching predicate: NSPredicate? = nil) throws -> Int {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: PumpEvent.entity().name!)
         fetchRequest.predicate = predicate
 
@@ -1081,7 +1095,10 @@ extension DoseStore {
             let changes = [NSDeletedObjectsKey: objectIDs]
             NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [persistenceController.managedObjectContext])
             persistenceController.managedObjectContext.refreshAllObjects()
+            return objectIDs.count
         }
+
+        return 0
     }
 }
 
@@ -1482,187 +1499,31 @@ extension DoseStore {
 
 }
 
-// MARK: - Simulated Core Data
+// MARK: - Core Data (Bulk) - TEST ONLY
 
 extension DoseStore {
-    private var historicalEndDate: Date { Date(timeIntervalSinceNow: -.hours(24)) }
-    private var historicalBolusPerDay: Int { 8 }
-    private var historicalBasalPerDay: Int { 288 }
-    
-    public func generateSimulatedHistoricalPumpEvents(completion: @escaping (Error?) -> Void) {
-        var startDate = Calendar.current.startOfDay(for: self.cacheStartDate)
-        let endDate = Calendar.current.startOfDay(for: self.historicalEndDate)
-        var generateError: Error?
-        var bolusCount = 0
-        var basalCount = 0
-        var tempBasalCount = 0
-        var otherCount = 0
-        
-        self.persistenceController.managedObjectContext.performAndWait {
-            while startDate < endDate {
-                for index in 0..<self.historicalBolusPerDay {
-                    let bolus = PumpEvent(context: self.persistenceController.managedObjectContext)
-                    bolus.simulatedBolus(date: startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalBolusPerDay))),
-                                       amount: Double(2 + index % 3))
-                    bolusCount += 1
-                }
-                
-                for index in 0..<self.historicalBasalPerDay {
-                    let basal = PumpEvent(context: self.persistenceController.managedObjectContext)
-                    let date = startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalBasalPerDay)))
-                    switch index % 3 {
-                    case 0:
-                        basal.simulatedBasal(date: date, duration: .minutes(5), rate: 1)
-                        basalCount += 1
-                    case 1:
-                        basal.simulatedTempBasal(date: date, duration: .minutes(5), rate: 2, scheduledRate: 1)
-                        tempBasalCount += 1
-                    default:
-                        basal.simulatedTempBasal(date: date, duration: .minutes(5), rate: 0, scheduledRate: 1)
-                        tempBasalCount += 1
-                    }
-                }
-                
-                var date = startDate.addingTimeInterval(.hours(3))
-                
-                let alarm = PumpEvent(context: self.persistenceController.managedObjectContext)
-                alarm.simulatedAlarm(date: date)
-                
-                let suspend = PumpEvent(context: self.persistenceController.managedObjectContext)
-                suspend.simulatedSuspend(date: date)
-                
-                date = date.addingTimeInterval(.minutes(1))
-                
-                let alarmClear = PumpEvent(context: self.persistenceController.managedObjectContext)
-                alarmClear.simulatedAlarmClear(date: date)
-                let rewind = PumpEvent(context: self.persistenceController.managedObjectContext)
-                rewind.simulatedRewind(date: date)
-                
-                date = date.addingTimeInterval(.minutes(2))
-                
-                let prime = PumpEvent(context: self.persistenceController.managedObjectContext)
-                prime.simulatedPrime(date: date)
-                
-                date = date.addingTimeInterval(.minutes(1))
-                
-                let resume = PumpEvent(context: self.persistenceController.managedObjectContext)
-                resume.simulatedResume(date: date)
-                
-                otherCount += 1
-                
-                startDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)!
-            }
-            
-            self.persistenceController.save { error in
-                guard error == nil else {
-                    generateError = error
-                    return
-                }
-                
-                self.log.info("Generated %d historical alarm PumpEvents", otherCount)
-                self.log.info("Generated %d historical alarmClear PumpEvents", otherCount)
-                self.log.info("Generated %d historical basal PumpEvents", basalCount)
-                self.log.info("Generated %d historical bolus PumpEvents", bolusCount)
-                self.log.info("Generated %d historical prime PumpEvents", otherCount)
-                self.log.info("Generated %d historical resume PumpEvents", otherCount)
-                self.log.info("Generated %d historical rewind PumpEvents", otherCount)
-                self.log.info("Generated %d historical suspend PumpEvents", otherCount)
-                self.log.info("Generated %d historical tempBasal PumpEvents", tempBasalCount)
-            }
+    public func addPumpEvents(events: [PersistedPumpEvent]) -> Error? {
+        guard !events.isEmpty else {
+            return nil
         }
-        
-        self.delegate?.doseStoreHasUpdatedDoseData(self)
-        self.delegate?.doseStoreHasUpdatedPumpEventData(self)
-        completion(generateError)
-    }
-    
-    public func purgeHistoricalPumpEvents(completion: @escaping (Error?) -> Void) {
-        let predicate = NSPredicate(format: "date < %@", self.historicalEndDate as NSDate)
-        var purgeError: Error?
-        
-        do {
-            let count = try self.persistenceController.managedObjectContext.purgeObjects(of: PumpEvent.self, matching: predicate)
-            self.log.info("Purged %d historical PumpEvents", count)
-        } catch let error {
-            self.log.error("Unable to purge historical PumpEvents: %@", String(describing: error))
-            purgeError = error
-        }
-        
-        self.delegate?.doseStoreHasUpdatedDoseData(self)
-        self.delegate?.doseStoreHasUpdatedPumpEventData(self)
-        completion(purgeError)
-    }
-}
 
-fileprivate extension PumpEvent {
-    func simulatedAlarm(date: Date) {
-        simulated(date: date, type: .alarm)
-    }
-    
-    func simulatedAlarmClear(date: Date) {
-        simulated(date: date, type: .alarmClear)
-    }
-    
-    func simulatedBasal(date: Date, duration: TimeInterval, rate: Double) {
-        simulated(dose: DoseEntry(type: .basal,
-                                startDate: date,
-                                endDate: date.addingTimeInterval(duration),
-                                value: rate,
-                                unit: .unitsPerHour,
-                                deliveredUnits: rate * duration / .hours(1)))
-    }
-    
-    func simulatedBolus(date: Date, amount: Double) {
-        simulated(dose: DoseEntry(type: .bolus,
-                                startDate: date,
-                                endDate: date.addingTimeInterval(.minutes(1)),
-                                value: amount,
-                                unit: .units))
-    }
-    
-    func simulatedPrime(date: Date) {
-        simulated(date: date, type: .prime)
-    }
-    
-    func simulatedResume(date: Date) {
-        simulated(dose: DoseEntry(resumeDate: date))
-    }
-    
-    func simulatedRewind(date: Date) {
-        simulated(date: date, type: .rewind)
-    }
-    
-    func simulatedSuspend(date: Date) {
-        simulated(dose: DoseEntry(suspendDate: date))
-    }
-    
-    func simulatedTempBasal(date: Date, duration: TimeInterval, rate: Double, scheduledRate: Double) {
-        simulated(dose: DoseEntry(type: .tempBasal,
-                                startDate: date,
-                                endDate: date.addingTimeInterval(duration),
-                                value: rate,
-                                unit: .unitsPerHour,
-                                deliveredUnits: rate * duration / .hours(1),
-                                scheduledBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: scheduledRate)))
-    }
-    
-    private func simulated(date: Date, type: PumpEventType) {
-        self.date = date
-        self.type = type
-        self.createdAt = date
-        self.uploaded = false
-        self.mutable = false
-        self.title = UUID().uuidString
-        self.raw = Data(self.title!.utf8)
-    }
-    
-    private func simulated(dose: DoseEntry) {
-        self.dose = dose
-        self.type = dose.type.pumpEventType!
-        self.createdAt = self.date
-        self.uploaded = false
-        self.mutable = false
-        self.title = String(describing: dose)
-        self.raw = Data(UUID().uuidString.utf8)
+        var error: Error?
+
+        self.persistenceController.managedObjectContext.performAndWait {
+            for event in events {
+                let object = PumpEvent(context: self.persistenceController.managedObjectContext)
+                object.update(from: event)
+            }
+            self.persistenceController.save { error = $0 }
+        }
+
+        guard error == nil else {
+            return error
+        }
+
+        self.log.info("Added %d PumpEvents", events.count)
+        self.delegate?.doseStoreHasUpdatedDoseData(self)
+        self.delegate?.doseStoreHasUpdatedPumpEventData(self)
+        return nil
     }
 }

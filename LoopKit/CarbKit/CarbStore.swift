@@ -492,7 +492,7 @@ extension NSManagedObjectContext {
 
 // MARK: - Cache management
 extension CarbStore {
-    private var earliestCacheDate: Date {
+    public var earliestCacheDate: Date {
         return Date(timeIntervalSinceNow: -cacheLength)
     }
 
@@ -587,36 +587,58 @@ extension CarbStore {
         return entries
     }
 
-    private func purgeCachedCarbEntries() {
+    private func purgeExpiredCachedCarbEntries() {
+        purgeCachedCarbObjects(before: earliestCacheDate)
+    }
+
+    public func purgeCachedCarbEntries(before date: Date, completion: @escaping (Error?) -> Void) {
+        queue.async {
+            self.purgeCachedCarbObjects(before: date) { error in
+                guard error == nil else {
+                    completion(error)
+                    return
+                }
+                self.delegate?.carbStoreHasUpdatedCarbData(self)
+                completion(nil)
+            }
+        }
+    }
+
+    private func purgeCachedCarbObjects(before date: Date, completion: ((Error?) -> Void)? = nil) {
         dispatchPrecondition(condition: .onQueue(queue))
 
-        cacheStore.managedObjectContext.performAndWait {
-            let predicate = NSPredicate(format: "startDate < %@", earliestCacheDate as NSDate)
+        let predicate = NSPredicate(format: "startDate < %@", date as NSDate)
+        var purgeError: Error?
 
+        cacheStore.managedObjectContext.performAndWait {
             do {
                 let fetchRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
                 fetchRequest.predicate = predicate
                 let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
-                self.log.info("Deleted %d CachedCarbObjects", count)
+                self.log.info("Purged %d CachedCarbObjects", count)
             } catch let error {
-                self.log.error("Unable to purge CachedCarbObjects: %@", String(describing: error))
+                self.log.error("Unable to purge CachedCarbObjects: %{public}@", String(describing: error))
+                purgeError = error
             }
 
             do {
                 let fetchRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
                 fetchRequest.predicate = predicate
                 let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
-                self.log.info("Deleted %d DeletedCarbObjects", count)
+                self.log.info("Purged %d DeletedCarbObjects", count)
             } catch let error {
-                self.log.error("Unable to purge DeletedCarbObjects: %@", String(describing: error))
+                self.log.error("Unable to purge DeletedCarbObjects: %{public}@", String(describing: error))
+                purgeError = error
             }
         }
+
+        completion?(purgeError)
     }
 
     private func notifyDelegateOfUpdatedCarbData() {
         dispatchPrecondition(condition: .onQueue(queue))
 
-        self.purgeCachedCarbEntries()
+        self.purgeExpiredCachedCarbEntries()
 
         delegate?.carbStoreHasUpdatedCarbData(self)
     }
@@ -1049,103 +1071,62 @@ extension CarbStore {
     
 }
 
-// MARK: - Simulated Core Data
+// MARK: - Core Data (Bulk) - TEST ONLY
 
 extension CarbStore {
-    private var historicalEndDate: Date { Date(timeIntervalSinceNow: -.hours(24)) }
-    private var historicalCachedPerDay: Int { 8 }
-    private var historicalDeletedPerDay: Int { 3 }
+    public func addStoredCarbEntries(entries: [StoredCarbEntry], completion: @escaping (Error?) -> Void) {
+        guard !entries.isEmpty else {
+            completion(nil)
+            return
+        }
 
-    public func generateSimulatedHistoricalCarbObjects(completion: @escaping (Error?) -> Void) {
         queue.async {
-            var startDate = Calendar.current.startOfDay(for: self.earliestCacheDate)
-            let endDate = Calendar.current.startOfDay(for: self.historicalEndDate)
-            var generateError: Error?
-            var cachedCount = 0
-            var deletedCount = 0
+            var error: Error?
 
             self.cacheStore.managedObjectContext.performAndWait {
-                while startDate < endDate {
-                    for index in 0..<self.historicalCachedPerDay {
-                        let cached = CachedCarbObject(context: self.cacheStore.managedObjectContext)
-                        cached.simulated(startDate: startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalCachedPerDay))),
-                                       grams: Double(20 + 10 * (index % 3)),
-                                       absorptionTime: .hours(Double(2 + index % 3)))
-                        cachedCount += 1
-                    }
-
-                    for index in 0..<self.historicalDeletedPerDay {
-                        let deleted = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
-                        deleted.simulated(startDate: startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalDeletedPerDay))))
-                        deletedCount += 1
-                    }
-
-                    startDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)!
+                for entry in entries {
+                    let object = CachedCarbObject(context: self.cacheStore.managedObjectContext)
+                    object.update(from: entry)
                 }
-
-                self.cacheStore.save { error in
-                    guard error == nil else {
-                        generateError = error
-                        return
-                    }
-
-                    self.log.info("Generated %d historical CachedCarbObjects", cachedCount)
-                    self.log.info("Generated %d historical DeletedCarbObjects", deletedCount)
-                }
+                self.cacheStore.save { error = $0 }
             }
 
+            guard error == nil else {
+                completion(error)
+                return
+            }
+
+            self.log.info("Added %d CachedCarbObjects", entries.count)
             self.delegate?.carbStoreHasUpdatedCarbData(self)
-            completion(generateError)
+            completion(nil)
         }
     }
 
-    public func purgeHistoricalCarbObjects(completion: @escaping (Error?) -> Void) {
+    public func addDeletedCarbEntries(entries: [DeletedCarbEntry], completion: @escaping (Error?) -> Void) {
+        guard !entries.isEmpty else {
+            completion(nil)
+            return
+        }
+
         queue.async {
-            let predicate = NSPredicate(format: "startDate < %@", self.historicalEndDate as NSDate)
-            var purgeError: Error?
+            var error: Error?
 
-            do {
-                let count = try self.cacheStore.managedObjectContext.purgeObjects(of: CachedCarbObject.self, matching: predicate)
-                self.log.info("Purged %d historical CachedCarbObjects", count)
-            } catch let error {
-                self.log.error("Unable to purge historical CachedCarbObjects: %@", String(describing: error))
-                purgeError = error
+            self.cacheStore.managedObjectContext.performAndWait {
+                for entry in entries {
+                    let object = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
+                    object.update(from: entry)
+                }
+                self.cacheStore.save { error = $0 }
             }
 
-            do {
-                let count = try self.cacheStore.managedObjectContext.purgeObjects(of: DeletedCarbObject.self, matching: predicate)
-                self.log.info("Purged %d historical DeletedCarbObjects", count)
-            } catch let error {
-                self.log.error("Unable to purge historical DeletedCarbObjects: %@", String(describing: error))
-                purgeError = error
+            guard error == nil else {
+                completion(error)
+                return
             }
 
+            self.log.info("Added %d DeletedCarbObjects", entries.count)
             self.delegate?.carbStoreHasUpdatedCarbData(self)
-            completion(purgeError)
+            completion(nil)
         }
-    }
-}
-
-fileprivate extension CachedCarbObject {
-    func simulated(startDate: Date, grams: Double, absorptionTime: TimeInterval) {
-        self.absorptionTime = absorptionTime
-        self.createdByCurrentApp = true
-        self.externalID = UUID().uuidString
-        self.foodType = "Historical"
-        self.grams = grams
-        self.startDate = startDate
-        self.uploadState = .notUploaded
-        self.uuid = UUID()
-        self.syncIdentifier = UUID().uuidString
-    }
-}
-
-fileprivate extension DeletedCarbObject {
-    func simulated(startDate: Date) {
-        self.externalID = UUID().uuidString
-        self.uploadState = .notUploaded
-        self.startDate = startDate
-        self.uuid = UUID()
-        self.syncIdentifier = UUID().uuidString
     }
 }

@@ -45,27 +45,37 @@ public class SettingsStore {
                 }
             }
 
-            self.purgeExpiredSettingsObjects()
+            self.purgeExpiredSettings()
             completion()
         }
     }
 
-    private var expireDate: Date {
+    public var expireDate: Date {
         return Date(timeIntervalSinceNow: -expireAfter)
     }
 
-    private func purgeExpiredSettingsObjects() {
+    private func purgeExpiredSettings() {
+        purgeSettingsObjects(before: expireDate)
+    }
+
+    public func purgeSettings(before date: Date, completion: @escaping (Error?) -> Void) {
+        dataAccessQueue.async {
+            self.purgeSettingsObjects(before: date, completion: completion)
+        }
+    }
+
+    private func purgeSettingsObjects(before date: Date, completion: ((Error?) -> Void)? = nil) {
         dispatchPrecondition(condition: .onQueue(dataAccessQueue))
 
         do {
-            let predicate = NSPredicate(format: "date < %@", expireDate as NSDate)
-            let count = try self.store.managedObjectContext.purgeObjects(of: SettingsObject.self, matching: predicate)
+            let count = try self.store.managedObjectContext.purgeObjects(of: SettingsObject.self, matching: NSPredicate(format: "date < %@", date as NSDate))
             self.log.info("Purged %d SettingsObjects", count)
+            self.delegate?.settingsStoreHasUpdatedSettingsData(self)
+            completion?(nil)
         } catch let error {
             self.log.error("Unable to purge SettingsObjects: %@", String(describing: error))
+            completion?(error)
         }
-
-        self.delegate?.settingsStoreHasUpdatedSettingsData(self)
     }
 
     private static var encoder: PropertyListEncoder = {
@@ -313,135 +323,38 @@ extension StoredSettings: Codable {
     }
 }
 
-// MARK: - Simulated Core Data
+// MARK: - Core Data (Bulk) - TEST ONLY
 
 extension SettingsStore {
-    private var historicalEndDate: Date { Date(timeIntervalSinceNow: -.hours(24)) }
-    private var historicalSettingsPerDay: Int { 2 }
+    public func addStoredSettings(settings: [StoredSettings], completion: @escaping (Error?) -> Void) {
+        guard !settings.isEmpty else {
+            completion(nil)
+            return
+        }
 
-    public func generateSimulatedHistoricalSettingsObjects(completion: @escaping (Error?) -> Void) {
         dataAccessQueue.async {
-            var startDate = Calendar.current.startOfDay(for: self.expireDate)
-            let endDate = Calendar.current.startOfDay(for: self.historicalEndDate)
-            var generateError: Error?
-            var settingsCount = 0
+            var error: Error?
 
             self.store.managedObjectContext.performAndWait {
-                while startDate < endDate {
-                    for index in 0..<self.historicalSettingsPerDay {
-                        let settings = SettingsObject(context: self.store.managedObjectContext)
-                        settings.date = startDate.addingTimeInterval(.hours(Double(index) * 24.0 / Double(self.historicalSettingsPerDay)))
-                        settings.data = self.encodeSettings(StoredSettings.simulated(date: settings.date))!
-                        settingsCount += 1
+                for setting in settings {
+                    guard let data = self.encodeSettings(setting) else {
+                        continue
                     }
-
-                    startDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)!
+                    let object = SettingsObject(context: self.store.managedObjectContext)
+                    object.data = data
+                    object.date = setting.date
                 }
-
-                self.store.save { error in
-                    guard error == nil else {
-                        generateError = error
-                        return
-                    }
-
-                    self.log.info("Generated %d historical SettingsObjects", settingsCount)
-                }
+                self.store.save { error = $0 }
             }
 
-            self.delegate?.settingsStoreHasUpdatedSettingsData(self)
-            completion(generateError)
-        }
-    }
-
-    public func purgeHistoricalSettingsObjects(completion: @escaping (Error?) -> Void) {
-        dataAccessQueue.async {
-            let predicate = NSPredicate(format: "date < %@", self.historicalEndDate as NSDate)
-            var purgeError: Error?
-
-            do {
-                let count = try self.store.managedObjectContext.purgeObjects(of: SettingsObject.self, matching: predicate)
-                self.log.info("Purged %d historical SettingsObjects", count)
-            } catch let error {
-                self.log.error("Unable to purge historical SettingsObjects: %@", String(describing: error))
-                purgeError = error
+            guard error == nil else {
+                completion(error)
+                return
             }
 
+            self.log.info("Added %d SettingsObjects", settings.count)
             self.delegate?.settingsStoreHasUpdatedSettingsData(self)
-            completion(purgeError)
+            completion(nil)
         }
-    }
-}
-
-fileprivate extension StoredSettings {
-    static func simulated(date: Date) -> StoredSettings {
-        let timeZone = TimeZone(identifier: "America/Los_Angeles")!
-        let glucoseTargetRangeSchedule =  GlucoseRangeSchedule(rangeSchedule: DailyQuantitySchedule(unit: .milligramsPerDeciliter,
-                                                                                                    dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-                                                                                                                 RepeatingScheduleValue(startTime: .hours(8), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                 RepeatingScheduleValue(startTime: .hours(10), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
-                                                                                                                 RepeatingScheduleValue(startTime: .hours(12), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                 RepeatingScheduleValue(startTime: .hours(14), value: DoubleRange(minValue: 95.0, maxValue: 105.0)),
-                                                                                                                 RepeatingScheduleValue(startTime: .hours(16), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-                                                                                                                 RepeatingScheduleValue(startTime: .hours(18), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
-                                                                                                                 RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
-                                                                                                    timeZone: timeZone)!,
-                                                               override: GlucoseRangeSchedule.Override(value: DoubleRange(minValue: 80.0, maxValue: 90.0),
-                                                                                                       start: date.addingTimeInterval(-.minutes(30)),
-                                                                                                       end: date.addingTimeInterval(.minutes(30))))
-        let preMealOverride = TemporaryScheduleOverride(context: .preMeal,
-                                                        settings: TemporaryScheduleOverrideSettings(unit: .milligramsPerDeciliter,
-                                                                                                    targetRange: DoubleRange(minValue: 80.0, maxValue: 90.0),
-                                                                                                    insulinNeedsScaleFactor: 0.5),
-                                                        startDate: date.addingTimeInterval(-.minutes(30)),
-                                                        duration: .finite(.minutes(60)),
-                                                        enactTrigger: .local,
-                                                        syncIdentifier: UUID())
-        let basalRateSchedule = BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0),
-                                                               RepeatingScheduleValue(startTime: .hours(8), value: 1.125),
-                                                               RepeatingScheduleValue(startTime: .hours(10), value: 1.25),
-                                                               RepeatingScheduleValue(startTime: .hours(12), value: 1.5),
-                                                               RepeatingScheduleValue(startTime: .hours(14), value: 1.25),
-                                                               RepeatingScheduleValue(startTime: .hours(16), value: 1.5),
-                                                               RepeatingScheduleValue(startTime: .hours(18), value: 1.25),
-                                                               RepeatingScheduleValue(startTime: .hours(21), value: 1.0)],
-                                                  timeZone: timeZone)
-        let insulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter,
-                                                                    dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 45.0),
-                                                                                 RepeatingScheduleValue(startTime: .hours(8), value: 40.0),
-                                                                                 RepeatingScheduleValue(startTime: .hours(10), value: 35.0),
-                                                                                 RepeatingScheduleValue(startTime: .hours(12), value: 30.0),
-                                                                                 RepeatingScheduleValue(startTime: .hours(14), value: 35.0),
-                                                                                 RepeatingScheduleValue(startTime: .hours(16), value: 40.0),
-                                                                                 RepeatingScheduleValue(startTime: .hours(18), value: 45.0),
-                                                                                 RepeatingScheduleValue(startTime: .hours(21), value: 50.0)],
-                                                                    timeZone: timeZone)
-        let carbRatioSchedule = CarbRatioSchedule(unit: .gram(),
-                                                  dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 10.0),
-                                                               RepeatingScheduleValue(startTime: .hours(8), value: 12.0),
-                                                               RepeatingScheduleValue(startTime: .hours(10), value: 9.0),
-                                                               RepeatingScheduleValue(startTime: .hours(12), value: 10.0),
-                                                               RepeatingScheduleValue(startTime: .hours(14), value: 11.0),
-                                                               RepeatingScheduleValue(startTime: .hours(16), value: 12.0),
-                                                               RepeatingScheduleValue(startTime: .hours(18), value: 8.0),
-                                                               RepeatingScheduleValue(startTime: .hours(21), value: 10.0)],
-                                                  timeZone: timeZone)
-        return StoredSettings(date: date,
-                              dosingEnabled: true,
-                              glucoseTargetRangeSchedule: glucoseTargetRangeSchedule,
-                              preMealTargetRange: DoubleRange(minValue: 80.0, maxValue: 90.0),
-                              workoutTargetRange: DoubleRange(minValue: 150.0, maxValue: 160.0),
-                              overridePresets: nil,     // Tidepool Loop v1.0 will not have presets
-                              scheduleOverride: nil,    // Tidepool Loop v1.0 will not have presets
-                              preMealOverride: preMealOverride,
-                              maximumBasalRatePerHour: 3.5,
-                              maximumBolus: 10.0,
-                              suspendThreshold: GlucoseThreshold(unit: .milligramsPerDeciliter, value: 75.0),
-                              deviceToken: UUID().uuidString,
-                              insulinModel: StoredSettings.InsulinModel(modelType: .rapidAdult, actionDuration: .hours(6), peakActivity: .hours(3)),
-                              basalRateSchedule: basalRateSchedule,
-                              insulinSensitivitySchedule: insulinSensitivitySchedule,
-                              carbRatioSchedule: carbRatioSchedule,
-                              bloodGlucoseUnit: .milligramsPerDeciliter,
-                              syncIdentifier: UUID().uuidString)
     }
 }
