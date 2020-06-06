@@ -71,7 +71,7 @@ public class DosingDecisionStore {
             self.delegate?.dosingDecisionStoreHasUpdatedDosingDecisionData(self)
             completion?(nil)
         } catch let error {
-            self.log.error("Unable to purge DosingDecisionObjects: %@", String(describing: error))
+            self.log.error("Unable to purge DosingDecisionObjects: %{public}@", String(describing: error))
             completion?(error)
         }
     }

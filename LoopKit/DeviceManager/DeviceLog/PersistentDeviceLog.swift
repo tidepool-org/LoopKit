@@ -93,14 +93,21 @@ public class PersistentDeviceLog {
     
     // Should only be called from managed object context queue
     private func purgeExpiredLogEntries() {
-        purgeLogEntries(before: earliestLogEntryDate)
+        let predicate = NSPredicate(format: "timestamp < %@", earliestLogEntryDate as NSDate)
+
+        do {
+            let fetchRequest: NSFetchRequest<DeviceLogEntry> = DeviceLogEntry.fetchRequest()
+            fetchRequest.predicate = predicate
+            let count = try managedObjectContext.deleteObjects(matching: fetchRequest)
+            log.info("Deleted %d DeviceLogEntries", count)
+        } catch let error {
+            log.error("Could not purge expired log entry %{public}@", String(describing: error))
+        }
     }
 
     public func purgeLogEntries(before date: Date, completion: ((Error?) -> Void)? = nil) {
         do {
-            let fetchRequest: NSFetchRequest<DeviceLogEntry> = DeviceLogEntry.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "timestamp < %@", date as NSDate)
-            let count = try managedObjectContext.deleteObjects(matching: fetchRequest)
+            let count = try managedObjectContext.purgeObjects(of: DeviceLogEntry.self, matching: NSPredicate(format: "timestamp < %@", date as NSDate))
             log.info("Purged %d DeviceLogEntries", count)
             completion?(nil)
         } catch let error {

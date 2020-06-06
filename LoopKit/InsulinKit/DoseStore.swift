@@ -1068,7 +1068,7 @@ extension DoseStore {
             self.delegate?.doseStoreHasUpdatedPumpEventData(self)
             completion(nil)
         } catch let error {
-            self.log.error("Unable to purge PumpEvents: %@", String(describing: error))
+            self.log.error("Unable to purge PumpEvents: %{public}@", String(describing: error))
             completion(error)
         }
     }

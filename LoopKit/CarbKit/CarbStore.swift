@@ -588,7 +588,29 @@ extension CarbStore {
     }
 
     private func purgeExpiredCachedCarbEntries() {
-        purgeCachedCarbObjects(before: earliestCacheDate)
+        dispatchPrecondition(condition: .onQueue(queue))
+
+        cacheStore.managedObjectContext.performAndWait {
+            let predicate = NSPredicate(format: "startDate < %@", earliestCacheDate as NSDate)
+
+            do {
+                let fetchRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
+                fetchRequest.predicate = predicate
+                let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
+                self.log.info("Deleted %d CachedCarbObjects", count)
+            } catch let error {
+                self.log.error("Unable to purge CachedCarbObjects: %{public}@", String(describing: error))
+            }
+
+            do {
+                let fetchRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
+                fetchRequest.predicate = predicate
+                let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
+                self.log.info("Deleted %d DeletedCarbObjects", count)
+            } catch let error {
+                self.log.error("Unable to purge DeletedCarbObjects: %{public}@", String(describing: error))
+            }
+        }
     }
 
     public func purgeCachedCarbEntries(before date: Date, completion: @escaping (Error?) -> Void) {
@@ -612,9 +634,7 @@ extension CarbStore {
 
         cacheStore.managedObjectContext.performAndWait {
             do {
-                let fetchRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
-                fetchRequest.predicate = predicate
-                let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
+                let count = try self.cacheStore.managedObjectContext.purgeObjects(of: CachedCarbObject.self, matching: predicate)
                 self.log.info("Purged %d CachedCarbObjects", count)
             } catch let error {
                 self.log.error("Unable to purge CachedCarbObjects: %{public}@", String(describing: error))
@@ -622,9 +642,7 @@ extension CarbStore {
             }
 
             do {
-                let fetchRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
-                fetchRequest.predicate = predicate
-                let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
+                let count = try self.cacheStore.managedObjectContext.purgeObjects(of: DeletedCarbObject.self, matching: predicate)
                 self.log.info("Purged %d DeletedCarbObjects", count)
             } catch let error {
                 self.log.error("Unable to purge DeletedCarbObjects: %{public}@", String(describing: error))

@@ -73,7 +73,7 @@ public class SettingsStore {
             self.delegate?.settingsStoreHasUpdatedSettingsData(self)
             completion?(nil)
         } catch let error {
-            self.log.error("Unable to purge SettingsObjects: %@", String(describing: error))
+            self.log.error("Unable to purge SettingsObjects: %{public}@", String(describing: error))
             completion?(error)
         }
     }

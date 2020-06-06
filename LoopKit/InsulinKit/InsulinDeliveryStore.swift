@@ -402,7 +402,7 @@ extension InsulinDeliveryStore {
                 let count = try cacheStore.managedObjectContext.purgeObjects(of: CachedInsulinDeliveryObject.self, matching: predicate)
                 self.log.default("Purged %d CachedInsulinDeliveryObjects", count)
             } catch let error {
-                self.log.error("Unable to purge CachedInsulinDeliveryObjects: %@", String(describing: error))
+                self.log.error("Unable to purge CachedInsulinDeliveryObjects: %{public}@", String(describing: error))
             }
         }
     }
