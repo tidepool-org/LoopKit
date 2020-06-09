@@ -68,7 +68,7 @@ public struct BasalRateScheduleEditor: View {
             scheduleItemLimit: maximumScheduleEntryCount,
             confirmationAlertContent: confirmationAlertContent,
             guardrailWarning: BasalRateGuardrailWarning.init(crossedThresholds:),
-            onSave: { quantitySchedule, completion in
+            onSave: .asynchronous { quantitySchedule, completion in
                 self.syncSchedule(quantitySchedule.items) { result in
                     switch result {
                     case .success(let syncedSchedule):

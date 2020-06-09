@@ -135,7 +135,7 @@ extension QuantityScheduleEditor {
         scheduleItemLimit: Int = 48,
         confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
-        onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void
+        onSave savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>
     ) {
         self.title = title
         self.description = description
@@ -149,36 +149,7 @@ extension QuantityScheduleEditor {
         self.scheduleItemLimit = scheduleItemLimit
         self.confirmationAlertContent = confirmationAlertContent
         self.guardrailWarning = guardrailWarning
-        self.savingMechanism = .synchronous(save)
-    }
-
-    init(
-        title: Text,
-        description: Text,
-        schedule: DailyQuantitySchedule<Double>?,
-        unit: HKUnit,
-        selectableValues: [Double],
-        guardrail: Guardrail<HKQuantity>,
-        quantitySelectionMode: QuantitySelectionMode = .whole,
-        defaultFirstScheduleItemValue: HKQuantity,
-        scheduleItemLimit: Int = 48,
-        confirmationAlertContent: AlertContent,
-        @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
-        onSave save: @escaping (_ schedule: DailyQuantitySchedule<Double>, _ completion: @escaping (Error?) -> Void) -> Void
-    ) {
-        self.title = title
-        self.description = description
-        self.initialScheduleItems = schedule?.items ?? []
-        self._scheduleItems = State(initialValue: schedule?.items ?? [])
-        self.unit = unit
-        self.quantitySelectionMode = quantitySelectionMode
-        self.selectableValues = selectableValues
-        self.guardrail = guardrail
-        self.defaultFirstScheduleItemValue = defaultFirstScheduleItemValue
-        self.scheduleItemLimit = scheduleItemLimit
-        self.confirmationAlertContent = confirmationAlertContent
-        self.guardrailWarning = guardrailWarning
-        self.savingMechanism = .asynchronous(save)
+        self.savingMechanism = savingMechanism
     }
 
     init(
@@ -208,7 +179,7 @@ extension QuantityScheduleEditor {
             scheduleItemLimit: scheduleItemLimit,
             confirmationAlertContent: confirmationAlertContent,
             guardrailWarning: guardrailWarning,
-            onSave: save
+            onSave: .synchronous(save)
         )
     }
 }
