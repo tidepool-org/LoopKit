@@ -213,10 +213,10 @@ extension MockCGMManager {
         delegate.notifyDelayed(by: delay ?? 0) { delegate in
             self.logDeviceComms(.delegate, message: "\(#function): \(identifier) \(trigger)")
             delegate?.issueAlert(Alert(identifier: Alert.Identifier(managerIdentifier: self.managerIdentifier, alertIdentifier: identifier),
-                                             foregroundContent: alert.foregroundContent,
-                                             backgroundContent: alert.backgroundContent,
-                                             trigger: trigger,
-                                             sound: alert.sound))
+                                       foregroundContent: alert.foregroundContent,
+                                       backgroundContent: alert.backgroundContent,
+                                       trigger: trigger,
+                                       sound: alert.sound))
         }
     }
     
