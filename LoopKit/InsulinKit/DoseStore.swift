@@ -366,7 +366,8 @@ public final class DoseStore {
             if _lastRecordedPrimeEventDate == nil {
                 if  let pumpEvents = try? self.getPumpEventObjects(
                         matching: NSPredicate(format: "type = %@", PumpEventType.prime.rawValue),
-                        chronological: false
+                        chronological: false,
+                        limit: 1
                     ),
                     let firstEvent = pumpEvents.first
                 {
@@ -962,9 +963,8 @@ extension DoseStore {
     /// - Returns: An array of pump events in the specified order by date
     /// - Throws: An error describing the failure to fetch objects
     private func getPumpEventObjects(matching predicate: NSPredicate, chronological: Bool, limit: Int? = nil) throws -> [PumpEvent] {
-        let recentPredicate = NSPredicate(format: "date >= %@", recentStartDate as NSDate)
         let request: NSFetchRequest<PumpEvent> = PumpEvent.fetchRequest()
-        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [recentPredicate, predicate])
+        request.predicate = predicate
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: chronological)]
 
         if let limit = limit {
@@ -1046,7 +1046,7 @@ extension DoseStore {
         let queryStart = basalStart.addingTimeInterval(-pumpEventReconciliationWindow)
 
         let afterBasalStart = NSPredicate(format: "date >= %@ && doseType != nil && mutable == false", queryStart as NSDate)
-        let allBoluses = NSPredicate(format: "doseType == %@ && mutable == false", DoseType.bolus.rawValue)
+        let allBoluses = NSPredicate(format: "date >= %@ && doseType == %@ && mutable == false", recentStartDate as NSDate, DoseType.bolus.rawValue)
 
         let doses = try getPumpEventObjects(
             matching: NSCompoundPredicate(orPredicateWithSubpredicates: [afterBasalStart, allBoluses]),
