@@ -352,7 +352,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         }
     }
 
-    private func alert(for presentedAlert: PresentedAlert) -> Alert {
+    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
         switch presentedAlert {
         case .saveConfirmation(let content):
             return Alert(
