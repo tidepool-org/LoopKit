@@ -31,7 +31,7 @@ extension MockPumpManager: PumpManagerUI {
         return MockHUDProvider(pumpManager: self)
     }
 
-    public static func createHUDViews(rawValue: [String : Any]) -> [BaseHUDView] {
+    public static func createHUDViews(rawValue: [String : Any]) -> [LevelHUDView] {
         return MockHUDProvider.createHUDViews(rawValue: rawValue)
     }
 }
