@@ -55,7 +55,7 @@ final class MockHUDProvider: NSObject, HUDProvider {
         batteryView = BatteryLevelHUDView.instantiate()
         updateBatteryView()
 
-        return [reservoirView, batteryView].compactMap { $0 }
+        return [reservoirView].compactMap { $0 }
     }
 
     static func createHUDViews(rawValue: HUDViewsRawState) -> [BaseHUDView] {
