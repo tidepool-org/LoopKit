@@ -152,12 +152,15 @@ struct FractionalQuantityPicker: View {
     }
 
     private var wholeGuardrail: Guardrail<HKQuantity> {
-        // Whether or not the whole value should be colored as 'out of range' depends on the fraction value
+        // Whether or not the whole value should be colored as 'out of range' depends only on the fraction value.
         let lowerRecommendedBound = guardrail.recommendedBounds.lowerBound.doubleValue(for: unit)
         if fraction < lowerRecommendedBound.fraction {
             return guardrail
         } else {
-            // Shift the lower bounds down one 'whole' value
+            // Shift the lower bounds down one 'whole' value.
+            // Note: this shift doesn't affect which values are selectable, only the coloration of the selectable values.
+            // For example, if the real guardrail's lower bound is 3.00, the whole '3' should be colored only when '00' is selected
+            // in the fractional picker, regardless of the current whole value.
             return Guardrail(
                 absoluteBounds: HKQuantity(unit: unit, doubleValue: guardrail.absoluteBounds.lowerBound.doubleValue(for: unit) - 1)...guardrail.absoluteBounds.upperBound,
                 recommendedBounds: HKQuantity(unit: unit, doubleValue: lowerRecommendedBound - 1)...guardrail.recommendedBounds.upperBound
