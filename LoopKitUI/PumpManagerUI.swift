@@ -20,8 +20,8 @@ public protocol PumpManagerUI: PumpManager, DeliveryLimitSettingsTableViewContro
     // Returns a class that can provide HUD views
     func hudProvider() -> HUDProvider?
     
-    // Instantiates HUD views from the raw state returned by hudViewsRawState
-    static func createHUDViews(rawValue: HUDProvider.HUDViewsRawState) -> [LevelHUDView]
+    // Instantiates HUD view (typically reservoir volume) from the raw state returned by hudViewsRawState
+    static func createHUDView(rawValue: HUDProvider.HUDViewsRawState) -> LevelHUDView?
 }
 
 

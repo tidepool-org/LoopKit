@@ -18,8 +18,8 @@ public protocol HUDProvider: class  {
 
     typealias HUDViewsRawState = [String: Any]
 
-    // Creates the initial views to be shown in Loop HUD.
-    func createHUDViews() -> [LevelHUDView]
+    // Creates the initial view (typically reservoir volume) to be shown in Loop HUD.
+    func createHUDView() -> LevelHUDView?
 
     // Returns the action that should be taken when the view is tapped
     func didTapOnHUDView(_ view: BaseHUDView) -> HUDTapAction?
