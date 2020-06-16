@@ -47,7 +47,7 @@ extension NSManagedObjectContext {
     ///   - fetchRequest: The fetch request performed to determine objects to subsequently delete
     /// - Returns: The number of deleted objects
     /// - Throws: Any core data error during fetch or delete
-    internal func deleteObjects<T>(matching fetchRequest: NSFetchRequest<T>) throws -> Int where T: NSManagedObject {
+    public func deleteObjects<T>(matching fetchRequest: NSFetchRequest<T>) throws -> Int where T: NSManagedObject {
         let objects = try fetch(fetchRequest)
         objects.forEach { delete($0) }
         if hasChanges {
