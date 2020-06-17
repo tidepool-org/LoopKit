@@ -24,6 +24,8 @@ public protocol AlertResponder: class {
 
 /// Structure that represents an Alert that is issued from a Device.
 public struct Alert: Equatable {
+    public static let defaultManagerIdentifier = "Loop"
+    
     /// Representation of an alert Trigger
     public enum Trigger: Equatable {
         /// Trigger the alert immediately
@@ -42,7 +44,10 @@ public struct Alert: Equatable {
         // TODO: when we have more complicated actions.  For now, all we have is "acknowledge".
 //        let actions: [UserAlertAction]
         public let acknowledgeActionButtonLabel: String
-        public init(title: String, body: String, acknowledgeActionButtonLabel: String, isCritical: Bool = false) {
+        public init(title: String,
+                    body: String,
+                    acknowledgeActionButtonLabel: String = NSLocalizedString("OK", comment: "Default alert dismissal"),
+                    isCritical: Bool = false) {
             self.title = title
             self.body = body
             self.acknowledgeActionButtonLabel = acknowledgeActionButtonLabel

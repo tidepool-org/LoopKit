@@ -203,3 +203,19 @@ public extension PumpManager {
         }
     }
 }
+
+
+public extension PumpManager {
+    
+    func issueCancelBolusErrorAlert() {
+        let identifier = Alert.Identifier(managerIdentifier: Alert.defaultManagerIdentifier, alertIdentifier: "cancelBolusError")
+        let content = Alert.Content(title: NSLocalizedString("Error Canceling Bolus", comment: "The alert title for an error while canceling a bolus"),
+                                    body: NSLocalizedString("""
+            The app was unable to stop the bolus in progress. Move your iPhone closer to the pump and try again. Confirm total insulin delivered in your insulin delivery history and monitor your glucose closely.
+            """,
+                                                            comment: "The alert body for an error while canceling a bolus"))
+        let alert = Alert(identifier: identifier, foregroundContent: content, backgroundContent: content, trigger: .immediate)
+        pumpManagerDelegate?.issueAlert(alert)
+    }
+
+}
