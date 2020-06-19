@@ -34,8 +34,8 @@ final class MockHUDProvider: NSObject, HUDProvider {
 
     var visible: Bool = false
 
-    var hudViewsRawState: HUDViewsRawState {
-        var rawValue: HUDViewsRawState = [
+    var hudViewRawState: HUDViewRawState {
+        var rawValue: HUDViewRawState = [
             "pumpReservoirCapacity": pumpManager.pumpReservoirCapacity
         ]
 
@@ -55,7 +55,7 @@ final class MockHUDProvider: NSObject, HUDProvider {
         return reservoirView
     }
 
-    static func createHUDView(rawValue: HUDViewsRawState) -> LevelHUDView? {
+    static func createHUDView(rawValue: HUDViewRawState) -> LevelHUDView? {
         guard let pumpReservoirCapacity = rawValue["pumpReservoirCapacity"] as? Double else {
             return nil
         }
