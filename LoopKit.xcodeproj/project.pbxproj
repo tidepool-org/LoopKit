@@ -1998,11 +1998,11 @@
 				43971A3F1C8CABFF0013154F /* GlucoseSampleValue.swift */,
 				43D8FE871C72934C0073BE78 /* GlucoseStore.swift */,
 				432CF86E20D76CCF0066B889 /* GlucoseTrend.swift */,
+				B4B85FCC24A2312000A296A3 /* GlucoseValueType.swift */,
 				43FADDFA1C89679200DDE013 /* HKQuantitySample+GlucoseKit.swift */,
 				433BC7A620523DB7000B1200 /* NewGlucoseSample.swift */,
 				432CF87020D76D5A0066B889 /* SensorDisplayable.swift */,
 				433BC7AC20538FCA000B1200 /* StoredGlucoseSample.swift */,
-				B4B85FCC24A2312000A296A3 /* GlucoseValueType.swift */,
 			);
 			path = GlucoseKit;
 			sourceTree = "<group>";
