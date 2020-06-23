@@ -10,13 +10,68 @@ import HealthKit
 import LoopKit
 import LoopTestingKit
 
-public struct MockCGMState: SensorDisplayable {
+public struct MockCGMStatusReport: CGMManagerStatusReport {
+    public var glucoseValueType: GlucoseValueType?
+    
+    public var message: String?
+    
+    public var messageType: MessageType?
+    
+    public var displayProgress: Bool
+    
+    public var progressPercentCompleted: Double?
+    
     public var isStateValid: Bool
-
+    
     public var trendType: GlucoseTrend?
-
+    
     public var isLocal: Bool {
         return true
+    }
+
+    private var lowGlucoseThresholdValue: Double = 80
+
+    // HKQuantity isn't codable
+    public var lowGlucoseThreshold: HKQuantity {
+        get {
+            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: lowGlucoseThresholdValue)
+        }
+        set {
+            lowGlucoseThresholdValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+        }
+    }
+
+    private var highGlucoseThresholdValue: Double = 200
+
+    // HKQuantity isn't codable
+    public var highGlucoseThreshold: HKQuantity {
+        get {
+            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: highGlucoseThresholdValue)
+        }
+        set {
+            highGlucoseThresholdValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+        }
+    }
+
+    public init(glucoseValueType: GlucoseValueType? = nil,
+                message: String? = nil,
+                messageType: MessageType? = nil,
+                displayProgress: Bool = false,
+                progressPercentCompleted: Double? = nil,
+                isStateValid: Bool = true,
+                trendType: GlucoseTrend? = nil,
+                lowGlucoseThresholdValue: Double = 80,
+                highGlucoseThresholdValue: Double = 200)
+    {
+        self.glucoseValueType = glucoseValueType
+        self.message = message
+        self.messageType = messageType
+        self.displayProgress = displayProgress
+        self.progressPercentCompleted = progressPercentCompleted
+        self.isStateValid = isStateValid
+        self.trendType = trendType
+        self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
+        self.highGlucoseThresholdValue = highGlucoseThresholdValue
     }
 }
 
@@ -39,13 +94,13 @@ public final class MockCGMManager: TestingCGMManager {
                                             foregroundContent: Alert.Content(title: "Alert: FG Title", body: "Alert: Foreground Body", acknowledgeActionButtonLabel: "FG OK"),
                                             backgroundContent: Alert.Content(title: "Alert: BG Title", body: "Alert: Background Body", acknowledgeActionButtonLabel: "BG OK"))
     public static let critical = MockAlert(sound: .sound(name: "critical.caf"), identifier: "critical",
-                                            foregroundContent: Alert.Content(title: "Critical Alert: FG Title", body: "Critical Alert: Foreground Body", acknowledgeActionButtonLabel: "Critical FG OK", isCritical: true),
-                                            backgroundContent: Alert.Content(title: "Critical Alert: BG Title", body: "Critical Alert: Background Body", acknowledgeActionButtonLabel: "Critical BG OK", isCritical: true))
+                                           foregroundContent: Alert.Content(title: "Critical Alert: FG Title", body: "Critical Alert: Foreground Body", acknowledgeActionButtonLabel: "Critical FG OK", isCritical: true),
+                                           backgroundContent: Alert.Content(title: "Critical Alert: BG Title", body: "Critical Alert: Background Body", acknowledgeActionButtonLabel: "Critical BG OK", isCritical: true))
     public static let buzz = MockAlert(sound: .vibrate, identifier: "buzz",
                                        foregroundContent: Alert.Content(title: "Alert: FG Title", body: "FG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
                                        backgroundContent: Alert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"))
 
-    public var mockSensorState: MockCGMState {
+    public var mockStatusReport: MockCGMStatusReport {
         didSet {
             delegate.notify { (delegate) in
                 delegate?.cgmManagerDidUpdateState(self)
@@ -53,10 +108,10 @@ public final class MockCGMManager: TestingCGMManager {
         }
     }
 
-    public var sensorState: SensorDisplayable? {
-        return mockSensorState
+    public var statusReport: CGMManagerStatusReport? {
+        return mockStatusReport
     }
-
+    
     public var testingDevice: HKDevice {
         return MockCGMDataSource.device
     }
@@ -98,11 +153,12 @@ public final class MockCGMManager: TestingCGMManager {
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
     public init?(rawState: RawStateValue) {
-        if let mockSensorStateRawValue = rawState["mockSensorState"] as? MockCGMState.RawValue,
-            let mockSensorState = MockCGMState(rawValue: mockSensorStateRawValue) {
-            self.mockSensorState = mockSensorState
+        if let mockSensorStateRawValue = rawState["mockStatusReport"] as? MockCGMStatusReport.RawValue,
+            let mockStatusReport = MockCGMStatusReport(rawValue: mockSensorStateRawValue)
+        {
+            self.mockStatusReport = mockStatusReport
         } else {
-            self.mockSensorState = MockCGMState(isStateValid: true, trendType: nil)
+            self.mockStatusReport = MockCGMStatusReport()
         }
 
         if let dataSourceRawValue = rawState["dataSource"] as? MockCGMDataSource.RawValue,
@@ -121,7 +177,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public var rawState: RawStateValue {
         return [
-            "mockSensorState": mockSensorState.rawValue,
+            "mockStatusReport": mockStatusReport.rawValue,
             "dataSource": dataSource.rawValue
         ]
     }
@@ -247,46 +303,95 @@ extension MockCGMManager {
     public var debugDescription: String {
         return """
         ## MockCGMManager
-        state: \(mockSensorState)
+        statusReport: \(mockStatusReport)
         dataSource: \(dataSource)
         """
     }
 }
 
-extension MockCGMState: RawRepresentable {
+extension MockCGMStatusReport: RawRepresentable {
     public typealias RawValue = [String: Any]
 
     public init?(rawValue: RawValue) {
-        guard let isStateValid = rawValue["isStateValid"] as? Bool else {
+        guard let isStateValid = rawValue["isStateValid"] as? Bool,
+            let displayProgress = rawValue["displayProgress"] as? Bool,
+            let lowGlucoseThresholdValue = rawValue["lowGlucoseThresholdValue"] as? Double,
+            let highGlucoseThresholdValue = rawValue["highGlucoseThresholdValue"] as? Double else
+        {
             return nil
         }
 
         self.isStateValid = isStateValid
+        self.displayProgress = displayProgress
+        self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
+        self.highGlucoseThresholdValue = highGlucoseThresholdValue
 
         if let trendTypeRawValue = rawValue["trendType"] as? GlucoseTrend.RawValue {
             self.trendType = GlucoseTrend(rawValue: trendTypeRawValue)
+        }
+
+        if let glucoseValueTypeRawValue = rawValue["glucoseValueType"] as? GlucoseValueType.RawValue {
+            self.glucoseValueType = GlucoseValueType(rawValue: glucoseValueTypeRawValue)
+        }
+
+        if let progressPercentCompleted = rawValue["progressPercentCompleted"] as? Double {
+            self.progressPercentCompleted = progressPercentCompleted
+        }
+
+        if let message = rawValue["message"] as? String {
+            self.message = message
+        }
+
+        if let messageTypeRawValue = rawValue["messageType"] as? MessageType.RawValue {
+            self.messageType = MessageType(rawValue: messageTypeRawValue)
         }
     }
 
     public var rawValue: RawValue {
         var rawValue: RawValue = [
             "isStateValid": isStateValid,
+            "displayProgress": displayProgress,
+            "lowGlucoseThresholdValue": lowGlucoseThresholdValue,
+            "highGlucoseThresholdValue": highGlucoseThresholdValue,
         ]
 
         if let trendType = trendType {
             rawValue["trendType"] = trendType.rawValue
+        }
+        
+        if let glucoseValueType = glucoseValueType {
+            rawValue["glucoseValueType"] = glucoseValueType.rawValue
+        }
+
+        if let progressPercentCompleted = progressPercentCompleted {
+            rawValue["progressPercentCompleted"] = progressPercentCompleted
+        }
+
+        if let message = message {
+            rawValue["message"] = message
+        }
+
+        if let messageTypeRawValue = messageType?.rawValue {
+            rawValue["messageType"] = messageTypeRawValue
         }
 
         return rawValue
     }
 }
 
-extension MockCGMState: CustomDebugStringConvertible {
+extension MockCGMStatusReport: CustomDebugStringConvertible {
     public var debugDescription: String {
         return """
-        ## MockCGMState
+        ## MockCGMStatusRespot
         * isStateValid: \(isStateValid)
         * trendType: \(trendType as Any)
+        * lowGlucoseThresholdValue: \(lowGlucoseThresholdValue)
+        * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
+        * glucoseValueType: \(glucoseValueType as Any)
+        * displayProgress: \(displayProgress)
+        * progressPercentCompleted: \(progressPercentCompleted as Any)
+        * message: \(message as Any)
+        * messageType: \(messageType as Any)
         """
     }
 }
