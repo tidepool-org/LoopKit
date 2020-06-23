@@ -218,7 +218,7 @@ extension HealthKitSampleStore {
             return
         }
 
-        let predicate = HKQuery.predicateForSamples(withStart: observationStart, end: nil)
+        let predicate = HKQuery.predicateForSamplesForLoop(withStart: observationStart, end: nil)
 
         observerQuery = HKObserverQuery(sampleType: sampleType, predicate: predicate) { [weak self] (query, completionHandler, error) in
             self?.observeUpdates(to: query, error: error)

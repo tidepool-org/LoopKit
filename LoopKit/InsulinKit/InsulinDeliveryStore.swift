@@ -232,7 +232,7 @@ extension InsulinDeliveryStore {
     }
 
     private func getSamples(start: Date, end: Date? = nil, isChronological: Bool = true, _ completion: @escaping (_ result: InsulinDeliveryStoreResult<[HKQuantitySample]>) -> Void) {
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: [])
+        let predicate = HKQuery.predicateForSamplesForLoop(withStart: start, end: end, options: [])
         getSamples(matching: predicate, isChronological: isChronological, completion)
     }
 
