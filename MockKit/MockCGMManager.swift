@@ -328,7 +328,8 @@ extension MockCGMStatus: RawRepresentable {
         if let progressPercentCompleted = rawValue["progressPercentCompleted"] as? Double {
             self.progressPercentCompleted = progressPercentCompleted
         }
-
+        
+        // TODO Placeholder. With LOOP-1293 the special status will be stored as other properties (e.g., string, enum)
         if let specialStatus = rawValue["specialStatus"] as? DeviceSpecialStatus {
             self.specialStatus = specialStatus
         }
@@ -353,7 +354,7 @@ extension MockCGMStatus: RawRepresentable {
             rawValue["progressPercentCompleted"] = progressPercentCompleted
         }
 
-        // TODO Placeholder. the special status will be reloaded from properties (e.g., string, enum)
+        // TODO Placeholder. With LOOP-1293 the special status will be stored as other properties (e.g., string, enum)
         if let specialStatus = specialStatus {
             rawValue["specialStatus"] = specialStatus
         }
