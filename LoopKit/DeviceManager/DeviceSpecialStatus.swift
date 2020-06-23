@@ -1,0 +1,20 @@
+//
+//  DeviceSpecialStatus.swift
+//  LoopKit
+//
+//  Created by Nathaniel Hamming on 2020-06-23.
+//  Copyright © 2020 LoopKit Authors. All rights reserved.
+//
+
+import Foundation
+
+public protocol DeviceSpecialStatus: Codable {
+    /// a localized message from the device
+    var message: String { get }
+
+    /// the icon replated to the message
+    var iconName: UIImage { get }
+    
+    /// the color of the icon
+    var iconColor: UIColor { get }
+}

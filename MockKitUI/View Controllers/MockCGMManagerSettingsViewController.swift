@@ -205,7 +205,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
             switch HistoryRow(rawValue: indexPath.row)! {
             case .trend:
                 cell.textLabel?.text = "Trend"
-                cell.detailTextLabel?.text = cgmManager.mockStatusReport.trendType?.symbol
+                cell.detailTextLabel?.text = cgmManager.mockStatus.trendType?.symbol
             case .backfill:
                 cell.textLabel?.text = "Backfill Glucose"
             }
@@ -298,7 +298,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
             switch HistoryRow(rawValue: indexPath.row)! {
             case .trend:
                 let vc = GlucoseTrendTableViewController()
-                vc.glucoseTrend = cgmManager.mockStatusReport.trendType
+                vc.glucoseTrend = cgmManager.mockStatus.trendType
                 vc.title = "Glucose Trend"
                 vc.glucoseTrendDelegate = self
                 show(vc, sender: sender)
@@ -421,7 +421,7 @@ extension MockCGMManagerSettingsViewController: PercentageTextFieldTableViewCont
 
 extension MockCGMManagerSettingsViewController: GlucoseTrendTableViewControllerDelegate {
     func glucoseTrendTableViewControllerDidChangeTrend(_ controller: GlucoseTrendTableViewController) {
-        cgmManager.mockStatusReport.trendType = controller.glucoseTrend
+        cgmManager.mockStatus.trendType = controller.glucoseTrend
         tableView.reloadRows(at: [[Section.history.rawValue, HistoryRow.trend.rawValue]], with: .automatic)
     }
 }

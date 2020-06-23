@@ -65,7 +65,7 @@ public protocol CGMManager: DeviceManager {
 
     var shouldSyncToRemoteService: Bool { get }
 
-    var statusReport: CGMManagerStatusReport? { get }
+    var status: CGMManagerStatus? { get }
 
     /// The representation of the device for use in HealthKit
     var device: HKDevice? { get }

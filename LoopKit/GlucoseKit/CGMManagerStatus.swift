@@ -1,5 +1,5 @@
 //
-//  CGMManagerStatusReport.swift
+//  CGMManagerStatus.swift
 //  LoopKit
 //
 //  Created by Nathaniel Hamming on 2020-06-23.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol CGMManagerStatusReport: DeviceManagerStatusReport, SensorDisplayable {
+public protocol CGMManagerStatus: DeviceManagerStatus, SensorDisplayable {
     /// enumerates the glucose value type (e.g., normal, low, high)
     var glucoseValueType: GlucoseValueType? { get }
 }

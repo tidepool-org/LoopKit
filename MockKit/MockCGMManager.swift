@@ -10,12 +10,10 @@ import HealthKit
 import LoopKit
 import LoopTestingKit
 
-public struct MockCGMStatusReport: CGMManagerStatusReport {
+public struct MockCGMStatus: CGMManagerStatus {
     public var glucoseValueType: GlucoseValueType?
     
-    public var deviceMessage: DeviceMessage?
-    
-    public var displayProgress: Bool
+    public var specialStatus: DeviceSpecialStatus?
     
     public var progressPercentCompleted: Double?
     
@@ -52,7 +50,7 @@ public struct MockCGMStatusReport: CGMManagerStatusReport {
     }
 
     public init(glucoseValueType: GlucoseValueType? = nil,
-                deviceMessage: DeviceMessage? = nil,
+                specialStatus: DeviceSpecialStatus? = nil,
                 displayProgress: Bool = false,
                 progressPercentCompleted: Double? = nil,
                 isStateValid: Bool = true,
@@ -61,8 +59,7 @@ public struct MockCGMStatusReport: CGMManagerStatusReport {
                 highGlucoseThresholdValue: Double = 200)
     {
         self.glucoseValueType = glucoseValueType
-        self.deviceMessage = deviceMessage
-        self.displayProgress = displayProgress
+        self.specialStatus = specialStatus
         self.progressPercentCompleted = progressPercentCompleted
         self.isStateValid = isStateValid
         self.trendType = trendType
@@ -96,7 +93,7 @@ public final class MockCGMManager: TestingCGMManager {
                                        foregroundContent: Alert.Content(title: "Alert: FG Title", body: "FG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
                                        backgroundContent: Alert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"))
 
-    public var mockStatusReport: MockCGMStatusReport {
+    public var mockStatus: MockCGMStatus {
         didSet {
             delegate.notify { (delegate) in
                 delegate?.cgmManagerDidUpdateState(self)
@@ -104,8 +101,8 @@ public final class MockCGMManager: TestingCGMManager {
         }
     }
 
-    public var statusReport: CGMManagerStatusReport? {
-        return mockStatusReport
+    public var status: CGMManagerStatus? {
+        return mockStatus
     }
     
     public var testingDevice: HKDevice {
@@ -149,12 +146,12 @@ public final class MockCGMManager: TestingCGMManager {
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
     public init?(rawState: RawStateValue) {
-        if let mockSensorStateRawValue = rawState["mockStatusReport"] as? MockCGMStatusReport.RawValue,
-            let mockStatusReport = MockCGMStatusReport(rawValue: mockSensorStateRawValue)
+        if let mockStatusRawValue = rawState["mockStatus"] as? MockCGMStatus.RawValue,
+            let mockStatus = MockCGMStatus(rawValue: mockStatusRawValue)
         {
-            self.mockStatusReport = mockStatusReport
+            self.mockStatus = mockStatus
         } else {
-            self.mockStatusReport = MockCGMStatusReport()
+            self.mockStatus = MockCGMStatus()
         }
 
         if let dataSourceRawValue = rawState["dataSource"] as? MockCGMDataSource.RawValue,
@@ -173,7 +170,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public var rawState: RawStateValue {
         return [
-            "mockStatusReport": mockStatusReport.rawValue,
+            "mockStatus": mockStatus.rawValue,
             "dataSource": dataSource.rawValue
         ]
     }
@@ -299,18 +296,17 @@ extension MockCGMManager {
     public var debugDescription: String {
         return """
         ## MockCGMManager
-        statusReport: \(mockStatusReport)
+        status: \(mockStatus)
         dataSource: \(dataSource)
         """
     }
 }
 
-extension MockCGMStatusReport: RawRepresentable {
+extension MockCGMStatus: RawRepresentable {
     public typealias RawValue = [String: Any]
 
     public init?(rawValue: RawValue) {
         guard let isStateValid = rawValue["isStateValid"] as? Bool,
-            let displayProgress = rawValue["displayProgress"] as? Bool,
             let lowGlucoseThresholdValue = rawValue["lowGlucoseThresholdValue"] as? Double,
             let highGlucoseThresholdValue = rawValue["highGlucoseThresholdValue"] as? Double else
         {
@@ -318,7 +314,6 @@ extension MockCGMStatusReport: RawRepresentable {
         }
 
         self.isStateValid = isStateValid
-        self.displayProgress = displayProgress
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
 
@@ -334,15 +329,14 @@ extension MockCGMStatusReport: RawRepresentable {
             self.progressPercentCompleted = progressPercentCompleted
         }
 
-        if let deviceMessage = rawValue["deviceMessage"] as? DeviceMessage {
-            self.deviceMessage = deviceMessage
+        if let specialStatus = rawValue["specialStatus"] as? DeviceSpecialStatus {
+            self.specialStatus = specialStatus
         }
     }
 
     public var rawValue: RawValue {
         var rawValue: RawValue = [
             "isStateValid": isStateValid,
-            "displayProgress": displayProgress,
             "lowGlucoseThresholdValue": lowGlucoseThresholdValue,
             "highGlucoseThresholdValue": highGlucoseThresholdValue,
         ]
@@ -359,15 +353,16 @@ extension MockCGMStatusReport: RawRepresentable {
             rawValue["progressPercentCompleted"] = progressPercentCompleted
         }
 
-        if let deviceMessage = deviceMessage {
-            rawValue["deviceMessage"] = deviceMessage
+        // TODO Placeholder. the special status will be reloaded from properties (e.g., string, enum)
+        if let specialStatus = specialStatus {
+            rawValue["specialStatus"] = specialStatus
         }
 
         return rawValue
     }
 }
 
-extension MockCGMStatusReport: CustomDebugStringConvertible {
+extension MockCGMStatus: CustomDebugStringConvertible {
     public var debugDescription: String {
         return """
         ## MockCGMStatusRespot
@@ -376,9 +371,8 @@ extension MockCGMStatusReport: CustomDebugStringConvertible {
         * lowGlucoseThresholdValue: \(lowGlucoseThresholdValue)
         * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
         * glucoseValueType: \(glucoseValueType as Any)
-        * displayProgress: \(displayProgress)
         * progressPercentCompleted: \(progressPercentCompleted as Any)
-        * deviceMessage: \(deviceMessage as Any)
+        * specialStatus: \(specialStatus as Any)
         """
     }
 }
