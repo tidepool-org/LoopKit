@@ -1,5 +1,5 @@
 //
-//  MessageType.swift
+//  DeviceMessageState.swift
 //  LoopKit
 //
 //  Created by Nathaniel Hamming on 2020-06-23.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-public enum MessageType: Int, CaseIterable, Codable {
+public enum DeviceMessageState: Int, CaseIterable, Codable {
     case actionRequired
     case bluetoothOff
     case calibration

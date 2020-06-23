@@ -13,9 +13,7 @@ import LoopTestingKit
 public struct MockCGMStatusReport: CGMManagerStatusReport {
     public var glucoseValueType: GlucoseValueType?
     
-    public var message: String?
-    
-    public var messageType: MessageType?
+    public var deviceMessage: DeviceMessage?
     
     public var displayProgress: Bool
     
@@ -54,8 +52,7 @@ public struct MockCGMStatusReport: CGMManagerStatusReport {
     }
 
     public init(glucoseValueType: GlucoseValueType? = nil,
-                message: String? = nil,
-                messageType: MessageType? = nil,
+                deviceMessage: DeviceMessage? = nil,
                 displayProgress: Bool = false,
                 progressPercentCompleted: Double? = nil,
                 isStateValid: Bool = true,
@@ -64,8 +61,7 @@ public struct MockCGMStatusReport: CGMManagerStatusReport {
                 highGlucoseThresholdValue: Double = 200)
     {
         self.glucoseValueType = glucoseValueType
-        self.message = message
-        self.messageType = messageType
+        self.deviceMessage = deviceMessage
         self.displayProgress = displayProgress
         self.progressPercentCompleted = progressPercentCompleted
         self.isStateValid = isStateValid
@@ -338,12 +334,8 @@ extension MockCGMStatusReport: RawRepresentable {
             self.progressPercentCompleted = progressPercentCompleted
         }
 
-        if let message = rawValue["message"] as? String {
-            self.message = message
-        }
-
-        if let messageTypeRawValue = rawValue["messageType"] as? MessageType.RawValue {
-            self.messageType = MessageType(rawValue: messageTypeRawValue)
+        if let deviceMessage = rawValue["deviceMessage"] as? DeviceMessage {
+            self.deviceMessage = deviceMessage
         }
     }
 
@@ -367,12 +359,8 @@ extension MockCGMStatusReport: RawRepresentable {
             rawValue["progressPercentCompleted"] = progressPercentCompleted
         }
 
-        if let message = message {
-            rawValue["message"] = message
-        }
-
-        if let messageTypeRawValue = messageType?.rawValue {
-            rawValue["messageType"] = messageTypeRawValue
+        if let deviceMessage = deviceMessage {
+            rawValue["deviceMessage"] = deviceMessage
         }
 
         return rawValue
@@ -390,8 +378,7 @@ extension MockCGMStatusReport: CustomDebugStringConvertible {
         * glucoseValueType: \(glucoseValueType as Any)
         * displayProgress: \(displayProgress)
         * progressPercentCompleted: \(progressPercentCompleted as Any)
-        * message: \(message as Any)
-        * messageType: \(messageType as Any)
+        * deviceMessage: \(deviceMessage as Any)
         """
     }
 }

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol CGMManagerStatusReport: StatusReportDisplayable, SensorDisplayable {
+public protocol CGMManagerStatusReport: DeviceManagerStatusReport, SensorDisplayable {
     /// enumerates the glucose value type (e.g., normal, low, high)
     var glucoseValueType: GlucoseValueType? { get }
 }
