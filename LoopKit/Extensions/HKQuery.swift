@@ -11,8 +11,8 @@ import HealthKit
 public var excludeHealthKitDataFromOtherApps = false
 
 extension HKQuery {
-    public class func predicateForSamplesForLoop(withStart startDate: Date?, end endDate: Date?, options: HKQueryOptions = []) -> NSPredicate {
-        if excludeHealthKitDataFromOtherApps {
+    public class func predicateForSamples(forCurrentAppOnly: Bool, withStart startDate: Date?, end endDate: Date?, options: HKQueryOptions = []) -> NSPredicate {
+        if forCurrentAppOnly {
             return NSCompoundPredicate(andPredicateWithSubpredicates: [
                 HKQuery.predicateForObjects(from: HKSource.default()),
                 HKQuery.predicateForSamples(withStart: startDate, end: endDate)
