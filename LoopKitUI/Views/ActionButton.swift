@@ -19,6 +19,8 @@ public struct ActionButton: ViewModifier {
         case primary
         case secondary
         case destructive
+        case tidepoolPrimary
+        case tidepoolSecondary
     }
     
     init(_ style: ButtonType = .primary) {
@@ -35,6 +37,14 @@ public struct ActionButton: ViewModifier {
             fontColor = .accentColor
             backgroundColor = .clear
             edgeColor = .accentColor
+        case .tidepoolPrimary:
+            fontColor = .white
+            backgroundColor = Color(#colorLiteral(red: 0.3647058824, green: 0.4745098039, blue: 1, alpha: 1))
+            edgeColor = Color(#colorLiteral(red: 0.3647058824, green: 0.4745098039, blue: 1, alpha: 1))
+        case .tidepoolSecondary:
+            fontColor = Color(#colorLiteral(red: 0.3647058824, green: 0.4745098039, blue: 1, alpha: 1))
+            backgroundColor = Color(#colorLiteral(red: 0.9490196078, green: 0.9450980392, blue: 0.9647058824, alpha: 1))
+            edgeColor = Color(#colorLiteral(red: 0.3647058824, green: 0.4745098039, blue: 1, alpha: 1))
         }
     }
     
