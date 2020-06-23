@@ -8,8 +8,6 @@
 
 import HealthKit
 
-public var excludeHealthKitDataFromOtherApps = false
-
 extension HKQuery {
     public class func predicateForSamples(forCurrentAppOnly: Bool, withStart startDate: Date?, end endDate: Date?, options: HKQueryOptions = []) -> NSPredicate {
         if forCurrentAppOnly {
