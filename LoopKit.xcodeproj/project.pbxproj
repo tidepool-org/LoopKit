@@ -1733,6 +1733,7 @@
 				43BA719920203EF30058961E /* CarbKit.storyboard */,
 				43A8EC3B210CEEA500A81379 /* CGMManagerUI.swift */,
 				892A5D9F2231E12F008961AB /* CompletionNotifying.swift */,
+				B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */,
 				895FE07022011EDD00FCF18A /* EmojiInputController.storyboard */,
 				892A5DA12231E136008961AB /* HUDProvider.swift */,
 				43BA7157201E484D0058961E /* Info.plist */,
@@ -2261,7 +2262,6 @@
 				432CF87220D774220066B889 /* PumpManager.swift */,
 				43FB610620DDF19B002B996B /* PumpManagerError.swift */,
 				43FB60E820DCBE64002B996B /* PumpManagerStatus.swift */,
-				B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */,
 			);
 			path = DeviceManager;
 			sourceTree = "<group>";

@@ -28,12 +28,12 @@ extension MockCGMManager: CGMManagerUI {
         return nil
     }
     
-    // TODO Placeholder. This functionality will come with LOOP-1311
+    // TODO Placeholder. This functionality will come with LOOP-1293
     public var cgmStatusHighlight: DeviceStatusHighlight? {
         return nil
     }
     
-    // TODO Placeholder. This functionality will come with LOOP-1311
+    // TODO Placeholder. This functionality will come with LOOP-1293
     public var progressPercentCompleted: Double? {
         return nil
     }

@@ -95,7 +95,7 @@ public final class MockCGMManager: TestingCGMManager {
     public var sensorState: SensorDisplayable? {
         return mockSensorState
     }
-        
+
     public var testingDevice: HKDevice {
         return MockCGMDataSource.device
     }

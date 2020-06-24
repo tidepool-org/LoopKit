@@ -12,7 +12,7 @@ public protocol DeviceStatusHighlight: Codable {
     /// a localized message from the device
     var message: String { get }
 
-    /// the icon replated to the message
+    /// the icon related to the message
     var iconName: UIImage { get }
     
     /// the color of the icon
