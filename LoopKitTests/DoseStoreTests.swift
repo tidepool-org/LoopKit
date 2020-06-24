@@ -67,7 +67,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
 
         let doseStore = DoseStore(
             healthStore: healthStore,
-            forCurrentAppOnly: false,
+            observeHealthKitForCurrentAppOnly: false,
             cacheStore: cacheStore,
             observationEnabled: false,
             insulinModel: WalshInsulinModel(actionDuration: .hours(4)),
@@ -177,7 +177,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
 
         let doseStore = DoseStore(
             healthStore: healthStore,
-            forCurrentAppOnly: false,
+            observeHealthKitForCurrentAppOnly: false,
             cacheStore: cacheStore,
             observationEnabled: false,
             insulinModel: WalshInsulinModel(actionDuration: .hours(4)),
@@ -373,7 +373,7 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         super.setUp()
         
         doseStore = DoseStore(healthStore: HKHealthStoreMock(),
-                              forCurrentAppOnly: false,
+                              observeHealthKitForCurrentAppOnly: false,
                               cacheStore: cacheStore,
                               observationEnabled: false,
                               insulinModel: insulinModel,

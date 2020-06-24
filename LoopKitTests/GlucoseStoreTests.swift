@@ -65,7 +65,7 @@ class GlucoseStoreQueryTests: PersistenceControllerTestCase {
         super.setUp()
         
         glucoseStore = GlucoseStore(healthStore: HKHealthStoreMock(),
-                                    forCurrentAppOnly: false,
+                                    observeHealthKitForCurrentAppOnly: false,
                                     cacheStore: cacheStore)
         completion = expectation(description: "Completion")
         queryAnchor = GlucoseStore.QueryAnchor()

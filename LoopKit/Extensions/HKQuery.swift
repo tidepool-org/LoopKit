@@ -9,8 +9,8 @@
 import HealthKit
 
 extension HKQuery {
-    public class func predicateForSamples(forCurrentAppOnly: Bool, withStart startDate: Date?, end endDate: Date?, options: HKQueryOptions = []) -> NSPredicate {
-        if forCurrentAppOnly {
+    public class func predicateForSamples(observeHealthKitForCurrentAppOnly: Bool, withStart startDate: Date?, end endDate: Date?, options: HKQueryOptions = []) -> NSPredicate {
+        if observeHealthKitForCurrentAppOnly {
             return NSCompoundPredicate(andPredicateWithSubpredicates: [
                 HKQuery.predicateForObjects(from: HKSource.default()),
                 HKQuery.predicateForSamples(withStart: startDate, end: endDate)
