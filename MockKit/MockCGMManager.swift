@@ -65,15 +65,31 @@ public struct MockCGMState: SensorDisplayable {
 }
 
 public struct MockCGMStatusHighlight: DeviceStatusHighlight {
-    public var message: String
+    public var localizedMessage: String
     
     public var icon: UIImage {
-        return UIImage(systemName: "exclamationmark.circle.fill")!
+        switch alertIdentifier {
+        case MockCGMManager.submarine.identifier:
+            return UIImage(systemName: "dot.radiowaves.left.and.right")!
+        case MockCGMManager.buzz.identifier:
+            return UIImage(systemName: "clock")!
+        default:
+            return UIImage(systemName: "exclamationmark.circle.fill")!
+        }
     }
     
     public var color: UIColor {
-        return .systemRed
+        switch alertIdentifier {
+        case MockCGMManager.submarine.identifier:
+            return .systemPurple
+        case MockCGMManager.buzz.identifier:
+            return .systemOrange
+        default:
+            return .systemRed
+        }
     }
+    
+    public var alertIdentifier: Alert.AlertIdentifier
 }
 
 public final class MockCGMManager: TestingCGMManager {
@@ -293,7 +309,7 @@ extension MockCGMManager {
         }
 
         // updating the status report
-        mockSensorState.cgmStatusHighlight = MockCGMStatusHighlight(message: alert.foregroundContent.title)
+        mockSensorState.cgmStatusHighlight = MockCGMStatusHighlight(localizedMessage: alert.foregroundContent.title, alertIdentifier: alert.identifier)
     }
     
     public func acknowledgeAlert(alertIdentifier: Alert.AlertIdentifier) {
@@ -354,8 +370,10 @@ extension MockCGMState: RawRepresentable {
             self.glucoseValueType = GlucoseValueType(rawValue: glucoseValueTypeRawValue)
         }
         
-        if let cgmStatusHighlightMessage = rawValue["cgmStatusHighlightMessage"] as? String {
-            self.cgmStatusHighlight = MockCGMStatusHighlight(message: cgmStatusHighlightMessage)
+        if let localizedMessage = rawValue["localizedMessage"] as? String,
+            let alertIdentifier = rawValue["alertIdentifier"] as? Alert.AlertIdentifier
+        {
+            self.cgmStatusHighlight = MockCGMStatusHighlight(localizedMessage: localizedMessage, alertIdentifier: alertIdentifier)
         }
     }
 
@@ -374,8 +392,9 @@ extension MockCGMState: RawRepresentable {
             rawValue["glucoseValueType"] = glucoseValueType.rawValue
         }
         
-        if let cgmStatusHighlightMessage = cgmStatusHighlight?.message {
-            rawValue["cgmStatusHighlightMessage"] = cgmStatusHighlightMessage
+        if let cgmStatusHighlight = cgmStatusHighlight {
+            rawValue["localizedMessage"] = cgmStatusHighlight.localizedMessage
+            rawValue["alertIdentifier"] = cgmStatusHighlight.alertIdentifier
         }
 
         return rawValue
@@ -391,7 +410,7 @@ extension MockCGMState: CustomDebugStringConvertible {
         * lowGlucoseThresholdValue: \(lowGlucoseThresholdValue)
         * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
         * glucoseValueType: \(glucoseValueType as Any)
-        * cgmStatusHighlightMessage: \(cgmStatusHighlight?.message as Any)
+        * cgmStatusHighlight: \(cgmStatusHighlight as Any)
         """
     }
 }

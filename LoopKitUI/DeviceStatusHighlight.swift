@@ -10,7 +10,7 @@ import Foundation
 
 public protocol DeviceStatusHighlight {
     /// a localized message from the device
-    var message: String { get }
+    var localizedMessage: String { get }
 
     /// the icon related to the message
     var icon: UIImage { get }
