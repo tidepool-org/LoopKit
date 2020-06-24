@@ -1,5 +1,5 @@
 //
-//  DeviceSpecialStatus.swift
+//  DeviceStatusHighlight.swift
 //  LoopKit
 //
 //  Created by Nathaniel Hamming on 2020-06-23.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol DeviceSpecialStatus: Codable {
+public protocol DeviceStatusHighlight: Codable {
     /// a localized message from the device
     var message: String { get }
 

@@ -10,22 +10,18 @@ import HealthKit
 import LoopKit
 import LoopTestingKit
 
-public struct MockCGMStatus: CGMManagerStatus {
-    public var glucoseValueType: GlucoseValueType?
-    
-    public var specialStatus: DeviceSpecialStatus?
-    
-    public var progressPercentCompleted: Double?
-    
+public struct MockCGMState: SensorDisplayable {
     public var isStateValid: Bool
-    
+
     public var trendType: GlucoseTrend?
-    
+
     public var isLocal: Bool {
         return true
     }
-
-    private var lowGlucoseThresholdValue: Double = 80
+    
+    public var glucoseValueType: GlucoseValueType?
+    
+    private var lowGlucoseThresholdValue: Double
 
     // HKQuantity isn't codable
     public var lowGlucoseThreshold: HKQuantity {
@@ -37,7 +33,7 @@ public struct MockCGMStatus: CGMManagerStatus {
         }
     }
 
-    private var highGlucoseThresholdValue: Double = 200
+    private var highGlucoseThresholdValue: Double
 
     // HKQuantity isn't codable
     public var highGlucoseThreshold: HKQuantity {
@@ -49,20 +45,15 @@ public struct MockCGMStatus: CGMManagerStatus {
         }
     }
 
-    public init(glucoseValueType: GlucoseValueType? = nil,
-                specialStatus: DeviceSpecialStatus? = nil,
-                displayProgress: Bool = false,
-                progressPercentCompleted: Double? = nil,
-                isStateValid: Bool = true,
+    public init(isStateValid: Bool = true,
                 trendType: GlucoseTrend? = nil,
+                glucoseValueType: GlucoseValueType? = nil,
                 lowGlucoseThresholdValue: Double = 80,
                 highGlucoseThresholdValue: Double = 200)
     {
-        self.glucoseValueType = glucoseValueType
-        self.specialStatus = specialStatus
-        self.progressPercentCompleted = progressPercentCompleted
         self.isStateValid = isStateValid
         self.trendType = trendType
+        self.glucoseValueType = glucoseValueType
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
     }
@@ -93,7 +84,7 @@ public final class MockCGMManager: TestingCGMManager {
                                        foregroundContent: Alert.Content(title: "Alert: FG Title", body: "FG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
                                        backgroundContent: Alert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"))
 
-    public var mockStatus: MockCGMStatus {
+    public var mockSensorState: MockCGMState {
         didSet {
             delegate.notify { (delegate) in
                 delegate?.cgmManagerDidUpdateState(self)
@@ -101,10 +92,10 @@ public final class MockCGMManager: TestingCGMManager {
         }
     }
 
-    public var status: CGMManagerStatus? {
-        return mockStatus
+    public var sensorState: SensorDisplayable? {
+        return mockSensorState
     }
-    
+        
     public var testingDevice: HKDevice {
         return MockCGMDataSource.device
     }
@@ -146,12 +137,11 @@ public final class MockCGMManager: TestingCGMManager {
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
     public init?(rawState: RawStateValue) {
-        if let mockStatusRawValue = rawState["mockStatus"] as? MockCGMStatus.RawValue,
-            let mockStatus = MockCGMStatus(rawValue: mockStatusRawValue)
-        {
-            self.mockStatus = mockStatus
+        if let mockSensorStateRawValue = rawState["mockSensorState"] as? MockCGMState.RawValue,
+            let mockSensorState = MockCGMState(rawValue: mockSensorStateRawValue) {
+            self.mockSensorState = mockSensorState
         } else {
-            self.mockStatus = MockCGMStatus()
+            self.mockSensorState = MockCGMState(isStateValid: true, trendType: nil)
         }
 
         if let dataSourceRawValue = rawState["dataSource"] as? MockCGMDataSource.RawValue,
@@ -170,7 +160,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public var rawState: RawStateValue {
         return [
-            "mockStatus": mockStatus.rawValue,
+            "mockSensorState": mockSensorState.rawValue,
             "dataSource": dataSource.rawValue
         ]
     }
@@ -296,13 +286,13 @@ extension MockCGMManager {
     public var debugDescription: String {
         return """
         ## MockCGMManager
-        status: \(mockStatus)
+        state: \(mockSensorState)
         dataSource: \(dataSource)
         """
     }
 }
 
-extension MockCGMStatus: RawRepresentable {
+extension MockCGMState: RawRepresentable {
     public typealias RawValue = [String: Any]
 
     public init?(rawValue: RawValue) {
@@ -316,22 +306,13 @@ extension MockCGMStatus: RawRepresentable {
         self.isStateValid = isStateValid
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
-
+        
         if let trendTypeRawValue = rawValue["trendType"] as? GlucoseTrend.RawValue {
             self.trendType = GlucoseTrend(rawValue: trendTypeRawValue)
         }
-
+        
         if let glucoseValueTypeRawValue = rawValue["glucoseValueType"] as? GlucoseValueType.RawValue {
             self.glucoseValueType = GlucoseValueType(rawValue: glucoseValueTypeRawValue)
-        }
-
-        if let progressPercentCompleted = rawValue["progressPercentCompleted"] as? Double {
-            self.progressPercentCompleted = progressPercentCompleted
-        }
-        
-        // TODO Placeholder. With LOOP-1293 the special status will be stored as other properties (e.g., string, enum)
-        if let specialStatus = rawValue["specialStatus"] as? DeviceSpecialStatus {
-            self.specialStatus = specialStatus
         }
     }
 
@@ -350,30 +331,19 @@ extension MockCGMStatus: RawRepresentable {
             rawValue["glucoseValueType"] = glucoseValueType.rawValue
         }
 
-        if let progressPercentCompleted = progressPercentCompleted {
-            rawValue["progressPercentCompleted"] = progressPercentCompleted
-        }
-
-        // TODO Placeholder. With LOOP-1293 the special status will be stored as other properties (e.g., string, enum)
-        if let specialStatus = specialStatus {
-            rawValue["specialStatus"] = specialStatus
-        }
-
         return rawValue
     }
 }
 
-extension MockCGMStatus: CustomDebugStringConvertible {
+extension MockCGMState: CustomDebugStringConvertible {
     public var debugDescription: String {
         return """
-        ## MockCGMStatusRespot
+        ## MockCGMState
         * isStateValid: \(isStateValid)
         * trendType: \(trendType as Any)
         * lowGlucoseThresholdValue: \(lowGlucoseThresholdValue)
         * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
         * glucoseValueType: \(glucoseValueType as Any)
-        * progressPercentCompleted: \(progressPercentCompleted as Any)
-        * specialStatus: \(specialStatus as Any)
         """
     }
 }
