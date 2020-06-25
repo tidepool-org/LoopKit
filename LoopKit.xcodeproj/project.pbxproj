@@ -633,9 +633,9 @@
 		B41A60AF23D1DB5B00636320 /* TableViewTitleLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41A60AE23D1DB5B00636320 /* TableViewTitleLabel.swift */; };
 		B41A60B223D1DBC700636320 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41A60B123D1DBC700636320 /* UIFont.swift */; };
 		B42A7472235885B600247B03 /* LoopNotificationUserInfoKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */; };
-		B42C950324A3713300857C73 /* DeviceStatusHighlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */; };
 		B42C950B24A3BCCD00857C73 /* GlucoseValueType+Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C950824A3BCC200857C73 /* GlucoseValueType+Color.swift */; };
 		B42C950E24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C950C24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift */; };
+		B42C951924A508CE00857C73 /* DeviceStatusHighlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */; };
 		B46B62A723FEFE4D001E69BA /* InstructionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46B62A623FEFE4D001E69BA /* InstructionList.swift */; };
 		B46B62A923FF05F8001E69BA /* LabeledNumberInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46B62A823FF05F8001E69BA /* LabeledNumberInput.swift */; };
 		B46B62AB23FF0822001E69BA /* LabeledValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46B62AA23FF0822001E69BA /* LabeledValueView.swift */; };
@@ -2828,7 +2828,6 @@
 				B4C004D42416962600B40429 /* Color.swift in Sources */,
 				432CF86720D76AB90066B889 /* SettingsTableViewCell.swift in Sources */,
 				898B4E7B246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift in Sources */,
-				B42C950324A3713300857C73 /* DeviceStatusHighlight.swift in Sources */,
 				898E6E6A224179530019E459 /* BasalScheduleTableViewController.swift in Sources */,
 				892A5DB42231E191008961AB /* LevelMaskView.swift in Sources */,
 				892A5DA02231E130008961AB /* CompletionNotifying.swift in Sources */,
@@ -2950,6 +2949,7 @@
 				C1814B84225B9ED5008D2D8E /* LoopNotificationCategory.swift in Sources */,
 				43D8FDFD1C7290350073BE78 /* HKUnit.swift in Sources */,
 				C17F39C123CD24A000FA1113 /* DeviceLog.xcdatamodeld in Sources */,
+				B42C951924A508CE00857C73 /* DeviceStatusHighlight.swift in Sources */,
 				4322B779202FA2790002837D /* NewCarbEntry.swift in Sources */,
 				4322B76E202FA26B0002837D /* GlucoseMath.swift in Sources */,
 				4322B791202FA2B70002837D /* Model.xcdatamodeld in Sources */,

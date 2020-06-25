@@ -8,7 +8,6 @@
 
 import HealthKit
 import LoopKit
-import LoopKitUI
 import LoopTestingKit
 
 public struct MockCGMState: SensorDisplayable {
