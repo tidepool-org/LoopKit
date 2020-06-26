@@ -16,6 +16,9 @@
 		1DABAD3A2453615200ACF708 /* IssueAlertTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DABAD392453615200ACF708 /* IssueAlertTableViewController.swift */; };
 		1DD1964E248AE88000420876 /* HorizontalSizeClassOverride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD1964D248AE88000420876 /* HorizontalSizeClassOverride.swift */; };
 		1DD3DEB624451C3300BD8E40 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA649AA2445174400F61E75 /* Alert.swift */; };
+		1DEE226324A6642400693C32 /* GlucoseStoreHKFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DEE226024A6642300693C32 /* GlucoseStoreHKFilterTests.swift */; };
+		1DEE226424A6642400693C32 /* DoseStoreHKFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DEE226124A6642300693C32 /* DoseStoreHKFilterTests.swift */; };
+		1DEE226524A6642400693C32 /* CarbStoreHKFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DEE226224A6642400693C32 /* CarbStoreHKFilterTests.swift */; };
 		1DFB99D6245CB2E900DCC8C9 /* AlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB99D5245CB2E900DCC8C9 /* AlertTests.swift */; };
 		1F5DAB1D2118C95700048054 /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
 		1F5DAB1F2118C95700048054 /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
@@ -680,6 +683,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1DEE226624A6645E00693C32 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 430157F61C7EC03B00B64B63;
+			remoteInfo = "LoopKit Example";
+		};
 		4301581B1C7ECB5E00B64B63 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
@@ -790,6 +800,9 @@
 		1DA649AA2445174400F61E75 /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		1DABAD392453615200ACF708 /* IssueAlertTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueAlertTableViewController.swift; sourceTree = "<group>"; };
 		1DD1964D248AE88000420876 /* HorizontalSizeClassOverride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalSizeClassOverride.swift; sourceTree = "<group>"; };
+		1DEE226024A6642300693C32 /* GlucoseStoreHKFilterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseStoreHKFilterTests.swift; sourceTree = "<group>"; };
+		1DEE226124A6642300693C32 /* DoseStoreHKFilterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoseStoreHKFilterTests.swift; sourceTree = "<group>"; };
+		1DEE226224A6642400693C32 /* CarbStoreHKFilterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbStoreHKFilterTests.swift; sourceTree = "<group>"; };
 		1DFB99D5245CB2E900DCC8C9 /* AlertTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertTests.swift; sourceTree = "<group>"; };
 		1F50C31F212B20D300C18FAB /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		1F50C320212B20D300C18FAB /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Main.strings; sourceTree = "<group>"; };
@@ -1903,24 +1916,27 @@
 		43D8FDD91C728FDF0073BE78 /* LoopKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				434113B620F2BDB900D05747 /* Persistence */,
 				437AFF1B203A45CF008C4892 /* Extensions */,
 				43D988911C87FEFF00DA4467 /* Fixtures */,
+				434113B620F2BDB900D05747 /* Persistence */,
 				43D8FDDC1C728FDF0073BE78 /* Info.plist */,
 				1F5DAB252118CE9300048054 /* InfoPlist.strings */,
+				1DFB99D5245CB2E900DCC8C9 /* AlertTests.swift */,
 				43D8FE1A1C72906E0073BE78 /* BasalRateScheduleTests.swift */,
 				A95A1D8A2460FD620079378D /* BolusRecommendationTests.swift */,
 				43D8FE411C7291900073BE78 /* CarbMathTests.swift */,
+				1DEE226224A6642400693C32 /* CarbStoreHKFilterTests.swift */,
 				437AFF192039F149008C4892 /* CarbStoreTests.swift */,
 				A95A1D842460CAD50079378D /* CarbValueTests.swift */,
 				A9BFA03D245CCCB9001E4AE3 /* DailyQuantityScheduleTests.swift */,
 				891A3FD6224BE62100378B27 /* DailyValueScheduleTests.swift */,
-				1DFB99D5245CB2E900DCC8C9 /* AlertTests.swift */,
 				A99C7374233993FE00C80963 /* DiagnosticLogTests.swift */,
 				A95A1D8C246101760079378D /* DoseEntryTests.swift */,
+				1DEE226124A6642300693C32 /* DoseStoreHKFilterTests.swift */,
 				43A067121F245A2F00E9E90F /* DoseStoreTests.swift */,
 				A971C8A323C6B1890099BEFC /* DosingDecisionStoreTests.swift */,
 				43D8FE991C7293D00073BE78 /* GlucoseMathTests.swift */,
+				1DEE226024A6642300693C32 /* GlucoseStoreHKFilterTests.swift */,
 				A971C89E23C68B030099BEFC /* GlucoseStoreTests.swift */,
 				A99C73762339A67A00C80963 /* GlucoseThresholdTests.swift */,
 				A95A1D862460F1250079378D /* GlucoseValueTests.swift */,
@@ -1929,13 +1945,13 @@
 				43D9888C1C87EBE400DA4467 /* LoopMathTests.swift */,
 				43D8FE1B1C72906E0073BE78 /* NSDateTests.swift */,
 				A95A1D882460F8930079378D /* PumpManagerStatusTests.swift */,
-				A99C7372233990D400C80963 /* TempBasalRecommendationTests.swift */,
-				8974AFBF22120D7A0043F01B /* TemporaryScheduleOverrideTests.swift */,
-				891A3FD02249948A00378B27 /* TemporaryScheduleOverrideHistoryTests.swift */,
 				434C5F9F209ABD4700B2FD1A /* QuantityFormatterTests.swift */,
 				43D8FE1C1C72906E0073BE78 /* QuantityScheduleTests.swift */,
-				A971C8A123C6B17D0099BEFC /* SettingsStoreTests.swift */,
 				A99C73782339ACDC00C80963 /* ServiceTests.swift */,
+				A971C8A123C6B17D0099BEFC /* SettingsStoreTests.swift */,
+				A99C7372233990D400C80963 /* TempBasalRecommendationTests.swift */,
+				891A3FD02249948A00378B27 /* TemporaryScheduleOverrideHistoryTests.swift */,
+				8974AFBF22120D7A0043F01B /* TemporaryScheduleOverrideTests.swift */,
 			);
 			path = LoopKitTests;
 			sourceTree = "<group>";
@@ -2415,6 +2431,7 @@
 			);
 			dependencies = (
 				43D8FDD81C728FDF0073BE78 /* PBXTargetDependency */,
+				1DEE226724A6645E00693C32 /* PBXTargetDependency */,
 			);
 			name = LoopKitTests;
 			productName = LoopKitTests;
@@ -2530,6 +2547,7 @@
 					43D8FDD41C728FDF0073BE78 = {
 						CreatedOnToolsVersion = 7.2.1;
 						LastSwiftMigration = 1020;
+						TestTargetID = 430157F61C7EC03B00B64B63;
 					};
 					892A5D33222F03CB008961AB = {
 						CreatedOnToolsVersion = 10.1;
@@ -3093,6 +3111,7 @@
 				1F5DAB202118C95700048054 /* LocalizedString.swift in Sources */,
 				434113B820F2BDE800D05747 /* PersistenceControllerTestCase.swift in Sources */,
 				437874B6202FDD1500A3D8B9 /* InsulinMathTests.swift in Sources */,
+				1DEE226324A6642400693C32 /* GlucoseStoreHKFilterTests.swift in Sources */,
 				A95A1D8B2460FD620079378D /* BolusRecommendationTests.swift in Sources */,
 				A99C7373233990D400C80963 /* TempBasalRecommendationTests.swift in Sources */,
 				A971C89F23C68B030099BEFC /* GlucoseStoreTests.swift in Sources */,
@@ -3113,6 +3132,7 @@
 				A99C7375233993FE00C80963 /* DiagnosticLogTests.swift in Sources */,
 				4322B76C202F9ECD0002837D /* CarbMathTests.swift in Sources */,
 				434113B520F2BDB500D05747 /* CachedInsulinDeliveryObjectTests.swift in Sources */,
+				1DEE226524A6642400693C32 /* CarbStoreHKFilterTests.swift in Sources */,
 				43D8FE1F1C72906E0073BE78 /* QuantityScheduleTests.swift in Sources */,
 				437AFF1A2039F149008C4892 /* CarbStoreTests.swift in Sources */,
 				43D8FE1D1C72906E0073BE78 /* BasalRateScheduleTests.swift in Sources */,
@@ -3131,6 +3151,7 @@
 				891A3FD12249948A00378B27 /* TemporaryScheduleOverrideHistoryTests.swift in Sources */,
 				A9BFA03E245CCCB9001E4AE3 /* DailyQuantityScheduleTests.swift in Sources */,
 				A99C73772339A67A00C80963 /* GlucoseThresholdTests.swift in Sources */,
+				1DEE226424A6642400693C32 /* DoseStoreHKFilterTests.swift in Sources */,
 				434113BC20F2C56100D05747 /* CachedGlucoseObjectTests.swift in Sources */,
 				A95A1D872460F1250079378D /* GlucoseValueTests.swift in Sources */,
 				891A3FD7224BE62100378B27 /* DailyValueScheduleTests.swift in Sources */,
@@ -3349,6 +3370,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1DEE226724A6645E00693C32 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 430157F61C7EC03B00B64B63 /* LoopKit Example */;
+			targetProxy = 1DEE226624A6645E00693C32 /* PBXContainerItemProxy */;
+		};
 		4301581C1C7ECB5E00B64B63 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 43D8FDCA1C728FDF0073BE78 /* LoopKit */;
@@ -3868,6 +3894,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopkit.LoopKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LoopKit Example.app/LoopKit Example";
 			};
 			name = Debug;
 		};
@@ -3879,6 +3906,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopkit.LoopKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LoopKit Example.app/LoopKit Example";
 			};
 			name = Release;
 		};
