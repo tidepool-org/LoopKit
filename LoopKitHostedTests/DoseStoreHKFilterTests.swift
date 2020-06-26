@@ -1,6 +1,6 @@
 //
 //  DoseStoreHKFilterTests.swift
-//  LoopTests
+//  LoopKitHostedTests
 //
 //  Created by Rick Pasetto on 6/25/20.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
