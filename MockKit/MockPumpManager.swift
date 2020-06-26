@@ -114,6 +114,24 @@ public final class MockPumpManager: TestingPumpManager {
             return .none
         }
     }
+    
+    private func pumpStatusHighlight(for state: MockPumpManagerState) -> PumpManagerStatus.PumpStatusHighlight? {
+        if case .suspended = state.suspendState {
+            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Insulin Suspended", comment: "Status highlight that insulin delivery was suspended."),
+                                                         icon: UIImage(systemName: "pause.circle.fill")!,
+                                                         color: .systemOrange)
+        } else if state.occlusionDetected {
+            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Pump Occlusion", comment: "Status highlight that an occlusion was detected."),
+                                                         icon: UIImage(systemName: "exclamationmark.circle.fill")!,
+                                                         color: .systemRed)
+        } else if state.pumpErrorDetected {
+            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Pump Error", comment: "Status highlight that a pump error occurred."),
+                                                         icon: UIImage(systemName: "exclamationmark.circle.fill")!,
+                                                         color: .systemRed)
+        }
+        
+        return nil
+    }
 
     private func status(for state: MockPumpManagerState) -> PumpManagerStatus {
         return PumpManagerStatus(
@@ -121,7 +139,8 @@ public final class MockPumpManager: TestingPumpManager {
             device: MockPumpManager.device,
             pumpBatteryChargeRemaining: state.pumpBatteryChargeRemaining,
             basalDeliveryState: basalDeliveryState(for: state),
-            bolusState: bolusState(for: state)
+            bolusState: bolusState(for: state),
+            pumpStatusHighlight: pumpStatusHighlight(for: state)
         )
     }
 
