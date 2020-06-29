@@ -128,6 +128,10 @@ public final class MockPumpManager: TestingPumpManager {
             return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Pump Error", comment: "Status highlight that a pump error occurred."),
                                                          icon: UIImage(systemName: "exclamationmark.circle.fill")!,
                                                          color: .systemRed)
+        } else if state.reservoirUnitsRemaining == 0 {
+            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("No Insulin", comment: "Status highlight that a pump is out of insulin."),
+            icon: UIImage(systemName: "exclamationmark.circle.fill")!,
+            color: .systemRed)
         }
         
         return nil
