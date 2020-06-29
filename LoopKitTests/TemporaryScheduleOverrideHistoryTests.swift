@@ -222,10 +222,7 @@ final class TemporaryScheduleOverrideHistoryTests: XCTestCase {
             RepeatingScheduleValue(startTime: .hours(4), value: 1.2),
             RepeatingScheduleValue(startTime: .hours(6), value: 1.4),
             RepeatingScheduleValue(startTime: .hours(20), value: 1.5),
-            //RepeatingScheduleValue(startTime: .hours(22), value: 1.5),
         ])!
-
-        print(expected)
 
         XCTAssert(historyResolves(to: expected, referenceDateOffset: .hours(6)))
     }
