@@ -9,15 +9,20 @@ import LoopKit
 import HealthKit
 
 
-public protocol CGMManagerUI: CGMManager {
+public protocol DeviceManagerUI {
+    // An image representing the device configuration
+    static var smallImage: UIImage? { get }
+    static var name: String { get }
+    static var details: String { get }
+}
+
+public protocol CGMManagerUI: CGMManager, DeviceManagerUI {
     /// Provides a view controller for setting up and configuring the manager if needed.
     ///
     /// If this method returns nil, it's expected that `init?(rawState: [:])` creates a non-nil manager
     static func setupViewController() -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)?
 
     func settingsViewController(for glucoseUnit: HKUnit) -> (UIViewController & CompletionNotifying)
-
-    var smallImage: UIImage? { get }
     
     /// a message from the cgm that needs to be brought to the user's attention in the status bar
     var cgmStatusHighlight: DeviceStatusHighlight? { get }

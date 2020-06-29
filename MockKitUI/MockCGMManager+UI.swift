@@ -14,6 +14,10 @@ import MockKit
 
 
 extension MockCGMManager: CGMManagerUI {
+    public static var name: String { "CGM Simulator" }
+    public static var details: String { "Simulated CGM" }
+    public static var smallImage: UIImage? { #imageLiteral(resourceName: "settings") }
+
     public static func setupViewController() -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)? {
         return nil
     }
@@ -22,10 +26,6 @@ extension MockCGMManager: CGMManagerUI {
         let settings = MockCGMManagerSettingsViewController(cgmManager: self, glucoseUnit: glucoseUnit)
         let nav = SettingsNavigationViewController(rootViewController: settings)
         return nav
-    }
-
-    public var smallImage: UIImage? {
-        return nil
     }
     
     public var cgmStatusHighlight: DeviceStatusHighlight? {
