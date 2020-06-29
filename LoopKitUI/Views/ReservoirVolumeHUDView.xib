@@ -12,7 +12,7 @@
             <rect key="frame" x="0.0" y="0.0" width="52" height="44"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <view clipsSubviews="YES" contentMode="center" verticalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="sSE-Jz-j8k">
+                <view clipsSubviews="YES" contentMode="center" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="sSE-Jz-j8k">
                     <rect key="frame" x="8" y="5" width="36" height="34"/>
                     <subviews>
                         <view contentMode="scaleToFill" verticalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="UOD-1q-wHA" customClass="LevelMaskView" customModule="LoopKitUI">
@@ -27,6 +27,7 @@
                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="reservoir" translatesAutoresizingMaskIntoConstraints="NO" id="zcH-tM-6Pm">
                             <rect key="frame" x="4" y="0.0" width="28" height="34"/>
                             <constraints>
+                                <constraint firstAttribute="width" constant="28" id="27G-w5-6JR"/>
                                 <constraint firstAttribute="height" constant="34" id="iHS-ze-rHu"/>
                             </constraints>
                         </imageView>
