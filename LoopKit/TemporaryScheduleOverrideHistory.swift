@@ -69,7 +69,7 @@ public final class TemporaryScheduleOverrideHistory {
     
     private var modificationCounter: Int
     
-    public var relevantTimeWindow: TimeInterval = TimeInterval.hours(8)
+    public var relevantTimeWindow: TimeInterval = TimeInterval.hours(10)
 
     public weak var delegate: TemporaryScheduleOverrideHistoryDelegate?
 
