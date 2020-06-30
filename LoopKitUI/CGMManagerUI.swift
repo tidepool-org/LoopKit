@@ -8,14 +8,6 @@
 import LoopKit
 import HealthKit
 
-
-public protocol DeviceManagerUI {
-    // An image representing the device configuration
-    static var smallImage: UIImage? { get }
-    static var name: String { get }
-    static var details: String { get }
-}
-
 public protocol CGMManagerUI: CGMManager, DeviceManagerUI {
     /// Provides a view controller for setting up and configuring the manager if needed.
     ///
@@ -30,7 +22,6 @@ public protocol CGMManagerUI: CGMManager, DeviceManagerUI {
     /// the completed percent of the progress bar to display in the status bar
     var progressPercentCompleted: Double? { get }
 }
-
 
 public protocol CGMManagerSetupViewController {
     var setupDelegate: CGMManagerSetupViewControllerDelegate? { get set }

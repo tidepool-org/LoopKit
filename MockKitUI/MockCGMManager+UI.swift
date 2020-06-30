@@ -16,7 +16,7 @@ import MockKit
 extension MockCGMManager: CGMManagerUI {
     public static var name: String { "CGM Simulator" }
     public static var details: String { "Simulated CGM" }
-    public static var smallImage: UIImage? { #imageLiteral(resourceName: "settings") }
+    public static var image: UIImage? { UIImage(systemName: "dial") }
 
     public static func setupViewController() -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)? {
         return nil
