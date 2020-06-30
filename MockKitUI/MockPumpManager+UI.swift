@@ -16,7 +16,7 @@ private class FrameworkBundle {
 }
 
 extension MockPumpManager: PumpManagerUI {
-    public static var name: String { "Pump Simulator" }
+    public static var name: String { localizedTitle }
     public static var details: String { "Simulated Pump" }
     public static var image: UIImage? { return UIImage(named: "Simulator Small", in: FrameworkBundle.main, with: nil) }
 

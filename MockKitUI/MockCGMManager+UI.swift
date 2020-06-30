@@ -14,7 +14,7 @@ import MockKit
 
 
 extension MockCGMManager: CGMManagerUI {
-    public static var name: String { "CGM Simulator" }
+    public static var name: String { localizedTitle }
     public static var details: String { "Simulated CGM" }
     public static var image: UIImage? { UIImage(systemName: "dial") }
 
