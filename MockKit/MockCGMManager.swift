@@ -46,7 +46,9 @@ public struct MockCGMState: SensorDisplayable {
     }
     
     public var cgmStatusHighlight: MockCGMStatusHighlight?
-
+    
+    public var cgmStatusProgress: MockCGMStatusProgress?
+    
     public init(isStateValid: Bool = true,
                 trendType: GlucoseTrend? = nil,
                 glucoseValueType: GlucoseValueType? = nil,
@@ -89,6 +91,37 @@ public struct MockCGMStatusHighlight: DeviceStatusHighlight {
     }
     
     public var alertIdentifier: Alert.AlertIdentifier
+}
+
+public struct MockCGMStatusProgress: DeviceStatusProgress {
+    public var percentComplete: Double
+    
+    public var color: UIColor {
+        if let progressPercentCriticalThresholdValue = criticalThresholdPercentValue,
+            percentComplete >= progressPercentCriticalThresholdValue
+        {
+            return .systemRed
+        } else if let progressPercentWarningThresholdValue = warningThresholdPercentValue,
+            percentComplete >= progressPercentWarningThresholdValue
+        {
+            return .systemOrange
+        } else {
+            return .systemPurple
+        }
+    }
+    
+    public var warningThresholdPercentValue: Double?
+    
+    public var criticalThresholdPercentValue: Double?
+    
+    public init(percentComplete: Double,
+                warningThresholdPercentValue: Double? = nil,
+                criticalThresholdPercentValue: Double? = nil)
+    {
+        self.percentComplete = percentComplete
+        self.warningThresholdPercentValue = warningThresholdPercentValue
+        self.criticalThresholdPercentValue = criticalThresholdPercentValue
+    }
 }
 
 public final class MockCGMManager: TestingCGMManager {
@@ -374,13 +407,19 @@ extension MockCGMState: RawRepresentable {
         {
             self.cgmStatusHighlight = MockCGMStatusHighlight(localizedMessage: localizedMessage, alertIdentifier: alertIdentifier)
         }
+        
+        if let progressPercentComplete = rawValue["progressPercentComplete"] as? Double {
+            self.cgmStatusProgress = MockCGMStatusProgress(percentComplete: progressPercentComplete,
+                                                           warningThresholdPercentValue: rawValue["warningThresholdPercentValue"] as? Double,
+                                                           criticalThresholdPercentValue: rawValue["criticalThresholdPercentValue"] as? Double)
+        }
     }
 
     public var rawValue: RawValue {
         var rawValue: RawValue = [
             "isStateValid": isStateValid,
             "lowGlucoseThresholdValue": lowGlucoseThresholdValue,
-            "highGlucoseThresholdValue": highGlucoseThresholdValue,
+            "highGlucoseThresholdValue": highGlucoseThresholdValue
         ]
 
         if let trendType = trendType {
@@ -394,6 +433,18 @@ extension MockCGMState: RawRepresentable {
         if let cgmStatusHighlight = cgmStatusHighlight {
             rawValue["localizedMessage"] = cgmStatusHighlight.localizedMessage
             rawValue["alertIdentifier"] = cgmStatusHighlight.alertIdentifier
+        }
+        
+        if let cgmStatusProgress = cgmStatusProgress {
+            rawValue["progressPercentComplete"] = cgmStatusProgress.percentComplete
+        
+            if let warningThresholdPercentValue = cgmStatusProgress.warningThresholdPercentValue {
+                rawValue["warningThresholdPercentValue"] = warningThresholdPercentValue
+            }
+            
+            if let criticalThresholdPercentValue = cgmStatusProgress.criticalThresholdPercentValue {
+                rawValue["criticalThresholdPercentValue"] = criticalThresholdPercentValue
+            }
         }
 
         return rawValue
@@ -410,6 +461,7 @@ extension MockCGMState: CustomDebugStringConvertible {
         * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
         * glucoseValueType: \(glucoseValueType as Any)
         * cgmStatusHighlight: \(cgmStatusHighlight as Any)
+        * cgmStatusProgress: \(cgmStatusProgress as Any)
         """
     }
 }
