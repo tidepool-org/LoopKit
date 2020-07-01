@@ -6,23 +6,21 @@
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
-public protocol DeviceManagerUI {
-    /// An image representing the device configuration
-    static var image: UIImage? { get }
-    /// A localized name of the device to display to the user
-    static var name: String { get }
-    /// A localized detail description of the device to display to the user
-    static var details: String { get }
+import LoopKit
+
+public protocol DeviceManagerUI: DeviceManager {
+    /// An image representing this device (staticly available for presenting before the user chooses to set it up)
+    static var smallImage: UIImage? { get }
+    /// An image representing a device configuration after it is set up
+    var smallImage: UIImage? { get }
 }
 
 public extension DeviceManagerUI {
-    static var image: UIImage? { return nil }
-    static var name: String { return "" }
-    static var details: String { return "" }
+    static var smallImage: UIImage? { return nil }
 }
 
 public extension DeviceManagerUI {
     var smallImage: UIImage? {
-        return type(of: self).image
+        return type(of: self).smallImage
     }
 }
