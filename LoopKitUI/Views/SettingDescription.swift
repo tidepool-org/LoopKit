@@ -64,8 +64,9 @@ public struct SettingDescription: View {
 
     private func helpScreen() -> some View {
         switch settingType {
-        case .glucoseTargetRange:                       // ANNA TODO: check for memory leaks
+        case .glucoseTargetRange:                       
             return CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal)
+        // ANNA TODO: add more once other instructional screens are created
         default:
             return CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal)
         }
