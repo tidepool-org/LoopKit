@@ -175,24 +175,24 @@ extension SettingsStore {
 }
 
 public struct StoredSettings {
-    public let date: Date
-    public let dosingEnabled: Bool
-    public let glucoseTargetRangeSchedule: GlucoseRangeSchedule?
-    public let preMealTargetRange: DoubleRange?
-    public let workoutTargetRange: DoubleRange?
-    public let overridePresets: [TemporaryScheduleOverridePreset]?
-    public let scheduleOverride: TemporaryScheduleOverride?
-    public let preMealOverride: TemporaryScheduleOverride?
-    public let maximumBasalRatePerHour: Double?
-    public let maximumBolus: Double?
-    public let suspendThreshold: GlucoseThreshold?
-    public let deviceToken: String?
-    public let insulinModel: InsulinModel?
-    public let basalRateSchedule: BasalRateSchedule?
-    public let insulinSensitivitySchedule: InsulinSensitivitySchedule?
-    public let carbRatioSchedule: CarbRatioSchedule?
-    public let bloodGlucoseUnit: HKUnit?
-    public let syncIdentifier: String
+    public var date: Date
+    public var dosingEnabled: Bool
+    public var glucoseTargetRangeSchedule: GlucoseRangeSchedule?
+    public var preMealTargetRange: DoubleRange?
+    public var workoutTargetRange: DoubleRange?
+    public var overridePresets: [TemporaryScheduleOverridePreset]?
+    public var scheduleOverride: TemporaryScheduleOverride?
+    public var preMealOverride: TemporaryScheduleOverride?
+    public var maximumBasalRatePerHour: Double?
+    public var maximumBolus: Double?
+    public var suspendThreshold: GlucoseThreshold?
+    public var deviceToken: String?
+    public var insulinModel: InsulinModel?
+    public var basalRateSchedule: BasalRateSchedule?
+    public var insulinSensitivitySchedule: InsulinSensitivitySchedule?
+    public var carbRatioSchedule: CarbRatioSchedule?
+    public var bloodGlucoseUnit: HKUnit?
+    public var syncIdentifier: String
 
     public init(date: Date = Date(),
                 dosingEnabled: Bool = false,

@@ -15,32 +15,61 @@ extension Guardrail where Value == HKQuantity {
     public static let correctionRange = Guardrail(absoluteBounds: 60...180, recommendedBounds: 70...120, unit: .milligramsPerDeciliter)
 }
 
+public enum PresentationMode {
+    case modal, flow
+}
 
 public struct CorrectionRangeScheduleEditor: View {
     var initialSchedule: GlucoseRangeSchedule?
     @State var scheduleItems: [RepeatingScheduleValue<DoubleRange>]
     var unit: HKUnit
+    var buttonText: Text
     var minValue: HKQuantity?
     var save: (GlucoseRangeSchedule) -> Void
     let guardrail = Guardrail.correctionRange
-
+    let mode: PresentationMode
+    @State private var userDidTap: Bool = false
+    @Binding var userHasEdited: Bool
+    
+    public init(
+        buttonText: Text,
+        schedule: GlucoseRangeSchedule?,
+        unit: HKUnit,
+        minValue: HKQuantity?,
+        onSave save: @escaping (GlucoseRangeSchedule) -> Void,
+        mode: PresentationMode = .modal,
+        userHasEdited: Binding<Bool> = Binding.constant(false)
+    ) {
+        self.buttonText = buttonText
+        self.initialSchedule = schedule
+        self._scheduleItems = State(initialValue: schedule?.items ?? [])
+        self.unit = unit
+        self.minValue = minValue
+        self.save = save
+        self.mode = mode
+        self._userHasEdited = userHasEdited
+    }
+    
+    /// Convenience initializer for a page with "Save" button
     public init(
         schedule: GlucoseRangeSchedule?,
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void
     ) {
-        self.initialSchedule = schedule
-        self._scheduleItems = State(initialValue: schedule?.items ?? [])
-        self.unit = unit
-        self.minValue = minValue
-        self.save = save
+        self.init(
+            buttonText: Text("Save", comment: "The button text for saving on a configuration page"),
+            schedule: schedule,
+            unit: unit,
+            minValue: minValue,
+            onSave: save)
     }
 
     public var body: some View {
         ScheduleEditor(
             title: Text("Correction Ranges", comment: "Title of correction range schedule editor"),
             description: description,
+            buttonText: buttonText,
             scheduleItems: $scheduleItems,
             initialScheduleItems: initialSchedule?.items ?? [],
             defaultFirstScheduleItemValue: defaultFirstScheduleItemValue,
@@ -65,14 +94,22 @@ public struct CorrectionRangeScheduleEditor: View {
                 )
             },
             actionAreaContent: {
+                instructionalContentIfNecessary
                 guardrailWarningIfNecessary
             },
             savingMechanism: .synchronous { items in
                 let quantitySchedule = DailyQuantitySchedule(unit: self.unit, dailyItems: items)!
                 let rangeSchedule = GlucoseRangeSchedule(rangeSchedule: quantitySchedule, override: self.initialSchedule?.override)
                 self.save(rangeSchedule)
-            }
+            },
+            mode: mode
         )
+        .onTapGesture {
+            self.userDidTap = true
+            if let initialSchedule = self.initialSchedule?.items {
+                self.userHasEdited = initialSchedule != self.scheduleItems
+            }
+        }
     }
 
     var defaultFirstScheduleItemValue: DoubleRange {
@@ -92,6 +129,26 @@ public struct CorrectionRangeScheduleEditor: View {
 
     var saveConfirmation: SaveConfirmation {
         crossedThresholds.isEmpty ? .notRequired : .required(confirmationAlertContent)
+    }
+    
+    var instructionalContentIfNecessary: some View {
+        return Group {
+            if mode == .flow && !userDidTap {
+                instructionalContent
+            }
+        }
+    }
+    
+    var instructionalContent: some View {
+        HStack { // to align with guardrail warning, if present
+            VStack (alignment: .leading, spacing: 20) {
+                Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
+                Text(LocalizedString("You can add different correction ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
+            }
+            .foregroundColor(.accentColor)
+            .font(.subheadline)
+            Spacer()
+        }
     }
 
     var guardrailWarningIfNecessary: some View {

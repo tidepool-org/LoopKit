@@ -40,6 +40,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
 
     var title: Text
     var description: Text
+    var buttonText: Text
     var initialScheduleItems: [RepeatingScheduleValue<Value>]
     @Binding var scheduleItems: [RepeatingScheduleValue<Value>]
     var defaultFirstScheduleItemValue: Value
@@ -49,7 +50,8 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     var valuePicker: (_ item: Binding<RepeatingScheduleValue<Value>>, _ availableWidth: CGFloat) -> ValuePicker
     var actionAreaContent: ActionAreaContent
     var savingMechanism: SavingMechanism<[RepeatingScheduleValue<Value>]>
-
+    let mode: PresentationMode
+    
     @State var editingIndex: Int?
 
     @State var isAddingNewItem = false {
@@ -77,6 +79,8 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     init(
         title: Text,
         description: Text,
+        // ANNA TODO: remove default once other pages are merged in
+        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         scheduleItems: Binding<[RepeatingScheduleValue<Value>]>,
         initialScheduleItems: [RepeatingScheduleValue<Value>],
         defaultFirstScheduleItemValue: Value,
@@ -85,10 +89,12 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         @ViewBuilder valueContent: @escaping (_ value: Value, _ isEditing: Bool) -> ValueContent,
         @ViewBuilder valuePicker: @escaping (_ item: Binding<RepeatingScheduleValue<Value>>, _ availableWidth: CGFloat) -> ValuePicker,
         @ViewBuilder actionAreaContent: () -> ActionAreaContent,
-        savingMechanism: SavingMechanism<[RepeatingScheduleValue<Value>]>
+        savingMechanism: SavingMechanism<[RepeatingScheduleValue<Value>]>,
+        mode: PresentationMode = .modal
     ) {
         self.title = title
         self.description = description
+        self.buttonText = buttonText
         self.initialScheduleItems = initialScheduleItems
         self._scheduleItems = scheduleItems
         self.defaultFirstScheduleItemValue = defaultFirstScheduleItemValue
@@ -98,47 +104,12 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         self.valuePicker = valuePicker
         self.actionAreaContent = actionAreaContent()
         self.savingMechanism = savingMechanism
+        self.mode = mode
     }
 
     var body: some View {
         ZStack {
-            NavigationView {
-                ConfigurationPage(
-                    title: title,
-                    saveButtonState: saveButtonState,
-                    cards: {
-                        // TODO: Remove conditional when Swift 5.3 ships
-                        // https://bugs.swift.org/browse/SR-11628
-                        if true {
-                            Card {
-                                SettingDescription(text: description)
-                                Splat(Array(scheduleItems.enumerated()), id: \.element.startTime) { index, item in
-                                    self.itemView(for: item, at: index)
-                                }
-                            }
-                        }
-                    },
-                    actionAreaContent: {
-                        actionAreaContent
-                    },
-                    onSave: {
-                        switch self.saveConfirmation {
-                        case .required(let alertContent):
-                            self.presentedAlert = .saveConfirmation(alertContent)
-                        case .notRequired:
-                            self.beginSaving()
-                        }
-                    }
-                )
-                .alert(item: $presentedAlert, content: alert(for:))
-                .navigationBarTitle("", displayMode: .inline)
-                .navigationBarItems(
-                    leading: cancelButton,
-                    trailing: trailingNavigationItems
-                )
-            }
-            .disabled(isSyncing || isAddingNewItem)
-            .zIndex(0)
+            setupConfigurationPage
 
             if isAddingNewItem {
                 DarkenedOverlay()
@@ -165,6 +136,63 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
             }
         }
     }
+    
+    private var setupConfigurationPage: some View {
+        switch mode {
+        case .modal:
+            return AnyView(wrappedPage)
+        case .flow:
+            return AnyView(configurationPage)
+        }
+    }
+    
+    private var wrappedPage: some View {
+        NavigationView {
+            configurationPage
+            .navigationBarItems(
+                leading: cancelButton, // add in cancel button if modal
+                trailing: trailingNavigationItems
+            )
+        }
+        .disabled(isSyncing || isAddingNewItem)
+        .zIndex(0)
+    }
+    
+    private var configurationPage: some View {
+        ConfigurationPage(
+            title: title,
+            actionButtonTitle: buttonText,
+            actionButtonState: saveButtonState,
+            cards: {
+                // TODO: Remove conditional when Swift 5.3 ships
+                // https://bugs.swift.org/browse/SR-11628
+                if true {
+                    Card {
+                        SettingDescription(text: description)
+                        Splat(Array(scheduleItems.enumerated()), id: \.element.startTime) { index, item in
+                            self.itemView(for: item, at: index)
+                        }
+                    }
+                }
+            },
+            actionAreaContent: {
+                actionAreaContent
+            },
+            action: {
+                switch self.saveConfirmation {
+                case .required(let alertContent):
+                    self.presentedAlert = .saveConfirmation(alertContent)
+                case .notRequired:
+                    self.beginSaving()
+                }
+            }
+        )
+        .alert(item: $presentedAlert, content: alert(for:))
+        .navigationBarTitle("", displayMode: .inline)
+        .navigationBarItems(
+            trailing: trailingNavigationItems
+        )
+    }
 
     private var saveButtonState: ConfigurationPageActionButtonState {
         if isSyncing {
@@ -172,7 +200,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         }
 
         let isEnabled = !scheduleItems.isEmpty
-            && scheduleItems != initialScheduleItems
+            && (scheduleItems != initialScheduleItems || mode == .flow)
             && tableDeletionState == .disabled
 
         return isEnabled ? .enabled : .disabled
@@ -280,7 +308,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     }
 
     var cancelButton: some View {
-        Button(action: dismiss, label: { Text("Cancel") })
+        return Button(action: dismiss, label: { Text("Cancel") })
     }
 
     var editButton: some View {
