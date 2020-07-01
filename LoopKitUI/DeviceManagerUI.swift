@@ -16,10 +16,8 @@ public protocol DeviceManagerUI: DeviceManager {
 }
 
 public extension DeviceManagerUI {
+    /// Default implementations
     static var smallImage: UIImage? { return nil }
-}
-
-public extension DeviceManagerUI {
     var smallImage: UIImage? {
         return type(of: self).smallImage
     }
