@@ -8,12 +8,26 @@
 
 import SwiftUI
 
+public enum LoopSetting: Int {
+    case glucoseTargetRange
+    case correctionRangeOverrides
+    case suspendThreshold
+    case basalRate
+    case deliveryLimits
+    case insulinModel
+    case carbRatio
+    case insulinSensitivity
+}
 
 public struct SettingDescription: View {
     var text: Text
+    var settingType: LoopSetting
+    @State var displayHelpPage: Bool = false
 
-    public init(text: Text) {
+    public init(text: Text,
+                settingType: LoopSetting = .glucoseTargetRange) {
         self.text = text
+        self.settingType = settingType
     }
 
     public var body: some View {
@@ -24,25 +38,43 @@ public struct SettingDescription: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer()
-
-            Button(
-                action: {
-                    // TODO: Open a link to a support article
-                },
-                label: {
-                    Image(systemName: "info.circle")
-                        .font(.system(size: 25))
-                        .foregroundColor(.accentColor)
+            
+            infoButton
+            .sheet(isPresented: $displayHelpPage) {
+                NavigationView {
+                    self.helpScreen()
                 }
-            )
-            .padding(.trailing, 4)
+            }
+        }
+    }
+    
+    private var infoButton: some View {
+        Button(
+            action: {
+                self.displayHelpPage = true
+            },
+            label: {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 25))
+                    .foregroundColor(.accentColor)
+            }
+        )
+        .padding(.trailing, 4)
+    }
+
+    private func helpScreen() -> some View {
+        switch settingType {
+        case .glucoseTargetRange:                       // ANNA TODO: check for memory leaks
+            return CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal)
+        default:
+            return CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal)
         }
     }
 }
 
 struct SettingDescription_Previews: PreviewProvider {
     static var previews: some View {
-        SettingDescription(text: Text(verbatim: "When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U and will not recommend a bolus."))
+        SettingDescription(text: Text(verbatim: "When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U and will not recommend a bolus."), settingType: .glucoseTargetRange)
             .padding(.horizontal)
     }
 }

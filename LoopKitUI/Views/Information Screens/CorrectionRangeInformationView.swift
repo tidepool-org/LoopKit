@@ -11,9 +11,12 @@ import SwiftUI
 public struct CorrectionRangeInformationView: View {
     let blueGray = Color("Blue Gray", bundle: Bundle(for: DismissibleHostingController.self))
     var exitPage: (() -> Void)
+    var mode: PresentationMode
     
-    public init(exitPage: @escaping (() -> Void)) {
+    public init(exitPage: @escaping (() -> Void),
+                mode: PresentationMode = .flow) {
         self.exitPage = exitPage
+        self.mode = mode
     }
     
     public var body: some View {
@@ -22,7 +25,7 @@ public struct CorrectionRangeInformationView: View {
             buttonText: Text(LocalizedString("Next: Review Setting", comment: "Button to advance to correction range setting editor")),
             informationalContent: {text},
             exitPage: exitPage,
-            mode: .flow)
+            mode: mode)
     }
     
     var text: some View {
