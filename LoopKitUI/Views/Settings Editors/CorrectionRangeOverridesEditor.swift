@@ -29,11 +29,16 @@ public struct CorrectionRangeOverrides: Equatable {
 }
 
 public struct CorrectionRangeOverridesEditor: View {
+    var buttonText: Text
     var initialValue: CorrectionRangeOverrides
     var unit: HKUnit
     var minValue: HKQuantity?
     var save: (_ overrides: CorrectionRangeOverrides) -> Void
     var sensitivityOverridesEnabled: Bool
+    let mode: PresentationMode
+
+    @State private var userDidTap: Bool = false
+    @Binding var userHasEdited: Bool
 
     @State var value: CorrectionRangeOverrides
 
@@ -49,24 +54,31 @@ public struct CorrectionRangeOverridesEditor: View {
     @Environment(\.dismiss) var dismiss
 
     public init(
+        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         value: CorrectionRangeOverrides,
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (_ overrides: CorrectionRangeOverrides) -> Void,
-        sensitivityOverridesEnabled: Bool
+        sensitivityOverridesEnabled: Bool,
+        mode: PresentationMode = .modal,
+        userHasEdited: Binding<Bool> = Binding.constant(false)
     ) {
+        self.buttonText = buttonText
         self._value = State(initialValue: value)
         self.initialValue = value
         self.unit = unit
         self.minValue = minValue
         self.save = save
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
+        self.mode = mode
+        self._userHasEdited = userHasEdited
     }
 
     public var body: some View {
         ConfigurationPage(
             title: Text("Temporary\nCorrection Ranges", comment: "Title for temporary correction ranges page"),
-            saveButtonState: value != initialValue ? .enabled : .disabled,
+            actionButtonTitle: buttonText,
+            actionButtonState: value != initialValue || mode == .flow ? .enabled : .disabled,
             cards: {
                 card(for: .preMeal)
                 if sensitivityOverridesEnabled {
@@ -74,9 +86,10 @@ public struct CorrectionRangeOverridesEditor: View {
                 }
             },
             actionAreaContent: {
+                instructionalContentIfNecessary
                 guardrailWarningIfNecessary
             },
-            onSave: {
+            action: {
                 if self.crossedThresholds.isEmpty {
                     self.saveAndDismiss()
                 } else {
@@ -85,6 +98,10 @@ public struct CorrectionRangeOverridesEditor: View {
             }
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .onTapGesture {
+            self.userDidTap = true
+            self.userHasEdited = self.initialValue != self.value
+        }
     }
 
     private func card(for preset: CorrectionRangeOverrides.Preset) -> Card {
@@ -164,6 +181,26 @@ public struct CorrectionRangeOverridesEditor: View {
         Image(name)
             .renderingMode(.template)
             .foregroundColor(color)
+    }
+    
+    private var instructionalContentIfNecessary: some View {
+        return Group {
+            if mode == .flow && !userDidTap {
+                instructionalContent
+            }
+        }
+    }
+
+    private var instructionalContent: some View {
+        HStack { // to align with guardrail warning, if present
+            VStack (alignment: .leading, spacing: 20) {
+                Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
+                Text(LocalizedString("You can add different correction ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
+            }
+            .foregroundColor(.accentColor)
+            .font(.subheadline)
+            Spacer()
+        }
     }
 
     private func guardrail(for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity> {
