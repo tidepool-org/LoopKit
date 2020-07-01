@@ -15,10 +15,6 @@ extension Guardrail where Value == HKQuantity {
     public static let correctionRange = Guardrail(absoluteBounds: 60...180, recommendedBounds: 70...120, unit: .milligramsPerDeciliter)
 }
 
-public enum PresentationMode {
-    case modal, flow
-}
-
 public struct CorrectionRangeScheduleEditor: View {
     var initialSchedule: GlucoseRangeSchedule?
     @State var scheduleItems: [RepeatingScheduleValue<DoubleRange>]

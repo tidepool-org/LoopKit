@@ -690,6 +690,8 @@
 		C1F8B1E2223C3CC000DD66CF /* TimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4303C4901E2D664200ADEDC8 /* TimeZone.swift */; };
 		E9077D2424ACCE080066A88D /* LoopSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2324ACCE080066A88D /* LoopSettings.swift */; };
 		E9077D2524ACCE080066A88D /* LoopSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2324ACCE080066A88D /* LoopSettings.swift */; };
+		E9077D2724ACD59F0066A88D /* InformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2624ACD59F0066A88D /* InformationView.swift */; };
+		E9077D2A24ACDE2C0066A88D /* CorrectionRangeInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2924ACDE2C0066A88D /* CorrectionRangeInformationView.swift */; };
 		E93BA06624A39DBC00C5D7E6 /* DismissableHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93BA06524A39DBC00C5D7E6 /* DismissableHostingController.swift */; };
 /* End PBXBuildFile section */
 
@@ -1422,6 +1424,8 @@
 		C1F8403723DB84B700673141 /* DeviceLogEntry+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DeviceLogEntry+CoreDataClass.swift"; sourceTree = "<group>"; };
 		C1F8403823DB84B700673141 /* DeviceLogEntry+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DeviceLogEntry+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		E9077D2324ACCE080066A88D /* LoopSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSettings.swift; sourceTree = "<group>"; };
+		E9077D2624ACD59F0066A88D /* InformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationView.swift; sourceTree = "<group>"; };
+		E9077D2924ACDE2C0066A88D /* CorrectionRangeInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeInformationView.swift; sourceTree = "<group>"; };
 		E93BA06524A39DBC00C5D7E6 /* DismissableHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissableHostingController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1741,6 +1745,7 @@
 				89653C7F2473527100E1BAA5 /* FractionalQuantityPicker.swift */,
 				89653C812473592600E1BAA5 /* CarbRatioScheduleEditor.swift */,
 				89653C8324738D2B00E1BAA5 /* BasalRateScheduleEditor.swift */,
+				E9077D2824ACD5AA0066A88D /* Information Screens */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2351,6 +2356,15 @@
 			path = DeviceLog;
 			sourceTree = "<group>";
 		};
+		E9077D2824ACD5AA0066A88D /* Information Screens */ = {
+			isa = PBXGroup;
+			children = (
+				E9077D2624ACD59F0066A88D /* InformationView.swift */,
+				E9077D2924ACDE2C0066A88D /* CorrectionRangeInformationView.swift */,
+			);
+			path = "Information Screens";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -2910,6 +2924,7 @@
 				898B4E75246CCAB50053C484 /* Binding.swift in Sources */,
 				892155182245FBEF009112BC /* InsulinSensitivityScalingTableViewCell.swift in Sources */,
 				892155132245C516009112BC /* SegmentedGaugeBarView.swift in Sources */,
+				E9077D2A24ACDE2C0066A88D /* CorrectionRangeInformationView.swift in Sources */,
 				B4A2AAB3240832350066563F /* MultipleSelectionList.swift in Sources */,
 				B46B62AB23FF0822001E69BA /* LabeledValueView.swift in Sources */,
 				43FB60E720DCBC55002B996B /* RadioSelectionTableViewController.swift in Sources */,
@@ -2984,6 +2999,7 @@
 				B46B62B323FF0E62001E69BA /* SelectableLabel.swift in Sources */,
 				89FC6893245A2D680075CF59 /* ScheduleItemView.swift in Sources */,
 				43BA716F201E49220058961E /* FoodEmojiDataSource.swift in Sources */,
+				E9077D2724ACD59F0066A88D /* InformationView.swift in Sources */,
 				43F89C9F22BDFB10006BB54E /* UIActivityIndicatorView.swift in Sources */,
 				892ADE002446C858007CE08C /* Card.swift in Sources */,
 				89653C8424738D2B00E1BAA5 /* BasalRateScheduleEditor.swift in Sources */,
