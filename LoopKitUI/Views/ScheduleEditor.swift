@@ -358,7 +358,9 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         switch savingMechanism {
         case .synchronous(let save):
             save(scheduleItems)
-            dismiss()
+            if mode == .modal {
+                dismiss()
+            }
         case .asynchronous(let save):
             withAnimation {
                 self.editingIndex = nil
@@ -372,7 +374,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                             self.isSyncing = false
                         }
                         self.presentedAlert = .saveError(error)
-                    } else {
+                    } else if self.mode == .modal {
                         self.dismiss()
                     }
                 }
