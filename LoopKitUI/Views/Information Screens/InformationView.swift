@@ -37,9 +37,8 @@ struct InformationView<InformationalContent: View> : View {
         bodyWithCancelButtonIfNeeded
         .navigationBarTitle(title)
     }
-    
-    var bodyWithCancelButtonIfNeeded: some View {
-        // ANNA TODO: remove anyviews if possible
+
+    private var bodyWithCancelButtonIfNeeded: some View {
         switch mode {
         case .flow:
             return AnyView(bodyWithBottomButton)
@@ -48,7 +47,7 @@ struct InformationView<InformationalContent: View> : View {
         }
     }
     
-    var bodyWithBottomButton: some View {
+    private var bodyWithBottomButton: some View {
         VStack (alignment: .leading, spacing: 20) {
             informationalContent
             Spacer()
@@ -57,7 +56,7 @@ struct InformationView<InformationalContent: View> : View {
         .padding()
     }
     
-    var bodyWithCancelButton: some View {
+    private var bodyWithCancelButton: some View {
         VStack (alignment: .leading, spacing: 20) {
             informationalContent
             Spacer()
@@ -66,11 +65,11 @@ struct InformationView<InformationalContent: View> : View {
         .navigationBarItems(leading: cancelButton)
     }
     
-    var cancelButton: some View {
+    private var cancelButton: some View {
         Button(action: exitPage, label: { Text("Cancel") })
     }
     
-    var nextPageButton: some View {
+    private var nextPageButton: some View {
         Button(action: exitPage) {
             buttonText
             .actionButtonStyle(.primary)
