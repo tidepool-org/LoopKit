@@ -28,7 +28,7 @@ public struct CorrectionRangeInformationView: View {
             mode: mode)
     }
     
-    var text: some View {
+    private var text: some View {
         VStack(alignment: .leading, spacing: 25) {
             Text(LocalizedString("If you've used a CGM before, you're likely familiar with target range as a wide range of values you'd like for your glucose notification alerts, such as 70-180 mg/dL or 90-200 mg/dL.", comment: "Information about target range"))
             Text(LocalizedString("A correction range is different. This will be a narrower range.", comment: "Information about differences between target range and correction range"))
