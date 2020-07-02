@@ -65,10 +65,12 @@ public struct SettingDescription: View {
     private func helpScreen() -> some View {
         switch settingType {
         case .glucoseTargetRange:                       
-            return CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal)
+            return AnyView(CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
+        case .correctionRangeOverrides:
+            return AnyView(CorrectionRangeOverrideInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
         // ANNA TODO: add more once other instructional screens are created
         default:
-            return CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal)
+            return AnyView(CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
         }
     }
 }

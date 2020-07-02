@@ -106,7 +106,7 @@ public struct CorrectionRangeOverridesEditor: View {
 
     private func card(for preset: CorrectionRangeOverrides.Preset) -> Card {
         Card {
-            SettingDescription(text: description(of: preset))
+            SettingDescription(text: description(of: preset), settingType: .correctionRangeOverrides)
             ExpandableSetting(
                 isEditing: Binding(
                     get: { self.presetBeingEdited == preset },
