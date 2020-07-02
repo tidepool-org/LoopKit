@@ -216,7 +216,7 @@ public struct CorrectionRangeOverridesEditor: View {
     private var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds
         return Group {
-            if !crossedThresholds.isEmpty {
+            if !crossedThresholds.isEmpty && (userDidTap || mode == .modal) {
                 CorrectionRangeOverridesGuardrailWarning(crossedThresholds: crossedThresholds)
             }
         }
