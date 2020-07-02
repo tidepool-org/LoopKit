@@ -35,9 +35,16 @@ struct InformationView<InformationalContent: View> : View {
     
     var body: some View {
         bodyWithCancelButtonIfNeeded
-        .navigationBarTitle(title)
+        .navigationBarTitle(Text(""), displayMode: .inline)
+        .padding()
     }
-
+    
+    private var inBodyTitle: Text {
+        title
+        .bold()
+        .font(.largeTitle)
+    }
+    
     private var bodyWithCancelButtonIfNeeded: some View {
         switch mode {
         case .flow:
@@ -49,19 +56,19 @@ struct InformationView<InformationalContent: View> : View {
     
     private var bodyWithBottomButton: some View {
         VStack (alignment: .leading, spacing: 20) {
+            inBodyTitle
             informationalContent
             Spacer()
             nextPageButton
         }
-        .padding()
     }
     
     private var bodyWithCancelButton: some View {
         VStack (alignment: .leading, spacing: 20) {
+            inBodyTitle
             informationalContent
             Spacer()
         }
-        .padding()
         .navigationBarItems(leading: cancelButton)
     }
     
