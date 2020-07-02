@@ -14,7 +14,7 @@ import MockKit
 
 
 extension MockCGMManager: CGMManagerUI {
-    public static var smallImage: UIImage? { UIImage(systemName: "dial") }
+    public var smallImage: UIImage? { UIImage(systemName: "dial") }
 
     public static func setupViewController() -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)? {
         return nil

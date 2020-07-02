@@ -16,7 +16,7 @@ private class FrameworkBundle {
 }
 
 extension MockPumpManager: PumpManagerUI {
-    public static var smallImage: UIImage? { return UIImage(named: "Simulator Small", in: FrameworkBundle.main, with: nil) }
+    public var smallImage: UIImage? { return UIImage(named: "Simulator Small", in: FrameworkBundle.main, with: nil) }
 
     public static func setupViewController() -> (UIViewController & CompletionNotifying & PumpManagerSetupViewController) {
         return MockPumpManagerSetupViewController.instantiateFromStoryboard()
