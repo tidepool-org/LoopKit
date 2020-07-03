@@ -12,15 +12,20 @@ import LoopKit
 
 
 public struct BasalRateScheduleEditor: View {
+    var buttonText: Text
     var schedule: DailyQuantitySchedule<Double>?
     var supportedBasalRates: [Double]
     var guardrail: Guardrail<HKQuantity>
     var maximumScheduleEntryCount: Int
     var syncSchedule: (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
     var save: (BasalRateSchedule) -> Void
+    let mode: PresentationMode
+
+    @Binding var userHasEdited: Bool
 
     /// - Precondition: `supportedBasalRates` is nonempty and sorted in ascending order.
     public init(
+        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         schedule: BasalRateSchedule?,
         supportedBasalRates: [Double],
         maximumBasalRate: Double?,
@@ -29,8 +34,11 @@ public struct BasalRateScheduleEditor: View {
             _ items: [RepeatingScheduleValue<Double>],
             _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void
         ) -> Void,
-        onSave save: @escaping (BasalRateSchedule) -> Void
+        onSave save: @escaping (BasalRateSchedule) -> Void,
+        mode: PresentationMode = .modal,
+        userHasEdited: Binding<Bool> = Binding.constant(false)
     ) {
+        self.buttonText = buttonText
         self.schedule = schedule.map { schedule in
             DailyQuantitySchedule(
                 unit: .internationalUnitsPerHour,
@@ -53,10 +61,13 @@ public struct BasalRateScheduleEditor: View {
         self.maximumScheduleEntryCount = maximumScheduleEntryCount
         self.syncSchedule = syncSchedule
         self.save = save
+        self.mode = mode
+        self._userHasEdited = userHasEdited
     }
 
     public var body: some View {
         QuantityScheduleEditor(
+            buttonText: buttonText,
             title: Text("Basal Rates", comment: "Title of basal rate settings page"),
             description: description,
             schedule: schedule,
@@ -86,7 +97,8 @@ public struct BasalRateScheduleEditor: View {
                     }
 
                 }
-            }
+            },
+            mode: mode
         )
     }
 
