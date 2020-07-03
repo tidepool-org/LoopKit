@@ -24,9 +24,13 @@ public struct MockPumpManagerState {
 
     public var unfinalizedBolus: UnfinalizedDose?
     public var unfinalizedTempBasal: UnfinalizedDose?
-
+    
     var finalizedDoses: [UnfinalizedDose]
 
+    public var progressPercentComplete: Double?
+    public var progressWarningThresholdPercentValue: Double?
+    public var progressCriticalThresholdPercentValue: Double?
+    
     public var dosesToStore: [UnfinalizedDose] {
         return finalizedDoses + [unfinalizedTempBasal, unfinalizedBolus].compactMap {$0}
     }
@@ -64,7 +68,19 @@ extension MockPumpManagerState: RawRepresentable {
         self.pumpBatteryChargeRemaining = rawValue["pumpBatteryChargeRemaining"] as? Double ?? nil
         self.occlusionDetected = rawValue["occlusionDetected"] as? Bool ?? false
         self.pumpErrorDetected = rawValue["pumpErrorDetected"] as? Bool ?? false
-
+        
+        if let progressPercentComplete = rawValue["progressPercentComplete"] as? Double {
+            self.progressPercentComplete = progressPercentComplete
+        }
+        
+        if let progressWarningThresholdPercentValue = rawValue["progressWarningThresholdPercentValue"] as? Double {
+            self.progressWarningThresholdPercentValue = progressWarningThresholdPercentValue
+        }
+        
+        if let progressCriticalThresholdPercentValue = rawValue["progressCriticalThresholdPercentValue"] as? Double {
+            self.progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue
+        }
+        
         if let rawUnfinalizedBolus = rawValue["unfinalizedBolus"] as? UnfinalizedDose.RawValue {
             self.unfinalizedBolus = UnfinalizedDose(rawValue: rawUnfinalizedBolus)
         }
@@ -126,7 +142,19 @@ extension MockPumpManagerState: RawRepresentable {
         
         raw["occlusionDetected"] = occlusionDetected
         raw["pumpErrorDetected"] = pumpErrorDetected
-
+        
+        if let progressPercentComplete = progressPercentComplete {
+            raw["progressPercentComplete"] = progressPercentComplete
+        }
+        
+        if let progressWarningThresholdPercentValue = progressWarningThresholdPercentValue {
+            raw["progressWarningThresholdPercentValue"] = progressWarningThresholdPercentValue
+        }
+        
+        if let progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue {
+            raw["progressCriticalThresholdPercentValue"] = progressCriticalThresholdPercentValue
+        }
+        
         return raw
     }
 }
@@ -150,6 +178,9 @@ extension MockPumpManagerState: CustomDebugStringConvertible {
         * finalizedDoses: \(finalizedDoses)
         * occlusionDetected: \(occlusionDetected)
         * pumpErrorDetected: \(pumpErrorDetected)
+        * progressPercentComplete: \(progressPercentComplete as Any)
+        * progressWarningThresholdPercentValue: \(progressWarningThresholdPercentValue as Any)
+        * progressCriticalThresholdPercentValue: \(progressCriticalThresholdPercentValue as Any)
         """
     }
 }

@@ -116,10 +116,10 @@ public final class MockPumpManager: TestingPumpManager {
     }
     
     private func pumpStatusHighlight(for state: MockPumpManagerState) -> PumpManagerStatus.PumpStatusHighlight? {
-        if case .suspended = state.suspendState {
-            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Insulin Suspended", comment: "Status highlight that insulin delivery was suspended."),
-                                                         icon: UIImage(systemName: "pause.circle.fill")!,
-                                                         color: .systemOrange)
+        if state.reservoirUnitsRemaining == 0 {
+            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("No Insulin", comment: "Status highlight that a pump is out of insulin."),
+            icon: UIImage(systemName: "exclamationmark.circle.fill")!,
+            color: .systemRed)
         } else if state.occlusionDetected {
             return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Pump Occlusion", comment: "Status highlight that an occlusion was detected."),
                                                          icon: UIImage(systemName: "exclamationmark.circle.fill")!,
@@ -128,13 +128,35 @@ public final class MockPumpManager: TestingPumpManager {
             return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Pump Error", comment: "Status highlight that a pump error occurred."),
                                                          icon: UIImage(systemName: "exclamationmark.circle.fill")!,
                                                          color: .systemRed)
-        } else if state.reservoirUnitsRemaining == 0 {
-            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("No Insulin", comment: "Status highlight that a pump is out of insulin."),
-            icon: UIImage(systemName: "exclamationmark.circle.fill")!,
-            color: .systemRed)
+        } else if case .suspended = state.suspendState {
+            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Insulin Suspended", comment: "Status highlight that insulin delivery was suspended."),
+                                                         icon: UIImage(systemName: "pause.circle.fill")!,
+                                                         color: .systemOrange)
         }
         
         return nil
+    }
+    
+    private func pumpStatusProgress(for state: MockPumpManagerState) -> PumpManagerStatus.PumpStatusProgress? {
+        guard let progressPercentComplete = state.progressPercentComplete else {
+            return nil
+        }
+        
+        let color: UIColor
+        if let progressCriticalThresholdPercentValue = state.progressCriticalThresholdPercentValue,
+            progressPercentComplete >= progressCriticalThresholdPercentValue
+        {
+            color = .systemRed
+        } else if let progressWarningThresholdPercentValue = state.progressWarningThresholdPercentValue,
+            progressPercentComplete >= progressWarningThresholdPercentValue
+        {
+            color = .systemOrange
+        } else {
+            color = .systemPurple
+        }
+        
+        return PumpManagerStatus.PumpStatusProgress(percentComplete: progressPercentComplete,
+                                                    color: color)
     }
 
     private func status(for state: MockPumpManagerState) -> PumpManagerStatus {
@@ -144,7 +166,8 @@ public final class MockPumpManager: TestingPumpManager {
             pumpBatteryChargeRemaining: state.pumpBatteryChargeRemaining,
             basalDeliveryState: basalDeliveryState(for: state),
             bolusState: bolusState(for: state),
-            pumpStatusHighlight: pumpStatusHighlight(for: state)
+            pumpStatusHighlight: pumpStatusHighlight(for: state),
+            pumpStatusProgress: pumpStatusProgress(for: state)
         )
     }
 
@@ -227,7 +250,9 @@ public final class MockPumpManager: TestingPumpManager {
             pumpBatteryChargeRemaining: 1,
             unfinalizedBolus: nil,
             unfinalizedTempBasal: nil,
-            finalizedDoses: [])
+            finalizedDoses: [],
+            progressWarningThresholdPercentValue: 0.75,
+            progressCriticalThresholdPercentValue: 0.9)
     }
 
     public init?(rawState: RawStateValue) {
