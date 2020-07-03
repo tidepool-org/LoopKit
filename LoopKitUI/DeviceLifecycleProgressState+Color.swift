@@ -1,5 +1,5 @@
 //
-//  DeviceStatusProgressState+Color.swift
+//  DeviceLifecycleProgressState+Color.swift
 //  LoopKitUI
 //
 //  Created by Nathaniel Hamming on 2020-07-03.
@@ -8,7 +8,7 @@
 
 import LoopKit
 
-extension DeviceStatusProgressState {
+extension DeviceLifecycleProgressState {
     public var color: UIColor {
         switch self {
         case .normal:

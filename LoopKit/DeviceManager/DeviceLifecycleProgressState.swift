@@ -1,5 +1,5 @@
 //
-//  DeviceStatusProgressState.swift
+//  DeviceLifecycleProgressState.swift
 //  LoopKit
 //
 //  Created by Nathaniel Hamming on 2020-07-03.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum DeviceStatusProgressState: Int, CaseIterable {
+public enum DeviceLifecycleProgressState: Int, CaseIterable {
     case normal
     case warning
     case critical

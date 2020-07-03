@@ -63,7 +63,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
         case effects
         case history
         case alerts
-        case statusProgress
+        case lifecycleProgress
         case deleteCGM
     }
 
@@ -98,7 +98,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
         case issueAlert = 0
     }
     
-    private enum StatusProgressRow: Int, CaseIterable {
+    private enum LifecycleProgressRow: Int, CaseIterable {
         case percentComplete
         case warningThreshold
         case criticalThreshold
@@ -122,8 +122,8 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
             return HistoryRow.allCases.count
         case .alerts:
             return AlertsRow.allCases.count
-        case .statusProgress:
-            return StatusProgressRow.allCases.count
+        case .lifecycleProgress:
+            return LifecycleProgressRow.allCases.count
         case .deleteCGM:
             return 1
         }
@@ -141,7 +141,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
             return "History"
         case .alerts:
             return "Alerts"
-        case .statusProgress:
+        case .lifecycleProgress:
             return "Status Progress"
         case .deleteCGM:
             return " " // Use an empty string for more dramatic spacing
@@ -273,12 +273,12 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
                 cell.accessoryType = .disclosureIndicator
             }
             return cell
-        case .statusProgress:
+        case .lifecycleProgress:
             let cell = tableView.dequeueReusableCell(withIdentifier: SettingsTableViewCell.className, for: indexPath)
-            switch StatusProgressRow(rawValue: indexPath.row)! {
+            switch LifecycleProgressRow(rawValue: indexPath.row)! {
             case .percentComplete:
                 cell.textLabel?.text = "Percent Completed"
-                if let percentCompleted = cgmManager.mockSensorState.cgmStatusProgress?.percentComplete {
+                if let percentCompleted = cgmManager.mockSensorState.cgmLifecycleProgress?.percentComplete {
                     cell.detailTextLabel?.text = "\(Int(round(percentCompleted * 100)))%"
                 } else {
                     cell.detailTextLabel?.text = SettingsTableViewCell.NoValueString
@@ -435,13 +435,13 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
                 let vc = IssueAlertTableViewController(cgmManager: cgmManager)
                 show(vc, sender: sender)
             }
-        case .statusProgress:
+        case .lifecycleProgress:
             let vc = PercentageTextFieldTableViewController()
             vc.indexPath = indexPath
             vc.percentageDelegate = self
-            switch StatusProgressRow(rawValue: indexPath.row)! {
+            switch LifecycleProgressRow(rawValue: indexPath.row)! {
             case .percentComplete:
-                vc.percentage = cgmManager.mockSensorState.cgmStatusProgress?.percentComplete
+                vc.percentage = cgmManager.mockSensorState.cgmLifecycleProgress?.percentComplete
             case .warningThreshold:
                 vc.percentage = cgmManager.mockSensorState.progressWarningThresholdPercentValue
             case .criticalThreshold:
@@ -482,45 +482,46 @@ extension MockCGMManagerSettingsViewController: GlucoseEntryTableViewControllerD
         }
 
         tableView.deselectRow(at: indexPath, animated: true)
-        switch indexPath {
-        case [Section.model.rawValue, ModelRow.constant.rawValue]:
-            if let glucose = controller.glucose {
-                cgmManager.dataSource.model = .constant(glucose)
-                tableView.reloadRows(at: indexPaths(forSection: .model, rows: ModelRow.self), with: .automatic)
+        
+        switch Section(rawValue: indexPath.section)! {
+        case .model:
+            switch ModelRow(rawValue: indexPath.row)! {
+            case .constant:
+                if let glucose = controller.glucose {
+                    cgmManager.dataSource.model = .constant(glucose)
+                    tableView.reloadRows(at: indexPaths(forSection: .model, rows: ModelRow.self), with: .automatic)
+                }
+            default:
+                assertionFailure()
             }
-        case [Section.effects.rawValue, EffectsRow.noise.rawValue]:
-            if let glucose = controller.glucose {
-                cgmManager.dataSource.effects.glucoseNoise = glucose
+        case .effects:
+            switch EffectsRow(rawValue: indexPath.row) {
+            case .noise:
+                if let glucose = controller.glucose {
+                    cgmManager.dataSource.effects.glucoseNoise = glucose
+                }
+            default:
+                assertionFailure()
             }
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.cgmLowerLimit.rawValue]:
+        case .glucoseThresholds:
             if let glucose = controller.glucose {
-                cgmManager.mockSensorState.cgmLowerLimit = glucose
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
-        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.urgentLowGlucoseThreshold.rawValue]:
-            if let glucose = controller.glucose {
-                cgmManager.mockSensorState.urgentLowGlucoseThreshold = glucose
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
-        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.lowGlucoseThreshold.rawValue]:
-            if let glucose = controller.glucose {
-                cgmManager.mockSensorState.lowGlucoseThreshold = glucose
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
-        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.highGlucoseThreshold.rawValue]:
-            if let glucose = controller.glucose {
-                cgmManager.mockSensorState.highGlucoseThreshold = glucose
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
-        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.cgmUpperLimit.rawValue]:
-            if let glucose = controller.glucose {
-                cgmManager.mockSensorState.cgmUpperLimit = glucose
-                tableView.reloadRows(at: [indexPath], with: .automatic)
+                switch GlucoseThresholds(rawValue: indexPath.row)! {
+                case .cgmLowerLimit:
+                    cgmManager.mockSensorState.cgmLowerLimit = glucose
+                case .urgentLowGlucoseThreshold:
+                    cgmManager.mockSensorState.urgentLowGlucoseThreshold = glucose
+                case .lowGlucoseThreshold:
+                    cgmManager.mockSensorState.lowGlucoseThreshold = glucose
+                case .highGlucoseThreshold:
+                    cgmManager.mockSensorState.highGlucoseThreshold = glucose
+                case .cgmUpperLimit:
+                    cgmManager.mockSensorState.cgmUpperLimit = glucose
+                }
             }
         default:
             assertionFailure()
         }
+        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }
 
@@ -540,15 +541,19 @@ extension MockCGMManagerSettingsViewController: RandomOutlierTableViewController
             return
         }
 
-        switch indexPath {
-        case [Section.effects.rawValue, EffectsRow.lowOutlier.rawValue]:
-            cgmManager.dataSource.effects.randomLowOutlier = controller.randomOutlier
-        case [Section.effects.rawValue, EffectsRow.highOutlier.rawValue]:
-            cgmManager.dataSource.effects.randomHighOutlier = controller.randomOutlier
+        switch Section(rawValue: indexPath.section)! {
+        case .effects:
+            switch EffectsRow(rawValue: indexPath.row)! {
+            case .lowOutlier:
+                cgmManager.dataSource.effects.randomLowOutlier = controller.randomOutlier
+            case .highOutlier:
+                cgmManager.dataSource.effects.randomHighOutlier = controller.randomOutlier
+            default:
+                assertionFailure()
+            }
         default:
             assertionFailure()
         }
-
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }
@@ -560,32 +565,33 @@ extension MockCGMManagerSettingsViewController: PercentageTextFieldTableViewCont
             return
         }
 
-        switch indexPath {
-        case [Section.effects.rawValue, EffectsRow.error.rawValue]:
-            if let chance = controller.percentage {
-                cgmManager.dataSource.effects.randomErrorChance = chance.clamped(to: 0...100)
-            }
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        case [Section.statusProgress.rawValue, StatusProgressRow.percentComplete.rawValue]:
-            if let percentComplete = controller.percentage.map({ $0.clamped(to: 0...1) }) {
-                if cgmManager.mockSensorState.cgmStatusProgress == nil {
-                    cgmManager.mockSensorState.cgmStatusProgress = MockCGMStatusProgress(percentComplete: percentComplete)
-                } else {
-                    cgmManager.mockSensorState.cgmStatusProgress?.percentComplete = percentComplete
+        switch Section(rawValue: indexPath.section)! {
+        case .effects:
+            switch EffectsRow(rawValue: indexPath.row)! {
+            case .error:
+                if let chance = controller.percentage {
+                    cgmManager.dataSource.effects.randomErrorChance = chance.clamped(to: 0...100)
                 }
-            } else {
-                cgmManager.mockSensorState.cgmStatusProgress = nil
+            default:
+                assertionFailure()
             }
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        case [Section.statusProgress.rawValue, StatusProgressRow.warningThreshold.rawValue]:
-            cgmManager.mockSensorState.progressWarningThresholdPercentValue = controller.percentage.map { $0.clamped(to: 0...1) }
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        case [Section.statusProgress.rawValue, StatusProgressRow.criticalThreshold.rawValue]:
-            cgmManager.mockSensorState.progressCriticalThresholdPercentValue = controller.percentage.map { $0.clamped(to: 0...1) }
-            tableView.reloadRows(at: [indexPath], with: .automatic)
+        case .lifecycleProgress:
+            switch LifecycleProgressRow(rawValue: indexPath.row)! {
+            case .percentComplete:
+                if let percentComplete = controller.percentage.map({ $0.clamped(to: 0...1) }) {
+                    cgmManager.mockSensorState.cgmLifecycleProgress = MockCGMLifecycleProgress(percentComplete: percentComplete)
+                } else {
+                    cgmManager.mockSensorState.cgmLifecycleProgress = nil
+                }
+            case .warningThreshold:
+                cgmManager.mockSensorState.progressWarningThresholdPercentValue = controller.percentage.map { $0.clamped(to: 0...1) }
+            case .criticalThreshold:
+                cgmManager.mockSensorState.progressCriticalThresholdPercentValue = controller.percentage.map { $0.clamped(to: 0...1) }
+            }
         default:
             assertionFailure()
-        }        
+        }
+        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }
 

@@ -81,9 +81,9 @@ public struct MockCGMState: SensorDisplayable {
     
     public var cgmStatusHighlight: MockCGMStatusHighlight?
     
-    public var cgmStatusProgress: MockCGMStatusProgress? {
+    public var cgmLifecycleProgress: MockCGMLifecycleProgress? {
         didSet {
-            if cgmStatusProgress != oldValue {
+            if cgmLifecycleProgress != oldValue {
                 setProgressColor()
             }
         }
@@ -106,20 +106,20 @@ public struct MockCGMState: SensorDisplayable {
     }
     
     private mutating func setProgressColor() {
-        guard cgmStatusProgress != nil else {
+        guard cgmLifecycleProgress != nil else {
             return
         }
         
         if let progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue,
-            cgmStatusProgress!.percentComplete >= progressCriticalThresholdPercentValue
+            cgmLifecycleProgress!.percentComplete >= progressCriticalThresholdPercentValue
         {
-            cgmStatusProgress!.progressState = .critical
+            cgmLifecycleProgress!.progressState = .critical
         } else if let progressWarningThresholdPercentValue = progressWarningThresholdPercentValue,
-            cgmStatusProgress!.percentComplete >= progressWarningThresholdPercentValue
+            cgmLifecycleProgress!.percentComplete >= progressWarningThresholdPercentValue
         {
-            cgmStatusProgress!.progressState = .warning
+            cgmLifecycleProgress!.progressState = .warning
         } else {
-            cgmStatusProgress!.progressState = .normal
+            cgmLifecycleProgress!.progressState = .normal
         }
     }
     
@@ -132,7 +132,7 @@ public struct MockCGMState: SensorDisplayable {
                 cgmLowerLimitValue: Double = 40,
                 cgmUpperLimitValue: Double = 400,
                 cgmStatusHighlight: MockCGMStatusHighlight? = nil,
-                cgmStatusProgress: MockCGMStatusProgress? = nil,
+                cgmLifecycleProgress: MockCGMLifecycleProgress? = nil,
                 progressWarningThresholdPercentValue: Double? = nil,
                 progressCriticalThresholdPercentValue: Double? = nil)
     {
@@ -145,7 +145,7 @@ public struct MockCGMState: SensorDisplayable {
         self.cgmLowerLimitValue = cgmLowerLimitValue
         self.cgmUpperLimitValue = cgmUpperLimitValue
         self.cgmStatusHighlight = cgmStatusHighlight
-        self.cgmStatusProgress = cgmStatusProgress
+        self.cgmLifecycleProgress = cgmLifecycleProgress
         self.progressWarningThresholdPercentValue = progressWarningThresholdPercentValue
         self.progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue
         setProgressColor()
@@ -180,24 +180,24 @@ public struct MockCGMStatusHighlight: DeviceStatusHighlight {
     public var alertIdentifier: Alert.AlertIdentifier
 }
 
-public struct MockCGMStatusProgress: DeviceStatusProgress, Equatable {
+public struct MockCGMLifecycleProgress: DeviceLifecycleProgress, Equatable {
     public var percentComplete: Double
     
-    public var progressState: DeviceStatusProgressState
+    public var progressState: DeviceLifecycleProgressState
         
-    public init(percentComplete: Double, progressState: DeviceStatusProgressState = .normal) {
+    public init(percentComplete: Double, progressState: DeviceLifecycleProgressState = .normal) {
         self.percentComplete = percentComplete
         self.progressState = progressState
     }
 }
 
-extension MockCGMStatusProgress: RawRepresentable {
+extension MockCGMLifecycleProgress: RawRepresentable {
     public typealias RawValue = [String: Any]
 
     public init?(rawValue: RawValue) {
         guard let percentComplete = rawValue["percentComplete"] as? Double,
-            let progressStateRawValue = rawValue["progressState"] as? DeviceStatusProgressState.RawValue,
-            let progressState = DeviceStatusProgressState(rawValue: progressStateRawValue) else
+            let progressStateRawValue = rawValue["progressState"] as? DeviceLifecycleProgressState.RawValue,
+            let progressState = DeviceLifecycleProgressState(rawValue: progressStateRawValue) else
         {
             return nil
         }
@@ -512,8 +512,8 @@ extension MockCGMState: RawRepresentable {
             self.cgmStatusHighlight = MockCGMStatusHighlight(localizedMessage: localizedMessage, alertIdentifier: alertIdentifier)
         }
         
-        if let cgmStatusProgressRawValue = rawValue["cgmStatusProgress"] as? MockCGMStatusProgress.RawValue {
-            self.cgmStatusProgress = MockCGMStatusProgress(rawValue: cgmStatusProgressRawValue)
+        if let cgmLifecycleProgressRawValue = rawValue["cgmLifecycleProgress"] as? MockCGMLifecycleProgress.RawValue {
+            self.cgmLifecycleProgress = MockCGMLifecycleProgress(rawValue: cgmLifecycleProgressRawValue)
         }
         
         if let progressWarningThresholdPercentValue = rawValue["progressWarningThresholdPercentValue"] as? Double {
@@ -550,8 +550,8 @@ extension MockCGMState: RawRepresentable {
             rawValue["alertIdentifier"] = cgmStatusHighlight.alertIdentifier
         }
         
-        if let cgmStatusProgress = cgmStatusProgress {
-            rawValue["cgmStatusProgress"] = cgmStatusProgress.rawValue
+        if let cgmLifecycleProgress = cgmLifecycleProgress {
+            rawValue["cgmLifecycleProgress"] = cgmLifecycleProgress.rawValue
         }
         
         if let progressWarningThresholdPercentValue = progressWarningThresholdPercentValue {
@@ -580,7 +580,7 @@ extension MockCGMState: CustomDebugStringConvertible {
         * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
         * glucoseValueType: \(glucoseValueType as Any)
         * cgmStatusHighlight: \(cgmStatusHighlight as Any)
-        * cgmStatusProgress: \(cgmStatusProgress as Any)
+        * cgmLifecycleProgress: \(cgmLifecycleProgress as Any)
         * progressWarningThresholdPercentValue: \(progressWarningThresholdPercentValue as Any)
         * progressCriticalThresholdPercentValue: \(progressCriticalThresholdPercentValue as Any)
         """
