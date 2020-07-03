@@ -81,7 +81,8 @@ public struct BasalRateScheduleEditor: View {
             },
             onSave: savingMechanism,
             mode: mode,
-            userDidEdit: $userHasEdited
+            userDidEdit: $userHasEdited,
+            settingType: .basalRate
         )
     }
 

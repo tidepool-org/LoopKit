@@ -50,7 +50,8 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     var valuePicker: (_ item: Binding<RepeatingScheduleValue<Value>>, _ availableWidth: CGFloat) -> ValuePicker
     var actionAreaContent: ActionAreaContent
     var savingMechanism: SavingMechanism<[RepeatingScheduleValue<Value>]>
-    let mode: PresentationMode
+    var mode: PresentationMode
+    var settingType: LoopSetting
     
     @State var editingIndex: Int?
 
@@ -90,7 +91,9 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         @ViewBuilder valuePicker: @escaping (_ item: Binding<RepeatingScheduleValue<Value>>, _ availableWidth: CGFloat) -> ValuePicker,
         @ViewBuilder actionAreaContent: () -> ActionAreaContent,
         savingMechanism: SavingMechanism<[RepeatingScheduleValue<Value>]>,
-        mode: PresentationMode = .modal
+        mode: PresentationMode = .modal,
+        // ANNA TODO: remove this default once other pages are merged in
+        settingType: LoopSetting = .correctionRangeOverrides
     ) {
         self.title = title
         self.description = description
@@ -105,6 +108,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         self.actionAreaContent = actionAreaContent()
         self.savingMechanism = savingMechanism
         self.mode = mode
+        self.settingType = settingType
     }
 
     var body: some View {
@@ -168,7 +172,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 // https://bugs.swift.org/browse/SR-11628
                 if true {
                     Card {
-                        SettingDescription(text: description)
+                        SettingDescription(text: description, settingType: settingType)
                         Splat(Array(scheduleItems.enumerated()), id: \.element.startTime) { index, item in
                             self.itemView(for: item, at: index)
                         }
