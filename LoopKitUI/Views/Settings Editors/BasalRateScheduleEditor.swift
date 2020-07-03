@@ -12,7 +12,6 @@ import LoopKit
 
 
 public struct BasalRateScheduleEditor: View {
-    var buttonText: Text
     var schedule: DailyQuantitySchedule<Double>?
     var supportedBasalRates: [Double]
     var guardrail: Guardrail<HKQuantity>
@@ -21,11 +20,10 @@ public struct BasalRateScheduleEditor: View {
     var save: (BasalRateSchedule) -> Void
     let mode: PresentationMode
 
-    @Binding var userHasEdited: Bool
+    @State var userHasEdited: Bool = false
 
     /// - Precondition: `supportedBasalRates` is nonempty and sorted in ascending order.
     public init(
-        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         schedule: BasalRateSchedule?,
         supportedBasalRates: [Double],
         maximumBasalRate: Double?,
@@ -35,10 +33,8 @@ public struct BasalRateScheduleEditor: View {
             _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void
         ) -> Void,
         onSave save: @escaping (BasalRateSchedule) -> Void,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
-        self.buttonText = buttonText
         self.schedule = schedule.map { schedule in
             DailyQuantitySchedule(
                 unit: .internationalUnitsPerHour,
@@ -62,7 +58,6 @@ public struct BasalRateScheduleEditor: View {
         self.syncSchedule = syncSchedule
         self.save = save
         self.mode = mode
-        self._userHasEdited = userHasEdited
     }
 
     public var body: some View {
@@ -98,10 +93,20 @@ public struct BasalRateScheduleEditor: View {
 
                 }
             },
-            mode: mode
+            mode: mode,
+            userDidEdit: $userHasEdited
         )
     }
 
+    private var buttonText: Text {
+        switch mode {
+        case .modal:
+            return Text("Save", comment: "The button text for saving on a configuration page")
+        case .flow:
+            return !userHasEdited ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
+        }
+    }
+    
     private var description: Text {
         Text("Your basal rate of insulin is the number of units per hour that you want to use to cover your background insulin needs.", comment: "Basal rate setting description")
     }
