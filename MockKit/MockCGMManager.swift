@@ -21,6 +21,18 @@ public struct MockCGMState: SensorDisplayable {
     
     public var glucoseValueType: GlucoseValueType?
     
+    private var urgentLowGlucoseThresholdValue: Double
+
+    // HKQuantity isn't codable
+    public var urgentLowGlucoseThreshold: HKQuantity {
+        get {
+            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: urgentLowGlucoseThresholdValue)
+        }
+        set {
+            urgentLowGlucoseThresholdValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+        }
+    }
+    
     private var lowGlucoseThresholdValue: Double
 
     // HKQuantity isn't codable
@@ -47,11 +59,52 @@ public struct MockCGMState: SensorDisplayable {
     
     public var cgmStatusHighlight: MockCGMStatusHighlight?
     
-    public var cgmStatusProgress: MockCGMStatusProgress?
+    public var cgmStatusProgress: MockCGMStatusProgress? {
+        didSet {
+            if cgmStatusProgress != oldValue {
+                setProgressColor()
+            }
+        }
+    }
+    
+    public var progressWarningThresholdPercentValue: Double? {
+        didSet {
+            if progressWarningThresholdPercentValue != oldValue {
+                setProgressColor()
+            }
+        }
+    }
+    
+    public var progressCriticalThresholdPercentValue: Double? {
+        didSet {
+            if progressCriticalThresholdPercentValue != oldValue {
+                setProgressColor()
+            }
+        }
+    }
+    
+    private mutating func setProgressColor() {
+        guard cgmStatusProgress != nil else {
+            return
+        }
+        
+        if let progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue,
+            cgmStatusProgress!.percentComplete >= progressCriticalThresholdPercentValue
+        {
+            cgmStatusProgress!.progressState = .critical
+        } else if let progressWarningThresholdPercentValue = progressWarningThresholdPercentValue,
+            cgmStatusProgress!.percentComplete >= progressWarningThresholdPercentValue
+        {
+            cgmStatusProgress!.progressState = .warning
+        } else {
+            cgmStatusProgress!.progressState = .normal
+        }
+    }
     
     public init(isStateValid: Bool = true,
                 trendType: GlucoseTrend? = nil,
                 glucoseValueType: GlucoseValueType? = nil,
+                urgentLowGlucoseThresholdValue: Double = 50,
                 lowGlucoseThresholdValue: Double = 80,
                 highGlucoseThresholdValue: Double = 200,
                 cgmStatusHighlight: MockCGMStatusHighlight? = nil)
@@ -59,6 +112,7 @@ public struct MockCGMState: SensorDisplayable {
         self.isStateValid = isStateValid
         self.trendType = trendType
         self.glucoseValueType = glucoseValueType
+        self.urgentLowGlucoseThresholdValue = urgentLowGlucoseThresholdValue
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
         self.cgmStatusHighlight = cgmStatusHighlight
@@ -93,34 +147,39 @@ public struct MockCGMStatusHighlight: DeviceStatusHighlight {
     public var alertIdentifier: Alert.AlertIdentifier
 }
 
-public struct MockCGMStatusProgress: DeviceStatusProgress {
+public struct MockCGMStatusProgress: DeviceStatusProgress, Equatable {
     public var percentComplete: Double
     
-    public var color: UIColor {
-        if let progressPercentCriticalThresholdValue = criticalThresholdPercentValue,
-            percentComplete >= progressPercentCriticalThresholdValue
-        {
-            return .systemRed
-        } else if let progressPercentWarningThresholdValue = warningThresholdPercentValue,
-            percentComplete >= progressPercentWarningThresholdValue
-        {
-            return .systemOrange
-        } else {
-            return .systemPurple
-        }
-    }
-    
-    public var warningThresholdPercentValue: Double?
-    
-    public var criticalThresholdPercentValue: Double?
-    
-    public init(percentComplete: Double,
-                warningThresholdPercentValue: Double? = nil,
-                criticalThresholdPercentValue: Double? = nil)
-    {
+    public var progressState: DeviceStatusProgressState
+        
+    public init(percentComplete: Double, progressState: DeviceStatusProgressState = .normal) {
         self.percentComplete = percentComplete
-        self.warningThresholdPercentValue = warningThresholdPercentValue
-        self.criticalThresholdPercentValue = criticalThresholdPercentValue
+        self.progressState = progressState
+    }
+}
+
+extension MockCGMStatusProgress: RawRepresentable {
+    public typealias RawValue = [String: Any]
+
+    public init?(rawValue: RawValue) {
+        guard let percentComplete = rawValue["percentComplete"] as? Double,
+            let progressStateRawValue = rawValue["progressState"] as? DeviceStatusProgressState.RawValue,
+            let progressState = DeviceStatusProgressState(rawValue: progressStateRawValue) else
+        {
+            return nil
+        }
+
+        self.percentComplete = percentComplete
+        self.progressState = progressState
+    }
+
+    public var rawValue: RawValue {
+        let rawValue: RawValue = [
+            "percentComplete": percentComplete,
+            "progressState": progressState.rawValue,
+        ]
+
+        return rawValue
     }
 }
 
@@ -249,7 +308,9 @@ public final class MockCGMManager: TestingCGMManager {
             let currentValue = samples.first
         {
             switch currentValue.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter) {
-            case ..<mockSensorState.lowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
+            case ..<mockSensorState.urgentLowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
+                mockSensorState.glucoseValueType = .urgentLow
+            case mockSensorState.urgentLowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.lowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
                 mockSensorState.glucoseValueType = .low
             case mockSensorState.lowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.highGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
                 mockSensorState.glucoseValueType = .normal
@@ -384,6 +445,7 @@ extension MockCGMState: RawRepresentable {
 
     public init?(rawValue: RawValue) {
         guard let isStateValid = rawValue["isStateValid"] as? Bool,
+            let urgentLowGlucoseThresholdValue = rawValue["urgentLowGlucoseThresholdValue"] as? Double,
             let lowGlucoseThresholdValue = rawValue["lowGlucoseThresholdValue"] as? Double,
             let highGlucoseThresholdValue = rawValue["highGlucoseThresholdValue"] as? Double else
         {
@@ -391,6 +453,7 @@ extension MockCGMState: RawRepresentable {
         }
 
         self.isStateValid = isStateValid
+        self.urgentLowGlucoseThresholdValue = urgentLowGlucoseThresholdValue
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
         
@@ -408,16 +471,25 @@ extension MockCGMState: RawRepresentable {
             self.cgmStatusHighlight = MockCGMStatusHighlight(localizedMessage: localizedMessage, alertIdentifier: alertIdentifier)
         }
         
-        if let progressPercentComplete = rawValue["progressPercentComplete"] as? Double {
-            self.cgmStatusProgress = MockCGMStatusProgress(percentComplete: progressPercentComplete,
-                                                           warningThresholdPercentValue: rawValue["warningThresholdPercentValue"] as? Double,
-                                                           criticalThresholdPercentValue: rawValue["criticalThresholdPercentValue"] as? Double)
+        if let cgmStatusProgressRawValue = rawValue["cgmStatusProgress"] as? MockCGMStatusProgress.RawValue {
+            self.cgmStatusProgress = MockCGMStatusProgress(rawValue: cgmStatusProgressRawValue)
         }
+        
+        if let progressWarningThresholdPercentValue = rawValue["progressWarningThresholdPercentValue"] as? Double {
+            self.progressWarningThresholdPercentValue = progressWarningThresholdPercentValue
+        }
+        
+        if let progressCriticalThresholdPercentValue = rawValue["progressCriticalThresholdPercentValue"] as? Double {
+            self.progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue
+        }
+        
+        setProgressColor()
     }
 
     public var rawValue: RawValue {
         var rawValue: RawValue = [
             "isStateValid": isStateValid,
+            "urgentLowGlucoseThresholdValue": urgentLowGlucoseThresholdValue,
             "lowGlucoseThresholdValue": lowGlucoseThresholdValue,
             "highGlucoseThresholdValue": highGlucoseThresholdValue
         ]
@@ -436,15 +508,15 @@ extension MockCGMState: RawRepresentable {
         }
         
         if let cgmStatusProgress = cgmStatusProgress {
-            rawValue["progressPercentComplete"] = cgmStatusProgress.percentComplete
+            rawValue["cgmStatusProgress"] = cgmStatusProgress.rawValue
+        }
         
-            if let warningThresholdPercentValue = cgmStatusProgress.warningThresholdPercentValue {
-                rawValue["warningThresholdPercentValue"] = warningThresholdPercentValue
-            }
-            
-            if let criticalThresholdPercentValue = cgmStatusProgress.criticalThresholdPercentValue {
-                rawValue["criticalThresholdPercentValue"] = criticalThresholdPercentValue
-            }
+        if let progressWarningThresholdPercentValue = progressWarningThresholdPercentValue {
+            rawValue["progressWarningThresholdPercentValue"] = progressWarningThresholdPercentValue
+        }
+        
+        if let progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue {
+            rawValue["progressCriticalThresholdPercentValue"] = progressCriticalThresholdPercentValue
         }
 
         return rawValue
@@ -457,11 +529,14 @@ extension MockCGMState: CustomDebugStringConvertible {
         ## MockCGMState
         * isStateValid: \(isStateValid)
         * trendType: \(trendType as Any)
+        * urgentLowGlucoseThresholdValue: \(urgentLowGlucoseThresholdValue)
         * lowGlucoseThresholdValue: \(lowGlucoseThresholdValue)
         * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
         * glucoseValueType: \(glucoseValueType as Any)
         * cgmStatusHighlight: \(cgmStatusHighlight as Any)
         * cgmStatusProgress: \(cgmStatusProgress as Any)
+        * progressWarningThresholdPercentValue: \(progressWarningThresholdPercentValue as Any)
+        * progressCriticalThresholdPercentValue: \(progressCriticalThresholdPercentValue as Any)
         """
     }
 }
