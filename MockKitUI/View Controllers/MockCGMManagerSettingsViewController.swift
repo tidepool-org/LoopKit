@@ -59,6 +59,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
 
     private enum Section: Int, CaseIterable {
         case model = 0
+        case glucoseThresholds
         case effects
         case history
         case alerts
@@ -71,6 +72,14 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
         case sineCurve
         case noData
         case frequency
+    }
+    
+    private enum GlucoseThresholds: Int, CaseIterable {
+        case cgmLowerLimit
+        case urgentLowGlucoseThreshold
+        case lowGlucoseThreshold
+        case highGlucoseThreshold
+        case cgmUpperLimit
     }
 
     private enum EffectsRow: Int, CaseIterable {
@@ -87,9 +96,6 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
     
     private enum AlertsRow: Int, CaseIterable {
         case issueAlert = 0
-        case urgentLowGlucoseThreshold
-        case lowGlucoseThreshold
-        case highGlucoseThreshold
     }
     
     private enum StatusProgressRow: Int, CaseIterable {
@@ -108,6 +114,8 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
         switch Section(rawValue: section)! {
         case .model:
             return ModelRow.allCases.count
+        case .glucoseThresholds:
+            return GlucoseThresholds.allCases.count
         case .effects:
             return EffectsRow.allCases.count
         case .history:
@@ -125,6 +133,8 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
         switch Section(rawValue: section)! {
         case .model:
             return "Model"
+        case .glucoseThresholds:
+            return "Glucose Thresholds"
         case .effects:
             return "Effects"
         case .history:
@@ -181,6 +191,27 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
                 cell.detailTextLabel?.text = cgmManager.dataSource.dataPointFrequency.localizedDescription
                 cell.accessoryType = .disclosureIndicator
             }
+            return cell
+        case .glucoseThresholds:
+            let cell = tableView.dequeueReusableCell(withIdentifier: SettingsTableViewCell.className, for: indexPath)
+            switch GlucoseThresholds(rawValue: indexPath.row)! {
+            case .cgmLowerLimit:
+                cell.textLabel?.text = "CGM Lower Limit"
+                cell.detailTextLabel?.text = quantityFormatter.string(from: cgmManager.mockSensorState.cgmLowerLimit, for: glucoseUnit)
+            case .urgentLowGlucoseThreshold:
+                cell.textLabel?.text = "Urgent Low Glucose Threshold"
+                cell.detailTextLabel?.text = quantityFormatter.string(from: cgmManager.mockSensorState.urgentLowGlucoseThreshold, for: glucoseUnit)
+            case .lowGlucoseThreshold:
+                cell.textLabel?.text = "Low Glucose Threshold"
+                cell.detailTextLabel?.text = quantityFormatter.string(from: cgmManager.mockSensorState.lowGlucoseThreshold, for: glucoseUnit)
+            case .highGlucoseThreshold:
+                cell.textLabel?.text = "High Glucose Threshold"
+                cell.detailTextLabel?.text = quantityFormatter.string(from: cgmManager.mockSensorState.highGlucoseThreshold, for: glucoseUnit)
+            case .cgmUpperLimit:
+                cell.textLabel?.text = "CGM Upper Limit"
+                cell.detailTextLabel?.text = quantityFormatter.string(from: cgmManager.mockSensorState.cgmUpperLimit, for: glucoseUnit)
+            }
+            cell.accessoryType = .disclosureIndicator
             return cell
         case .effects:
             let cell = tableView.dequeueReusableCell(withIdentifier: SettingsTableViewCell.className, for: indexPath)
@@ -240,18 +271,6 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
             case .issueAlert:
                 cell.textLabel?.text = "Issue Alerts"
                 cell.accessoryType = .disclosureIndicator
-            case .urgentLowGlucoseThreshold:
-                cell.textLabel?.text = "Urgent Low Glucose Threshold"
-                cell.accessoryType = .disclosureIndicator
-                cell.detailTextLabel?.text = quantityFormatter.string(from: cgmManager.mockSensorState.urgentLowGlucoseThreshold, for: glucoseUnit)
-            case .lowGlucoseThreshold:
-                cell.textLabel?.text = "Low Glucose Threshold"
-                cell.accessoryType = .disclosureIndicator
-                cell.detailTextLabel?.text = quantityFormatter.string(from: cgmManager.mockSensorState.lowGlucoseThreshold, for: glucoseUnit)
-            case .highGlucoseThreshold:
-                cell.textLabel?.text = "High Glucose Threshold"
-                cell.accessoryType = .disclosureIndicator
-                cell.detailTextLabel?.text = quantityFormatter.string(from: cgmManager.mockSensorState.highGlucoseThreshold, for: glucoseUnit)
             }
             return cell
         case .statusProgress:
@@ -326,6 +345,28 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
                 vc.measurementFrequencyDelegate = self
                 show(vc, sender: sender)
             }
+        case .glucoseThresholds:
+            let vc = GlucoseEntryTableViewController(glucoseUnit: glucoseUnit)
+            vc.indexPath = indexPath
+            vc.glucoseEntryDelegate = self
+            switch GlucoseThresholds(rawValue: indexPath.row)! {
+            case .cgmLowerLimit:
+                vc.title = "CGM Lower Limit"
+                vc.contextHelp = "The glucose value that marks the lower limit of the CGM. Any value at or below this value is presented at `LOW`. This value must be lower than the urgent low threshold otherwise the app will crash."
+            case .urgentLowGlucoseThreshold:
+                vc.title = "Urgent Low Glucose Threshold"
+                vc.contextHelp = "The glucose value that marks the urgent low glucose threshold. Any value at or below this value is considered urgent low. This value must be above the cgm lower limit and lower than the low threshold otherwise the app will crash."
+            case .lowGlucoseThreshold:
+                vc.title = "Low Glucose Threshold"
+                vc.contextHelp = "The glucose value that marks the low glucose threshold. Any value at or below this value is considered low. This value must be above the urgent low threshold and lower than the high threshold otherwise the app will crash."
+            case .highGlucoseThreshold:
+                vc.title = "High Glucose Threshold"
+                vc.contextHelp = "The glucose value that marks the high glucose threshold. Any value at or above this value is considered high. This value must be above the low threshold and lower than the cgm upper limit otherwise the app will crash."
+            case .cgmUpperLimit:
+                vc.title = "CGM Upper Limit"
+                vc.contextHelp = "The glucose value that marks the upper limit of the CGM. Any value at or above this value is presented at `HIGH`. This value must be above the high threshold otherwise the app will crash."
+            }
+            show(vc, sender: sender)
         case .effects:
             switch EffectsRow(rawValue: indexPath.row)! {
             case .noise:
@@ -393,27 +434,6 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
             case .issueAlert:
                 let vc = IssueAlertTableViewController(cgmManager: cgmManager)
                 show(vc, sender: sender)
-            case .urgentLowGlucoseThreshold:
-                let vc = GlucoseEntryTableViewController(glucoseUnit: glucoseUnit)
-                vc.title = "Urgent Low Glucose Threshold"
-                vc.indexPath = indexPath
-                vc.contextHelp = "The glucose value that marks the urgent low glucose threshold. Any value at or below this vlaue is considered urgent low."
-                vc.glucoseEntryDelegate = self
-                show(vc, sender: sender)
-            case .lowGlucoseThreshold:
-                let vc = GlucoseEntryTableViewController(glucoseUnit: glucoseUnit)
-                vc.title = "Low Glucose Threshold"
-                vc.indexPath = indexPath
-                vc.contextHelp = "The glucose value that marks the low glucose threshold. Any value at or below this vlaue is considered low."
-                vc.glucoseEntryDelegate = self
-                show(vc, sender: sender)
-            case .highGlucoseThreshold:
-                let vc = GlucoseEntryTableViewController(glucoseUnit: glucoseUnit)
-                vc.title = "High Glucose Threshold"
-                vc.indexPath = indexPath
-                vc.contextHelp = "The glucose value that marks the high glucose threshold. Any value at or above this vlaue is considered high."
-                vc.glucoseEntryDelegate = self
-                show(vc, sender: sender)
             }
         case .statusProgress:
             let vc = PercentageTextFieldTableViewController()
@@ -473,19 +493,29 @@ extension MockCGMManagerSettingsViewController: GlucoseEntryTableViewControllerD
                 cgmManager.dataSource.effects.glucoseNoise = glucose
             }
             tableView.reloadRows(at: [indexPath], with: .automatic)
-        case [Section.alerts.rawValue, AlertsRow.urgentLowGlucoseThreshold.rawValue]:
+        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.cgmLowerLimit.rawValue]:
+            if let glucose = controller.glucose {
+                cgmManager.mockSensorState.cgmLowerLimit = glucose
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.urgentLowGlucoseThreshold.rawValue]:
             if let glucose = controller.glucose {
                 cgmManager.mockSensorState.urgentLowGlucoseThreshold = glucose
                 tableView.reloadRows(at: [indexPath], with: .automatic)
             }
-        case [Section.alerts.rawValue, AlertsRow.lowGlucoseThreshold.rawValue]:
+        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.lowGlucoseThreshold.rawValue]:
             if let glucose = controller.glucose {
                 cgmManager.mockSensorState.lowGlucoseThreshold = glucose
                 tableView.reloadRows(at: [indexPath], with: .automatic)
             }
-        case [Section.alerts.rawValue, AlertsRow.highGlucoseThreshold.rawValue]:
+        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.highGlucoseThreshold.rawValue]:
             if let glucose = controller.glucose {
                 cgmManager.mockSensorState.highGlucoseThreshold = glucose
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        case [Section.glucoseThresholds.rawValue, GlucoseThresholds.cgmUpperLimit.rawValue]:
+            if let glucose = controller.glucose {
+                cgmManager.mockSensorState.cgmUpperLimit = glucose
                 tableView.reloadRows(at: [indexPath], with: .automatic)
             }
         default:

@@ -57,6 +57,28 @@ public struct MockCGMState: SensorDisplayable {
         }
     }
     
+    private var cgmLowerLimitValue: Double
+    
+    public var cgmLowerLimit: HKQuantity {
+        get {
+            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: cgmLowerLimitValue)
+        }
+        set {
+            cgmLowerLimitValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+        }
+    }
+    
+    private var cgmUpperLimitValue: Double
+    
+    public var cgmUpperLimit: HKQuantity {
+        get {
+            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: cgmUpperLimitValue)
+        }
+        set {
+            cgmUpperLimitValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+        }
+    }
+    
     public var cgmStatusHighlight: MockCGMStatusHighlight?
     
     public var cgmStatusProgress: MockCGMStatusProgress? {
@@ -107,7 +129,12 @@ public struct MockCGMState: SensorDisplayable {
                 urgentLowGlucoseThresholdValue: Double = 50,
                 lowGlucoseThresholdValue: Double = 80,
                 highGlucoseThresholdValue: Double = 200,
-                cgmStatusHighlight: MockCGMStatusHighlight? = nil)
+                cgmLowerLimitValue: Double = 40,
+                cgmUpperLimitValue: Double = 400,
+                cgmStatusHighlight: MockCGMStatusHighlight? = nil,
+                cgmStatusProgress: MockCGMStatusProgress? = nil,
+                progressWarningThresholdPercentValue: Double? = nil,
+                progressCriticalThresholdPercentValue: Double? = nil)
     {
         self.isStateValid = isStateValid
         self.trendType = trendType
@@ -115,7 +142,13 @@ public struct MockCGMState: SensorDisplayable {
         self.urgentLowGlucoseThresholdValue = urgentLowGlucoseThresholdValue
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
+        self.cgmLowerLimitValue = cgmLowerLimitValue
+        self.cgmUpperLimitValue = cgmUpperLimitValue
         self.cgmStatusHighlight = cgmStatusHighlight
+        self.cgmStatusProgress = cgmStatusProgress
+        self.progressWarningThresholdPercentValue = progressWarningThresholdPercentValue
+        self.progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue
+        setProgressColor()
     }
 }
 
@@ -308,14 +341,18 @@ public final class MockCGMManager: TestingCGMManager {
             let currentValue = samples.first
         {
             switch currentValue.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter) {
-            case ..<mockSensorState.urgentLowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
+            case ..<mockSensorState.cgmLowerLimit.doubleValue(for: HKUnit.milligramsPerDeciliter):
+                mockSensorState.glucoseValueType = .belowRange
+            case mockSensorState.cgmLowerLimit.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.urgentLowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
                 mockSensorState.glucoseValueType = .urgentLow
             case mockSensorState.urgentLowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.lowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
                 mockSensorState.glucoseValueType = .low
             case mockSensorState.lowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.highGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
                 mockSensorState.glucoseValueType = .normal
-            default:
+            case mockSensorState.highGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.cgmUpperLimit.doubleValue(for: HKUnit.milligramsPerDeciliter):
                 mockSensorState.glucoseValueType = .high
+            default:
+                mockSensorState.glucoseValueType = .aboveRange
             }
         }
         self.delegate.notify { delegate in
@@ -447,7 +484,9 @@ extension MockCGMState: RawRepresentable {
         guard let isStateValid = rawValue["isStateValid"] as? Bool,
             let urgentLowGlucoseThresholdValue = rawValue["urgentLowGlucoseThresholdValue"] as? Double,
             let lowGlucoseThresholdValue = rawValue["lowGlucoseThresholdValue"] as? Double,
-            let highGlucoseThresholdValue = rawValue["highGlucoseThresholdValue"] as? Double else
+            let highGlucoseThresholdValue = rawValue["highGlucoseThresholdValue"] as? Double,
+            let cgmLowerLimitValue = rawValue["cgmLowerLimitValue"] as? Double,
+            let cgmUpperLimitValue = rawValue["cgmUpperLimitValue"] as? Double else
         {
             return nil
         }
@@ -456,6 +495,8 @@ extension MockCGMState: RawRepresentable {
         self.urgentLowGlucoseThresholdValue = urgentLowGlucoseThresholdValue
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
+        self.cgmLowerLimitValue = cgmLowerLimitValue
+        self.cgmUpperLimitValue = cgmUpperLimitValue
         
         if let trendTypeRawValue = rawValue["trendType"] as? GlucoseTrend.RawValue {
             self.trendType = GlucoseTrend(rawValue: trendTypeRawValue)
@@ -491,7 +532,9 @@ extension MockCGMState: RawRepresentable {
             "isStateValid": isStateValid,
             "urgentLowGlucoseThresholdValue": urgentLowGlucoseThresholdValue,
             "lowGlucoseThresholdValue": lowGlucoseThresholdValue,
-            "highGlucoseThresholdValue": highGlucoseThresholdValue
+            "highGlucoseThresholdValue": highGlucoseThresholdValue,
+            "cgmLowerLimitValue": cgmLowerLimitValue,
+            "cgmUpperLimitValue": cgmUpperLimitValue,
         ]
 
         if let trendType = trendType {
@@ -531,6 +574,9 @@ extension MockCGMState: CustomDebugStringConvertible {
         * trendType: \(trendType as Any)
         * urgentLowGlucoseThresholdValue: \(urgentLowGlucoseThresholdValue)
         * lowGlucoseThresholdValue: \(lowGlucoseThresholdValue)
+        * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
+        * cgmLowerLimitValue: \(cgmLowerLimitValue)
+        * cgmUpperLimitValue: \(cgmUpperLimitValue)
         * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
         * glucoseValueType: \(glucoseValueType as Any)
         * cgmStatusHighlight: \(cgmStatusHighlight as Any)
