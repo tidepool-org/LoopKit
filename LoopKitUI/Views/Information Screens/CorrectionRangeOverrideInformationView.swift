@@ -21,7 +21,7 @@ public struct CorrectionRangeOverrideInformationView: View {
     
     public var body: some View {
         InformationView(
-            title: Text(LocalizedString("Temporary \nCorrection Ranges", comment: "Title for correction range override informational screen")),
+            title: Text(LocalizedString("Temporary\nCorrection Ranges", comment: "Title for temporary correction ranges info page")),
             buttonText: Text(LocalizedString("Next: Review Setting", comment: "Button to advance to setting editor")),
             informationalContent: {
                 VStack (alignment: .leading, spacing: 20) {
