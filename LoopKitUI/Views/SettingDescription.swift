@@ -72,6 +72,8 @@ public struct SettingDescription: View {
             return AnyView(SuspendThresholdInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
         case .basalRate:
             return AnyView(BasalRatesInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
+        case .deliveryLimits:
+            return AnyView(DeliveryLimitsInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
         // ANNA TODO: add more once other instructional screens are created
         default:
             return AnyView(CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
