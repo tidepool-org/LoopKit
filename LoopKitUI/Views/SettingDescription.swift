@@ -68,6 +68,8 @@ public struct SettingDescription: View {
             return AnyView(CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
         case .correctionRangeOverrides:
             return AnyView(CorrectionRangeOverrideInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
+        case .suspendThreshold:
+            return AnyView(SuspendThresholdInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
         // ANNA TODO: add more once other instructional screens are created
         default:
             return AnyView(CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
