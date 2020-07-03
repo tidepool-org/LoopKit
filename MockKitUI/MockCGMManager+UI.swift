@@ -37,3 +37,9 @@ extension MockCGMManager: CGMManagerUI {
         return self.mockSensorState.cgmStatusProgress
     }
 }
+
+extension MockCGMStatusProgress {
+    var color: UIColor {
+        return progressState.color
+    }
+}

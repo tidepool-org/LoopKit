@@ -12,6 +12,7 @@ public protocol DeviceStatusProgress {
     /// the percent complete of the progress for this device status. Expects a value between 0.0 and 1.0
     var percentComplete: Double { get }
 
-    /// the color to highlight the percent complete
-    var color: UIColor { get }
+    /// the status of the progress to provide guidance as to how to present the progress
+    var progressState: DeviceStatusProgressState { get }
 }
+
