@@ -142,7 +142,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
         case .alerts:
             return "Alerts"
         case .lifecycleProgress:
-            return "Status Progress"
+            return "Lifecycle Progress"
         case .deleteCGM:
             return " " // Use an empty string for more dramatic spacing
         }
