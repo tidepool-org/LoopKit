@@ -79,20 +79,7 @@ public struct BasalRateScheduleEditor: View {
                     isZeroUnitRateSelectable: self.supportedBasalRates.first! == 0
                 )
             },
-            onSave: .asynchronous { quantitySchedule, completion in
-                self.syncSchedule(quantitySchedule.items) { result in
-                    switch result {
-                    case .success(let syncedSchedule):
-                        DispatchQueue.main.async {
-                            self.save(syncedSchedule)
-                        }
-                        completion(nil)
-                    case .failure(let error):
-                        completion(error)
-                    }
-
-                }
-            },
+            onSave: savingMechanism,
             mode: mode,
             userDidEdit: $userHasEdited
         )
@@ -116,6 +103,31 @@ public struct BasalRateScheduleEditor: View {
             title: Text("Save Basal Rates?", comment: "Alert title for confirming basal rates outside the recommended range"),
             message: Text("One or more of the values you have entered are outside of what Tidepool generally recommends.", comment: "Alert message for confirming basal rates outside the recommended range")
         )
+    }
+    
+    private var savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>> {
+        switch mode {
+        case .modal:
+            return .asynchronous { quantitySchedule, completion in
+                self.syncSchedule(quantitySchedule.items) { result in
+                    switch result {
+                    case .success(let syncedSchedule):
+                        DispatchQueue.main.async {
+                            self.save(syncedSchedule)
+                        }
+                        completion(nil)
+                    case .failure(let error):
+                        completion(error)
+                    }
+
+                }
+            }
+        case .flow:
+            return .synchronous { quantitySchedule in
+                // ANNA TODO: replace this placeholder once the mechanism has been decided
+                self.save(DailyValueSchedule(dailyItems: [RepeatingScheduleValue(startTime: TimeInterval(0), value: 1)])!)
+            }
+        }
     }
 }
 
