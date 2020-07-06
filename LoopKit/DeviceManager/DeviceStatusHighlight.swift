@@ -15,7 +15,7 @@ public protocol DeviceStatusHighlight {
     /// the system name of the icon related to the message
     var imageSystemName: String { get }
         
-    // the state of the status highlight to present it
+    /// the state of the status highlight (guides presentation)
     var state: DeviceStatusHighlightState { get }
 }
 
