@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum DeviceLifecycleProgressState: Int, CaseIterable {
+public enum DeviceLifecycleProgressState: Int, CaseIterable, Codable {
     case normal
     case warning
     case critical
