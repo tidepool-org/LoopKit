@@ -12,8 +12,3 @@ public protocol DeviceManagerUI: DeviceManager {
     /// An image representing a device configuration after it is set up
     var smallImage: UIImage? { get }
 }
-
-public extension DeviceManagerUI {
-    /// Default implementations
-    var smallImage: UIImage? { return nil }
-}

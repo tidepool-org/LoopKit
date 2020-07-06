@@ -11,12 +11,9 @@ import LoopKit
 import LoopKitUI
 import MockKit
 
-private class FrameworkBundle {
-    static let main = Bundle(for: FrameworkBundle.self)
-}
 
 extension MockPumpManager: PumpManagerUI {
-    public var smallImage: UIImage? { return UIImage(named: "Simulator Small", in: FrameworkBundle.main, with: nil) }
+    public var smallImage: UIImage? { return UIImage(named: "Simulator Small", in: Bundle(for: MockPumpManagerSettingsViewController.self), compatibleWith: nil) }
 
     public static func setupViewController() -> (UIViewController & CompletionNotifying & PumpManagerSetupViewController) {
         return MockPumpManagerSetupViewController.instantiateFromStoryboard()
