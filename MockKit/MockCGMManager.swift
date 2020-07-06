@@ -20,51 +20,76 @@ public struct MockCGMState: SensorDisplayable {
     }
     
     public var glucoseValueType: GlucoseValueType?
-    
-    private var urgentLowGlucoseThresholdValue: Double
 
+    public let unit: HKUnit = .milligramsPerDeciliter
+    
+    private var cgmLowerLimitValue: Double
+       
     // HKQuantity isn't codable
-    public var urgentLowGlucoseThreshold: HKQuantity {
+    public var cgmLowerLimit: HKQuantity {
         get {
-            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: urgentLowGlucoseThresholdValue)
+            return HKQuantity.init(unit: unit, doubleValue: cgmLowerLimitValue)
         }
         set {
-            urgentLowGlucoseThresholdValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+            var newDoubleValue = newValue.doubleValue(for: unit)
+            if newDoubleValue >= urgentLowGlucoseThresholdValue {
+                newDoubleValue = urgentLowGlucoseThresholdValue - 1
+            }
+            cgmLowerLimitValue = newDoubleValue
+        }
+    }
+    
+    private var urgentLowGlucoseThresholdValue: Double
+    
+    public var urgentLowGlucoseThreshold: HKQuantity {
+        get {
+            return HKQuantity.init(unit: unit, doubleValue: urgentLowGlucoseThresholdValue)
+        }
+        set {
+            var newDoubleValue = newValue.doubleValue(for: unit)
+            if newDoubleValue <= cgmLowerLimitValue {
+                newDoubleValue = cgmLowerLimitValue + 1
+            }
+            if newDoubleValue >= lowGlucoseThresholdValue {
+                newDoubleValue = lowGlucoseThresholdValue - 1
+            }
+            urgentLowGlucoseThresholdValue = newDoubleValue
         }
     }
     
     private var lowGlucoseThresholdValue: Double
 
-    // HKQuantity isn't codable
     public var lowGlucoseThreshold: HKQuantity {
         get {
-            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: lowGlucoseThresholdValue)
+            return HKQuantity.init(unit: unit, doubleValue: lowGlucoseThresholdValue)
         }
         set {
-            lowGlucoseThresholdValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+            var newDoubleValue = newValue.doubleValue(for: unit)
+            if newDoubleValue <= urgentLowGlucoseThresholdValue {
+                newDoubleValue = urgentLowGlucoseThresholdValue + 1
+            }
+            if newDoubleValue >= highGlucoseThresholdValue {
+                newDoubleValue = highGlucoseThresholdValue - 1
+            }
+            lowGlucoseThresholdValue = newDoubleValue
         }
     }
 
     private var highGlucoseThresholdValue: Double
 
-    // HKQuantity isn't codable
     public var highGlucoseThreshold: HKQuantity {
         get {
-            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: highGlucoseThresholdValue)
+            return HKQuantity.init(unit: unit, doubleValue: highGlucoseThresholdValue)
         }
         set {
-            highGlucoseThresholdValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
-        }
-    }
-    
-    private var cgmLowerLimitValue: Double
-    
-    public var cgmLowerLimit: HKQuantity {
-        get {
-            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: cgmLowerLimitValue)
-        }
-        set {
-            cgmLowerLimitValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+            var newDoubleValue = newValue.doubleValue(for: unit)
+            if newDoubleValue <= lowGlucoseThresholdValue {
+                newDoubleValue = lowGlucoseThresholdValue + 1
+            }
+            if newDoubleValue >= cgmUpperLimitValue {
+                newDoubleValue = cgmUpperLimitValue - 1
+            }
+            highGlucoseThresholdValue = newDoubleValue
         }
     }
     
@@ -72,10 +97,14 @@ public struct MockCGMState: SensorDisplayable {
     
     public var cgmUpperLimit: HKQuantity {
         get {
-            return HKQuantity.init(unit: HKUnit.milligramsPerDeciliter, doubleValue: cgmUpperLimitValue)
+            return HKQuantity.init(unit: unit, doubleValue: cgmUpperLimitValue)
         }
         set {
-            cgmUpperLimitValue = newValue.doubleValue(for: HKUnit.milligramsPerDeciliter)
+            var newDoubleValue = newValue.doubleValue(for: unit)
+            if newDoubleValue <= highGlucoseThresholdValue {
+                newDoubleValue = highGlucoseThresholdValue + 1
+            }
+            cgmUpperLimitValue = newDoubleValue
         }
     }
     
@@ -106,27 +135,29 @@ public struct MockCGMState: SensorDisplayable {
     }
     
     private mutating func setProgressColor() {
-        guard cgmLifecycleProgress != nil else {
+        guard var cgmLifecycleProgress = cgmLifecycleProgress else {
             return
         }
         
         if let progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue,
-            cgmLifecycleProgress!.percentComplete >= progressCriticalThresholdPercentValue
+            cgmLifecycleProgress.percentComplete >= progressCriticalThresholdPercentValue
         {
-            cgmLifecycleProgress!.progressState = .critical
+            cgmLifecycleProgress.progressState = .critical
         } else if let progressWarningThresholdPercentValue = progressWarningThresholdPercentValue,
-            cgmLifecycleProgress!.percentComplete >= progressWarningThresholdPercentValue
+            cgmLifecycleProgress.percentComplete >= progressWarningThresholdPercentValue
         {
-            cgmLifecycleProgress!.progressState = .warning
+            cgmLifecycleProgress.progressState = .warning
         } else {
-            cgmLifecycleProgress!.progressState = .normal
+            cgmLifecycleProgress.progressState = .normal
         }
+        
+        self.cgmLifecycleProgress = cgmLifecycleProgress
     }
     
     public init(isStateValid: Bool = true,
                 trendType: GlucoseTrend? = nil,
                 glucoseValueType: GlucoseValueType? = nil,
-                urgentLowGlucoseThresholdValue: Double = 50,
+                urgentLowGlucoseThresholdValue: Double = 55,
                 lowGlucoseThresholdValue: Double = 80,
                 highGlucoseThresholdValue: Double = 200,
                 cgmLowerLimitValue: Double = 40,
@@ -340,16 +371,16 @@ public final class MockCGMManager: TestingCGMManager {
         if case .newData(let samples) = result,
             let currentValue = samples.first
         {
-            switch currentValue.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter) {
-            case ..<mockSensorState.cgmLowerLimit.doubleValue(for: HKUnit.milligramsPerDeciliter):
+            switch currentValue.quantity {
+            case ...mockSensorState.cgmLowerLimit:
                 mockSensorState.glucoseValueType = .belowRange
-            case mockSensorState.cgmLowerLimit.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.urgentLowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
+            case mockSensorState.cgmLowerLimit..<mockSensorState.urgentLowGlucoseThreshold:
                 mockSensorState.glucoseValueType = .urgentLow
-            case mockSensorState.urgentLowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.lowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
+            case mockSensorState.urgentLowGlucoseThreshold..<mockSensorState.lowGlucoseThreshold:
                 mockSensorState.glucoseValueType = .low
-            case mockSensorState.lowGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.highGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter):
+            case mockSensorState.lowGlucoseThreshold..<mockSensorState.highGlucoseThreshold:
                 mockSensorState.glucoseValueType = .normal
-            case mockSensorState.highGlucoseThreshold.doubleValue(for: HKUnit.milligramsPerDeciliter)..<mockSensorState.cgmUpperLimit.doubleValue(for: HKUnit.milligramsPerDeciliter):
+            case mockSensorState.highGlucoseThreshold..<mockSensorState.cgmUpperLimit:
                 mockSensorState.glucoseValueType = .high
             default:
                 mockSensorState.glucoseValueType = .aboveRange
@@ -516,13 +547,8 @@ extension MockCGMState: RawRepresentable {
             self.cgmLifecycleProgress = MockCGMLifecycleProgress(rawValue: cgmLifecycleProgressRawValue)
         }
         
-        if let progressWarningThresholdPercentValue = rawValue["progressWarningThresholdPercentValue"] as? Double {
-            self.progressWarningThresholdPercentValue = progressWarningThresholdPercentValue
-        }
-        
-        if let progressCriticalThresholdPercentValue = rawValue["progressCriticalThresholdPercentValue"] as? Double {
-            self.progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue
-        }
+        self.progressWarningThresholdPercentValue = rawValue["progressWarningThresholdPercentValue"] as? Double
+        self.progressCriticalThresholdPercentValue = rawValue["progressCriticalThresholdPercentValue"] as? Double
         
         setProgressColor()
     }

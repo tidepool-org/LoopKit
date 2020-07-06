@@ -352,19 +352,19 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
             switch GlucoseThresholds(rawValue: indexPath.row)! {
             case .cgmLowerLimit:
                 vc.title = "CGM Lower Limit"
-                vc.contextHelp = "The glucose value that marks the lower limit of the CGM. Any value at or below this value is presented at `LOW`. This value must be lower than the urgent low threshold otherwise the app will crash."
+                vc.contextHelp = "The glucose value that marks the lower limit of the CGM. Any value at or below this value is presented at `LOW`. This value must be lower than the urgent low threshold. If not, it will be set to 1 below the urgent low glucose threshold."
             case .urgentLowGlucoseThreshold:
                 vc.title = "Urgent Low Glucose Threshold"
-                vc.contextHelp = "The glucose value that marks the urgent low glucose threshold. Any value at or below this value is considered urgent low. This value must be above the cgm lower limit and lower than the low threshold otherwise the app will crash."
+                vc.contextHelp = "The glucose value that marks the urgent low glucose threshold. Any value at or below this value is considered urgent low. This value must be above the cgm lower limit and lower than the low threshold. If not, it will be set to a value above the lower limit and below the low glucose threshold."
             case .lowGlucoseThreshold:
                 vc.title = "Low Glucose Threshold"
-                vc.contextHelp = "The glucose value that marks the low glucose threshold. Any value at or below this value is considered low. This value must be above the urgent low threshold and lower than the high threshold otherwise the app will crash."
+                vc.contextHelp = "The glucose value that marks the low glucose threshold. Any value at or below this value is considered low. This value must be above the urgent low threshold and lower than the high threshold. If not, it will be set to a value above the urgent lower limit and below the high glucose threshold."
             case .highGlucoseThreshold:
                 vc.title = "High Glucose Threshold"
-                vc.contextHelp = "The glucose value that marks the high glucose threshold. Any value at or above this value is considered high. This value must be above the low threshold and lower than the cgm upper limit otherwise the app will crash."
+                vc.contextHelp = "The glucose value that marks the high glucose threshold. Any value at or above this value is considered high. This value must be above the low threshold and lower than the cgm upper limit. If not, it will be set to a value above the low glucose threshold and below the upper limit."
             case .cgmUpperLimit:
                 vc.title = "CGM Upper Limit"
-                vc.contextHelp = "The glucose value that marks the upper limit of the CGM. Any value at or above this value is presented at `HIGH`. This value must be above the high threshold otherwise the app will crash."
+                vc.contextHelp = "The glucose value that marks the upper limit of the CGM. Any value at or above this value is presented at `HIGH`. This value must be above the high threshold. If not, it will be set to 1 above the high glucose threshold."
             }
             show(vc, sender: sender)
         case .effects:
