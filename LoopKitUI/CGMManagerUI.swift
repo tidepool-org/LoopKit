@@ -20,7 +20,7 @@ public protocol CGMManagerUI: CGMManager, DeviceManagerUI {
     var cgmStatusHighlight: DeviceStatusHighlight? { get }
     
     /// the completed percent of the progress bar to display in the status bar
-    var progressPercentCompleted: Double? { get }
+    var cgmLifecycleProgress: DeviceLifecycleProgress? { get }
 }
 
 public protocol CGMManagerSetupViewController {
