@@ -11,11 +11,11 @@ import os.log
 
 
 /// Abstract class providing boilerplate setup for chart-based table view controllers
-class ChartsTableViewController: UITableViewController, UIGestureRecognizerDelegate {
+open class ChartsTableViewController: UITableViewController, UIGestureRecognizerDelegate {
 
     private let log = OSLog(category: "ChartsTableViewController")
 
-    override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
 
         let notificationCenter = NotificationCenter.default
@@ -36,7 +36,7 @@ class ChartsTableViewController: UITableViewController, UIGestureRecognizerDeleg
         charts.gestureRecognizer = gestureRecognizer
     }
 
-    override func didReceiveMemoryWarning() {
+    open override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
 
         if !visible {
@@ -44,26 +44,26 @@ class ChartsTableViewController: UITableViewController, UIGestureRecognizerDeleg
         }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
+    open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         visible = true
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
+    open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
         visible = false
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
         log.debug("[reloadData] for view transition to size: %@", String(describing: size))
         reloadData(animated: false)
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
         charts.traitCollection = traitCollection
@@ -77,20 +77,20 @@ class ChartsTableViewController: UITableViewController, UIGestureRecognizerDeleg
 
     // MARK: - State
 
-    func glucoseUnitDidChange() {
+    open func glucoseUnitDidChange() {
         // To override.
     }
 
-    func createChartsManager() -> ChartsManager {
+    open func createChartsManager() -> ChartsManager {
         fatalError("Subclasses must implement \(#function)")
     }
 
-    lazy private(set) var charts = createChartsManager()
+    lazy public private(set) var charts = createChartsManager()
 
     // References to registered notification center observers
-    var notificationObservers: [Any] = []
+    public var notificationObservers: [Any] = []
 
-    var active: Bool = true {
+    open var active: Bool = true {
         // ANNA TODO
 //        get {
 //            return UIApplication.shared.applicationState == .active
@@ -101,7 +101,7 @@ class ChartsTableViewController: UITableViewController, UIGestureRecognizerDeleg
         }
     }
 
-    var visible = false {
+    public var visible = false {
         didSet {
             log.debug("[reloadData] for view change to visible: %d", visible)
             reloadData()
@@ -114,13 +114,13 @@ class ChartsTableViewController: UITableViewController, UIGestureRecognizerDeleg
     ///
     /// - Parameters:
     ///   - animated: Whether the updating should be animated if possible
-    func reloadData(animated: Bool = false) {
+    open func reloadData(animated: Bool = false) {
 
     }
 
     // MARK: - UIGestureRecognizer
 
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         /// Only start the long-press recognition when it starts in a chart cell
         let point = gestureRecognizer.location(in: tableView)
         if let indexPath = tableView.indexPathForRow(at: point) {
@@ -132,7 +132,7 @@ class ChartsTableViewController: UITableViewController, UIGestureRecognizerDeleg
         return false
     }
 
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
 

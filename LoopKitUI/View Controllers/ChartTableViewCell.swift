@@ -26,4 +26,37 @@ public final class ChartTableViewCell: UITableViewCell {
     public func reloadChart() {
         chartContentView.reloadChart()
     }
+    
+    public func setChartGenerator(generator: ((CGRect) -> UIView?)?) {
+        chartContentView.chartGenerator = generator
+    }
+    
+    public func setTitleLabelText(label: String?) {
+        titleLabel?.text = label
+    }
+    
+    public func removeTitleLabelText() {
+        titleLabel?.text?.removeAll()
+    }
+    
+    public func setSubtitleLabel(label: String?) {
+        subtitleLabel?.text = label
+    }
+    
+    public func removeSubtitleLabelText() {
+        subtitleLabel?.text?.removeAll()
+    }
+    
+    public func setTitleTextColor(color: UIColor) {
+        titleLabel?.textColor = color
+    }
+    
+    public func setSubtitleTextColor(color: UIColor) {
+        subtitleLabel?.textColor = color
+    }
+    
+    public func setAlpha(alpha: CGFloat) {
+        titleLabel?.alpha = alpha
+        subtitleLabel?.alpha = alpha
+    }
 }
