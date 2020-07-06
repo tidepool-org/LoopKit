@@ -38,15 +38,18 @@ public struct DeliveryLimits: Equatable {
 
 
 public struct DeliveryLimitsEditor: View {
+    var buttonText: Text
     var initialValue: DeliveryLimits
     var supportedBasalRates: [Double]
     var selectableBasalRates: [Double]
     var scheduledBasalRange: ClosedRange<Double>?
     var supportedBolusVolumes: [Double]
     var save: (_ deliveryLimits: DeliveryLimits) -> Void
+    let mode: PresentationMode
 
     @State var value: DeliveryLimits
-
+    @State private var userDidTap: Bool = false
+    @Binding var userHasEdited: Bool
     @State var settingBeingEdited: DeliveryLimits.Setting?
 
     @State var showingConfirmationAlert = false
@@ -55,12 +58,16 @@ public struct DeliveryLimitsEditor: View {
     static let recommendedMaximumScheduledBasalScaleFactor: Double = 6
 
     public init(
+        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         value: DeliveryLimits,
         supportedBasalRates: [Double],
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
-        onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void
+        onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
+        mode: PresentationMode = .modal,
+        userHasEdited: Binding<Bool> = Binding.constant(false)
     ) {
+        self.buttonText = buttonText
         self._value = State(initialValue: value)
         self.initialValue = value
         self.supportedBasalRates = supportedBasalRates
@@ -72,20 +79,24 @@ public struct DeliveryLimitsEditor: View {
         self.scheduledBasalRange = scheduledBasalRange
         self.supportedBolusVolumes = supportedBolusVolumes
         self.save = save
+        self.mode = mode
+        self._userHasEdited = userHasEdited
     }
 
     public var body: some View {
         ConfigurationPage(
             title: Text("Delivery Limits", comment: "Title for delivery limits page"),
-            saveButtonState: saveButtonState,
+            actionButtonTitle: buttonText,
+            actionButtonState: saveButtonState,
             cards: {
                 maximumBasalRateCard
                 maximumBolusCard
             },
             actionAreaContent: {
+                instructionalContentIfNecessary
                 guardrailWarningIfNecessary
             },
-            onSave: {
+            action: {
                 if self.crossedThresholds.isEmpty {
                     self.saveAndDismiss()
                 } else {
@@ -94,6 +105,10 @@ public struct DeliveryLimitsEditor: View {
             }
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .onTapGesture {
+            self.userDidTap = true
+            self.userHasEdited = self.initialValue != self.value
+        }
     }
 
     var saveButtonState: ConfigurationPageActionButtonState {
@@ -122,7 +137,7 @@ public struct DeliveryLimitsEditor: View {
 
     var maximumBasalRateCard: Card {
         Card {
-            SettingDescription(text: Text("Maximum basal rate is the highest temporary basal rate Tidepool Loop is allowed to set automatically.", comment: "Maximum bolus setting description"))
+            SettingDescription(text: Text("Maximum basal rate is the highest temporary basal rate Tidepool Loop is allowed to set automatically.", comment: "Maximum bolus setting description"), settingType: .deliveryLimits)
             ExpandableSetting(
                 isEditing: Binding(
                     get: { self.settingBeingEdited == .maximumBasalRate },
@@ -179,7 +194,7 @@ public struct DeliveryLimitsEditor: View {
     var maximumBolusCard: Card {
         Card {
             SettingDescription(
-                text: Text("Maximum bolus is the highest bolus amount you can deliver at one time.", comment: "Maximum basal rate setting description"))
+                text: Text("Maximum bolus is the highest bolus amount you can deliver at one time.", comment: "Maximum basal rate setting description"), settingType: .deliveryLimits)
             ExpandableSetting(
                 isEditing: Binding(
                     get: { self.settingBeingEdited == .maximumBolus },
@@ -220,11 +235,31 @@ public struct DeliveryLimitsEditor: View {
             )
         }
     }
+    
+    private var instructionalContentIfNecessary: some View {
+        return Group {
+            if mode == .flow && !userDidTap {
+                instructionalContent
+            }
+        }
+    }
+
+    private var instructionalContent: some View {
+        HStack { // to align with guardrail warning, if present
+            VStack (alignment: .leading, spacing: 20) {
+                Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
+                Text(LocalizedString("You can add different correction ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
+            }
+            .foregroundColor(.accentColor)
+            .font(.subheadline)
+            Spacer()
+        }
+    }
 
     private var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds
         return Group {
-            if !crossedThresholds.isEmpty {
+            if !crossedThresholds.isEmpty && (userDidTap || mode == .modal) {
                 DeliveryLimitsGuardrailWarning(crossedThresholds: crossedThresholds, maximumScheduledBasalRate: scheduledBasalRange?.upperBound)
             }
         }
