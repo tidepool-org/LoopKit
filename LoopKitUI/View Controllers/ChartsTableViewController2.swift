@@ -1,5 +1,5 @@
 //
-//  ChartsTableViewController.swift
+//  ChartsTableViewController2.swift
 //  LoopKitUI
 //
 //  Copyright © 2017 LoopKit Authors. All rights reserved.
@@ -9,11 +9,22 @@ import UIKit
 import HealthKit
 import os.log
 
+public protocol ChartsTableViewControllerDelegate: class {
+    var preferredUnit: HKUnit { get }
+    var healthStore: HKHealthStore { get }
+}
 
 /// Abstract class providing boilerplate setup for chart-based table view controllers
-open class ChartsTableViewController: UITableViewController, UIGestureRecognizerDelegate {
+// ANNA TODO: better name for this
+open class ChartsTableViewController2: UITableViewController, UIGestureRecognizerDelegate {
+    
+    weak var delegate: ChartsTableViewControllerDelegate? {
+        didSet {
+            NotificationCenter.default.addObserver(self, selector: #selector(unitPreferencesDidChange(_:)), name: .HKUserPreferencesDidChange, object: delegate?.healthStore)
+        }
+    }
 
-    private let log = OSLog(category: "ChartsTableViewController")
+    private let log = OSLog(category: "ChartsTableViewController2")
 
     open override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,6 +87,20 @@ open class ChartsTableViewController: UITableViewController, UIGestureRecognizer
     }
 
     // MARK: - State
+    
+    @objc private func unitPreferencesDidChange(_ note: Notification) {
+        DispatchQueue.main.async {
+            if let unit = self.delegate?.preferredUnit {
+                self.charts.setGlucoseUnit(unit)
+
+                self.glucoseUnitDidChange()
+            }
+            self.log.debug("[reloadData] for HealthKit unit preference change")
+            self.reloadData()
+        }
+    }
+    
+    
 
     open func glucoseUnitDidChange() {
         // To override.
@@ -152,6 +177,14 @@ open class ChartsTableViewController: UITableViewController, UIGestureRecognizer
             }
         @unknown default:
             break
+        }
+    }
+}
+
+fileprivate extension ChartsManager {
+    func setGlucoseUnit(_ unit: HKUnit) {
+        for case let chart as GlucoseChart in charts {
+            chart.glucoseUnit = unit
         }
     }
 }
