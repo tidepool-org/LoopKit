@@ -14,6 +14,8 @@ import MockKit
 
 
 extension MockCGMManager: CGMManagerUI {
+    public var smallImage: UIImage? { nil }  // TODO: come up with a better image
+
     public static func setupViewController() -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)? {
         return nil
     }
@@ -23,17 +25,19 @@ extension MockCGMManager: CGMManagerUI {
         let nav = SettingsNavigationViewController(rootViewController: settings)
         return nav
     }
-
-    public var smallImage: UIImage? {
-        return nil
-    }
     
     public var cgmStatusHighlight: DeviceStatusHighlight? {
         return self.mockSensorState.cgmStatusHighlight
     }
     
     // TODO Placeholder. This functionality will come with LOOP-1293
-    public var progressPercentCompleted: Double? {
-        return nil
+    public var cgmLifecycleProgress: DeviceLifecycleProgress? {
+        return self.mockSensorState.cgmLifecycleProgress
+    }
+}
+
+extension MockCGMLifecycleProgress {
+    var color: UIColor {
+        return progressState.color
     }
 }

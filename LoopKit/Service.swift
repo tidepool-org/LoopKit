@@ -20,7 +20,7 @@ public protocol ServiceDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - settings: The settings object containing the new settings.
-    func serviceHasNewTherapySettings(_ settings: LoopSettings)
+    func serviceHasNewTherapySettings(_ settings: TherapySettings)
 }
 
 public protocol Service: AnyObject {

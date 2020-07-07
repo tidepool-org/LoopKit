@@ -51,7 +51,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     var actionAreaContent: ActionAreaContent
     var savingMechanism: SavingMechanism<[RepeatingScheduleValue<Value>]>
     var mode: PresentationMode
-    var settingType: LoopSetting
+    var therapySettingType: TherapySetting
     
     @State var editingIndex: Int?
 
@@ -92,8 +92,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         @ViewBuilder actionAreaContent: () -> ActionAreaContent,
         savingMechanism: SavingMechanism<[RepeatingScheduleValue<Value>]>,
         mode: PresentationMode = .modal,
-        // ANNA TODO: remove this default once other pages are merged in
-        settingType: LoopSetting = .correctionRangeOverrides
+        therapySettingType: TherapySetting = .none
     ) {
         self.title = title
         self.description = description
@@ -108,12 +107,14 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         self.actionAreaContent = actionAreaContent()
         self.savingMechanism = savingMechanism
         self.mode = mode
-        self.settingType = settingType
+        self.therapySettingType = therapySettingType
     }
 
     var body: some View {
         ZStack {
             setupConfigurationPage
+            .disabled(isSyncing || isAddingNewItem)
+            .zIndex(0)
 
             if isAddingNewItem {
                 DarkenedOverlay()
@@ -158,8 +159,6 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 trailing: trailingNavigationItems
             )
         }
-        .disabled(isSyncing || isAddingNewItem)
-        .zIndex(0)
     }
     
     private var configurationPage: some View {
@@ -172,7 +171,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 // https://bugs.swift.org/browse/SR-11628
                 if true {
                     Card {
-                        SettingDescription(text: description, settingType: settingType)
+                        SettingDescription(text: description, informationalContent: {self.therapySettingType.helpScreen()})
                         Splat(Array(scheduleItems.enumerated()), id: \.element.startTime) { index, item in
                             self.itemView(for: item, at: index)
                         }
