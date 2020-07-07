@@ -42,7 +42,7 @@ public struct CorrectionRangeOverrideInformationView: View {
         VStack(alignment: .leading, spacing: 15) {
             header(for: preset)
             description(for: preset)
-            .foregroundColor(.secondary)
+            .foregroundColor(.blueGray)
         }
     }
     

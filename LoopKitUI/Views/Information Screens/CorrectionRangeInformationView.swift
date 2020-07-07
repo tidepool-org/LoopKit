@@ -37,6 +37,7 @@ public struct CorrectionRangeInformationView: View {
             Text(LocalizedString("For this range, choose the specific glucose value (or range of values) that you want Tidepool Loop to aim for in adjusting your basal insulin.", comment: "Information about correction range"))
             Text(LocalizedString("Your healthcare provider can help you choose a correction range that's right for you.", comment: "Disclaimer"))
         }
-        .foregroundColor(.secondary)
+        .accentColor(.blueGray)
+        .foregroundColor(.accentColor)
     }
 }
