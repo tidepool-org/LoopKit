@@ -53,16 +53,6 @@ extension TherapySettings: RawRepresentable {
     public init?(rawValue: RawValue) {
         if let glucoseRangeScheduleRawValue = rawValue["glucoseTargetRangeSchedule"] as? GlucoseRangeSchedule.RawValue {
             self.glucoseTargetRangeSchedule = GlucoseRangeSchedule(rawValue: glucoseRangeScheduleRawValue)
-
-            // Migrate the glucose range schedule override targets
-            if let overrideRangesRawValue = glucoseRangeScheduleRawValue["overrideRanges"] as? [String: DoubleRange.RawValue] {
-                if let preMealTargetRawValue = overrideRangesRawValue["preMeal"] {
-                    self.preMealTargetRange = DoubleRange(rawValue: preMealTargetRawValue)
-                }
-                if let legacyWorkoutTargetRawValue = overrideRangesRawValue["workout"] {
-                    self.legacyWorkoutTargetRange = DoubleRange(rawValue: legacyWorkoutTargetRawValue)
-                }
-            }
         }
 
         if let rawPreMealTargetRange = rawValue["preMealTargetRange"] as? DoubleRange.RawValue {
