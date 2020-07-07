@@ -110,6 +110,8 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     var body: some View {
         ZStack {
             setupConfigurationPage
+            .disabled(isSyncing || isAddingNewItem)
+            .zIndex(0)
 
             if isAddingNewItem {
                 DarkenedOverlay()
@@ -154,8 +156,6 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 trailing: trailingNavigationItems
             )
         }
-        .disabled(isSyncing || isAddingNewItem)
-        .zIndex(0)
     }
     
     private var configurationPage: some View {
@@ -168,7 +168,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 // https://bugs.swift.org/browse/SR-11628
                 if true {
                     Card {
-                        SettingDescription(text: description)
+                        SettingDescription(text: description, informationalContent: {TherapySetting.glucoseTargetRange.helpScreen()})
                         Splat(Array(scheduleItems.enumerated()), id: \.element.startTime) { index, item in
                             self.itemView(for: item, at: index)
                         }
