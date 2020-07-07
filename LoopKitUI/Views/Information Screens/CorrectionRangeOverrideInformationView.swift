@@ -9,7 +9,6 @@
 import SwiftUI
 
 public struct CorrectionRangeOverrideInformationView: View {
-    let blueGray = Color("Blue Gray", bundle: Bundle(for: DismissibleHostingController.self))
     var onExit: (() -> Void)?
     var mode: PresentationMode
     
@@ -33,14 +32,15 @@ public struct CorrectionRangeOverrideInformationView: View {
                 }
             },
             onExit: onExit ?? { self.presentationMode.wrappedValue.dismiss() },
-            mode: mode)
+            mode: mode
+        )
     }
     
     private func section(for preset: CorrectionRangeOverrides.Preset) -> some View {
         VStack(alignment: .leading, spacing: 15) {
             header(for: preset)
             description(for: preset)
-            .foregroundColor(blueGray)
+            .foregroundColor(.blueGray)
         }
     }
     
