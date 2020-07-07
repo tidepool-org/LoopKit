@@ -98,7 +98,8 @@ public struct CorrectionRangeScheduleEditor: View {
                 let rangeSchedule = GlucoseRangeSchedule(rangeSchedule: quantitySchedule, override: self.initialSchedule?.override)
                 self.save(rangeSchedule)
             },
-            mode: mode
+            mode: mode,
+            therapySettingType: .glucoseTargetRange
         )
         .onTapGesture {
             self.userDidTap = true

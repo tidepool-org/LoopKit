@@ -17,14 +17,15 @@ public enum TherapySetting: Int {
     case insulinModel
     case carbRatio
     case insulinSensitivity
+    case none
     
     public func helpScreen() -> some View {
         switch self {
         case .glucoseTargetRange:
-            return CorrectionRangeInformationView(onExit: nil, mode: .modal)
+            return AnyView(CorrectionRangeInformationView(onExit: nil, mode: .modal))
         // ANNA TODO: add more once other instructional screens are created
         default:
-            return CorrectionRangeInformationView(onExit: nil, mode: .modal)
+            return AnyView(Text("To be implemented"))
         }
     }
 }
