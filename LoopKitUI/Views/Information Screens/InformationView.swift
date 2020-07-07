@@ -34,9 +34,11 @@ struct InformationView<InformationalContent: View> : View {
     }
     
     var body: some View {
-        bodyWithCancelButtonIfNeeded
-        .navigationBarTitle(Text(""), displayMode: .inline)
-        .padding()
+        ScrollView {
+            bodyWithCancelButtonIfNeeded
+            .navigationBarTitle(Text(""), displayMode: .inline)
+            .padding()
+        }
     }
     
     private var inBodyTitle: Text {
