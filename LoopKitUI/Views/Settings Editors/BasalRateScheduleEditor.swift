@@ -125,8 +125,14 @@ public struct BasalRateScheduleEditor: View {
             }
         case .flow:
             return .synchronous { quantitySchedule in
-                // ANNA TODO: replace this placeholder once the mechanism has been decided
-                self.save(DailyValueSchedule(dailyItems: [RepeatingScheduleValue(startTime: TimeInterval(0), value: 1)])!)
+                self.syncSchedule(quantitySchedule.items) { result in
+                    switch result {
+                    case .success(let syncedSchedule):
+                        self.save(syncedSchedule)
+                    case .failure: break // ANNA TODO
+                    }
+
+                }
             }
         }
     }

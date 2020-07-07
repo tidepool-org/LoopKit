@@ -34,7 +34,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     var savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>
     var mode: PresentationMode
     var buttonText: Text
-    var settingType: LoopSetting
+    var settingType: TherapySetting
     
     @Environment(\.dismiss) var dismiss
     @State private var userDidTap: Bool = false
@@ -88,7 +88,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                 DailyQuantitySchedule(unit: self.unit, dailyItems: items)!
             },
             mode: mode,
-            settingType: settingType
+            therapySettingType: settingType
         )
         .onTapGesture {
             self.userDidTap = true
@@ -172,8 +172,7 @@ extension QuantityScheduleEditor {
         onSave savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>,
         mode: PresentationMode = .modal,
         userDidEdit: Binding<Bool> = Binding.constant(false),
-        // ANNA TODO: remove default once all pages updated
-        settingType: LoopSetting = .correctionRangeOverrides
+        settingType: TherapySetting = .none
     ) {
         self.buttonText = buttonText
         self.title = title

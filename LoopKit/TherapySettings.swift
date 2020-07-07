@@ -26,6 +26,8 @@ public struct TherapySettings: Equatable {
     
     public var carbRatioSchedule: CarbRatioSchedule?
     
+    public var basalRateSchedule: BasalRateSchedule?
+    
     public init(
         glucoseTargetRangeSchedule: GlucoseRangeSchedule? = nil,
         preMealTargetRange: DoubleRange? = nil,
@@ -34,7 +36,8 @@ public struct TherapySettings: Equatable {
         maximumBolus: Double? = nil,
         suspendThreshold: GlucoseThreshold? = nil,
         insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
-        carbRatioSchedule: CarbRatioSchedule? = nil
+        carbRatioSchedule: CarbRatioSchedule? = nil,
+        basalRateSchedule: BasalRateSchedule? = nil
     ){
         self.glucoseTargetRangeSchedule = glucoseTargetRangeSchedule
         self.preMealTargetRange = preMealTargetRange
@@ -43,6 +46,7 @@ public struct TherapySettings: Equatable {
         self.suspendThreshold = suspendThreshold
         self.insulinSensitivitySchedule = insulinSensitivitySchedule
         self.carbRatioSchedule = carbRatioSchedule
+        self.basalRateSchedule = basalRateSchedule
     }
 }
 
@@ -88,6 +92,10 @@ extension TherapySettings: RawRepresentable {
         if let carbRatioScheduleRawValue = rawValue["carbRatioSchedule"] as? CarbRatioSchedule.RawValue {
             self.carbRatioSchedule = CarbRatioSchedule(rawValue: carbRatioScheduleRawValue)
         }
+        
+        if let basalRateScheduleRawValue = rawValue["basalRateSchedule"] as? BasalRateSchedule.RawValue {
+            self.basalRateSchedule = BasalRateSchedule(rawValue: basalRateScheduleRawValue)
+        }
     }
 
     public var rawValue: RawValue {
@@ -101,6 +109,7 @@ extension TherapySettings: RawRepresentable {
         raw["minimumBGGuard"] = suspendThreshold?.rawValue
         raw["insulinSensitivitySchedule"] = insulinSensitivitySchedule?.rawValue
         raw["carbRatioSchedule"] = carbRatioSchedule?.rawValue
+        raw["basalRateSchedule"] = basalRateSchedule?.rawValue
 
         return raw
     }
