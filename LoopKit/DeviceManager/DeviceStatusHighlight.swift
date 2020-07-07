@@ -19,7 +19,7 @@ public protocol DeviceStatusHighlight {
     var state: DeviceStatusHighlightState { get }
 }
 
-public enum DeviceStatusHighlightState: Int, CaseIterable, Codable {
+public enum DeviceStatusHighlightState: String, Codable {
     case normal
     case warning
     case critical

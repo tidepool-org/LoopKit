@@ -69,17 +69,9 @@ extension MockPumpManagerState: RawRepresentable {
         self.occlusionDetected = rawValue["occlusionDetected"] as? Bool ?? false
         self.pumpErrorDetected = rawValue["pumpErrorDetected"] as? Bool ?? false
         
-        if let progressPercentComplete = rawValue["progressPercentComplete"] as? Double {
-            self.progressPercentComplete = progressPercentComplete
-        }
-        
-        if let progressWarningThresholdPercentValue = rawValue["progressWarningThresholdPercentValue"] as? Double {
-            self.progressWarningThresholdPercentValue = progressWarningThresholdPercentValue
-        }
-        
-        if let progressCriticalThresholdPercentValue = rawValue["progressCriticalThresholdPercentValue"] as? Double {
-            self.progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue
-        }
+        self.progressPercentComplete = rawValue["progressPercentComplete"] as? Double
+        self.progressWarningThresholdPercentValue = rawValue["progressWarningThresholdPercentValue"] as? Double
+        self.progressCriticalThresholdPercentValue = rawValue["progressCriticalThresholdPercentValue"] as? Double
         
         if let rawUnfinalizedBolus = rawValue["unfinalizedBolus"] as? UnfinalizedDose.RawValue {
             self.unfinalizedBolus = UnfinalizedDose(rawValue: rawUnfinalizedBolus)
@@ -143,17 +135,9 @@ extension MockPumpManagerState: RawRepresentable {
         raw["occlusionDetected"] = occlusionDetected
         raw["pumpErrorDetected"] = pumpErrorDetected
         
-        if let progressPercentComplete = progressPercentComplete {
-            raw["progressPercentComplete"] = progressPercentComplete
-        }
-        
-        if let progressWarningThresholdPercentValue = progressWarningThresholdPercentValue {
-            raw["progressWarningThresholdPercentValue"] = progressWarningThresholdPercentValue
-        }
-        
-        if let progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue {
-            raw["progressCriticalThresholdPercentValue"] = progressCriticalThresholdPercentValue
-        }
+        raw["progressPercentComplete"] = progressPercentComplete
+        raw["progressWarningThresholdPercentValue"] = progressWarningThresholdPercentValue
+        raw["progressCriticalThresholdPercentValue"] = progressCriticalThresholdPercentValue
         
         return raw
     }

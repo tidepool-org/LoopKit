@@ -183,7 +183,7 @@ public struct MockCGMState: SensorDisplayable {
     }
 }
 
-public struct MockCGMStatusHighlight: DeviceStatusHighlight {    
+public struct MockCGMStatusHighlight: DeviceStatusHighlight {
     public var localizedMessage: String
     
     public var imageSystemName: String {

@@ -54,12 +54,12 @@ class PumpManagerStatusCodableTests: XCTestCase {
   "pumpBatteryChargeRemaining" : 0.75,
   "pumpLifecycleProgress" : {
     "percentComplete" : 0.5,
-    "progressState" : 1
+    "progressState" : "warning"
   },
   "pumpStatusHighlight" : {
     "imageSystemName" : "test.image",
     "localizedMessage" : "Test message",
-    "state" : 0
+    "state" : "normal"
   },
   "timeZone" : {
     "identifier" : "America/Los_Angeles"
