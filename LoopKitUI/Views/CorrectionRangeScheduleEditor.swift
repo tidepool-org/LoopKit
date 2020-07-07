@@ -154,7 +154,7 @@ public struct CorrectionRangeScheduleEditor: View {
         case .modal:
             return Text("Save", comment: "The button text for saving on a configuration page")
         case .flow:
-            return self.initialSchedule?.items != scheduleItems ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
+            return self.initialSchedule?.items == scheduleItems ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
         }
     }
 
