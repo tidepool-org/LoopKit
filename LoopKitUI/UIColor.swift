@@ -40,4 +40,19 @@ extension UIColor {
         getRed(&r, green: &g, blue: &b, alpha: &a)
         return (red: r, green: g, blue: b, alpha: a)
     }
+    
+    static let tidepoolGray: UIColor = {
+        if #available(iOSApplicationExtension 13.0, iOS 13.0, *) {
+            return UIColor(dynamicProvider: { (traitCollection) in
+                switch traitCollection.userInterfaceStyle {
+                case .dark: // use secondary color if in dark mode
+                    return .secondaryLabel
+                default: // otherwise use the Tidepool blue-gray
+                    return UIColor(red: 106 / 255, green: 120 / 255, blue: 141 / 255, alpha: 1)
+                }
+            })
+        } else {
+            return UIColor(red: 106 / 255, green: 120 / 255, blue: 141 / 255, alpha: 1)
+        }
+    }()
 }
