@@ -14,8 +14,10 @@ public struct CorrectionRangeOverrideInformationView: View {
     
     @Environment(\.presentationMode) var presentationMode
     
-    public init(onExit: (() -> Void)?,
-                mode: PresentationMode = .flow) {
+    public init(
+        onExit: (() -> Void)?,
+        mode: PresentationMode = .flow
+    ) {
         self.onExit = onExit
         self.mode = mode
     }

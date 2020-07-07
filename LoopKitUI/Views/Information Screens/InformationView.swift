@@ -47,7 +47,6 @@ struct InformationView<InformationalContent: View> : View {
         .font(.largeTitle)
     }
     
-    
     private var bodyWithCancelButtonIfNeeded: some View {
         switch mode {
         case .flow:
