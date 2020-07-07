@@ -9,19 +9,20 @@
 import SwiftUI
 
 public struct CorrectionRangeOverrideInformationView: View {
-    let blueGray = Color("Blue Gray", bundle: Bundle(for: DismissibleHostingController.self))
-    var exitPage: (() -> Void)
+    var onExit: (() -> Void)?
     var mode: PresentationMode
     
-    public init(exitPage: @escaping (() -> Void),
+    @Environment(\.presentationMode) var presentationMode
+    
+    public init(onExit: (() -> Void)?,
                 mode: PresentationMode = .flow) {
-        self.exitPage = exitPage
+        self.onExit = onExit
         self.mode = mode
     }
     
     public var body: some View {
         InformationView(
-            title: Text(LocalizedString("Temporary\nCorrection Ranges", comment: "Title for temporary correction ranges info page")),
+            title: Text(LocalizedString("Temporary\nCorrection Ranges", comment: "Title for correction range override informational screen")),
             buttonText: Text(LocalizedString("Next: Review Setting", comment: "Button to advance to setting editor")),
             informationalContent: {
                 VStack (alignment: .leading, spacing: 20) {
@@ -30,15 +31,16 @@ public struct CorrectionRangeOverrideInformationView: View {
                     section(for: CorrectionRangeOverrides.Preset.workout)
                 }
             },
-            exitPage: exitPage,
-            mode: mode)
+            onExit: onExit ?? { self.presentationMode.wrappedValue.dismiss() },
+            mode: mode
+        )
     }
     
     private func section(for preset: CorrectionRangeOverrides.Preset) -> some View {
         VStack(alignment: .leading, spacing: 15) {
             header(for: preset)
             description(for: preset)
-            .foregroundColor(blueGray)
+            .foregroundColor(.blueGray)
         }
     }
     
