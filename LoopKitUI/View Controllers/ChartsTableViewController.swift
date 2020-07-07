@@ -19,15 +19,15 @@ open class ChartsTableViewController: UITableViewController, UIGestureRecognizer
         super.viewDidLoad()
 
         let notificationCenter = NotificationCenter.default
-//         ANNA TODO
-//        notificationObservers += [
-//            notificationCenter.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: UIApplication.shared, queue: .main) { [weak self] _ in
-//                self?.active = false
-//            },
-//            notificationCenter.addObserver(forName: UIApplication.didBecomeActiveNotification, object: UIApplication.shared, queue: .main) { [weak self] _ in
-//                self?.active = true
-//            }
-//        ]
+         //ANNA TODO
+        notificationObservers += [
+            notificationCenter.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
+                self?.active = false
+            },
+            notificationCenter.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+                self?.active = true
+            }
+        ]
 
         let gestureRecognizer = UILongPressGestureRecognizer()
         gestureRecognizer.delegate = self
