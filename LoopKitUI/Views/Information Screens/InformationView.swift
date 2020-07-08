@@ -39,6 +39,7 @@ struct InformationView<InformationalContent: View> : View {
             .navigationBarTitle(Text(""), displayMode: .inline)
             .padding()
         }
+        .navigationBarTitle(title)
     }
     
     private var inBodyTitle: Text {
@@ -58,16 +59,16 @@ struct InformationView<InformationalContent: View> : View {
     
     private var bodyWithBottomButton: some View {
         VStack(alignment: .leading, spacing: 20) {
-            inBodyTitle
             informationalContent
             Spacer()
             nextPageButton
         }
+        .navigationBarTitle(title)
     }
     
     private var bodyWithCancelButton: some View {
         VStack(alignment: .leading, spacing: 20) {
-            inBodyTitle
+            inBodyTitle // use in-body title to align with settings page styling
             informationalContent
             Spacer()
         }
