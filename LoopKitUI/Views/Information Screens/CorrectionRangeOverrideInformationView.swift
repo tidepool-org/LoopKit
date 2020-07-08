@@ -24,7 +24,8 @@ public struct CorrectionRangeOverrideInformationView: View {
     
     public var body: some View {
         InformationView(
-            title: Text(LocalizedString("Temporary Correction Range", comment: "Title for correction range override informational screen")),
+            // TODO: make this title be "Temporary Correction Ranges" when SwiftUI supports multi-line titles
+            title: Text(LocalizedString("Temporary Ranges", comment: "Title for correction range override informational screen")),
             buttonText: Text(LocalizedString("Next: Review Setting", comment: "Button to advance to setting editor")),
             informationalContent: {
                 VStack (alignment: .leading, spacing: 20) {
