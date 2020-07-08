@@ -37,7 +37,6 @@ public struct CorrectionRangeOverridesEditor: View {
     let mode: PresentationMode
 
     @State private var userDidTap: Bool = false
-    @Binding var userHasEdited: Bool
 
     @State var value: CorrectionRangeOverrides
 
@@ -58,8 +57,7 @@ public struct CorrectionRangeOverridesEditor: View {
         minValue: HKQuantity?,
         onSave save: @escaping (_ overrides: CorrectionRangeOverrides) -> Void,
         sensitivityOverridesEnabled: Bool,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
         self._value = State(initialValue: value)
         self.initialValue = value
@@ -68,7 +66,6 @@ public struct CorrectionRangeOverridesEditor: View {
         self.save = save
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.mode = mode
-        self._userHasEdited = userHasEdited
     }
 
     public var body: some View {
