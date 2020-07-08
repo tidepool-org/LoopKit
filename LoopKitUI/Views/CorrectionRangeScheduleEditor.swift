@@ -30,8 +30,7 @@ public struct CorrectionRangeScheduleEditor: View {
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
         self.initialSchedule = schedule
         self._scheduleItems = State(initialValue: schedule?.items ?? [])
