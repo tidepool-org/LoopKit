@@ -35,7 +35,7 @@ public struct TherapySettings: Equatable {
         suspendThreshold: GlucoseThreshold? = nil,
         insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
         carbRatioSchedule: CarbRatioSchedule? = nil
-    ) {
+    ){
         self.glucoseTargetRangeSchedule = glucoseTargetRangeSchedule
         self.preMealTargetRange = preMealTargetRange
         self.maximumBasalRatePerHour = maximumBasalRatePerHour
