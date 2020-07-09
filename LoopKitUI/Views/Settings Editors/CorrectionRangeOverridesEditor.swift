@@ -29,7 +29,6 @@ public struct CorrectionRangeOverrides: Equatable {
 }
 
 public struct CorrectionRangeOverridesEditor: View {
-    var buttonText: Text
     var initialValue: CorrectionRangeOverrides
     var unit: HKUnit
     var minValue: HKQuantity?
@@ -38,7 +37,6 @@ public struct CorrectionRangeOverridesEditor: View {
     let mode: PresentationMode
 
     @State private var userDidTap: Bool = false
-    @Binding var userHasEdited: Bool
 
     @State var value: CorrectionRangeOverrides
 
@@ -54,16 +52,13 @@ public struct CorrectionRangeOverridesEditor: View {
     @Environment(\.dismiss) var dismiss
 
     public init(
-        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         value: CorrectionRangeOverrides,
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (_ overrides: CorrectionRangeOverrides) -> Void,
         sensitivityOverridesEnabled: Bool,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
-        self.buttonText = buttonText
         self._value = State(initialValue: value)
         self.initialValue = value
         self.unit = unit
@@ -71,7 +66,6 @@ public struct CorrectionRangeOverridesEditor: View {
         self.save = save
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.mode = mode
-        self._userHasEdited = userHasEdited
     }
 
     public var body: some View {
@@ -100,7 +94,6 @@ public struct CorrectionRangeOverridesEditor: View {
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
         .onTapGesture {
             self.userDidTap = true
-            self.userHasEdited = self.initialValue != self.value
         }
     }
 
@@ -181,6 +174,15 @@ public struct CorrectionRangeOverridesEditor: View {
         Image(name)
             .renderingMode(.template)
             .foregroundColor(color)
+    }
+    
+    private var buttonText: Text {
+        switch mode {
+        case .modal:
+            return Text("Save", comment: "The button text for saving on a configuration page")
+        case .flow:
+            return self.initialValue == self.value ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
+        }
     }
     
     private var instructionalContentIfNecessary: some View {
