@@ -36,7 +36,7 @@ public struct SuspendThresholdInformationView: View {
         VStack(alignment: .leading, spacing: 25) {
             Text(LocalizedString("When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/hr and will not recommend a bolus.", comment: "Information about suspend threshold"))
         }
-        .accentColor(.blueGray)
+        .accentColor(.secondary)
         .foregroundColor(.accentColor)
     }
 }
