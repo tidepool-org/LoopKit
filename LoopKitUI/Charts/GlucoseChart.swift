@@ -11,7 +11,7 @@ import LoopKit
 import SwiftCharts
 
 
-public class GlucoseChart {
+open class GlucoseChart {
     public init() {
     }
 
@@ -40,7 +40,7 @@ public class GlucoseChart {
 
     public private(set) var glucoseDisplayRangePoints: [ChartPoint] = []
 
-    func glucosePointsFromValues(_ glucoseValues: [GlucoseValue]) -> [ChartPoint] {
+    public func glucosePointsFromValues(_ glucoseValues: [GlucoseValue]) -> [ChartPoint] {
         let unitFormatter = QuantityFormatter()
         unitFormatter.unitStyle = .short
         unitFormatter.setPreferredNumberFormatter(for: glucoseUnit)
