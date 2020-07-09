@@ -218,7 +218,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 withAnimation {
                     // In Xcode 11.4, using `remove(at:)` here is ambiguous to the compiler.
                     // Remove a length one subrange instead.
-                    self.scheduleItems.removeSubrange(index...index)
+                    self.scheduleItems.remove(at: index)
 
                     if self.scheduleItems.count == 1 {
                         self.tableDeletionState = .disabled

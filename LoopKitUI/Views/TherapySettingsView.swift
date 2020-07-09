@@ -13,17 +13,21 @@ import SwiftUI
 public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     @Environment(\.dismiss) var dismiss
 
+    // TODO: More ViewModel! (cowbell!)
     static let unit = HKUnit.milligramsPerDeciliter
     let unit = Self.unit
-    @State var scheduleItems: [RepeatingScheduleValue<DoubleRange>] = []
+    // Blarg, why doesn't @State work here???
+//    @State var scheduleItems: [RepeatingScheduleValue<DoubleRange>] = []
+    let scheduleItems: [RepeatingScheduleValue<DoubleRange>]
 
     public enum PresentationMode {
         case onboarding, settings
     }
     private let mode: PresentationMode
     
-    public init(mode: PresentationMode = .settings) {
+    public init(mode: PresentationMode = .settings, scheduleItems: [RepeatingScheduleValue<DoubleRange>] = []) {
         self.mode = mode
+        self.scheduleItems = scheduleItems
     }
     
     public var body: some View {
@@ -50,17 +54,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     }
 }
 
-//private let glucoseTargetRangeSchedule = GlucoseRangeSchedule(
-//    rangeSchedule: DailyQuantitySchedule(
-//        unit: .milligramsPerDeciliter,
-//        dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
-//                     RepeatingScheduleValue(startTime: .hours(7), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
-//                     RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
-//        timeZone: TimeZone(identifier: "America/Los_Angeles")!)!,
-//    override: GlucoseRangeSchedule.Override(value: DoubleRange(minValue: 105.0, maxValue: 115.0),
-//                                            start: ISO8601DateFormatter().date(from: "2020-05-14T21:12:17Z")!,
-//                                            end: ISO8601DateFormatter().date(from: "2020-05-14T23:12:17Z")!))
-
+typealias HKQuantityGuardrail = Guardrail<HKQuantity>
 
 extension TherapySettingsView {
     private var dismissButton: some View {
@@ -68,22 +62,34 @@ extension TherapySettingsView {
             Text(NSLocalizedString("Done", comment: "Done button text"))
         }
     }
-    
+        
     private var correctionRangeSection: some View {
-        Section(header: SectionHeader(label: "Correction Range"))   {
-            ScheduleItemView(time: .hours(0), isEditing: false, valueContent: {
-                GuardrailConstrainedQuantityRangeView(range: DoubleRange(100...110).quantityRange(for: unit), unit: unit, guardrail: Guardrail.correctionRange, isEditing: false)
-            }, expandedContent: <#T##() -> _#>)
+        Section(header: SectionHeader(label: "Correction Range")) {
+            ForEach(scheduleItems, id: \.self) { value in
+                self.scheduleItemRange(time: value.startTime, range: value.value, unit: self.unit, guardrail: Guardrail.correctionRange)
+            }
         }
+    }
+    
+    private func scheduleItemRange(time: TimeInterval, range: DoubleRange, unit: HKUnit, guardrail: HKQuantityGuardrail) -> some View {
+        ScheduleItemView(time: time,
+                         isEditing: .constant(false),
+                         valueContent: {
+                            GuardrailConstrainedQuantityRangeView(range: range.quantityRange(for: unit), unit: unit, guardrail: guardrail, isEditing: false)
+                         },
+                         expandedContent: { EmptyView() })
     }
 }
 
 public struct TherapySettingsView_Previews: PreviewProvider {
     public static var previews: some View {
-        TherapySettingsView()
+        TherapySettingsView(mode: .settings, scheduleItems: [
+            RepeatingScheduleValue(startTime: 0, value: DoubleRange(100...110)),
+            RepeatingScheduleValue(startTime: 1800, value: DoubleRange(120...150)),
+            RepeatingScheduleValue(startTime: 3600, value: DoubleRange(150...200))
+        ])
     }
 }
-
 
 extension DoubleRange {
     init(_ val: ClosedRange<Double>) {
