@@ -703,7 +703,6 @@
 		E9086B2D24B3A4AC0062F5C8 /* ChartsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2C24B3A4AC0062F5C8 /* ChartsManager.swift */; };
 		E9086B2F24B3A5080062F5C8 /* ChartColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */; };
 		E9086B3124B3A7270062F5C8 /* ChartTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B3024B3A7270062F5C8 /* ChartTableViewCell.swift */; };
-		E9086B3324B3A7840062F5C8 /* Charts.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E9086B3224B3A7840062F5C8 /* Charts.storyboard */; };
 		E9086B3524B3A8820062F5C8 /* ChartContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B3424B3A8820062F5C8 /* ChartContainerView.swift */; };
 		E9086B4524B53CC50062F5C8 /* GlucoseChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B4424B53CC50062F5C8 /* GlucoseChart.swift */; };
 		E9086B4824B5405E0062F5C8 /* ChartAxisValueDoubleUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B4724B5405E0062F5C8 /* ChartAxisValueDoubleUnit.swift */; };
@@ -718,6 +717,7 @@
 		E96DCB5824AEF50F007117BC /* SuspendThresholdInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */; };
 		E96DCB5A24AF74AC007117BC /* SuspendThresholdEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */; };
 		E96DCB5E24AF7DC7007117BC /* BasalRatesInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */; };
+		E987F30024B77CE600872111 /* ChartsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E987F2FF24B77CE600872111 /* ChartsTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1460,7 +1460,6 @@
 		E9086B2C24B3A4AC0062F5C8 /* ChartsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsManager.swift; sourceTree = "<group>"; };
 		E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartColorPalette.swift; sourceTree = "<group>"; };
 		E9086B3024B3A7270062F5C8 /* ChartTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartTableViewCell.swift; sourceTree = "<group>"; };
-		E9086B3224B3A7840062F5C8 /* Charts.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Charts.storyboard; sourceTree = "<group>"; };
 		E9086B3424B3A8820062F5C8 /* ChartContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartContainerView.swift; sourceTree = "<group>"; };
 		E9086B4424B53CC50062F5C8 /* GlucoseChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseChart.swift; sourceTree = "<group>"; };
 		E9086B4724B5405E0062F5C8 /* ChartAxisValueDoubleUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartAxisValueDoubleUnit.swift; sourceTree = "<group>"; };
@@ -1475,6 +1474,7 @@
 		E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspendThresholdInformationView.swift; sourceTree = "<group>"; };
 		E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspendThresholdEditor.swift; sourceTree = "<group>"; };
 		E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasalRatesInformationView.swift; sourceTree = "<group>"; };
+		E987F2FF24B77CE600872111 /* ChartsTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChartsTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1668,7 +1668,6 @@
 				E93BA06524A39DBC00C5D7E6 /* DismissableHostingController.swift */,
 				E9086B2824B39EDC0062F5C8 /* ChartsTableViewController2.swift */,
 				E9086B2C24B3A4AC0062F5C8 /* ChartsManager.swift */,
-				E9086B3024B3A7270062F5C8 /* ChartTableViewCell.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -1707,6 +1706,8 @@
 		4369F090208B0D68000E3E45 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E9086B3024B3A7270062F5C8 /* ChartTableViewCell.swift */,
+				E987F2FF24B77CE600872111 /* ChartsTableViewCell.xib */,
 				C1E4B303242E98E900E70CCB /* ProgressView.swift */,
 				C1E4B304242E98E900E70CCB /* ProgressIndicatorView.swift */,
 				43F5035821059AF7009FA89A /* AuthenticationTableViewCell.swift */,
@@ -1880,7 +1881,6 @@
 				898E6E6B224194050019E459 /* UIColor.swift */,
 				432CF86320D769070066B889 /* View Controllers */,
 				4369F090208B0D68000E3E45 /* Views */,
-				E9086B3224B3A7840062F5C8 /* Charts.storyboard */,
 				1DD1964D248AE88000420876 /* HorizontalSizeClassOverride.swift */,
 				E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */,
 				B4F3D24E24AF59B50095CE44 /* DeviceLifecycleProgressState+Color.swift */,
@@ -2818,10 +2818,10 @@
 				1FE58796211D12CE004F24ED /* Localizable.strings in Resources */,
 				892A5DB72231E1A0008961AB /* ReservoirVolumeHUDView.xib in Resources */,
 				898E6E68224179310019E459 /* BatteryLevelHUDView.xib in Resources */,
-				E9086B3324B3A7840062F5C8 /* Charts.storyboard in Resources */,
 				895FE06F22011E9A00FCF18A /* OverrideSelectionViewController.storyboard in Resources */,
 				43BA7193202039A30058961E /* TextFieldTableViewCell.xib in Resources */,
 				895FE08622011F0C00FCF18A /* DecimalTextFieldTableViewCell.xib in Resources */,
+				E987F30024B77CE600872111 /* ChartsTableViewCell.xib in Resources */,
 				43BA719620203C750058961E /* Assets.xcassets in Resources */,
 				1F5DAB2A2118CE9300048054 /* InfoPlist.strings in Resources */,
 				89AE223E228BD3C400BDFD85 /* SetConstrainedScheduleEntryTableViewCell.xib in Resources */,
