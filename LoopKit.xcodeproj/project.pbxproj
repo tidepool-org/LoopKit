@@ -698,7 +698,7 @@
 		E9077D2524ACCE080066A88D /* LoopSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2324ACCE080066A88D /* LoopSettings.swift */; };
 		E9077D2724ACD59F0066A88D /* InformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2624ACD59F0066A88D /* InformationView.swift */; };
 		E9077D2A24ACDE2C0066A88D /* CorrectionRangeInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2924ACDE2C0066A88D /* CorrectionRangeInformationView.swift */; };
-		E9086B2924B39EDC0062F5C8 /* ChartsTableViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2824B39EDC0062F5C8 /* ChartsTableViewController2.swift */; };
+		E9086B2924B39EDC0062F5C8 /* ChartsTableViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2824B39EDC0062F5C8 /* ChartsTableViewContainer.swift */; };
 		E9086B2B24B39F6C0062F5C8 /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2A24B39F6C0062F5C8 /* OSLog.swift */; };
 		E9086B2D24B3A4AC0062F5C8 /* ChartsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2C24B3A4AC0062F5C8 /* ChartsManager.swift */; };
 		E9086B2F24B3A5080062F5C8 /* ChartColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */; };
@@ -1455,7 +1455,7 @@
 		E9077D2324ACCE080066A88D /* LoopSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSettings.swift; sourceTree = "<group>"; };
 		E9077D2624ACD59F0066A88D /* InformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationView.swift; sourceTree = "<group>"; };
 		E9077D2924ACDE2C0066A88D /* CorrectionRangeInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeInformationView.swift; sourceTree = "<group>"; };
-		E9086B2824B39EDC0062F5C8 /* ChartsTableViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsTableViewController2.swift; sourceTree = "<group>"; };
+		E9086B2824B39EDC0062F5C8 /* ChartsTableViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsTableViewContainer.swift; sourceTree = "<group>"; };
 		E9086B2A24B39F6C0062F5C8 /* OSLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLog.swift; sourceTree = "<group>"; };
 		E9086B2C24B3A4AC0062F5C8 /* ChartsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsManager.swift; sourceTree = "<group>"; };
 		E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartColorPalette.swift; sourceTree = "<group>"; };
@@ -1666,7 +1666,7 @@
 				89CCD4F921A911510068C3FB /* PercentageTextFieldTableViewController.swift */,
 				895695F521AA413B00828067 /* DateAndDurationTableViewController.swift */,
 				E93BA06524A39DBC00C5D7E6 /* DismissableHostingController.swift */,
-				E9086B2824B39EDC0062F5C8 /* ChartsTableViewController2.swift */,
+				E9086B2824B39EDC0062F5C8 /* ChartsTableViewContainer.swift */,
 				E9086B2C24B3A4AC0062F5C8 /* ChartsManager.swift */,
 			);
 			path = "View Controllers";
@@ -3083,7 +3083,7 @@
 				C188B83422CC16AC0051760A /* InsulinSensitivityScheduleViewController.swift in Sources */,
 				43BA717A201E4F1D0058961E /* IdentifiableClass.swift in Sources */,
 				895FE08822011F0C00FCF18A /* DoubleRangeTableViewCell.swift in Sources */,
-				E9086B2924B39EDC0062F5C8 /* ChartsTableViewController2.swift in Sources */,
+				E9086B2924B39EDC0062F5C8 /* ChartsTableViewContainer.swift in Sources */,
 				43BA7187201EE7090058961E /* GlucoseRangeScheduleTableViewController.swift in Sources */,
 				B46B62AF23FF0BF6001E69BA /* SectionHeader.swift in Sources */,
 				43BA7183201EE7090058961E /* DailyQuantityScheduleTableViewController.swift in Sources */,

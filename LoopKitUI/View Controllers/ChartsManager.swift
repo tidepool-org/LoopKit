@@ -221,7 +221,6 @@ fileprivate extension Array {
     }
 }
 
-// ANNA TODO
 public protocol ChartProviding {
     /// Instructs the chart to clear its non-critical resources like caches
     func didReceiveMemoryWarning()

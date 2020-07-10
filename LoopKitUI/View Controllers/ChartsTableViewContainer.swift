@@ -15,8 +15,7 @@ public protocol ChartsTableViewControllerDelegate: class {
 }
 
 /// Abstract class providing boilerplate setup for chart-based table view controllers
-// ANNA TODO: better name for this
-open class ChartsTableViewController2: UITableViewController, UIGestureRecognizerDelegate {
+open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerDelegate {
     
     weak var delegate: ChartsTableViewControllerDelegate? {
         didSet {
@@ -30,7 +29,7 @@ open class ChartsTableViewController2: UITableViewController, UIGestureRecognize
         super.viewDidLoad()
 
         let notificationCenter = NotificationCenter.default
-         //ANNA TODO
+
         notificationObservers += [
             notificationCenter.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
                 self?.active = false
@@ -116,10 +115,6 @@ open class ChartsTableViewController2: UITableViewController, UIGestureRecognize
     public var notificationObservers: [Any] = []
 
     open var active: Bool = true {
-        // ANNA TODO
-//        get {
-//            return UIApplication.shared.applicationState == .active
-//        }
         didSet {
             log.debug("[reloadData] for app change to active: %d, applicationState: %d", active)
             reloadData()
