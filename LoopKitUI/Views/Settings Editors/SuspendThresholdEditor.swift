@@ -16,7 +16,6 @@ extension Guardrail where Value == HKQuantity {
 }
 
 public struct SuspendThresholdEditor: View {
-    var buttonText: Text
     var initialValue: HKQuantity?
     var unit: HKUnit
     var maxValue: HKQuantity?
@@ -24,7 +23,6 @@ public struct SuspendThresholdEditor: View {
     let mode: PresentationMode
 
     @State private var userDidTap: Bool = false
-    @Binding var userHasEdited: Bool
     @State var value: HKQuantity
     @State var isEditing = false
     @State var showingConfirmationAlert = false
@@ -33,22 +31,18 @@ public struct SuspendThresholdEditor: View {
     let guardrail = Guardrail.suspendThreshold
 
     public init(
-        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         value: HKQuantity?,
         unit: HKUnit,
         maxValue: HKQuantity?,
         onSave save: @escaping (_ suspendThreshold: HKQuantity) -> Void,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
-        self.buttonText = buttonText
         self._value = State(initialValue: value ?? Self.defaultValue(for: unit))
         self.initialValue = value
         self.unit = unit
         self.maxValue = maxValue
         self.save = save
         self.mode = mode
-        self._userHasEdited = userHasEdited
     }
 
     private static func defaultValue(for unit: HKUnit) -> HKQuantity {
@@ -117,7 +111,6 @@ public struct SuspendThresholdEditor: View {
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
         .onTapGesture {
             self.userDidTap = true
-            self.userHasEdited = self.initialValue != self.value
         }
     }
 
@@ -147,6 +140,15 @@ public struct SuspendThresholdEditor: View {
 
     private var saveButtonState: ConfigurationPageActionButtonState {
         initialValue == nil || value != initialValue! || mode == .flow ? .enabled : .disabled
+    }
+    
+    private var buttonText: Text {
+        switch mode {
+        case .flow:
+            return self.initialValue == self.value ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
+        case .modal:
+            return Text("Save", comment: "The button text for saving on a configuration page")
+        }
     }
 
     private var warningThreshold: SafetyClassification.Threshold? {

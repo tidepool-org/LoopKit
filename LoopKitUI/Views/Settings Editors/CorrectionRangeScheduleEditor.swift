@@ -19,46 +19,25 @@ public struct CorrectionRangeScheduleEditor: View {
     var initialSchedule: GlucoseRangeSchedule?
     @State var scheduleItems: [RepeatingScheduleValue<DoubleRange>]
     var unit: HKUnit
-    var buttonText: Text
     var minValue: HKQuantity?
     var save: (GlucoseRangeSchedule) -> Void
     let guardrail = Guardrail.correctionRange
     let mode: PresentationMode
     @State private var userDidTap: Bool = false
-    @Binding var userHasEdited: Bool
     
     public init(
-        buttonText: Text,
         schedule: GlucoseRangeSchedule?,
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
-        self.buttonText = buttonText
         self.initialSchedule = schedule
         self._scheduleItems = State(initialValue: schedule?.items ?? [])
         self.unit = unit
         self.minValue = minValue
         self.save = save
         self.mode = mode
-        self._userHasEdited = userHasEdited
-    }
-    
-    /// Convenience initializer for a page with "Save" button
-    public init(
-        schedule: GlucoseRangeSchedule?,
-        unit: HKUnit,
-        minValue: HKQuantity?,
-        onSave save: @escaping (GlucoseRangeSchedule) -> Void
-    ) {
-        self.init(
-            buttonText: Text("Save", comment: "The button text for saving on a configuration page"),
-            schedule: schedule,
-            unit: unit,
-            minValue: minValue,
-            onSave: save)
     }
 
     public var body: some View {
@@ -103,9 +82,6 @@ public struct CorrectionRangeScheduleEditor: View {
         )
         .onTapGesture {
             self.userDidTap = true
-            if let initialSchedule = self.initialSchedule?.items {
-                self.userHasEdited = initialSchedule != self.scheduleItems
-            }
         }
     }
 
@@ -169,6 +145,15 @@ public struct CorrectionRangeScheduleEditor: View {
                     return threshold
                 }
             }
+        }
+    }
+    
+    private var buttonText: Text {
+        switch mode {
+        case .modal:
+            return Text("Save", comment: "The button text for saving on a configuration page")
+        case .flow:
+            return self.initialSchedule?.items == scheduleItems ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
         }
     }
 

@@ -14,18 +14,21 @@ public struct CorrectionRangeOverrideInformationView: View {
     
     @Environment(\.presentationMode) var presentationMode
     
-    public init(onExit: (() -> Void)?,
-                mode: PresentationMode = .flow) {
+    public init(
+        onExit: (() -> Void)?,
+        mode: PresentationMode = .flow
+    ) {
         self.onExit = onExit
         self.mode = mode
     }
     
     public var body: some View {
         InformationView(
-            title: Text(LocalizedString("Temporary\nCorrection Ranges", comment: "Title for correction range override informational screen")),
+            // TODO: make this title be "Temporary Correction Ranges" when SwiftUI supports multi-line titles
+            title: Text(LocalizedString("Temporary Ranges", comment: "Title for correction range override informational screen")),
             buttonText: Text(LocalizedString("Next: Review Setting", comment: "Button to advance to setting editor")),
             informationalContent: {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack (alignment: .leading, spacing: 20) {
                     section(for: CorrectionRangeOverrides.Preset.preMeal)
                     Divider()
                     section(for: CorrectionRangeOverrides.Preset.workout)
@@ -40,7 +43,7 @@ public struct CorrectionRangeOverrideInformationView: View {
         VStack(alignment: .leading, spacing: 15) {
             header(for: preset)
             description(for: preset)
-            .foregroundColor(.blueGray)
+            .foregroundColor(.secondary)
         }
     }
     

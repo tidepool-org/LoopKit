@@ -14,7 +14,7 @@ public struct TherapySettings: Equatable {
 
     public var preMealTargetRange: DoubleRange?
 
-    public var legacyWorkoutTargetRange: DoubleRange?
+    public var workoutTargetRange: DoubleRange?
 
     public var maximumBasalRatePerHour: Double?
 
@@ -49,69 +49,3 @@ public struct TherapySettings: Equatable {
         self.basalRateSchedule = basalRateSchedule
     }
 }
-
-extension TherapySettings: RawRepresentable {
-    public typealias RawValue = [String: Any]
-    private static let version = 1
-
-    public init?(rawValue: RawValue) {
-        if let glucoseRangeScheduleRawValue = rawValue["glucoseTargetRangeSchedule"] as? GlucoseRangeSchedule.RawValue {
-            self.glucoseTargetRangeSchedule = GlucoseRangeSchedule(rawValue: glucoseRangeScheduleRawValue)
-
-            // Migrate the glucose range schedule override targets
-            if let overrideRangesRawValue = glucoseRangeScheduleRawValue["overrideRanges"] as? [String: DoubleRange.RawValue] {
-                if let preMealTargetRawValue = overrideRangesRawValue["preMeal"] {
-                    self.preMealTargetRange = DoubleRange(rawValue: preMealTargetRawValue)
-                }
-                if let legacyWorkoutTargetRawValue = overrideRangesRawValue["workout"] {
-                    self.legacyWorkoutTargetRange = DoubleRange(rawValue: legacyWorkoutTargetRawValue)
-                }
-            }
-        }
-
-        if let rawPreMealTargetRange = rawValue["preMealTargetRange"] as? DoubleRange.RawValue {
-            self.preMealTargetRange = DoubleRange(rawValue: rawPreMealTargetRange)
-        }
-
-        if let rawLegacyWorkoutTargetRange = rawValue["legacyWorkoutTargetRange"] as? DoubleRange.RawValue {
-            self.legacyWorkoutTargetRange = DoubleRange(rawValue: rawLegacyWorkoutTargetRange)
-        }
-
-        self.maximumBasalRatePerHour = rawValue["maximumBasalRatePerHour"] as? Double
-
-        self.maximumBolus = rawValue["maximumBolus"] as? Double
-
-        if let rawThreshold = rawValue["minimumBGGuard"] as? GlucoseThreshold.RawValue {
-            self.suspendThreshold = GlucoseThreshold(rawValue: rawThreshold)
-        }
-        
-        if let insulinSensitivityScheduleRawValue = rawValue["insulinSensitivitySchedule"] as? InsulinSensitivitySchedule.RawValue {
-            self.insulinSensitivitySchedule = InsulinSensitivitySchedule(rawValue: insulinSensitivityScheduleRawValue)
-        }
-        
-        if let carbRatioScheduleRawValue = rawValue["carbRatioSchedule"] as? CarbRatioSchedule.RawValue {
-            self.carbRatioSchedule = CarbRatioSchedule(rawValue: carbRatioScheduleRawValue)
-        }
-        
-        if let basalRateScheduleRawValue = rawValue["basalRateSchedule"] as? BasalRateSchedule.RawValue {
-            self.basalRateSchedule = BasalRateSchedule(rawValue: basalRateScheduleRawValue)
-        }
-    }
-
-    public var rawValue: RawValue {
-        var raw: RawValue = [:]
-
-        raw["glucoseTargetRangeSchedule"] = glucoseTargetRangeSchedule?.rawValue
-        raw["preMealTargetRange"] = preMealTargetRange?.rawValue
-        raw["legacyWorkoutTargetRange"] = legacyWorkoutTargetRange?.rawValue
-        raw["maximumBasalRatePerHour"] = maximumBasalRatePerHour
-        raw["maximumBolus"] = maximumBolus
-        raw["minimumBGGuard"] = suspendThreshold?.rawValue
-        raw["insulinSensitivitySchedule"] = insulinSensitivitySchedule?.rawValue
-        raw["carbRatioSchedule"] = carbRatioSchedule?.rawValue
-        raw["basalRateSchedule"] = basalRateSchedule?.rawValue
-
-        return raw
-    }
-}
-

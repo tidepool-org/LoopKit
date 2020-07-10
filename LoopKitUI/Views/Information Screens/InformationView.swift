@@ -36,17 +36,10 @@ struct InformationView<InformationalContent: View> : View {
     var body: some View {
         ScrollView {
             bodyWithCancelButtonIfNeeded
-            .navigationBarTitle(Text(""), displayMode: .inline)
+            .navigationBarTitle(title, displayMode: .large)
             .padding()
         }
     }
-    
-    private var inBodyTitle: Text {
-        title
-        .bold()
-        .font(.largeTitle)
-    }
-    
     
     private var bodyWithCancelButtonIfNeeded: some View {
         switch mode {
@@ -59,7 +52,6 @@ struct InformationView<InformationalContent: View> : View {
     
     private var bodyWithBottomButton: some View {
         VStack(alignment: .leading, spacing: 20) {
-            inBodyTitle
             informationalContent
             Spacer()
             nextPageButton
@@ -68,7 +60,6 @@ struct InformationView<InformationalContent: View> : View {
     
     private var bodyWithCancelButton: some View {
         VStack(alignment: .leading, spacing: 20) {
-            inBodyTitle
             informationalContent
             Spacer()
         }
