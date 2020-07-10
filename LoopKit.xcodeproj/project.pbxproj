@@ -664,6 +664,7 @@
 		B46B62B323FF0E62001E69BA /* SelectableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46B62B223FF0E62001E69BA /* SelectableLabel.swift */; };
 		B4A2AAB1240830A30066563F /* LabeledTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2AAB0240830A30066563F /* LabeledTextField.swift */; };
 		B4A2AAB3240832350066563F /* MultipleSelectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2AAB2240832350066563F /* MultipleSelectionList.swift */; };
+		B4AC0D3E24B8FE3D00CDB0A1 /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AC0D3D24B8FE3D00CDB0A1 /* UIImage.swift */; };
 		B4B85FCD24A2312000A296A3 /* GlucoseValueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B85FCC24A2312000A296A3 /* GlucoseValueType.swift */; };
 		B4B85FD024A2318A00A296A3 /* GlucoseValueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B85FCC24A2312000A296A3 /* GlucoseValueType.swift */; };
 		B4C004D12416961300B40429 /* GuidePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C004B3241085DB00B40429 /* GuidePage.swift */; };
@@ -1412,6 +1413,7 @@
 		B46B62B223FF0E62001E69BA /* SelectableLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableLabel.swift; sourceTree = "<group>"; };
 		B4A2AAB0240830A30066563F /* LabeledTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabeledTextField.swift; sourceTree = "<group>"; };
 		B4A2AAB2240832350066563F /* MultipleSelectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSelectionList.swift; sourceTree = "<group>"; };
+		B4AC0D3D24B8FE3D00CDB0A1 /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		B4B85FCC24A2312000A296A3 /* GlucoseValueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseValueType.swift; sourceTree = "<group>"; };
 		B4C004B2241085DB00B40429 /* ActionButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		B4C004B3241085DB00B40429 /* GuidePage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuidePage.swift; sourceTree = "<group>"; };
@@ -2344,6 +2346,7 @@
 				B41A60B123D1DBC700636320 /* UIFont.swift */,
 				E916F56A24AD346D00BE3547 /* UIColor+LoopKit.swift */,
 				E96175AD24B7BE38008E5080 /* Dictionary.swift */,
+				B4AC0D3D24B8FE3D00CDB0A1 /* UIImage.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3078,6 +3081,7 @@
 				892A5D9C2231E118008961AB /* UIAlertController.swift in Sources */,
 				43BA7181201EE7090058961E /* RepeatingScheduleValueTableViewCell.swift in Sources */,
 				43BA716E201E49220058961E /* DecimalTextFieldTableViewCell.swift in Sources */,
+				B4AC0D3E24B8FE3D00CDB0A1 /* UIImage.swift in Sources */,
 				891A3FC72247268F00378B27 /* Math.swift in Sources */,
 				895FE08722011F0C00FCF18A /* EmojiInputCell.swift in Sources */,
 				89627B182441168900BEB424 /* ConfigurationPage.swift in Sources */,
