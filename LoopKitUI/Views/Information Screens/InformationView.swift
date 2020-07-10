@@ -16,35 +16,29 @@ struct InformationView<InformationalContent: View> : View {
     var informationalContent: InformationalContent
     var title: Text
     var buttonText: Text
-    var exitPage: (() -> Void)
+    var onExit: (() -> Void)
     let mode: PresentationMode
     
     init(
         title: Text,
         buttonText: Text,
         @ViewBuilder informationalContent: () -> InformationalContent,
-        exitPage: @escaping () -> Void,
+        onExit: @escaping () -> Void,
         mode: PresentationMode = .flow
     ) {
         self.title = title
         self.buttonText = buttonText
         self.informationalContent = informationalContent()
-        self.exitPage = exitPage
+        self.onExit = onExit
         self.mode = mode
     }
     
     var body: some View {
         ScrollView {
             bodyWithCancelButtonIfNeeded
-            .navigationBarTitle(Text(""), displayMode: .inline)
+            .navigationBarTitle(title, displayMode: .large)
             .padding()
         }
-    }
-    
-    private var inBodyTitle: Text {
-        title
-        .bold()
-        .font(.largeTitle)
     }
     
     private var bodyWithCancelButtonIfNeeded: some View {
@@ -57,8 +51,7 @@ struct InformationView<InformationalContent: View> : View {
     }
     
     private var bodyWithBottomButton: some View {
-        VStack (alignment: .leading, spacing: 20) {
-            inBodyTitle
+        VStack(alignment: .leading, spacing: 20) {
             informationalContent
             Spacer()
             nextPageButton
@@ -66,8 +59,7 @@ struct InformationView<InformationalContent: View> : View {
     }
     
     private var bodyWithCancelButton: some View {
-        VStack (alignment: .leading, spacing: 20) {
-            inBodyTitle
+        VStack(alignment: .leading, spacing: 20) {
             informationalContent
             Spacer()
         }
@@ -75,11 +67,11 @@ struct InformationView<InformationalContent: View> : View {
     }
     
     private var cancelButton: some View {
-        Button(action: exitPage, label: { Text("Cancel") })
+        Button(action: onExit, label: { Text("Cancel") })
     }
     
     private var nextPageButton: some View {
-        Button(action: exitPage) {
+        Button(action: onExit) {
             buttonText
             .actionButtonStyle(.primary)
         }

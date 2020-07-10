@@ -20,8 +20,6 @@ public struct BasalRateScheduleEditor: View {
     var save: (BasalRateSchedule) -> Void
     let mode: PresentationMode
 
-    @State var userHasEdited: Bool = false
-
     /// - Precondition: `supportedBasalRates` is nonempty and sorted in ascending order.
     public init(
         schedule: BasalRateSchedule?,
@@ -62,7 +60,6 @@ public struct BasalRateScheduleEditor: View {
 
     public var body: some View {
         QuantityScheduleEditor(
-            buttonText: buttonText,
             title: Text("Basal Rates", comment: "Title of basal rate settings page"),
             description: description,
             schedule: schedule,
@@ -81,18 +78,8 @@ public struct BasalRateScheduleEditor: View {
             },
             onSave: savingMechanism,
             mode: mode,
-            userDidEdit: $userHasEdited,
             settingType: .basalRate
         )
-    }
-
-    private var buttonText: Text {
-        switch mode {
-        case .modal:
-            return Text("Save", comment: "The button text for saving on a configuration page")
-        case .flow:
-            return !userHasEdited ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
-        }
     }
     
     private var description: Text {
@@ -125,8 +112,8 @@ public struct BasalRateScheduleEditor: View {
             }
         case .flow:
             return .synchronous { quantitySchedule in
-                // ANNA TODO: replace this placeholder once the mechanism has been decided
-                self.save(DailyValueSchedule(dailyItems: [RepeatingScheduleValue(startTime: TimeInterval(0), value: 1)])!)
+                let schedule = BasalRateSchedule(dailyItems: quantitySchedule.items, timeZone: .current)!
+                self.save(schedule)
             }
         }
     }
