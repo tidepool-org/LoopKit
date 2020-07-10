@@ -9,13 +9,13 @@
 import SwiftUI
 
 public struct DeliveryLimitsInformationView: View {
-    let blueGray = Color("Blue Gray", bundle: Bundle(for: DismissibleHostingController.self))
-    var exitPage: (() -> Void)
+    var onExit: (() -> Void)?
     var mode: PresentationMode
     
-    public init(exitPage: @escaping (() -> Void),
-                mode: PresentationMode = .flow) {
-        self.exitPage = exitPage
+    @Environment(\.presentationMode) var presentationMode
+    
+    public init(onExit: (() -> Void)?, mode: PresentationMode = .flow) {
+        self.onExit = onExit
         self.mode = mode
     }
     
@@ -31,13 +31,13 @@ public struct DeliveryLimitsInformationView: View {
                 }
                 .fixedSize(horizontal: false, vertical: true) // prevent text from being cut off
             },
-            exitPage: exitPage,
+            onExit: onExit ?? { self.presentationMode.wrappedValue.dismiss() },
             mode: mode)
+        .foregroundColor(.secondary)
     }
     
     private var deliveryLimitDescription: some View {
         Text(LocalizedString("Delivery limits are safety guardrails for your insulin delivery.", comment: "Information about delivery limits"))
-        .foregroundColor(blueGray)
     }
     
     private var maxBasalDescription: some View {
@@ -49,7 +49,6 @@ public struct DeliveryLimitsInformationView: View {
                 Text(LocalizedString("Some users choose a value 2, 3, or 4 times their highest scheduled basal rate.", comment: "Information about typical maximum basal rates"))
                 Text(LocalizedString("Work with your healthcare provider to choose a value that is higher than your highest scheduled basal rate, but as conservative or aggressive as you feel comfortable.", comment: "Disclaimer"))
             }
-            .foregroundColor(blueGray)
         }
     }
     
@@ -58,7 +57,6 @@ public struct DeliveryLimitsInformationView: View {
             Text(LocalizedString("Maximum bolus", comment: "Maximum bolus title"))
             .font(.headline)
             Text(LocalizedString("Maximum bolus is the highest bolus amount that you will allow Tidepool Loop to recommend at one time to cover carbs or bring down high glucose.", comment: "Information about maximum bolus"))
-            .foregroundColor(blueGray)
         }
     }
 }

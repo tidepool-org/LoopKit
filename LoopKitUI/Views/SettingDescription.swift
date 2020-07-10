@@ -29,6 +29,8 @@ public enum TherapySetting: Int {
             return AnyView(SuspendThresholdInformationView(onExit: nil, mode: .modal))
         case .basalRate:
             return AnyView(BasalRatesInformationView(onExit: nil, mode: .modal))
+        case .deliveryLimits:
+            return AnyView(DeliveryLimitsInformationView(onExit: nil, mode: .modal))
         // ANNA TODO: add more once other instructional screens are created
         default:
             return AnyView(Text("To be implemented"))

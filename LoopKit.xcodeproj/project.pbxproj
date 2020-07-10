@@ -695,18 +695,15 @@
 		C1F8B1E2223C3CC000DD66CF /* TimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4303C4901E2D664200ADEDC8 /* TimeZone.swift */; };
 		E9077D2724ACD59F0066A88D /* InformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2624ACD59F0066A88D /* InformationView.swift */; };
 		E9077D2A24ACDE2C0066A88D /* CorrectionRangeInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2924ACDE2C0066A88D /* CorrectionRangeInformationView.swift */; };
-		E916F56924AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E916F56824AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift */; };
-		E916F56B24AD346D00BE3547 /* UIColor+LoopKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E916F56A24AD346D00BE3547 /* UIColor+LoopKit.swift */; };
-		E916F56F24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E916F56E24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift */; };
 		E9086B3924B3CB4B0062F5C8 /* TherapySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B3824B3CB4B0062F5C8 /* TherapySettings.swift */; };
 		E9086B3B24B3CFFD0062F5C8 /* TherapySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B3824B3CB4B0062F5C8 /* TherapySettings.swift */; };
 		E916F56924AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E916F56824AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift */; };
 		E916F56B24AD346D00BE3547 /* UIColor+LoopKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E916F56A24AD346D00BE3547 /* UIColor+LoopKit.swift */; };
 		E916F56F24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E916F56E24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift */; };
 		E93BA06624A39DBC00C5D7E6 /* DismissableHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93BA06524A39DBC00C5D7E6 /* DismissableHostingController.swift */; };
-		E96175AE24B7BE38008E5080 /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96175AD24B7BE38008E5080 /* Dictionary.swift */; };
 		E949E38924AFC82F00024DA0 /* DeliveryLimitsInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */; };
 		E949E38B24B35DA400024DA0 /* DeliveryLimitsEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */; };
+		E96175AE24B7BE38008E5080 /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96175AD24B7BE38008E5080 /* Dictionary.swift */; };
 		E96DCB5824AEF50F007117BC /* SuspendThresholdInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */; };
 		E96DCB5A24AF74AC007117BC /* SuspendThresholdEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */; };
 		E96DCB5E24AF7DC7007117BC /* BasalRatesInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */; };
@@ -1451,9 +1448,9 @@
 		E916F56A24AD346D00BE3547 /* UIColor+LoopKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+LoopKit.swift"; sourceTree = "<group>"; };
 		E916F56E24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverrideInformationView.swift; sourceTree = "<group>"; };
 		E93BA06524A39DBC00C5D7E6 /* DismissableHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissableHostingController.swift; sourceTree = "<group>"; };
-		E96175AD24B7BE38008E5080 /* Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
 		E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsInformationView.swift; sourceTree = "<group>"; };
 		E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsEditor.swift; sourceTree = "<group>"; };
+		E96175AD24B7BE38008E5080 /* Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
 		E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspendThresholdInformationView.swift; sourceTree = "<group>"; };
 		E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspendThresholdEditor.swift; sourceTree = "<group>"; };
 		E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasalRatesInformationView.swift; sourceTree = "<group>"; };
@@ -2398,7 +2395,6 @@
 				E916F56E24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift */,
 				E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */,
 				E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */,
-				E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */,
 			);
 			path = "Information Screens";
 			sourceTree = "<group>";
@@ -2406,6 +2402,7 @@
 		E916F56724AD31F900BE3547 /* Settings Editors */ = {
 			isa = PBXGroup;
 			children = (
+				E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */,
 				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
 				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
 				89653C8324738D2B00E1BAA5 /* BasalRateScheduleEditor.swift */,
