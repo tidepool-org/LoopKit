@@ -28,7 +28,7 @@ public struct CorrectionRangeOverrideInformationView: View {
             title: Text(LocalizedString("Temporary Ranges", comment: "Title for correction range override informational screen")),
             buttonText: Text(LocalizedString("Next: Review Setting", comment: "Button to advance to setting editor")),
             informationalContent: {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack (alignment: .leading, spacing: 20) {
                     section(for: CorrectionRangeOverrides.Preset.preMeal)
                     Divider()
                     section(for: CorrectionRangeOverrides.Preset.workout)
