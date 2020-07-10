@@ -9,7 +9,6 @@
 import SwiftUI
 
 public struct BasalRatesInformationView: View {
-    let blueGray = Color("Blue Gray", bundle: Bundle(for: DismissibleHostingController.self))
     var onExit: (() -> Void)?
     var mode: PresentationMode
     
@@ -27,7 +26,8 @@ public struct BasalRatesInformationView: View {
             buttonText: Text(LocalizedString("Next: Review Setting", comment: "Button to advance to setting editor")),
             informationalContent: {text},
             onExit: onExit ?? { self.presentationMode.wrappedValue.dismiss() },
-            mode: mode)
+            mode: mode
+        )
     }
     
     private var text: some View {
@@ -36,6 +36,6 @@ public struct BasalRatesInformationView: View {
             Text(LocalizedString("Tidepool Loop supports 1 to 48 rates per day.", comment: "Information about max number of basal rates"))
             Text(LocalizedString("The schedule starts at midnight and cannot contain a rate of 0 U/hr.", comment: "Information about basal rate scheduling"))
         }
-        .foregroundColor(blueGray)
+        .foregroundColor(.secondary)
     }
 }

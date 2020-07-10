@@ -44,7 +44,6 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         ScheduleEditor(
             title: title,
             description: description,
-            buttonText: buttonText,
             scheduleItems: $scheduleItems,
             initialScheduleItems: initialScheduleItems,
             defaultFirstScheduleItemValue: defaultFirstScheduleItemValue.doubleValue(for: unit),
