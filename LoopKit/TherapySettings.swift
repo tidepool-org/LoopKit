@@ -29,7 +29,7 @@ public struct TherapySettings: Equatable {
     public init(
         glucoseTargetRangeSchedule: GlucoseRangeSchedule? = nil,
         preMealTargetRange: DoubleRange? = nil,
-        legacyWorkoutTargetRange: DoubleRange? = nil,
+        workoutTargetRange: DoubleRange? = nil,
         maximumBasalRatePerHour: Double? = nil,
         maximumBolus: Double? = nil,
         suspendThreshold: GlucoseThreshold? = nil,
@@ -38,6 +38,7 @@ public struct TherapySettings: Equatable {
     ){
         self.glucoseTargetRangeSchedule = glucoseTargetRangeSchedule
         self.preMealTargetRange = preMealTargetRange
+        self.workoutTargetRange = workoutTargetRange
         self.maximumBasalRatePerHour = maximumBasalRatePerHour
         self.maximumBolus = maximumBolus
         self.suspendThreshold = suspendThreshold

@@ -17,7 +17,7 @@ public protocol TherapySettingsViewDelegate: class {
 }
 
 public class TherapySettingsViewModel: ObservableObject {
-    var initialTherapySettings: TherapySettings
+    private var initialTherapySettings: TherapySettings
     var therapySettings: TherapySettings
 
     public init(therapySettings: TherapySettings = preview_therapySettings) {
@@ -39,11 +39,6 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     @ObservedObject var viewModel: TherapySettingsViewModel
 
     @State var isEditing: Bool = false
-    //    static let unit = HKUnit.milligramsPerDeciliter
-//    let unit = Self.unit
-//    // Blarg, why doesn't @State work here???
-////    @State var scheduleItems: [RepeatingScheduleValue<DoubleRange>] = []
-//    let scheduleItems: [RepeatingScheduleValue<DoubleRange>]
     
     public enum PresentationMode {
         case onboarding, settings
@@ -57,8 +52,8 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     
     public var body: some View {
         switch mode {
-        case .settings: return AnyView(navigationContent())
-        case .onboarding: return AnyView(navigationContent())
+        case .settings: return AnyView(content())
+        case .onboarding: return AnyView(content())
         }
     }
     
@@ -71,6 +66,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     private func content() -> some View {
         List {
             correctionRangeSection
+            temporaryCorrectionRangesSection
         }
         .listStyle(GroupedListStyle())
         .navigationBarTitle(Text(NSLocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
@@ -82,6 +78,11 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
 typealias HKQuantityGuardrail = Guardrail<HKQuantity>
 
 extension TherapySettingsView {
+    
+    // TODO: Something better than this?
+    private var unit: HKUnit {
+        self.viewModel.therapySettings.glucoseTargetRangeSchedule?.unit ?? .milligramsPerDeciliter
+    }
     
     private var backOrCancelButton: some View {
         Button( action: {
@@ -117,17 +118,46 @@ extension TherapySettingsView {
             }
         }
     }
-
+    
     private var correctionRangeSection: some View {
-        SectionWithEdit(isEditing: $isEditing, title: "Correction Range", footer: EmptyView()) {
+        SectionWithEdit(isEditing: $isEditing,
+                        title: NSLocalizedString("Correction Range", comment: "Correction Range section title"),
+                        footer: EmptyView(),
+                        gotoEdit: { self.delegate?.gotoEdit(therapySetting: TherapySetting.glucoseTargetRange) })
+        {
             ForEach(self.viewModel.therapySettings.glucoseTargetRangeSchedule?.items ?? [], id: \.self) { value in
-                ScheduleItemRange(time: value.startTime, range: value.value, unit: self.viewModel.therapySettings.glucoseTargetRangeSchedule?.unit ?? .milligramsPerDeciliter, guardrail: Guardrail.correctionRange)
+                ScheduledRangeItem(time: value.startTime, range: value.value, unit: self.unit, guardrail: Guardrail.correctionRange)
             }
         }
     }
+    
+    private var temporaryCorrectionRangesSection: some View {
+        SectionWithEdit(isEditing: $isEditing,
+                        title: NSLocalizedString("Temporary Correction Ranges", comment: "Temporary Correction Ranges section title"),
+                        footer: EmptyView(),
+                        gotoEdit: { self.delegate?.gotoEdit(therapySetting: TherapySetting.correctionRangeOverrides) })
+        {
+            Group {
+                if self.viewModel.therapySettings.glucoseTargetRangeSchedule != nil {
+                    ForEach([ CorrectionRangeOverrides.Preset.preMeal, CorrectionRangeOverrides.Preset.workout  ], id: \.self) { preset in
+                        CorrectionRangeOverridesRangeItem(
+                            preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange,
+                            workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange,
+                            unit: self.unit,
+                            preset: preset,
+                            correctionRangeScheduleRange: self.viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
+                        )
+                    }
+                } else {
+                    EmptyView()
+                }
+            }
+        }
+    }
+    
 }
 
-struct ScheduleItemRange: View {
+struct ScheduledRangeItem: View {
     let time: TimeInterval
     let range: DoubleRange
     let unit: HKUnit
@@ -140,6 +170,28 @@ struct ScheduleItemRange: View {
                             GuardrailConstrainedQuantityRangeView(range: range.quantityRange(for: unit), unit: unit, guardrail: guardrail, isEditing: false)
                          },
                          expandedContent: { EmptyView() })
+    }
+}
+
+struct CorrectionRangeOverridesRangeItem: View {
+    let preMealTargetRange: DoubleRange?
+    let workoutTargetRange: DoubleRange?
+    let unit: HKUnit
+    let preset: CorrectionRangeOverrides.Preset
+    let correctionRangeScheduleRange: ClosedRange<HKQuantity>
+    
+    public var body: some View {
+        CorrectionRangeOverridesExpandableSetting(
+            isEditing: .constant(false),
+            value: .constant(CorrectionRangeOverrides(
+                preMeal: preMealTargetRange,
+                workout: workoutTargetRange,
+                unit: unit
+            )),
+            preset: preset,
+            unit: unit,
+            correctionRangeScheduleRange: correctionRangeScheduleRange,
+            expandedContent: { EmptyView() })
     }
 }
 
@@ -159,10 +211,13 @@ struct SectionHeaderWithEdit: View {
     }
 }
 
+// Note: I didn't call this "EditableSection" because it doesn't actually make the section editable,
+// it just optionally provides a link to go to an editor screen.
 struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View {
     @Binding var isEditing: Bool
     let title: String
     let footer: Footer
+    let gotoEdit: () -> Void
     let content: () -> Content
     
     public var body: some View {
@@ -174,10 +229,8 @@ struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View 
             content()
         }
         if isEditing {
-            NavigationLink(destination: Text("Edit \(title)")) {
-                Button(action: {}) {
-                    Text("Edit \(title)")
-                }.disabled(!isEditing)
+            Button(action: { self.gotoEdit() }) {
+                Text("Edit \(title)")
             }.disabled(!isEditing)
         }
     }
@@ -192,22 +245,16 @@ public let preview_glucoseScheduleItems = [
 
 public let preview_therapySettings = TherapySettings(
     glucoseTargetRangeSchedule: GlucoseRangeSchedule(unit: .milligramsPerDeciliter, dailyItems: preview_glucoseScheduleItems),
-    preMealTargetRange: nil,
-    legacyWorkoutTargetRange: nil,
-    maximumBasalRatePerHour: nil,
-    maximumBolus: nil,
-    suspendThreshold: nil,
+    preMealTargetRange: DoubleRange(88...99),
+    workoutTargetRange: DoubleRange(99...111),
+    maximumBasalRatePerHour: 55,
+    maximumBolus: 4,
+    suspendThreshold: GlucoseThreshold.init(unit: .milligramsPerDeciliter, value: 123),
     insulinSensitivitySchedule: nil,
     carbRatioSchedule: nil)
 
 public struct TherapySettingsView_Previews: PreviewProvider {
     public static var previews: some View {
         TherapySettingsView(viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
-    }
-}
-
-extension DoubleRange {
-    init(_ val: ClosedRange<Double>) {
-        self.init(minValue: val.lowerBound, maxValue: val.upperBound)
     }
 }
