@@ -19,10 +19,13 @@ public protocol TherapySettingsViewDelegate: class {
 public class TherapySettingsViewModel: ObservableObject {
     private var initialTherapySettings: TherapySettings
     var therapySettings: TherapySettings
+    let editButtonBelowSection: Bool
 
-    public init(therapySettings: TherapySettings = preview_therapySettings) {
+    public init(therapySettings: TherapySettings = preview_therapySettings,
+                editButtonBelowSection: Bool = false) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
+        self.editButtonBelowSection = editButtonBelowSection
     }
     
     /// Reset to original
@@ -53,7 +56,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     public var body: some View {
         switch mode {
         case .settings: return AnyView(content())
-        case .onboarding: return AnyView(content())
+        case .onboarding: return AnyView(navigationContent())
         }
     }
     
@@ -85,7 +88,7 @@ extension TherapySettingsView {
     }
     
     private var backOrCancelButton: some View {
-        Button( action: {
+        return Button<AnyView>( action: {
             if self.isEditing {
                 // TODO: confirm
                 self.delegate?.cancel()
@@ -96,9 +99,12 @@ extension TherapySettingsView {
             }
         }) {
             if isEditing {
-                Text(NSLocalizedString("Cancel", comment: "Cancel button text"))
+                return AnyView(Text(NSLocalizedString("Cancel", comment: "Cancel button text")))
             } else {
-                Text(NSLocalizedString("Back", comment: "Back button text"))
+                switch mode {
+                    case .settings: return AnyView(EmptyView())
+                    case .onboarding: return AnyView(Text(NSLocalizedString("Back", comment: "Back button text")))
+                }
             }
         }
     }
@@ -121,6 +127,7 @@ extension TherapySettingsView {
     
     private var correctionRangeSection: some View {
         SectionWithEdit(isEditing: $isEditing,
+                        editButtonBelowSection: viewModel.editButtonBelowSection,
                         title: NSLocalizedString("Correction Range", comment: "Correction Range section title"),
                         footer: EmptyView(),
                         gotoEdit: { self.delegate?.gotoEdit(therapySetting: TherapySetting.glucoseTargetRange) })
@@ -133,6 +140,7 @@ extension TherapySettingsView {
     
     private var temporaryCorrectionRangesSection: some View {
         SectionWithEdit(isEditing: $isEditing,
+                        editButtonBelowSection: viewModel.editButtonBelowSection,
                         title: NSLocalizedString("Temporary Correction Ranges", comment: "Temporary Correction Ranges section title"),
                         footer: EmptyView(),
                         gotoEdit: { self.delegate?.gotoEdit(therapySetting: TherapySetting.correctionRangeOverrides) })
@@ -197,16 +205,19 @@ struct CorrectionRangeOverridesRangeItem: View {
 
 struct SectionHeaderWithEdit: View {
     @Binding var isEditing: Bool
-    var title: String
-    
+    let editButtonBelowSection: Bool
+    let title: String
+
     public var body: some View {
         HStack(alignment: .firstTextBaseline) {
             SectionHeader(label: title)
-            Spacer()
-            Button(action: {}) {
-                Text("Edit")
-                    .font(.subheadline)
-            }.disabled(!isEditing)
+            if editButtonBelowSection == false {
+                Spacer()
+                Button(action: {}) {
+                    Text("Edit")
+                        .font(.subheadline)
+                }.disabled(!isEditing)
+            }
         }
     }
 }
@@ -215,20 +226,21 @@ struct SectionHeaderWithEdit: View {
 // it just optionally provides a link to go to an editor screen.
 struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View {
     @Binding var isEditing: Bool
+    let editButtonBelowSection: Bool
     let title: String
     let footer: Footer
     let gotoEdit: () -> Void
     let content: () -> Content
-    
+
     public var body: some View {
         buildBody()
     }
     
     @ViewBuilder private func buildBody() -> some View {
-        Section(header: SectionHeaderWithEdit(isEditing: $isEditing, title: title), footer: footer) {
+        Section(header: SectionHeaderWithEdit(isEditing: $isEditing, editButtonBelowSection: editButtonBelowSection, title: title), footer: footer) {
             content()
         }
-        if isEditing {
+        if isEditing && editButtonBelowSection {
             Button(action: { self.gotoEdit() }) {
                 Text("Edit \(title)")
             }.disabled(!isEditing)
@@ -255,6 +267,23 @@ public let preview_therapySettings = TherapySettings(
 
 public struct TherapySettingsView_Previews: PreviewProvider {
     public static var previews: some View {
-        TherapySettingsView(viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+        Group {
+            TherapySettingsView(mode: .onboarding, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+                .colorScheme(.light)
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
+                .previewDisplayName("SE light (onboarding)")
+            TherapySettingsView(mode: .onboarding, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings, editButtonBelowSection: true))
+                .colorScheme(.light)
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
+                .previewDisplayName("SE light (edit below section)")
+            TherapySettingsView(mode: .settings, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+                .colorScheme(.light)
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
+                .previewDisplayName("SE light (settings)")
+            TherapySettingsView(mode: .onboarding, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+                .colorScheme(.dark)
+                .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
+                .previewDisplayName("XS Max dark (settings)")
+        }
     }
 }
