@@ -86,6 +86,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         .listStyle(GroupedListStyle())
         .navigationBarTitle(Text(NSLocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
         .navigationBarItems(leading: backOrCancelButton, trailing: editOrDoneButton)
+        .navigationBarBackButtonHidden(isEditing)
         .environment(\.horizontalSizeClass, horizontalOverride)
     }
 }
@@ -265,8 +266,9 @@ struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View 
         Section(header: SectionHeaderWithEdit(isEditing: $isEditing,
                                               editButtonDesignVersion: $editButtonDesignVersion,
                                               title: title,
-                                              editAction: { self.gotoEdit() }
-        ), footer: footer) {
+                                              editAction: { self.gotoEdit() }),
+                footer: footer)
+        {
             content()
             if isEditing && editButtonDesignVersion == .B {
                 navigationButton
