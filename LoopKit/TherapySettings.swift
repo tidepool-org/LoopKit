@@ -44,6 +44,7 @@ public struct TherapySettings: Equatable, Codable {
     ){
         self.glucoseTargetRangeSchedule = glucoseTargetRangeSchedule
         self.preMealTargetRange = preMealTargetRange
+        self.workoutTargetRange = workoutTargetRange
         self.maximumBasalRatePerHour = maximumBasalRatePerHour
         self.maximumBolus = maximumBolus
         self.suspendThreshold = suspendThreshold
