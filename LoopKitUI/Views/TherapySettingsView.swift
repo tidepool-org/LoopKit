@@ -64,17 +64,12 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     
     public var body: some View {
         switch mode {
-        case .modal: return AnyView(navigationContent)
+        // TODO: Different versions for onboarding vs. in settings
         case .flow: return AnyView(content)
+        case .modal: return AnyView(content)
         }
     }
-    
-    private var navigationContent: some View {
-        return NavigationView {
-            content
-        }
-    }
-    
+
     private var content: some View {
         List {
             correctionRangeSection
