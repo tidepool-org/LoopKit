@@ -21,7 +21,7 @@ public class TherapySettingsViewModel: ObservableObject {
     private var initialTherapySettings: TherapySettings
     var therapySettings: TherapySettings
 
-    public init(therapySettings: TherapySettings = preview_therapySettings) {
+    public init(therapySettings: TherapySettings) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
     }
@@ -67,18 +67,18 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     
     public var body: some View {
         switch mode {
-        case .settings: return AnyView(content())
-        case .onboarding: return AnyView(navigationContent())
+        case .settings: return AnyView(content)
+        case .onboarding: return AnyView(navigationContent)
         }
     }
     
-    private func navigationContent() -> some View {
+    private var navigationContent: some View {
         return NavigationView {
-            content()
+            content
         }
     }
     
-    private func content() -> some View {
+    private var content: some View {
         List {
             correctionRangeSection
             temporaryCorrectionRangesSection
@@ -95,9 +95,12 @@ typealias HKQuantityGuardrail = Guardrail<HKQuantity>
 
 extension TherapySettingsView {
     
-    // TODO: Something better than this?
-    private var unit: HKUnit {
-        self.viewModel.therapySettings.glucoseTargetRangeSchedule?.unit ?? .milligramsPerDeciliter
+    private var therapySettings: TherapySettings {
+        viewModel.therapySettings
+    }
+    
+    private var glucoseUnit: HKUnit? {
+        therapySettings.glucoseTargetRangeSchedule?.unit
     }
     
     private var backOrCancelButton: some View {
@@ -153,10 +156,16 @@ extension TherapySettingsView {
                         editButtonDesignVersion: $editButtonDesignVersion,
                         title: NSLocalizedString("Correction Range", comment: "Correction Range section title"),
                         footer: EmptyView(),
-                        gotoEdit: { self.delegate?.gotoEdit(therapySetting: TherapySetting.glucoseTargetRange) })
+                        editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.glucoseTargetRange) })
         {
-            ForEach(self.viewModel.therapySettings.glucoseTargetRangeSchedule?.items ?? [], id: \.self) { value in
-                ScheduledRangeItem(time: value.startTime, range: value.value, unit: self.unit, guardrail: Guardrail.correctionRange)
+            Group {
+                if self.glucoseUnit != nil {
+                    ForEach(self.therapySettings.glucoseTargetRangeSchedule?.items ?? [], id: \.self) { value in
+                        ScheduleRangeItem(time: value.startTime, range: value.value, unit: self.glucoseUnit!, guardrail: Guardrail.correctionRange)
+                    }
+                } else {
+                    DescriptiveText(label: NSLocalizedString("Tap \"Edit\" to add a Correction Range", comment: "Correction Range section edit hint"))
+                }
             }
         }
     }
@@ -166,29 +175,23 @@ extension TherapySettingsView {
                         editButtonDesignVersion: $editButtonDesignVersion,
                         title: NSLocalizedString("Temporary Correction Ranges", comment: "Temporary Correction Ranges section title"),
                         footer: EmptyView(),
-                        gotoEdit: { self.delegate?.gotoEdit(therapySetting: TherapySetting.correctionRangeOverrides) })
+                        editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.correctionRangeOverrides) })
         {
-            Group {
-                if self.viewModel.therapySettings.glucoseTargetRangeSchedule != nil {
-                    ForEach([ CorrectionRangeOverrides.Preset.preMeal, CorrectionRangeOverrides.Preset.workout  ], id: \.self) { preset in
-                        CorrectionRangeOverridesRangeItem(
-                            preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange,
-                            workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange,
-                            unit: self.unit,
-                            preset: preset,
-                            correctionRangeScheduleRange: self.viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
-                        )
-                    }
-                } else {
-                    EmptyView()
-                }
+            ForEach([ CorrectionRangeOverrides.Preset.preMeal, CorrectionRangeOverrides.Preset.workout  ], id: \.self) { preset in
+                CorrectionRangeOverridesRangeItem(
+                    preMealTargetRange: self.therapySettings.preMealTargetRange,
+                    workoutTargetRange: self.therapySettings.workoutTargetRange,
+                    unit: self.glucoseUnit,
+                    preset: preset,
+                    correctionRangeScheduleRange: self.therapySettings.glucoseTargetRangeSchedule?.scheduleRange()
+                )
             }
         }
     }
     
 }
 
-struct ScheduledRangeItem: View {
+struct ScheduleRangeItem: View {
     let time: TimeInterval
     let range: DoubleRange
     let unit: HKUnit
@@ -207,9 +210,9 @@ struct ScheduledRangeItem: View {
 struct CorrectionRangeOverridesRangeItem: View {
     let preMealTargetRange: DoubleRange?
     let workoutTargetRange: DoubleRange?
-    let unit: HKUnit
+    let unit: HKUnit?
     let preset: CorrectionRangeOverrides.Preset
-    let correctionRangeScheduleRange: ClosedRange<HKQuantity>
+    let correctionRangeScheduleRange: ClosedRange<HKQuantity>?
     
     public var body: some View {
         CorrectionRangeOverridesExpandableSetting(
@@ -255,7 +258,7 @@ struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View 
     @Binding var editButtonDesignVersion: TherapySettingsView.DesignVersion
     let title: String
     let footer: Footer
-    let gotoEdit: () -> Void
+    let editAction: () -> Void
     let content: () -> Content
 
     public var body: some View {
@@ -266,7 +269,7 @@ struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View 
         Section(header: SectionHeaderWithEdit(isEditing: $isEditing,
                                               editButtonDesignVersion: $editButtonDesignVersion,
                                               title: title,
-                                              editAction: { self.gotoEdit() }),
+                                              editAction: editAction),
                 footer: footer)
         {
             content()
@@ -280,12 +283,17 @@ struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View 
     }
     
     private var navigationButton: some View {
-        Button(action: { self.gotoEdit() }) {
+        Button(action: { self.editAction() }) {
             HStack {
+                if editButtonDesignVersion == .B {
+                    Spacer()
+                }
                 Text("Edit \(title)")
                 Spacer()
-                // TODO: Ick. I can't use a NavigationLink because we're not Navigating, but this seems worse somehow.
-                Image(systemName: "chevron.right").foregroundColor(.gray).font(.footnote)
+                if editButtonDesignVersion == .A {
+                    // TODO: Ick. I can't use a NavigationLink because we're not Navigating, but this seems worse somehow.
+                    Image(systemName: "chevron.right").foregroundColor(.gray).font(.footnote)
+                }
             }
         }
         .disabled(!isEditing)
@@ -332,6 +340,11 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
+            TherapySettingsView(mode: .onboarding, editButtonDesignVersion: .A, viewModel: TherapySettingsViewModel(therapySettings: TherapySettings()))
+                .colorScheme(.light)
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
+                .previewDisplayName("SE light (Empty TherapySettings)")
+
         }
     }
 }
