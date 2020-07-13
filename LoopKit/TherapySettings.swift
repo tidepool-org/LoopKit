@@ -8,7 +8,7 @@
 
 import HealthKit
 
-public struct TherapySettings: Equatable {
+public struct TherapySettings: Equatable, Codable {
     
     public var glucoseTargetRangeSchedule: GlucoseRangeSchedule?
 
@@ -26,6 +26,10 @@ public struct TherapySettings: Equatable {
     
     public var carbRatioSchedule: CarbRatioSchedule?
     
+    public var basalRateSchedule: BasalRateSchedule?
+    
+    public var insulinModel: StoredSettings.InsulinModel?
+    
     public init(
         glucoseTargetRangeSchedule: GlucoseRangeSchedule? = nil,
         preMealTargetRange: DoubleRange? = nil,
@@ -34,7 +38,9 @@ public struct TherapySettings: Equatable {
         maximumBolus: Double? = nil,
         suspendThreshold: GlucoseThreshold? = nil,
         insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
-        carbRatioSchedule: CarbRatioSchedule? = nil
+        carbRatioSchedule: CarbRatioSchedule? = nil,
+        basalRateSchedule: BasalRateSchedule? = nil,
+        insulinModel: StoredSettings.InsulinModel? = nil
     ){
         self.glucoseTargetRangeSchedule = glucoseTargetRangeSchedule
         self.preMealTargetRange = preMealTargetRange
@@ -44,5 +50,7 @@ public struct TherapySettings: Equatable {
         self.suspendThreshold = suspendThreshold
         self.insulinSensitivitySchedule = insulinSensitivitySchedule
         self.carbRatioSchedule = carbRatioSchedule
+        self.basalRateSchedule = basalRateSchedule
+        self.insulinModel = insulinModel
     }
 }
