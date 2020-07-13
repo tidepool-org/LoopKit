@@ -54,12 +54,9 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     }
     @State var editButtonDesignVersion: DesignVersion = .C
 
-    public enum PresentationMode {
-        case onboarding, settings
-    }
     private let mode: PresentationMode
     
-    public init(mode: PresentationMode = .settings, editButtonDesignVersion: DesignVersion = .C, viewModel: TherapySettingsViewModel) {
+    public init(mode: PresentationMode = .modal, editButtonDesignVersion: DesignVersion = .C, viewModel: TherapySettingsViewModel) {
         self.mode = mode
         self.viewModel = viewModel
         self.editButtonDesignVersion = editButtonDesignVersion
@@ -67,8 +64,8 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     
     public var body: some View {
         switch mode {
-        case .settings: return AnyView(content)
-        case .onboarding: return AnyView(navigationContent)
+        case .modal: return AnyView(navigationContent)
+        case .flow: return AnyView(content)
         }
     }
     
@@ -118,8 +115,8 @@ extension TherapySettingsView {
                 return AnyView(Text(NSLocalizedString("Cancel", comment: "Cancel button text")))
             } else {
                 switch mode {
-                    case .settings: return AnyView(EmptyView())
-                    case .onboarding: return AnyView(Text(NSLocalizedString("Back", comment: "Back button text")))
+                    case .modal: return AnyView(EmptyView())
+                    case .flow: return AnyView(Text(NSLocalizedString("Back", comment: "Back button text")))
                 }
             }
         }
@@ -320,27 +317,27 @@ public let preview_therapySettings = TherapySettings(
 public struct TherapySettingsView_Previews: PreviewProvider {
     public static var previews: some View {
         Group {
-            TherapySettingsView(mode: .onboarding, editButtonDesignVersion: .A, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+            TherapySettingsView(mode: .modal, editButtonDesignVersion: .A, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (onboarding)")
-            TherapySettingsView(mode: .onboarding, editButtonDesignVersion: .B, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+            TherapySettingsView(mode: .modal, editButtonDesignVersion: .B, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (edit below section)")
-            TherapySettingsView(mode: .onboarding, editButtonDesignVersion: .C, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+            TherapySettingsView(mode: .modal, editButtonDesignVersion: .C, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (edit below section)")
-            TherapySettingsView(mode: .settings, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+            TherapySettingsView(mode: .flow, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (settings)")
-            TherapySettingsView(mode: .onboarding, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+            TherapySettingsView(mode: .modal, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
-            TherapySettingsView(mode: .onboarding, editButtonDesignVersion: .A, viewModel: TherapySettingsViewModel(therapySettings: TherapySettings()))
+            TherapySettingsView(mode: .modal, editButtonDesignVersion: .A, viewModel: TherapySettingsViewModel(therapySettings: TherapySettings()))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
