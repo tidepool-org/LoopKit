@@ -207,18 +207,6 @@ struct CorrectionRangeOverridesRangeItem: View {
     }
 }
 
-struct SectionHeaderWithEdit: View {
-    @Binding var isEditing: Bool
-    let title: String
-    let editAction: () -> Void
-
-    public var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            SectionHeader(label: title)
-        }
-    }
-}
-
 // Note: I didn't call this "EditableSection" because it doesn't actually make the section editable,
 // it just optionally provides a link to go to an editor screen.
 struct SectionWithEdit<Content>: View where Content: View {
@@ -248,9 +236,9 @@ struct SectionWithEdit<Content>: View where Content: View {
     private var navigationButton: some View {
         Button(action: { self.editAction() }) {
             HStack {
-                Spacer()
                 Text(String(format: LocalizedString("Edit %@", comment: "The string format for the Edit navigation button"), title))
                 Spacer()
+                Image(systemName: "chevron.right").foregroundColor(.gray).font(.footnote)
             }
         }
         .disabled(!isEditing)
