@@ -25,27 +25,12 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     @ObservedObject var viewModel: TherapySettingsViewModel
 
     @State var isEditing: Bool = false
-    
-    // Hack to test edit button below section or next to header
-    // TODO: Remove once design is chosen
-    public enum DesignVersion {
-        case A, B, C
-        func cycle() -> DesignVersion {
-            switch self {
-            case .A: return .B
-            case .B: return .C
-            case .C: return .A
-            }
-        }
-    }
-    @State var editButtonDesignVersion: DesignVersion = .C
 
     private let mode: PresentationMode
     
-    public init(mode: PresentationMode = .flow, editButtonDesignVersion: DesignVersion = .C, viewModel: TherapySettingsViewModel) {
+    public init(mode: PresentationMode = .flow, viewModel: TherapySettingsViewModel) {
         self.mode = mode
         self.viewModel = viewModel
-        self.editButtonDesignVersion = editButtonDesignVersion
     }
     
     public var body: some View {
@@ -125,44 +110,25 @@ extension TherapySettingsView {
     }
     
     private var editButton: some View {
-        let action = {
+        return Button( action: {
             self.isEditing.toggle()
-        }
-        return Button( action: action ) {
+        }) {
             Text(LocalizedString("Edit", comment: "Edit button text"))
-            .onTapGesture {
-                action()
-            }
-            // TODO: Remove once design is chosen
-            .onLongPressGesture {
-                self.editButtonDesignVersion = self.editButtonDesignVersion.cycle()
-                AudioServicesPlayAlertSound(kSystemSoundID_Vibrate)
-            }
         }
     }
     
     private var doneButton: some View {
-        let action = {
+        return Button( action: {
             // TODO: confirm
             self.delegate?.save()
             self.isEditing.toggle()
-        }
-        return Button( action: action ) {
+        }) {
             Text(LocalizedString("Done", comment: "Done button text"))
-            .onTapGesture {
-                action()
-            }
-            // TODO: Remove once design is chosen
-            .onLongPressGesture {
-                self.editButtonDesignVersion = self.editButtonDesignVersion.cycle()
-                AudioServicesPlayAlertSound(kSystemSoundID_Vibrate)
-            }
         }
     }
     
     private var correctionRangeSection: some View {
         SectionWithEdit(isEditing: $isEditing,
-                        editButtonDesignVersion: $editButtonDesignVersion,
                         title: LocalizedString("Correction Range", comment: "Correction Range section title"),
                         footer: EmptyView(),
                         editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.glucoseTargetRange) })
@@ -181,7 +147,6 @@ extension TherapySettingsView {
     
     private var temporaryCorrectionRangesSection: some View {
         SectionWithEdit(isEditing: $isEditing,
-                        editButtonDesignVersion: $editButtonDesignVersion,
                         title: LocalizedString("Temporary Correction Ranges", comment: "Temporary Correction Ranges section title"),
                         footer: EmptyView(),
                         editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.correctionRangeOverrides) })
@@ -244,22 +209,12 @@ struct CorrectionRangeOverridesRangeItem: View {
 
 struct SectionHeaderWithEdit: View {
     @Binding var isEditing: Bool
-    @Binding var editButtonDesignVersion: TherapySettingsView.DesignVersion
     let title: String
     let editAction: () -> Void
 
     public var body: some View {
         HStack(alignment: .firstTextBaseline) {
             SectionHeader(label: title)
-            if isEditing && editButtonDesignVersion == .C {
-                Spacer()
-                Button(action: editAction) {
-                    Text("Edit")
-                        .font(.subheadline)
-
-                }
-                .disabled(!isEditing)
-            }
         }
     }
 }
@@ -268,7 +223,6 @@ struct SectionHeaderWithEdit: View {
 // it just optionally provides a link to go to an editor screen.
 struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View {
     @Binding var isEditing: Bool
-    @Binding var editButtonDesignVersion: TherapySettingsView.DesignVersion
     let title: String
     let footer: Footer
     let editAction: () -> Void
@@ -276,33 +230,23 @@ struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View 
 
     @ViewBuilder public var body: some View {
         Section(header: SectionHeaderWithEdit(isEditing: $isEditing,
-                                              editButtonDesignVersion: $editButtonDesignVersion,
                                               title: title,
                                               editAction: editAction),
                 footer: footer)
         {
             content()
-            if isEditing && editButtonDesignVersion == .B {
+            if isEditing {
                 navigationButton
             }
-        }
-        if isEditing && editButtonDesignVersion == .A {
-            navigationButton
         }
     }
     
     private var navigationButton: some View {
         Button(action: { self.editAction() }) {
             HStack {
-                if editButtonDesignVersion == .B {
-                    Spacer()
-                }
+                Spacer()
                 Text("Edit \(title)")
                 Spacer()
-                if editButtonDesignVersion == .A {
-                    // TODO: Ick. I can't use a NavigationLink because we're not Navigating, but this seems worse somehow.
-                    Image(systemName: "chevron.right").foregroundColor(.gray).font(.footnote)
-                }
             }
         }
         .disabled(!isEditing)
@@ -329,18 +273,10 @@ public let preview_therapySettings = TherapySettings(
 public struct TherapySettingsView_Previews: PreviewProvider {
     public static var previews: some View {
         Group {
-            TherapySettingsView(mode: .modal, editButtonDesignVersion: .A, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
+            TherapySettingsView(mode: .modal,viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (onboarding)")
-            TherapySettingsView(mode: .modal, editButtonDesignVersion: .B, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
-                .colorScheme(.light)
-                .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
-                .previewDisplayName("SE light (edit below section)")
-            TherapySettingsView(mode: .modal, editButtonDesignVersion: .C, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
-                .colorScheme(.light)
-                .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
-                .previewDisplayName("SE light (edit below section)")
             TherapySettingsView(mode: .flow, viewModel: TherapySettingsViewModel(therapySettings: preview_therapySettings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
@@ -349,7 +285,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
-            TherapySettingsView(mode: .modal, editButtonDesignVersion: .A, viewModel: TherapySettingsViewModel(therapySettings: TherapySettings()))
+            TherapySettingsView(mode: .modal, viewModel: TherapySettingsViewModel(therapySettings: TherapySettings()))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
