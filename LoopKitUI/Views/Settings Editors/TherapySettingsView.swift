@@ -45,6 +45,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         List {
             correctionRangeSection
             temporaryCorrectionRangesSection
+            suspendThreshold
         }
         .listStyle(GroupedListStyle())
         .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
@@ -128,15 +129,11 @@ extension TherapySettingsView {
     }
     
     private var correctionRangeSection: some View {
-        SectionWithEdit(isEditing: $isEditing,
-                        title: TherapySetting.glucoseTargetRange.title,
-                        descriptiveText: TherapySetting.glucoseTargetRange.descriptiveText,
-                        editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.glucoseTargetRange) })
-        {
+        section(for: .glucoseTargetRange) {
             Group {
                 if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
                     ForEach(self.therapySettings.glucoseTargetRangeSchedule!.items, id: \.self) { value in
-                        ScheduleRangeItem(time: value.startTime, range: value.value, unit: self.glucoseUnit!, guardrail: Guardrail.correctionRange)
+                        ScheduleRangeItem(time: value.startTime, range: value.value, unit: self.glucoseUnit!, guardrail: .correctionRange)
                     }
                 } else {
                     DescriptiveText(label: LocalizedString("Tap \"Edit\" to add a Correction Range", comment: "Correction Range section edit hint"))
@@ -146,11 +143,7 @@ extension TherapySettingsView {
     }
     
     private var temporaryCorrectionRangesSection: some View {
-        SectionWithEdit(isEditing: $isEditing,
-                        title: TherapySetting.correctionRangeOverrides.title,
-                        descriptiveText: TherapySetting.correctionRangeOverrides.descriptiveText,
-                        editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.correctionRangeOverrides) })
-        {
+        section(for: .correctionRangeOverrides) {
             Group {
                 if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
                     ForEach(CorrectionRangeOverrides.Preset.allCases, id: \.self) { preset in
@@ -167,6 +160,33 @@ extension TherapySettingsView {
         }
     }
     
+    private var suspendThreshold: some View {
+        section(for: .suspendThreshold) {
+            Group {
+                if self.glucoseUnit != nil {
+                    HStack {
+                        Spacer()
+                        GuardrailConstrainedQuantityView(
+                            value: self.therapySettings.suspendThreshold?.quantity,
+                            unit: self.glucoseUnit!,
+                            guardrail: .suspendThreshold,
+                            isEditing: false,
+                            // Workaround for strange animation behavior on appearance
+                            forceDisableAnimations: true
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    private func section<Content>(for therapySetting: TherapySetting, content: @escaping () -> Content) -> some View where Content: View {
+        SectionWithEdit(isEditing: $isEditing,
+                        title: therapySetting.title,
+                        descriptiveText: therapySetting.descriptiveText,
+                        editAction: { self.delegate?.gotoEdit(therapySetting: therapySetting) },
+                        content: content)
+    }
 }
 
 struct ScheduleRangeItem: View {
@@ -258,7 +278,7 @@ public let preview_therapySettings = TherapySettings(
     workoutTargetRange: DoubleRange(99...111),
     maximumBasalRatePerHour: 55,
     maximumBolus: 4,
-    suspendThreshold: GlucoseThreshold.init(unit: .milligramsPerDeciliter, value: 123),
+    suspendThreshold: GlucoseThreshold.init(unit: .milligramsPerDeciliter, value: 60),
     insulinSensitivitySchedule: nil,
     carbRatioSchedule: nil)
 
