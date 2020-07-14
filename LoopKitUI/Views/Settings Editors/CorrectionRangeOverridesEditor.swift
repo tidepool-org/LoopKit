@@ -10,23 +10,6 @@ import SwiftUI
 import HealthKit
 import LoopKit
 
-extension TherapySetting {
-    
-    public func helpScreen() -> some View {
-        switch self {
-        case .glucoseTargetRange:
-            return AnyView(CorrectionRangeInformationView(onExit: nil, mode: .modal))
-        case .correctionRangeOverrides:
-            return AnyView(CorrectionRangeOverrideInformationView(onExit: nil, mode: .modal))
-        case .suspendThreshold:
-            return AnyView(SuspendThresholdInformationView(onExit: nil, mode: .modal))
-        // ANNA TODO: add more once other instructional screens are created
-        default:
-            return AnyView(Text("To be implemented"))
-        }
-    }
-}
-
 public struct CorrectionRangeOverridesEditor: View {
     var initialValue: CorrectionRangeOverrides
     var unit: HKUnit
