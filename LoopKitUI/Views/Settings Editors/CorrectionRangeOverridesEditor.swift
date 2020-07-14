@@ -72,7 +72,7 @@ public struct CorrectionRangeOverridesEditor: View {
 
     public var body: some View {
         ConfigurationPage(
-            title: Text("Temporary\nCorrection Ranges", comment: "Title for temporary correction ranges page"),
+            title: Text(TherapySetting.correctionRangeOverrides.title),
             actionButtonTitle: buttonText,
             actionButtonState: value != initialValue || mode == .flow ? .enabled : .disabled,
             cards: {
