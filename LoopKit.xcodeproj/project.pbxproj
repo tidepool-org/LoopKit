@@ -10,6 +10,8 @@
 		1D1A019E24B678BF0077D86E /* TherapySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1A019D24B678BF0077D86E /* TherapySettingsView.swift */; };
 		1D1FCE2324BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */; };
 		1D1FCE2524BD42EF000300A8 /* TherapySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2424BD42EF000300A8 /* TherapySettingsViewModel.swift */; };
+		1D1FCE2724BE4DE2000300A8 /* CorrectionRangeOverrides.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2624BE4DE2000300A8 /* CorrectionRangeOverrides.swift */; };
+		1D1FCE2924BE4F11000300A8 /* TherapySetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2824BE4F11000300A8 /* TherapySetting.swift */; };
 		1D25C22E246A2A1A00E87FA0 /* critical.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1D25C22D246A2A1A00E87FA0 /* critical.caf */; };
 		1D4990E624A17564005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
 		1D4990E724A17898005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
@@ -830,6 +832,8 @@
 		1D1A019D24B678BF0077D86E /* TherapySettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TherapySettingsView.swift; sourceTree = "<group>"; };
 		1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverridesExpandableSetting.swift; sourceTree = "<group>"; };
 		1D1FCE2424BD42EF000300A8 /* TherapySettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySettingsViewModel.swift; sourceTree = "<group>"; };
+		1D1FCE2624BE4DE2000300A8 /* CorrectionRangeOverrides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverrides.swift; sourceTree = "<group>"; };
+		1D1FCE2824BE4F11000300A8 /* TherapySetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySetting.swift; sourceTree = "<group>"; };
 		1D25C22D246A2A1A00E87FA0 /* critical.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = critical.caf; sourceTree = "<group>"; };
 		1D4990E524A17564005CC357 /* HKQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKQuery.swift; sourceTree = "<group>"; };
 		1D640FF524524284008F9755 /* sub.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sub.caf; sourceTree = "<group>"; };
@@ -1987,6 +1991,8 @@
 				C16DA83E22E8D88F008624C2 /* LoopPlugin.swift */,
 				89F6E30E244A1A5D00CB9E15 /* Guardrail.swift */,
 				E9086B3824B3CB4B0062F5C8 /* TherapySettings.swift */,
+				1D1FCE2624BE4DE2000300A8 /* CorrectionRangeOverrides.swift */,
+				1D1FCE2824BE4F11000300A8 /* TherapySetting.swift */,
 			);
 			path = LoopKit;
 			sourceTree = "<group>";
@@ -3263,6 +3269,8 @@
 				43FB60EB20DDC868002B996B /* SetBolusError.swift in Sources */,
 				4322B770202FA26F0002837D /* GlucoseStore.swift in Sources */,
 				C1814B8C226371DF008D2D8E /* WeakSynchronizedDelegate.swift in Sources */,
+				1D1FCE2724BE4DE2000300A8 /* CorrectionRangeOverrides.swift in Sources */,
+				1D1FCE2924BE4F11000300A8 /* TherapySetting.swift in Sources */,
 				4352A73C20DECF0700CAC200 /* CGMManager.swift in Sources */,
 				4353D16F203D104F007B4ECD /* CarbStoreError.swift in Sources */,
 				43AF1FB21C926CDD00EA2F3D /* HKQuantity.swift in Sources */,
