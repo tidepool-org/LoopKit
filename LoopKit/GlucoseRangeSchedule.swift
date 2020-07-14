@@ -205,12 +205,3 @@ public extension DoubleRange {
         self.init(minValue: val.lowerBound, maxValue: val.upperBound)
     }
 }
-
-public extension Optional where Wrapped == GlucoseRangeSchedule {
-    func scheduleRange() -> ClosedRange<HKQuantity> {
-        switch self {
-        case .none: return DoubleRange(0.0...0.0).quantityRange(for: HKUnit.milligramsPerDeciliter/*??*/)
-        case .some(let value): return value.scheduleRange()
-        }
-    }
-}

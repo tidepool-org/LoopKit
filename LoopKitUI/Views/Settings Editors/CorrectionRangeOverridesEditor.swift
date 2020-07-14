@@ -12,19 +12,17 @@ import LoopKit
 
 
 public struct CorrectionRangeOverrides: Equatable {
-    enum Preset: Hashable {
+    enum Preset: Hashable, CaseIterable {
         case preMeal
         case workout
     }
 
     var ranges: [Preset: ClosedRange<HKQuantity>]
 
-    public init(preMeal: DoubleRange?, workout: DoubleRange?, unit: HKUnit?) {
+    public init(preMeal: DoubleRange?, workout: DoubleRange?, unit: HKUnit) {
         ranges = [:]
-        if let unit = unit {
-            ranges[.preMeal] = preMeal?.quantityRange(for: unit)
-            ranges[.workout] = workout?.quantityRange(for: unit)
-        }
+        ranges[.preMeal] = preMeal?.quantityRange(for: unit)
+        ranges[.workout] = workout?.quantityRange(for: unit)
     }
 
     public var preMeal: ClosedRange<HKQuantity>? { ranges[.preMeal] }
@@ -147,22 +145,7 @@ public struct CorrectionRangeOverridesEditor: View {
     }
     
     private func guardrail(for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity> {
-        return Self.guardrail(given:  correctionRangeScheduleRange, for: preset)
-    }
-    
-    static func guardrail(given correctionRangeScheduleRange: ClosedRange<HKQuantity>, for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity> {
-        switch preset {
-        case .preMeal:
-            return Guardrail(
-                absoluteBounds: Guardrail.correctionRange.absoluteBounds,
-                recommendedBounds: Guardrail.correctionRange.recommendedBounds.lowerBound...max(correctionRangeScheduleRange.lowerBound, Guardrail.correctionRange.recommendedBounds.lowerBound)
-            )
-        case .workout:
-            return Guardrail(
-                absoluteBounds: Guardrail.correctionRange.absoluteBounds,
-                recommendedBounds: max(Guardrail.correctionRange.recommendedBounds.lowerBound, correctionRangeScheduleRange.lowerBound)...Guardrail.correctionRange.absoluteBounds.upperBound
-            )
-        }
+        return Guardrail.correctionRangeOverridePreset(preset, correctionRangeScheduleRange: correctionRangeScheduleRange)
     }
 
     private var buttonText: Text {
@@ -305,5 +288,22 @@ private struct CorrectionRangeOverridesGuardrailWarning: View {
         return crossedPreMealThresholds.allSatisfy { $0 == .aboveRecommended || $0 == .maximum }
             ? Text("The value you have entered for this range is higher than your usual correction range. Tidepool typically recommends your pre-meal range be lower than your usual correction range.", comment: "Warning text for high pre-meal target value")
             : nil
+    }
+}
+
+extension Guardrail where Value == HKQuantity {
+    static func correctionRangeOverridePreset(_ preset: CorrectionRangeOverrides.Preset, correctionRangeScheduleRange: ClosedRange<HKQuantity>) -> Guardrail {
+        switch preset {
+        case .preMeal:
+            return Guardrail(
+                absoluteBounds: Guardrail.correctionRange.absoluteBounds,
+                recommendedBounds: Guardrail.correctionRange.recommendedBounds.lowerBound...max(correctionRangeScheduleRange.lowerBound, Guardrail.correctionRange.recommendedBounds.lowerBound)
+            )
+        case .workout:
+            return Guardrail(
+                absoluteBounds: Guardrail.correctionRange.absoluteBounds,
+                recommendedBounds: max(Guardrail.correctionRange.recommendedBounds.lowerBound, correctionRangeScheduleRange.lowerBound)...Guardrail.correctionRange.absoluteBounds.upperBound
+            )
+        }
     }
 }

@@ -17,21 +17,6 @@ public protocol TherapySettingsViewDelegate: class {
     func cancel()
 }
 
-public class TherapySettingsViewModel: ObservableObject {
-    private var initialTherapySettings: TherapySettings
-    var therapySettings: TherapySettings
-
-    public init(therapySettings: TherapySettings) {
-        self.therapySettings = therapySettings
-        self.initialTherapySettings = therapySettings
-    }
-    
-    /// Reset to original
-    func reset() {
-        therapySettings = initialTherapySettings
-    }
-}
-
 public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     @Environment(\.dismiss) var dismiss
 
@@ -42,6 +27,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     @State var isEditing: Bool = false
     
     // Hack to test edit button below section or next to header
+    // TODO: Remove once design is chosen
     public enum DesignVersion {
         case A, B, C
         func cycle() -> DesignVersion {
@@ -56,7 +42,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
 
     private let mode: PresentationMode
     
-    public init(mode: PresentationMode = .modal, editButtonDesignVersion: DesignVersion = .C, viewModel: TherapySettingsViewModel) {
+    public init(mode: PresentationMode = .flow, editButtonDesignVersion: DesignVersion = .C, viewModel: TherapySettingsViewModel) {
         self.mode = mode
         self.viewModel = viewModel
         self.editButtonDesignVersion = editButtonDesignVersion
@@ -66,7 +52,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         switch mode {
         // TODO: Different versions for onboarding vs. in settings
         case .flow: return AnyView(content)
-        case .modal: return AnyView(content)
+        case .modal: return AnyView(navigationContent)
         }
     }
 
@@ -76,10 +62,16 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
             temporaryCorrectionRangesSection
         }
         .listStyle(GroupedListStyle())
-        .navigationBarTitle(Text(NSLocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
+        .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
         .navigationBarItems(leading: backOrCancelButton, trailing: editOrDoneButton)
         .navigationBarBackButtonHidden(isEditing)
         .environment(\.horizontalSizeClass, horizontalOverride)
+    }
+    
+    private var navigationContent: some View {
+        NavigationView {
+            content
+        }
     }
 }
 
@@ -96,46 +88,71 @@ extension TherapySettingsView {
     }
     
     private var backOrCancelButton: some View {
-        return Button<AnyView>( action: {
-            if self.isEditing {
-                // TODO: confirm
-                self.delegate?.cancel()
-                self.viewModel.reset()
-                self.isEditing.toggle()
-            } else {
-                self.dismiss()
-            }
-        }) {
-            if isEditing {
-                return AnyView(Text(NSLocalizedString("Cancel", comment: "Cancel button text")))
-            } else {
-                switch mode {
-                    case .modal: return AnyView(EmptyView())
-                    case .flow: return AnyView(Text(NSLocalizedString("Back", comment: "Back button text")))
-                }
+        if self.isEditing {
+            return AnyView(cancelButton)
+        } else {
+            return AnyView(backButton)
+        }
+    }
+    
+    private var backButton: some View {
+        return Button<AnyView>( action: { self.dismiss() }) {
+            switch mode {
+            case .flow: return AnyView(EmptyView())
+            case .modal: return AnyView(Text(LocalizedString("Back", comment: "Back button text")))
             }
         }
     }
     
-    private var editOrDoneButton: some View {
-        let action = {
-            if self.isEditing {
+    private var cancelButton: some View {
+        return Button( action: {
                 // TODO: confirm
-                self.delegate?.save()
-            }
+                self.delegate?.cancel()
+                self.viewModel.reset()
+                self.isEditing.toggle()
+            })
+        {
+          Text(LocalizedString("Cancel", comment: "Cancel button text"))
+        }
+    }
+    
+    private var editOrDoneButton: some View {
+        if self.isEditing {
+            return AnyView(doneButton)
+        } else {
+            return AnyView(editButton)
+        }
+    }
+    
+    private var editButton: some View {
+        let action = {
             self.isEditing.toggle()
         }
         return Button( action: action ) {
-            Group {
-                if isEditing {
-                    Text(NSLocalizedString("Done", comment: "Done button text"))
-                } else {
-                    Text(NSLocalizedString("Edit", comment: "Edit button text"))
-                }
-            }
+            Text(LocalizedString("Edit", comment: "Edit button text"))
             .onTapGesture {
                 action()
             }
+            // TODO: Remove once design is chosen
+            .onLongPressGesture {
+                self.editButtonDesignVersion = self.editButtonDesignVersion.cycle()
+                AudioServicesPlayAlertSound(kSystemSoundID_Vibrate)
+            }
+        }
+    }
+    
+    private var doneButton: some View {
+        let action = {
+            // TODO: confirm
+            self.delegate?.save()
+            self.isEditing.toggle()
+        }
+        return Button( action: action ) {
+            Text(LocalizedString("Done", comment: "Done button text"))
+            .onTapGesture {
+                action()
+            }
+            // TODO: Remove once design is chosen
             .onLongPressGesture {
                 self.editButtonDesignVersion = self.editButtonDesignVersion.cycle()
                 AudioServicesPlayAlertSound(kSystemSoundID_Vibrate)
@@ -146,17 +163,17 @@ extension TherapySettingsView {
     private var correctionRangeSection: some View {
         SectionWithEdit(isEditing: $isEditing,
                         editButtonDesignVersion: $editButtonDesignVersion,
-                        title: NSLocalizedString("Correction Range", comment: "Correction Range section title"),
+                        title: LocalizedString("Correction Range", comment: "Correction Range section title"),
                         footer: EmptyView(),
                         editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.glucoseTargetRange) })
         {
             Group {
-                if self.glucoseUnit != nil {
-                    ForEach(self.therapySettings.glucoseTargetRangeSchedule?.items ?? [], id: \.self) { value in
+                if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
+                    ForEach(self.therapySettings.glucoseTargetRangeSchedule!.items, id: \.self) { value in
                         ScheduleRangeItem(time: value.startTime, range: value.value, unit: self.glucoseUnit!, guardrail: Guardrail.correctionRange)
                     }
                 } else {
-                    DescriptiveText(label: NSLocalizedString("Tap \"Edit\" to add a Correction Range", comment: "Correction Range section edit hint"))
+                    DescriptiveText(label: LocalizedString("Tap \"Edit\" to add a Correction Range", comment: "Correction Range section edit hint"))
                 }
             }
         }
@@ -165,18 +182,22 @@ extension TherapySettingsView {
     private var temporaryCorrectionRangesSection: some View {
         SectionWithEdit(isEditing: $isEditing,
                         editButtonDesignVersion: $editButtonDesignVersion,
-                        title: NSLocalizedString("Temporary Correction Ranges", comment: "Temporary Correction Ranges section title"),
+                        title: LocalizedString("Temporary Correction Ranges", comment: "Temporary Correction Ranges section title"),
                         footer: EmptyView(),
                         editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.correctionRangeOverrides) })
         {
-            ForEach([ CorrectionRangeOverrides.Preset.preMeal, CorrectionRangeOverrides.Preset.workout  ], id: \.self) { preset in
-                CorrectionRangeOverridesRangeItem(
-                    preMealTargetRange: self.therapySettings.preMealTargetRange,
-                    workoutTargetRange: self.therapySettings.workoutTargetRange,
-                    unit: self.glucoseUnit,
-                    preset: preset,
-                    correctionRangeScheduleRange: self.therapySettings.glucoseTargetRangeSchedule?.scheduleRange()
-                )
+            Group {
+                if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
+                    ForEach(CorrectionRangeOverrides.Preset.allCases, id: \.self) { preset in
+                        CorrectionRangeOverridesRangeItem(
+                            preMealTargetRange: self.therapySettings.preMealTargetRange,
+                            workoutTargetRange: self.therapySettings.workoutTargetRange,
+                            unit: self.glucoseUnit!,
+                            preset: preset,
+                            correctionRangeScheduleRange: self.therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
+                        )
+                    }
+                }
             }
         }
     }
@@ -202,9 +223,9 @@ struct ScheduleRangeItem: View {
 struct CorrectionRangeOverridesRangeItem: View {
     let preMealTargetRange: DoubleRange?
     let workoutTargetRange: DoubleRange?
-    let unit: HKUnit?
+    let unit: HKUnit
     let preset: CorrectionRangeOverrides.Preset
-    let correctionRangeScheduleRange: ClosedRange<HKQuantity>?
+    let correctionRangeScheduleRange: ClosedRange<HKQuantity>
     
     public var body: some View {
         CorrectionRangeOverridesExpandableSetting(
@@ -253,11 +274,7 @@ struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View 
     let editAction: () -> Void
     let content: () -> Content
 
-    public var body: some View {
-        buildBody()
-    }
-    
-    @ViewBuilder private func buildBody() -> some View {
+    @ViewBuilder public var body: some View {
         Section(header: SectionHeaderWithEdit(isEditing: $isEditing,
                                               editButtonDesignVersion: $editButtonDesignVersion,
                                               title: title,

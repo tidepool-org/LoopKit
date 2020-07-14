@@ -13,8 +13,8 @@ import LoopKit
 
 public struct GuardrailConstrainedQuantityRangeView: View {
     var range: ClosedRange<HKQuantity>?
-    var unit: HKUnit?
-    var guardrail: Guardrail<HKQuantity>?
+    var unit: HKUnit
+    var guardrail: Guardrail<HKQuantity>
     var isEditing: Bool
     var formatter: NumberFormatter
     var forceDisableAnimations: Bool
@@ -23,8 +23,8 @@ public struct GuardrailConstrainedQuantityRangeView: View {
 
     public init(
         range: ClosedRange<HKQuantity>?,
-        unit: HKUnit?,
-        guardrail: Guardrail<HKQuantity>?,
+        unit: HKUnit,
+        guardrail: Guardrail<HKQuantity>,
         isEditing: Bool,
         forceDisableAnimations: Bool = false
     ) {
@@ -34,9 +34,7 @@ public struct GuardrailConstrainedQuantityRangeView: View {
         self.isEditing = isEditing
         self.formatter = {
             let quantityFormatter = QuantityFormatter()
-            if let unit = unit {
-                quantityFormatter.setPreferredNumberFormatter(for: unit)
-            }
+            quantityFormatter.setPreferredNumberFormatter(for: unit)
             return quantityFormatter.numberFormatter
         }()
         self.forceDisableAnimations = forceDisableAnimations
@@ -57,11 +55,11 @@ public struct GuardrailConstrainedQuantityRangeView: View {
 
     var lowerBoundView: some View {
         Group {
-            if range != nil && unit != nil && guardrail != nil {
+            if range != nil {
                 GuardrailConstrainedQuantityView(
                     value: range!.lowerBound,
-                    unit: unit!,
-                    guardrail: guardrail!,
+                    unit: unit,
+                    guardrail: guardrail,
                     isEditing: isEditing,
                     iconSpacing: 4,
                     isUnitLabelVisible: false,
@@ -76,11 +74,11 @@ public struct GuardrailConstrainedQuantityRangeView: View {
 
     var upperBoundView: some View {
         Group {
-            if range != nil && unit != nil && guardrail != nil {
+            if range != nil {
                 GuardrailConstrainedQuantityView(
                     value: range!.upperBound,
-                    unit: unit!,
-                    guardrail: guardrail!,
+                    unit: unit,
+                    guardrail: guardrail,
                     isEditing: isEditing,
                     iconSpacing: 4,
                     forceDisableAnimations: forceDisableAnimations
@@ -90,10 +88,8 @@ public struct GuardrailConstrainedQuantityRangeView: View {
                     Text("max", comment: "Placeholder for quantity range upper bound")
                         .foregroundColor(Color(.tertiaryLabel))
 
-                    if unit != nil {
-                        Text(unit!.shortLocalizedUnitString())
-                            .foregroundColor(Color(.secondaryLabel))
-                    }
+                    Text(unit.shortLocalizedUnitString())
+                        .foregroundColor(Color(.secondaryLabel))
                 }
             }
         }

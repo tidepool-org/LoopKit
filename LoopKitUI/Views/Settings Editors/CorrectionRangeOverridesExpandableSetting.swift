@@ -15,8 +15,8 @@ public struct CorrectionRangeOverridesExpandableSetting<ExpandedContent: View>: 
     @Binding var isEditing: Bool
     @Binding var value: CorrectionRangeOverrides
     let preset: CorrectionRangeOverrides.Preset
-    let unit: HKUnit?
-    var correctionRangeScheduleRange: ClosedRange<HKQuantity>?
+    let unit: HKUnit
+    var correctionRangeScheduleRange: ClosedRange<HKQuantity>
     var expandedContent: () -> ExpandedContent
 
     public var body: some View {
@@ -65,23 +65,7 @@ public struct CorrectionRangeOverridesExpandableSetting<ExpandedContent: View>: 
             .foregroundColor(color)
     }
     
-    private func guardrail(for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity>? {
-        return Self.guardrail(given: correctionRangeScheduleRange, for: preset)
-    }
-
-    static func guardrail(given correctionRangeScheduleRange: ClosedRange<HKQuantity>?, for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity>? {
-        guard let correctionRangeScheduleRange = correctionRangeScheduleRange else { return nil }
-        switch preset {
-        case .preMeal:
-            return Guardrail(
-                absoluteBounds: Guardrail.correctionRange.absoluteBounds,
-                recommendedBounds: Guardrail.correctionRange.recommendedBounds.lowerBound...max(correctionRangeScheduleRange.lowerBound, Guardrail.correctionRange.recommendedBounds.lowerBound)
-            )
-        case .workout:
-            return Guardrail(
-                absoluteBounds: Guardrail.correctionRange.absoluteBounds,
-                recommendedBounds: max(Guardrail.correctionRange.recommendedBounds.lowerBound, correctionRangeScheduleRange.lowerBound)...Guardrail.correctionRange.absoluteBounds.upperBound
-            )
-        }
+    private func guardrail(for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity> {
+        return Guardrail.correctionRangeOverridePreset(preset, correctionRangeScheduleRange: correctionRangeScheduleRange)
     }
 }
