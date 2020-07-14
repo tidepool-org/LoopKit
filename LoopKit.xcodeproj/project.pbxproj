@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1D1A019E24B678BF0077D86E /* TherapySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1A019D24B678BF0077D86E /* TherapySettingsView.swift */; };
+		1D1FCE2324BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */; };
+		1D1FCE2524BD42EF000300A8 /* TherapySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2424BD42EF000300A8 /* TherapySettingsViewModel.swift */; };
 		1D25C22E246A2A1A00E87FA0 /* critical.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1D25C22D246A2A1A00E87FA0 /* critical.caf */; };
 		1D4990E624A17564005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
 		1D4990E724A17898005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
@@ -827,6 +830,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1D1A019D24B678BF0077D86E /* TherapySettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TherapySettingsView.swift; sourceTree = "<group>"; };
+		1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverridesExpandableSetting.swift; sourceTree = "<group>"; };
+		1D1FCE2424BD42EF000300A8 /* TherapySettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySettingsViewModel.swift; sourceTree = "<group>"; };
 		1D25C22D246A2A1A00E87FA0 /* critical.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = critical.caf; sourceTree = "<group>"; };
 		1D4990E524A17564005CC357 /* HKQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKQuery.swift; sourceTree = "<group>"; };
 		1D640FF524524284008F9755 /* sub.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sub.caf; sourceTree = "<group>"; };
@@ -2403,12 +2409,15 @@
 			isa = PBXGroup;
 			children = (
 				E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */,
-				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
-				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
 				89653C8324738D2B00E1BAA5 /* BasalRateScheduleEditor.swift */,
 				89653C812473592600E1BAA5 /* CarbRatioScheduleEditor.swift */,
 				E916F56824AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift */,
+				1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */,
+				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
+				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
 				E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */,
+				1D1A019D24B678BF0077D86E /* TherapySettingsView.swift */,
+				1D1FCE2424BD42EF000300A8 /* TherapySettingsViewModel.swift */,
 			);
 			path = "Settings Editors";
 			sourceTree = "<group>";
@@ -2989,6 +2998,7 @@
 				43F5034F210599DF009FA89A /* ValidatingIndicatorView.swift in Sources */,
 				C1E4B308242E995200E70CCB /* ActivityIndicator.swift in Sources */,
 				89FC6891245A2D680075CF59 /* ScheduleItemPicker.swift in Sources */,
+				1D1FCE2524BD42EF000300A8 /* TherapySettingsViewModel.swift in Sources */,
 				43BA718C201EEE5A0058961E /* NSData.swift in Sources */,
 				43F5035A21059AF7009FA89A /* AuthenticationTableViewCell.swift in Sources */,
 				E916F56924AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift in Sources */,
@@ -3034,6 +3044,7 @@
 				B46A70BA24B3B4C000B4DEEC /* DeviceStatusHighlight+Color.swift in Sources */,
 				B46B62AF23FF0BF6001E69BA /* SectionHeader.swift in Sources */,
 				43BA7183201EE7090058961E /* DailyQuantityScheduleTableViewController.swift in Sources */,
+				1D1FCE2324BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift in Sources */,
 				E93BA06624A39DBC00C5D7E6 /* DismissableHostingController.swift in Sources */,
 				43F503632106C761009FA89A /* ServiceAuthenticationUI.swift in Sources */,
 				899012C1246F1D8F007B88BA /* ExpandableSetting.swift in Sources */,
@@ -3100,6 +3111,7 @@
 				43BA717D201EE7090058961E /* GlucoseRangeTableViewCell.swift in Sources */,
 				89BE75CB2464BC2000B145D9 /* AlertContent.swift in Sources */,
 				43BA7184201EE7090058961E /* TextFieldTableViewController.swift in Sources */,
+				1D1A019E24B678BF0077D86E /* TherapySettingsView.swift in Sources */,
 				895FE09122011F4800FCF18A /* AddEditOverrideTableViewController.swift in Sources */,
 				C1E4B305242E98E900E70CCB /* ProgressView.swift in Sources */,
 				C16DA84522E9330A008624C2 /* LoopUIPlugin.swift in Sources */,

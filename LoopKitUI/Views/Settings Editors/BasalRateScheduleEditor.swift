@@ -111,8 +111,9 @@ public struct BasalRateScheduleEditor: View {
                 }
             }
         case .flow:
+            // TODO: get timezone from pump
             return .synchronous { quantitySchedule in
-                let schedule = BasalRateSchedule(dailyItems: quantitySchedule.items, timeZone: .current)!
+                let schedule = BasalRateSchedule(dailyItems: quantitySchedule.items, timeZone: .currentFixed)!
                 self.save(schedule)
             }
         }
