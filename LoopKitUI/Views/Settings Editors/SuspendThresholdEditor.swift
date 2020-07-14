@@ -115,7 +115,7 @@ public struct SuspendThresholdEditor: View {
     }
 
     var description: Text {
-        Text("When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/h and will not recommend a bolus.", comment: "Suspend threshold description")
+        Text(LocalizedString("When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/hr and will not recommend a bolus.", comment: "Information about suspend threshold"))
     }
     
     private var instructionalContentIfNecessary: some View {

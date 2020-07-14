@@ -38,7 +38,6 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     
     @Environment(\.dismiss) var dismiss
     @State private var userDidTap: Bool = false
-    @Binding var userDidEdit: Bool
 
     var body: some View {
         ScheduleEditor(
@@ -91,7 +90,6 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         )
         .onTapGesture {
             self.userDidTap = true
-            self.userDidEdit = self.scheduleItems != self.initialScheduleItems
         }
     }
 
@@ -170,7 +168,6 @@ extension QuantityScheduleEditor {
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>,
         mode: PresentationMode = .modal,
-        userDidEdit: Binding<Bool> = Binding.constant(false),
         settingType: TherapySetting = .none
     ) {
         self.buttonText = buttonText
@@ -188,7 +185,6 @@ extension QuantityScheduleEditor {
         self.guardrailWarning = guardrailWarning
         self.savingMechanism = savingMechanism
         self.mode = mode
-        self._userDidEdit = userDidEdit
         self.settingType = settingType
     }
 
