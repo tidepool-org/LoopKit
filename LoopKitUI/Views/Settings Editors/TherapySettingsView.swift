@@ -130,7 +130,7 @@ extension TherapySettingsView {
     private var correctionRangeSection: some View {
         SectionWithEdit(isEditing: $isEditing,
                         title: LocalizedString("Correction Range", comment: "Correction Range section title"),
-                        footer: EmptyView(),
+                        descriptiveText: "Correction range is the glucose value (or range of values) that you want Tidepool Loop to aim for in adjusting your basal insulin.",
                         editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.glucoseTargetRange) })
         {
             Group {
@@ -148,7 +148,7 @@ extension TherapySettingsView {
     private var temporaryCorrectionRangesSection: some View {
         SectionWithEdit(isEditing: $isEditing,
                         title: LocalizedString("Temporary Correction Ranges", comment: "Temporary Correction Ranges section title"),
-                        footer: EmptyView(),
+                        descriptiveText: "Pre-Meal and Workout ranges temporarily adjust your glucose target based on your selected activity.",
                         editAction: { self.delegate?.gotoEdit(therapySetting: TherapySetting.correctionRangeOverrides) })
         {
             Group {
@@ -221,19 +221,23 @@ struct SectionHeaderWithEdit: View {
 
 // Note: I didn't call this "EditableSection" because it doesn't actually make the section editable,
 // it just optionally provides a link to go to an editor screen.
-struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View {
+struct SectionWithEdit<Content>: View where Content: View {
     @Binding var isEditing: Bool
     let title: String
-    let footer: Footer
+    let descriptiveText: String
     let editAction: () -> Void
     let content: () -> Content
 
     @ViewBuilder public var body: some View {
-        Section(header: SectionHeaderWithEdit(isEditing: $isEditing,
-                                              title: title,
-                                              editAction: editAction),
-                footer: footer)
-        {
+        Section {
+            VStack(alignment: .leading) {
+                Spacer()
+                Text(title)
+                    .bold()
+                Spacer()
+                DescriptiveText(label: descriptiveText)
+                Spacer()
+            }
             content()
             if isEditing {
                 navigationButton
@@ -245,7 +249,7 @@ struct SectionWithEdit<Content, Footer>: View where Content: View, Footer: View 
         Button(action: { self.editAction() }) {
             HStack {
                 Spacer()
-                Text("Edit \(title)")
+                Text(String(format: LocalizedString("Edit %@", comment: "The string format for the Edit navigation button"), title))
                 Spacer()
             }
         }
