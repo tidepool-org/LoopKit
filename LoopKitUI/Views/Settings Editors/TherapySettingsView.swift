@@ -11,6 +11,8 @@ import HealthKit
 import LoopKit
 import SwiftUI
 
+typealias HKQuantityGuardrail = Guardrail<HKQuantity>
+
 public protocol TherapySettingsViewDelegate: class {
     func gotoEdit(therapySetting: TherapySetting)
     func save()
@@ -19,13 +21,13 @@ public protocol TherapySettingsViewDelegate: class {
 
 public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     @Environment(\.dismiss) var dismiss
-
+    
     weak var delegate: TherapySettingsViewDelegate?
     
     @ObservedObject var viewModel: TherapySettingsViewModel
-
+    
     @State var isEditing: Bool = false
-
+    
     private let mode: PresentationMode
     
     public init(mode: PresentationMode = .flow, viewModel: TherapySettingsViewModel) {
@@ -40,13 +42,14 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         case .modal: return AnyView(navigationContent)
         }
     }
-
+    
     private var content: some View {
         List {
             correctionRangeSection
             temporaryCorrectionRangesSection
             suspendThresholdSection
             basalRatesSection
+            deliveryLimitsSection
         }
         .listStyle(GroupedListStyle())
         .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
@@ -62,17 +65,8 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     }
 }
 
-typealias HKQuantityGuardrail = Guardrail<HKQuantity>
-
+// MARK: Buttons
 extension TherapySettingsView {
-    
-    private var therapySettings: TherapySettings {
-        viewModel.therapySettings
-    }
-    
-    private var glucoseUnit: HKUnit? {
-        therapySettings.glucoseTargetRangeSchedule?.unit
-    }
     
     private var backOrCancelButton: some View {
         if self.isEditing {
@@ -93,13 +87,13 @@ extension TherapySettingsView {
     
     private var cancelButton: some View {
         return Button( action: {
-                // TODO: confirm
-                self.delegate?.cancel()
-                self.viewModel.reset()
-                self.isEditing.toggle()
-            })
+            // TODO: confirm
+            self.delegate?.cancel()
+            self.viewModel.reset()
+            self.isEditing.toggle()
+        })
         {
-          Text(LocalizedString("Cancel", comment: "Cancel button text"))
+            Text(LocalizedString("Cancel", comment: "Cancel button text"))
         }
     }
     
@@ -128,6 +122,10 @@ extension TherapySettingsView {
             Text(LocalizedString("Done", comment: "Done button text"))
         }
     }
+}
+
+// MARK: Sections
+extension TherapySettingsView {
     
     private var correctionRangeSection: some View {
         section(for: .glucoseTargetRange) {
@@ -205,8 +203,41 @@ extension TherapySettingsView {
         }
     }
     
+    private var deliveryLimitsSection: some View {
+        section(for: .basalRate) {
+            Group {
+                if self.therapySettings.basalRateSchedule != nil && self.viewModel.supportedBasalRates != nil {
+                    ForEach(self.therapySettings.basalRateSchedule!.items, id: \.self) { value in
+                        ScheduleValueItem(time: value.startTime,
+                                          value: value.value,
+                                          unit: .internationalUnitsPerHour,
+                                          guardrail: Guardrail.basalRate(supportedBasalRates: self.viewModel.supportedBasalRates!))
+                    }
+                }
+                if self.viewModel.supportedBasalRates == nil {
+                    Text("NO supportedBasalRates")
+                }
+                if self.therapySettings.basalRateSchedule == nil {
+                    Text("NO basalRateSchedule")
+                }
+            }
+        }
+    }
+}
+
+// MARK: Utilities
+extension TherapySettingsView {
+    
+    private var therapySettings: TherapySettings {
+        viewModel.therapySettings
+    }
+    
+    private var glucoseUnit: HKUnit? {
+        therapySettings.glucoseTargetRangeSchedule?.unit
+    }
+    
     private var sensitivityUnit: HKUnit? {
-         glucoseUnit?.unitDivided(by: .internationalUnit())
+        glucoseUnit?.unitDivided(by: .internationalUnit())
     }
 
     private func section<Content>(for therapySetting: TherapySetting, content: @escaping () -> Content) -> some View where Content: View {
@@ -216,6 +247,7 @@ extension TherapySettingsView {
                         editAction: { self.delegate?.gotoEdit(therapySetting: therapySetting) },
                         content: content)
     }
+
 }
 
 struct ScheduleRangeItem: View {
@@ -229,7 +261,7 @@ struct ScheduleRangeItem: View {
                          isEditing: .constant(false),
                          valueContent: {
                             GuardrailConstrainedQuantityRangeView(range: range.quantityRange(for: unit), unit: unit, guardrail: guardrail, isEditing: false)
-                         },
+        },
                          expandedContent: { EmptyView() })
     }
 }
@@ -245,7 +277,7 @@ struct ScheduleValueItem: View {
                          isEditing: .constant(false),
                          valueContent: {
                             GuardrailConstrainedQuantityView(value: HKQuantity(unit: unit, doubleValue: value), unit: unit, guardrail: guardrail, isEditing: false)
-                         },
+        },
                          expandedContent: { EmptyView() })
     }
 }
@@ -280,7 +312,7 @@ struct SectionWithEdit<Content>: View where Content: View {
     let descriptiveText: String
     let editAction: () -> Void
     let content: () -> Content
-
+    
     @ViewBuilder public var body: some View {
         Section {
             VStack(alignment: .leading) {
@@ -349,7 +381,6 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
-
         }
     }
 }
