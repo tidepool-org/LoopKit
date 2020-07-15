@@ -11,10 +11,12 @@ import LoopKit
 public class TherapySettingsViewModel: ObservableObject {
     private var initialTherapySettings: TherapySettings
     var therapySettings: TherapySettings
+    let supportedBasalRates: [Double]?
 
-    public init(therapySettings: TherapySettings) {
+    public init(therapySettings: TherapySettings, supportedBasalRates: [Double]?) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
+        self.supportedBasalRates = supportedBasalRates
     }
     
     /// Reset to original
