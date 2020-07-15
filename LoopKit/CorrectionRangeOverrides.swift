@@ -27,8 +27,17 @@ public struct CorrectionRangeOverrides: Equatable {
     public var workout: ClosedRange<HKQuantity>? { ranges[.workout] }
 }
 
-extension CorrectionRangeOverrides.Preset {
-    public var descriptiveText: String {
+public extension CorrectionRangeOverrides.Preset {
+    var title: String {
+        switch self {
+        case .preMeal:
+            return LocalizedString("Pre-Meal", comment: "Title for pre-meal mode")
+        case .workout:
+            return LocalizedString("Workout", comment: "Title for workout mode")
+        }
+    }
+    
+    var descriptiveText: String {
         switch self {
         case .preMeal:
             return LocalizedString("Temporarily lower your glucose target before a meal to impact post-meal glucose spikes.", comment: "Description of pre-meal mode")

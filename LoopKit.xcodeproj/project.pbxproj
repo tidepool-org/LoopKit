@@ -20,6 +20,8 @@
 		1D841AAD24577EE10069DBFF /* AlertSoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D841AAC24577EE10069DBFF /* AlertSoundPlayer.swift */; };
 		1DA649AB2445174400F61E75 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA649AA2445174400F61E75 /* Alert.swift */; };
 		1DABAD3A2453615200ACF708 /* IssueAlertTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DABAD392453615200ACF708 /* IssueAlertTableViewController.swift */; };
+		1DC64C7C24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DC64C7B24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift */; };
+		1DC64C7E24BF6EBC004A63A1 /* DeliveryLimits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DC64C7D24BF6EBC004A63A1 /* DeliveryLimits.swift */; };
 		1DD1964E248AE88000420876 /* HorizontalSizeClassOverride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD1964D248AE88000420876 /* HorizontalSizeClassOverride.swift */; };
 		1DD3DEB624451C3300BD8E40 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA649AA2445174400F61E75 /* Alert.swift */; };
 		1DE35E7A24ABEC720086F9AE /* DeviceManagerUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE35E7924ABEC720086F9AE /* DeviceManagerUI.swift */; };
@@ -843,6 +845,8 @@
 		1D841AAC24577EE10069DBFF /* AlertSoundPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertSoundPlayer.swift; sourceTree = "<group>"; };
 		1DA649AA2445174400F61E75 /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		1DABAD392453615200ACF708 /* IssueAlertTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueAlertTableViewController.swift; sourceTree = "<group>"; };
+		1DC64C7B24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverridesExtension.swift; sourceTree = "<group>"; };
+		1DC64C7D24BF6EBC004A63A1 /* DeliveryLimits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimits.swift; sourceTree = "<group>"; };
 		1DD1964D248AE88000420876 /* HorizontalSizeClassOverride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalSizeClassOverride.swift; sourceTree = "<group>"; };
 		1DE35E7924ABEC720086F9AE /* DeviceManagerUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManagerUI.swift; sourceTree = "<group>"; };
 		1DEE226024A6642300693C32 /* GlucoseStoreHKFilterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseStoreHKFilterTests.swift; sourceTree = "<group>"; };
@@ -1997,6 +2001,7 @@
 				E9086B3824B3CB4B0062F5C8 /* TherapySettings.swift */,
 				1D1FCE2624BE4DE2000300A8 /* CorrectionRangeOverrides.swift */,
 				1D1FCE2824BE4F11000300A8 /* TherapySetting.swift */,
+				1DC64C7D24BF6EBC004A63A1 /* DeliveryLimits.swift */,
 			);
 			path = LoopKit;
 			sourceTree = "<group>";
@@ -2415,6 +2420,7 @@
 				89653C812473592600E1BAA5 /* CarbRatioScheduleEditor.swift */,
 				E916F56824AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift */,
 				1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */,
+				1DC64C7B24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift */,
 				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
 				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
 				E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */,
@@ -3087,6 +3093,7 @@
 				1DD1964E248AE88000420876 /* HorizontalSizeClassOverride.swift in Sources */,
 				892A5D9C2231E118008961AB /* UIAlertController.swift in Sources */,
 				43BA7181201EE7090058961E /* RepeatingScheduleValueTableViewCell.swift in Sources */,
+				1DC64C7C24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift in Sources */,
 				43BA716E201E49220058961E /* DecimalTextFieldTableViewCell.swift in Sources */,
 				891A3FC72247268F00378B27 /* Math.swift in Sources */,
 				895FE08722011F0C00FCF18A /* EmojiInputCell.swift in Sources */,
@@ -3273,6 +3280,7 @@
 				433BC7AB20538D4C000B1200 /* CachedGlucoseObject+CoreDataProperties.swift in Sources */,
 				43FB610720DDF19B002B996B /* PumpManagerError.swift in Sources */,
 				89AE2232228BC68600BDFD85 /* UnfairLock.swift in Sources */,
+				1DC64C7E24BF6EBC004A63A1 /* DeliveryLimits.swift in Sources */,
 				A9498D8423386C3300DAA9B9 /* DiagnosticLog.swift in Sources */,
 				43FB60EB20DDC868002B996B /* SetBolusError.swift in Sources */,
 				4322B770202FA26F0002837D /* GlucoseStore.swift in Sources */,
