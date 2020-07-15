@@ -379,7 +379,3 @@ public struct TherapySettingsView_Previews: PreviewProvider {
         }
     }
 }
-
-extension Guardrail {
-    
-}
