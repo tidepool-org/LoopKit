@@ -12,11 +12,13 @@ public class TherapySettingsViewModel: ObservableObject {
     private var initialTherapySettings: TherapySettings
     var therapySettings: TherapySettings
     let supportedBasalRates: [Double]?
+    let supportedBolusVolumes: [Double]?
 
-    public init(therapySettings: TherapySettings, supportedBasalRates: [Double]?) {
+    public init(therapySettings: TherapySettings, supportedBasalRates: [Double]?, supportedBolusVolumes: [Double]?) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.supportedBasalRates = supportedBasalRates
+        self.supportedBolusVolumes = supportedBolusVolumes
     }
     
     /// Reset to original
