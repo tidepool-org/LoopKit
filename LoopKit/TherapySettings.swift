@@ -8,20 +8,6 @@
 
 import HealthKit
 
-public enum BGUnit: String, Codable {
-    case mgdl
-    case mmol
-    
-    public var hkUnit: HKUnit {
-        switch self {
-        case .mgdl:
-            return .milligramsPerDeciliter
-        case .mmol:
-            return .millimolesPerLiter
-        }
-    }
-}
-
 public struct TherapySettings: Equatable, Codable {
     
     public var glucoseTargetRangeSchedule: GlucoseRangeSchedule?
@@ -44,9 +30,10 @@ public struct TherapySettings: Equatable, Codable {
     
     public var insulinModel: StoredSettings.InsulinModel?
     
-    public var glucoseUnit: BGUnit?
+    public var glucoseUnit: HKUnit? {
+        return glucoseTargetRangeSchedule?.unit
+    }
     
-    // ANNA TODO: see if can get rid of nils
     public init(
         glucoseTargetRangeSchedule: GlucoseRangeSchedule? = nil,
         preMealTargetRange: DoubleRange? = nil,
@@ -57,8 +44,7 @@ public struct TherapySettings: Equatable, Codable {
         insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
         carbRatioSchedule: CarbRatioSchedule? = nil,
         basalRateSchedule: BasalRateSchedule? = nil,
-        insulinModel: StoredSettings.InsulinModel? = nil,
-        glucoseUnit: BGUnit? = nil
+        insulinModel: StoredSettings.InsulinModel? = nil
     ){
         self.glucoseTargetRangeSchedule = glucoseTargetRangeSchedule
         self.preMealTargetRange = preMealTargetRange
@@ -70,6 +56,5 @@ public struct TherapySettings: Equatable, Codable {
         self.carbRatioSchedule = carbRatioSchedule
         self.basalRateSchedule = basalRateSchedule
         self.insulinModel = insulinModel
-        self.glucoseUnit = glucoseUnit
     }
 }
