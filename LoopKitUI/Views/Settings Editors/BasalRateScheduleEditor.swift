@@ -151,13 +151,3 @@ private struct BasalRateGuardrailWarning: View {
             : Text("Basal Rates", comment: "Title text for multi-value basal rate warning")
     }
 }
-
-extension Guardrail where Value == HKQuantity {
-    static func basalRate(supportedBasalRates: [Double]) -> Guardrail {
-        return Guardrail (
-            absoluteBounds: supportedBasalRates.first!...supportedBasalRates.last!,
-            recommendedBounds: supportedBasalRates.dropFirst().first!...supportedBasalRates.last!,
-            unit: .internationalUnitsPerHour
-        )
-    }
-}

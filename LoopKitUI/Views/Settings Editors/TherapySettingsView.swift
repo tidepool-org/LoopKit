@@ -193,32 +193,27 @@ extension TherapySettingsView {
                                           guardrail: Guardrail.basalRate(supportedBasalRates: self.viewModel.supportedBasalRates!))
                     }
                 }
-                if self.viewModel.supportedBasalRates == nil {
-                    Text("NO supportedBasalRates")
-                }
-                if self.therapySettings.basalRateSchedule == nil {
-                    Text("NO basalRateSchedule")
-                }
             }
         }
     }
     
     private var deliveryLimitsSection: some View {
-        section(for: .basalRate) {
-            Group {
-                if self.therapySettings.basalRateSchedule != nil && self.viewModel.supportedBasalRates != nil {
-                    ForEach(self.therapySettings.basalRateSchedule!.items, id: \.self) { value in
-                        ScheduleValueItem(time: value.startTime,
-                                          value: value.value,
-                                          unit: .internationalUnitsPerHour,
-                                          guardrail: Guardrail.basalRate(supportedBasalRates: self.viewModel.supportedBasalRates!))
+        section(for: .deliveryLimits) {
+            HStack {
+                Text(LocalizedString("Maximum Basal Rate", comment: "Maximum Basal Rate settings item title"))
+                Spacer()
+                Group {
+                    if self.viewModel.supportedBasalRates != nil {
+                        
+                        GuardrailConstrainedQuantityView(
+                            value: self.therapySettings.maximumBasalRatePerHour == nil ? nil : HKQuantity(unit: .internationalUnitsPerHour, doubleValue: self.therapySettings.maximumBasalRatePerHour!),
+                            unit: .internationalUnitsPerHour,
+                            guardrail: Guardrail.maximumBasalRate(supportedBasalRates: self.viewModel.supportedBasalRates!, scheduledBasalRange: self.therapySettings.basalRateSchedule?.valueRange()),
+                            isEditing: false,
+                            // Workaround for strange animation behavior on appearance
+                            forceDisableAnimations: true
+                        )
                     }
-                }
-                if self.viewModel.supportedBasalRates == nil {
-                    Text("NO supportedBasalRates")
-                }
-                if self.therapySettings.basalRateSchedule == nil {
-                    Text("NO basalRateSchedule")
                 }
             }
         }
@@ -261,7 +256,7 @@ struct ScheduleRangeItem: View {
                          isEditing: .constant(false),
                          valueContent: {
                             GuardrailConstrainedQuantityRangeView(range: range.quantityRange(for: unit), unit: unit, guardrail: guardrail, isEditing: false)
-        },
+                         },
                          expandedContent: { EmptyView() })
     }
 }
@@ -277,7 +272,7 @@ struct ScheduleValueItem: View {
                          isEditing: .constant(false),
                          valueContent: {
                             GuardrailConstrainedQuantityView(value: HKQuantity(unit: unit, doubleValue: value), unit: unit, guardrail: guardrail, isEditing: false)
-        },
+                         },
                          expandedContent: { EmptyView() })
     }
 }
@@ -383,4 +378,8 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .previewDisplayName("SE light (Empty TherapySettings)")
         }
     }
+}
+
+extension Guardrail {
+    
 }
