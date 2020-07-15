@@ -38,7 +38,6 @@ public struct DeliveryLimits: Equatable {
 
 
 public struct DeliveryLimitsEditor: View {
-    var buttonText: Text
     var initialValue: DeliveryLimits
     var supportedBasalRates: [Double]
     var selectableBasalRates: [Double]
@@ -49,7 +48,6 @@ public struct DeliveryLimitsEditor: View {
 
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
-    @Binding var userHasEdited: Bool
     @State var settingBeingEdited: DeliveryLimits.Setting?
 
     @State var showingConfirmationAlert = false
@@ -58,16 +56,13 @@ public struct DeliveryLimitsEditor: View {
     static let recommendedMaximumScheduledBasalScaleFactor: Double = 6
 
     public init(
-        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         value: DeliveryLimits,
         supportedBasalRates: [Double],
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
-        self.buttonText = buttonText
         self._value = State(initialValue: value)
         self.initialValue = value
         self.supportedBasalRates = supportedBasalRates
@@ -80,7 +75,6 @@ public struct DeliveryLimitsEditor: View {
         self.supportedBolusVolumes = supportedBolusVolumes
         self.save = save
         self.mode = mode
-        self._userHasEdited = userHasEdited
     }
 
     public var body: some View {
@@ -107,7 +101,6 @@ public struct DeliveryLimitsEditor: View {
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
         .onTapGesture {
             self.userDidTap = true
-            self.userHasEdited = self.initialValue != self.value
         }
     }
 
@@ -254,6 +247,10 @@ public struct DeliveryLimitsEditor: View {
             .font(.subheadline)
             Spacer()
         }
+    }
+    
+    private var buttonText: Text {
+        return self.initialValue == self.value ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
     }
 
     private var guardrailWarningIfNecessary: some View {
