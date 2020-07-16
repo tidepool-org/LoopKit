@@ -649,6 +649,7 @@
 		B4102D3324ABB0D8005D460B /* DeviceLifecycleProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4102D3124ABB068005D460B /* DeviceLifecycleProgress.swift */; };
 		B41A60AF23D1DB5B00636320 /* TableViewTitleLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41A60AE23D1DB5B00636320 /* TableViewTitleLabel.swift */; };
 		B41A60B223D1DBC700636320 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41A60B123D1DBC700636320 /* UIFont.swift */; };
+		B429D68524BF91BE003E1B4A /* ColorPaletteDerived.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B429D68424BF91BE003E1B4A /* ColorPaletteDerived.xcassets */; };
 		B42A7472235885B600247B03 /* LoopNotificationUserInfoKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */; };
 		B42C950B24A3BCCD00857C73 /* GlucoseValueType+Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C950824A3BCC200857C73 /* GlucoseValueType+Color.swift */; };
 		B42C950E24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C950C24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift */; };
@@ -1398,6 +1399,7 @@
 		B4102D3124ABB068005D460B /* DeviceLifecycleProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceLifecycleProgress.swift; sourceTree = "<group>"; };
 		B41A60AE23D1DB5B00636320 /* TableViewTitleLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewTitleLabel.swift; sourceTree = "<group>"; };
 		B41A60B123D1DBC700636320 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
+		B429D68424BF91BE003E1B4A /* ColorPaletteDerived.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ColorPaletteDerived.xcassets; sourceTree = "<group>"; };
 		B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopNotificationUserInfoKey.swift; sourceTree = "<group>"; };
 		B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStatusHighlight.swift; sourceTree = "<group>"; };
 		B42C950824A3BCC200857C73 /* GlucoseValueType+Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GlucoseValueType+Color.swift"; sourceTree = "<group>"; };
@@ -1830,6 +1832,7 @@
 				43BA7160201E48910058961E /* CarbKit */,
 				43BA719920203EF30058961E /* CarbKit.storyboard */,
 				43A8EC3B210CEEA500A81379 /* CGMManagerUI.swift */,
+				B429D68424BF91BE003E1B4A /* ColorPaletteDerived.xcassets */,
 				892A5D9F2231E12F008961AB /* CompletionNotifying.swift */,
 				1DE35E7924ABEC720086F9AE /* DeviceManagerUI.swift */,
 				895FE07022011EDD00FCF18A /* EmojiInputController.storyboard */,
@@ -2772,6 +2775,7 @@
 				43BA7195202039B00058961E /* GlucoseRangeOverrideTableViewCell.xib in Resources */,
 				895FE07F22011F0C00FCF18A /* DoubleRangeTableViewCell.xib in Resources */,
 				1FE58796211D12CE004F24ED /* Localizable.strings in Resources */,
+				B429D68524BF91BE003E1B4A /* ColorPaletteDerived.xcassets in Resources */,
 				892A5DB72231E1A0008961AB /* ReservoirVolumeHUDView.xib in Resources */,
 				898E6E68224179310019E459 /* BatteryLevelHUDView.xib in Resources */,
 				895FE06F22011E9A00FCF18A /* OverrideSelectionViewController.storyboard in Resources */,

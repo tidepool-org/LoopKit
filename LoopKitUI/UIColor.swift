@@ -38,3 +38,19 @@ extension UIColor {
         return (red: r, green: g, blue: b, alpha: a)
     }
 }
+
+// MARK: - Color palette for common elements
+
+extension UIColor {
+    public static let accentColor = BundleColor("accent-color")
+
+    public static let carbs = BundleColor("carbs")
+
+    public static let critical = BundleColor("critical")
+
+    public static let glucose = BundleColor("glucose")
+
+    public static let insulin = BundleColor("insulin")
+
+    public static let warning = BundleColor("warning")
+}
