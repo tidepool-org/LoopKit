@@ -130,31 +130,27 @@ extension TherapySettingsView {
     
     private var correctionRangeSection: some View {
         section(for: .glucoseTargetRange) {
-            Group {
-                if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
-                    ForEach(self.therapySettings.glucoseTargetRangeSchedule!.items, id: \.self) { value in
-                        ScheduleRangeItem(time: value.startTime, range: value.value, unit: self.glucoseUnit!, guardrail: .correctionRange)
-                    }
-                } else {
-                    DescriptiveText(label: LocalizedString("Tap \"Edit\" to add a Correction Range", comment: "Correction Range section edit hint"))
+            if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
+                ForEach(self.therapySettings.glucoseTargetRangeSchedule!.items, id: \.self) { value in
+                    ScheduleRangeItem(time: value.startTime, range: value.value, unit: self.glucoseUnit!, guardrail: .correctionRange)
                 }
+            } else {
+                DescriptiveText(label: LocalizedString("Tap \"Edit\" to add a Correction Range", comment: "Correction Range section edit hint"))
             }
         }
     }
     
     private var temporaryCorrectionRangesSection: some View {
         section(for: .correctionRangeOverrides) {
-            Group {
-                if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
-                    ForEach(CorrectionRangeOverrides.Preset.allCases, id: \.self) { preset in
-                        CorrectionRangeOverridesRangeItem(
-                            preMealTargetRange: self.therapySettings.preMealTargetRange,
-                            workoutTargetRange: self.therapySettings.workoutTargetRange,
-                            unit: self.glucoseUnit!,
-                            preset: preset,
-                            correctionRangeScheduleRange: self.therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
-                        )
-                    }
+            if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
+                ForEach(CorrectionRangeOverrides.Preset.allCases, id: \.self) { preset in
+                    CorrectionRangeOverridesRangeItem(
+                        preMealTargetRange: self.therapySettings.preMealTargetRange,
+                        workoutTargetRange: self.therapySettings.workoutTargetRange,
+                        unit: self.glucoseUnit!,
+                        preset: preset,
+                        correctionRangeScheduleRange: self.therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
+                    )
                 }
             }
         }
@@ -162,25 +158,23 @@ extension TherapySettingsView {
     
     private var suspendThreshold: some View {
         section(for: .suspendThreshold) {
-            Group {
-                if self.glucoseUnit != nil {
-                    HStack {
-                        Spacer()
-                        GuardrailConstrainedQuantityView(
-                            value: self.therapySettings.suspendThreshold?.quantity,
-                            unit: self.glucoseUnit!,
-                            guardrail: .suspendThreshold,
-                            isEditing: false,
-                            // Workaround for strange animation behavior on appearance
-                            forceDisableAnimations: true
-                        )
-                    }
+            if self.glucoseUnit != nil {
+                HStack {
+                    Spacer()
+                    GuardrailConstrainedQuantityView(
+                        value: self.therapySettings.suspendThreshold?.quantity,
+                        unit: self.glucoseUnit!,
+                        guardrail: .suspendThreshold,
+                        isEditing: false,
+                        // Workaround for strange animation behavior on appearance
+                        forceDisableAnimations: true
+                    )
                 }
             }
         }
     }
     
-    private func section<Content>(for therapySetting: TherapySetting, content: @escaping () -> Content) -> some View where Content: View {
+    private func section<Content>(for therapySetting: TherapySetting, @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
         SectionWithEdit(isEditing: $isEditing,
                         title: therapySetting.title,
                         descriptiveText: therapySetting.descriptiveText,
