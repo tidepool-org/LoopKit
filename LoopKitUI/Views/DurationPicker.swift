@@ -12,7 +12,7 @@ import SwiftUI
 public struct DurationPicker: UIViewRepresentable {
     @Binding public var duration: TimeInterval
     public var validDurationRange: ClosedRange<TimeInterval>
-    public var minuteInterval = 15
+    public var minuteInterval: Int
 
     public init(duration: Binding<TimeInterval>, validDurationRange: ClosedRange<TimeInterval>, minuteInterval: Int = 15) {
         self._duration = duration
