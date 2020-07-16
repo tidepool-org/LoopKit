@@ -30,7 +30,7 @@ public struct InsulinModelInformationView: View {
                 }
                 .foregroundColor(blueGray)
             },
-            exitPage: exitPage,
+            onExit: exitPage,
             mode: mode)
     }
     

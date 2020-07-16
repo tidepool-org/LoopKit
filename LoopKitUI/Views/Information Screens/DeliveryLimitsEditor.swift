@@ -137,7 +137,7 @@ public struct DeliveryLimitsEditor: View {
 
     var maximumBasalRateCard: Card {
         Card {
-            SettingDescription(text: Text("Maximum basal rate is the highest temporary basal rate Tidepool Loop is allowed to set automatically.", comment: "Maximum bolus setting description"), settingType: .deliveryLimits)
+            SettingDescription(text: Text("Maximum basal rate is the highest temporary basal rate Tidepool Loop is allowed to set automatically.", comment: "Maximum bolus setting description"), informationalContent: { TherapySetting.deliveryLimits.helpScreen() })
             ExpandableSetting(
                 isEditing: Binding(
                     get: { self.settingBeingEdited == .maximumBasalRate },
@@ -194,7 +194,7 @@ public struct DeliveryLimitsEditor: View {
     var maximumBolusCard: Card {
         Card {
             SettingDescription(
-                text: Text("Maximum bolus is the highest bolus amount you can deliver at one time.", comment: "Maximum basal rate setting description"), settingType: .deliveryLimits)
+                text: Text("Maximum bolus is the highest bolus amount you can deliver at one time.", comment: "Maximum basal rate setting description"), informationalContent: {TherapySetting.deliveryLimits.helpScreen()})
             ExpandableSetting(
                 isEditing: Binding(
                     get: { self.settingBeingEdited == .maximumBolus },

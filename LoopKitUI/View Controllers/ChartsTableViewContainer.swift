@@ -27,6 +27,10 @@ open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerD
 
     open override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if let unit = delegate?.preferredUnit {
+            self.charts.setGlucoseUnit(unit)
+        }
 
         let notificationCenter = NotificationCenter.default
 
