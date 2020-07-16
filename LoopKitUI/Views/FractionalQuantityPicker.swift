@@ -65,7 +65,7 @@ public struct FractionalQuantityPicker: View {
         self._whole = Binding(
             get: { doubleValue.wrappedValue.whole },
             set: { newWholeValue in
-                let newFractionValue = Self.fractionForWhole(newWholeValue, currentFraction: doubleValue.wrappedValue.fraction, supportedFractionValues: fractionalValuesByWhole[newWholeValue]!)
+                let newFractionValue = Self.matchingFraction(for: doubleValue.wrappedValue.fraction, from: fractionalValuesByWhole[newWholeValue]!)
                 let newDoubleValue = newWholeValue + newFractionValue
                 let maxValue = guardrail.absoluteBounds.upperBound.doubleValue(for: unit)
                 doubleValue.wrappedValue = min(newDoubleValue, maxValue)
@@ -86,10 +86,9 @@ public struct FractionalQuantityPicker: View {
         self.usageContext = usageContext
     }
 
-    private static func fractionForWhole(
-        _ whole: Double,
-        currentFraction: Double,
-        supportedFractionValues: [Double]
+    private static func matchingFraction(
+        for currentFraction: Double,
+        from supportedFractionValues: [Double]
     ) -> Double {
         // If the whole value supports the same fractional value, keep it; otherwise, truncate.
         let nearestSupportedFraction = currentFraction.roundedToNearest(of: supportedFractionValues)
@@ -157,7 +156,7 @@ public struct FractionalQuantityPicker: View {
     private func colorForWhole(_ whole: Double) -> Color {
         assert(whole.whole == whole)
 
-        let fractionIfWholeSelected = Self.fractionForWhole(whole, currentFraction: fraction, supportedFractionValues: fractionalValuesByWhole[whole]!)
+        let fractionIfWholeSelected = Self.matchingFraction(for: fraction, from: fractionalValuesByWhole[whole]!)
         let valueIfWholeSelected = whole + fractionIfWholeSelected
         let quantityIfWholeSelected = HKQuantity(unit: unit, doubleValue: valueIfWholeSelected)
         return guardrail.color(for: quantityIfWholeSelected)
