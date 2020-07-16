@@ -19,53 +19,31 @@ public struct CorrectionRangeScheduleEditor: View {
     var initialSchedule: GlucoseRangeSchedule?
     @State var scheduleItems: [RepeatingScheduleValue<DoubleRange>]
     var unit: HKUnit
-    var buttonText: Text
     var minValue: HKQuantity?
     var save: (GlucoseRangeSchedule) -> Void
     let guardrail = Guardrail.correctionRange
     let mode: PresentationMode
     @State private var userDidTap: Bool = false
-    @Binding var userHasEdited: Bool
     
     public init(
-        buttonText: Text,
         schedule: GlucoseRangeSchedule?,
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
-        self.buttonText = buttonText
         self.initialSchedule = schedule
         self._scheduleItems = State(initialValue: schedule?.items ?? [])
         self.unit = unit
         self.minValue = minValue
         self.save = save
         self.mode = mode
-        self._userHasEdited = userHasEdited
-    }
-    
-    /// Convenience initializer for a page with "Save" button
-    public init(
-        schedule: GlucoseRangeSchedule?,
-        unit: HKUnit,
-        minValue: HKQuantity?,
-        onSave save: @escaping (GlucoseRangeSchedule) -> Void
-    ) {
-        self.init(
-            buttonText: Text("Save", comment: "The button text for saving on a configuration page"),
-            schedule: schedule,
-            unit: unit,
-            minValue: minValue,
-            onSave: save)
     }
 
     public var body: some View {
         ScheduleEditor(
-            title: Text("Correction Ranges", comment: "Title of correction range schedule editor"),
+            title: Text(TherapySetting.glucoseTargetRange.title),
             description: description,
-            buttonText: buttonText,
             scheduleItems: $scheduleItems,
             initialScheduleItems: initialSchedule?.items ?? [],
             defaultFirstScheduleItemValue: defaultFirstScheduleItemValue,
@@ -99,13 +77,10 @@ public struct CorrectionRangeScheduleEditor: View {
                 self.save(rangeSchedule)
             },
             mode: mode,
-            settingType: .glucoseTargetRange
+            therapySettingType: .glucoseTargetRange
         )
         .onTapGesture {
             self.userDidTap = true
-            if let initialSchedule = self.initialSchedule?.items {
-                self.userHasEdited = initialSchedule != self.scheduleItems
-            }
         }
     }
 
@@ -121,7 +96,7 @@ public struct CorrectionRangeScheduleEditor: View {
     }
 
     var description: Text {
-        Text("The app adjusts insulin delivery in an effort to bring your glucose into your correction range.", comment: "Description of correction range setting")
+        Text(TherapySetting.glucoseTargetRange.descriptiveText)
     }
 
     var saveConfirmation: SaveConfirmation {
@@ -138,9 +113,9 @@ public struct CorrectionRangeScheduleEditor: View {
     
     var instructionalContent: some View {
         HStack { // to align with guardrail warning, if present
-            VStack (alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 20) {
                 Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-                Text(LocalizedString("You can add different correction ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
+                Text(LocalizedString("You can add different ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
             }
             .foregroundColor(.accentColor)
             .font(.subheadline)

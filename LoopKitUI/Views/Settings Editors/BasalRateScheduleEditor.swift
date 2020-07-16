@@ -20,8 +20,6 @@ public struct BasalRateScheduleEditor: View {
     var save: (BasalRateSchedule) -> Void
     let mode: PresentationMode
 
-    @State var userHasEdited: Bool = false
-
     /// - Precondition: `supportedBasalRates` is nonempty and sorted in ascending order.
     public init(
         schedule: BasalRateSchedule?,
@@ -49,11 +47,7 @@ public struct BasalRateScheduleEditor: View {
             self.supportedBasalRates = supportedBasalRates
         }
 
-        self.guardrail = Guardrail(
-            absoluteBounds: supportedBasalRates.first!...supportedBasalRates.last!,
-            recommendedBounds: supportedBasalRates.dropFirst().first!...supportedBasalRates.last!,
-            unit: .internationalUnitsPerHour
-        )
+        self.guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
         self.maximumScheduleEntryCount = maximumScheduleEntryCount
         self.syncSchedule = syncSchedule
         self.save = save
@@ -62,8 +56,7 @@ public struct BasalRateScheduleEditor: View {
 
     public var body: some View {
         QuantityScheduleEditor(
-            buttonText: buttonText,
-            title: Text("Basal Rates", comment: "Title of basal rate settings page"),
+            title: Text(TherapySetting.basalRate.title),
             description: description,
             schedule: schedule,
             unit: .internationalUnitsPerHour,
@@ -81,22 +74,12 @@ public struct BasalRateScheduleEditor: View {
             },
             onSave: savingMechanism,
             mode: mode,
-            userDidEdit: $userHasEdited,
             settingType: .basalRate
         )
     }
-
-    private var buttonText: Text {
-        switch mode {
-        case .modal:
-            return Text("Save", comment: "The button text for saving on a configuration page")
-        case .flow:
-            return !userHasEdited ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
-        }
-    }
     
     private var description: Text {
-        Text("Your basal rate of insulin is the number of units per hour that you want to use to cover your background insulin needs.", comment: "Basal rate setting description")
+        Text(TherapySetting.basalRate.descriptiveText)
     }
 
     private var confirmationAlertContent: AlertContent {
@@ -124,9 +107,10 @@ public struct BasalRateScheduleEditor: View {
                 }
             }
         case .flow:
+            // TODO: get timezone from pump
             return .synchronous { quantitySchedule in
-                // ANNA TODO: replace this placeholder once the mechanism has been decided
-                self.save(DailyValueSchedule(dailyItems: [RepeatingScheduleValue(startTime: TimeInterval(0), value: 1)])!)
+                let schedule = BasalRateSchedule(dailyItems: quantitySchedule.items, timeZone: .currentFixed)!
+                self.save(schedule)
             }
         }
     }
@@ -165,5 +149,18 @@ private struct BasalRateGuardrailWarning: View {
         isZeroUnitRateSelectable && crossedThresholds.allSatisfy({ $0 == .minimum })
             ? Text("No Basal Insulin", comment: "Title text for the zero basal rate warning")
             : Text("Basal Rates", comment: "Title text for multi-value basal rate warning")
+    }
+}
+
+extension Guardrail where Value == HKQuantity {
+    static func basalRate(supportedBasalRates: [Double]) -> Guardrail {
+        let recommendedLowerBound = supportedBasalRates.first == 0
+            ? supportedBasalRates.dropFirst().first!
+            : supportedBasalRates.first!
+        return Guardrail(
+            absoluteBounds: supportedBasalRates.first!...supportedBasalRates.last!,
+            recommendedBounds: recommendedLowerBound...supportedBasalRates.last!,
+            unit: .internationalUnitsPerHour
+        )
     }
 }

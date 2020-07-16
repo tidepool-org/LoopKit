@@ -34,11 +34,10 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     var savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>
     var mode: PresentationMode
     var buttonText: Text
-    var settingType: LoopSetting
+    var settingType: TherapySetting
     
     @Environment(\.dismiss) var dismiss
     @State private var userDidTap: Bool = false
-    @Binding var userDidEdit: Bool
 
     var body: some View {
         ScheduleEditor(
@@ -88,11 +87,10 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                 DailyQuantitySchedule(unit: self.unit, dailyItems: items)!
             },
             mode: mode,
-            settingType: settingType
+            therapySettingType: settingType
         )
         .onTapGesture {
             self.userDidTap = true
-            self.userDidEdit = self.scheduleItems != self.initialScheduleItems
         }
     }
 
@@ -122,7 +120,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         HStack { // to align with guardrail warning, if present
             VStack (alignment: .leading, spacing: 20) {
                 Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-                Text(LocalizedString("You can add different correction ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
+                Text(LocalizedString("You can add entries for different times of day by using the [+].", comment: "Description of how to add a range"))
             }
             .foregroundColor(.accentColor)
             .font(.subheadline)
@@ -171,9 +169,7 @@ extension QuantityScheduleEditor {
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>,
         mode: PresentationMode = .modal,
-        userDidEdit: Binding<Bool> = Binding.constant(false),
-        // ANNA TODO: remove default once all pages updated
-        settingType: LoopSetting = .correctionRangeOverrides
+        settingType: TherapySetting = .none
     ) {
         self.buttonText = buttonText
         self.title = title
@@ -190,7 +186,6 @@ extension QuantityScheduleEditor {
         self.guardrailWarning = guardrailWarning
         self.savingMechanism = savingMechanism
         self.mode = mode
-        self._userDidEdit = userDidEdit
         self.settingType = settingType
     }
 

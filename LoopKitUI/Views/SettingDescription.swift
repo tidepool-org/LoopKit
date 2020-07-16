@@ -8,26 +8,17 @@
 
 import SwiftUI
 
-public enum LoopSetting: Int {
-    case glucoseTargetRange
-    case correctionRangeOverrides
-    case suspendThreshold
-    case basalRate
-    case deliveryLimits
-    case insulinModel
-    case carbRatio
-    case insulinSensitivity
-}
-
-public struct SettingDescription: View {
+public struct SettingDescription<InformationalContent: View>: View {
     var text: Text
-    var settingType: LoopSetting
+    var informationalContent: InformationalContent
     @State var displayHelpPage: Bool = false
 
-    public init(text: Text,
-                settingType: LoopSetting = .glucoseTargetRange) {
+    public init(
+        text: Text,
+        @ViewBuilder informationalContent: @escaping () -> InformationalContent
+    ) {
         self.text = text
-        self.settingType = settingType
+        self.informationalContent = informationalContent()
     }
 
     public var body: some View {
@@ -42,7 +33,7 @@ public struct SettingDescription: View {
             infoButton
             .sheet(isPresented: $displayHelpPage) {
                 NavigationView {
-                    self.helpScreen()
+                    self.informationalContent
                 }
             }
         }
@@ -60,30 +51,5 @@ public struct SettingDescription: View {
             }
         )
         .padding(.trailing, 4)
-    }
-
-    private func helpScreen() -> some View {
-        switch settingType {
-        case .glucoseTargetRange:                       
-            return AnyView(CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
-        case .correctionRangeOverrides:
-            return AnyView(CorrectionRangeOverrideInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
-        case .suspendThreshold:
-            return AnyView(SuspendThresholdInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
-        case .basalRate:
-            return AnyView(BasalRatesInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
-        case .deliveryLimits:
-            return AnyView(DeliveryLimitsInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
-        // ANNA TODO: add more once other instructional screens are created
-        default:
-            return AnyView(CorrectionRangeInformationView(exitPage: { self.displayHelpPage = false }, mode: .modal))
-        }
-    }
-}
-
-struct SettingDescription_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingDescription(text: Text(verbatim: "When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U and will not recommend a bolus."), settingType: .glucoseTargetRange)
-            .padding(.horizontal)
     }
 }
