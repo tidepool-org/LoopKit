@@ -10,10 +10,14 @@ import HealthKit
 import LoopKit
 
 public extension Guardrail where Value == HKQuantity {
+    
     static func basalRate(supportedBasalRates: [Double]) -> Guardrail {
-        return Guardrail (
+        let recommendedLowerBound = supportedBasalRates.first == 0
+            ? supportedBasalRates.dropFirst().first!
+            : supportedBasalRates.first!
+        return Guardrail(
             absoluteBounds: supportedBasalRates.first!...supportedBasalRates.last!,
-            recommendedBounds: supportedBasalRates.dropFirst().first!...supportedBasalRates.last!,
+            recommendedBounds: recommendedLowerBound...supportedBasalRates.last!,
             unit: .internationalUnitsPerHour
         )
     }

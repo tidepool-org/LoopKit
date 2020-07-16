@@ -232,7 +232,6 @@ extension TherapySettingsView {
                         editAction: { self.delegate?.gotoEdit(therapySetting: therapySetting) },
                         content: content)
     }
-
 }
 
 struct ScheduleRangeItem: View {
