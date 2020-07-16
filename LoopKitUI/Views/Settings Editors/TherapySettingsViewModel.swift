@@ -15,7 +15,7 @@ public class TherapySettingsViewModel: ObservableObject {
     public var didFinishStep: (() -> Void)?
     let supportedBasalRates: [Double]?
 
-    public init(therapySettings: TherapySettings, supportedBasalRates: [Double]?) {
+    public init(therapySettings: TherapySettings, supportedBasalRates: [Double]? = nil) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.supportedBasalRates = supportedBasalRates
