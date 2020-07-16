@@ -200,16 +200,16 @@ extension TherapySettingsView {
         HStack {
             Text(LocalizedString("Maximum Basal Rate", comment: "Maximum Basal Rate settings item title"))
             Spacer()
-                if self.viewModel.supportedBasalRates != nil {
-                    GuardrailConstrainedQuantityView(
-                        value: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: self.therapySettings.maximumBasalRatePerHour),
-                        unit: .internationalUnitsPerHour,
-                        guardrail: Guardrail.maximumBasalRate(supportedBasalRates: self.viewModel.supportedBasalRates!, scheduledBasalRange: self.therapySettings.basalRateSchedule?.valueRange()),
-                        isEditing: false,
-                        // Workaround for strange animation behavior on appearance
-                        forceDisableAnimations: true
-                    )
-                }
+            if self.viewModel.supportedBasalRates != nil {
+                GuardrailConstrainedQuantityView(
+                    value: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: self.therapySettings.maximumBasalRatePerHour),
+                    unit: .internationalUnitsPerHour,
+                    guardrail: Guardrail.maximumBasalRate(supportedBasalRates: self.viewModel.supportedBasalRates!, scheduledBasalRange: self.therapySettings.basalRateSchedule?.valueRange()),
+                    isEditing: false,
+                    // Workaround for strange animation behavior on appearance
+                    forceDisableAnimations: true
+                )
+            }
         }
     }
     
@@ -217,16 +217,16 @@ extension TherapySettingsView {
         HStack {
             Text(LocalizedString("Maximum Bolus", comment: "Maximum Bolus settings item title"))
             Spacer()
-                if self.viewModel.supportedBolusVolumes != nil {
-                    GuardrailConstrainedQuantityView(
-                        value: HKQuantity(unit: .internationalUnit(), doubleValue: self.therapySettings.maximumBolus),
-                        unit: .internationalUnit(),
-                        guardrail: Guardrail.maximumBolus(supportedBolusVolumes: self.viewModel.supportedBolusVolumes!),
-                        isEditing: false,
-                        // Workaround for strange animation behavior on appearance
-                        forceDisableAnimations: true
-                    )
-                }
+            if self.viewModel.supportedBolusVolumes != nil {
+                GuardrailConstrainedQuantityView(
+                    value: HKQuantity(unit: .internationalUnit(), doubleValue: self.therapySettings.maximumBolus),
+                    unit: .internationalUnit(),
+                    guardrail: Guardrail.maximumBolus(supportedBolusVolumes: self.viewModel.supportedBolusVolumes!),
+                    isEditing: false,
+                    // Workaround for strange animation behavior on appearance
+                    forceDisableAnimations: true
+                )
+            }
         }
     }
     
@@ -254,7 +254,6 @@ extension TherapySettingsView {
                         editAction: { self.delegate?.gotoEdit(therapySetting: therapySetting) },
                         content: content)
     }
-
 }
 
 struct ScheduleRangeItem: View {
