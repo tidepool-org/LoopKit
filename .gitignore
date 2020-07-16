@@ -65,3 +65,11 @@ fastlane/screenshots
 RemoteSettings.plist
 
 .DS_Store
+
+# Avoid checking in derived and override assets
+LoopKitUI/ColorPaletteDerived.xcassets/*
+# ...except, keep Contents.json
+!LoopKitUI/ColorPaletteDerived.xcassets/Contents.json
+
+LoopKitUI/ColorPaletteOverride.xcassets
+
