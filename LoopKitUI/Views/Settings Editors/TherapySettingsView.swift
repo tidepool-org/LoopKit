@@ -192,7 +192,7 @@ extension TherapySettingsView {
     private var deliveryLimitsSection: some View {
         section(for: .deliveryLimits) {
             HStack {
-                Text(LocalizedString("Maximum Basal Rate", comment: "Maximum Basal Rate settings item title"))
+                Text(DeliveryLimits.Setting.maximumBasalRate.title)
                 Spacer()
                 if self.viewModel.supportedBasalRates != nil {
                     
