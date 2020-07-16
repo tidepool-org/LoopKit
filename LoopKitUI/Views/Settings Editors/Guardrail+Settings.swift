@@ -1,5 +1,5 @@
 //
-//  GuardrailExtensions.swift
+//  Guardrail+Settings.swift
 //  LoopKitUI
 //
 //  Created by Rick Pasetto on 7/14/20.
