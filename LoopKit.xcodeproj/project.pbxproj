@@ -1854,7 +1854,6 @@
 				892A5D9D2231E122008961AB /* StateColorPalette.swift */,
 				43F89C9E22BDFB10006BB54E /* UIActivityIndicatorView.swift */,
 				892A5D9B2231E118008961AB /* UIAlertController.swift */,
-				898E6E6B224194050019E459 /* UIColor.swift */,
 				432CF86320D769070066B889 /* View Controllers */,
 				4369F090208B0D68000E3E45 /* Views */,
 				1DD1964D248AE88000420876 /* HorizontalSizeClassOverride.swift */,
@@ -2345,6 +2344,7 @@
 				B42C950824A3BCC200857C73 /* GlucoseValueType+Color.swift */,
 				C1E4B309242E99A800E70CCB /* Image.swift */,
 				B41A60B123D1DBC700636320 /* UIFont.swift */,
+				898E6E6B224194050019E459 /* UIColor.swift */,
 				E916F56A24AD346D00BE3547 /* UIColor+LoopKit.swift */,
 				E96175AD24B7BE38008E5080 /* Dictionary.swift */,
 			);
