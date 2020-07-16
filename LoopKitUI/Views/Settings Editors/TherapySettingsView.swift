@@ -188,12 +188,6 @@ extension TherapySettingsView {
                                       guardrail: Guardrail.basalRate(supportedBasalRates: self.viewModel.supportedBasalRates!))
                 }
             }
-            if self.viewModel.supportedBasalRates == nil {
-                Text("NO supportedBasalRates")
-            }
-            if self.therapySettings.basalRateSchedule == nil {
-                Text("NO basalRateSchedule")
-            }
         }
     }
     
