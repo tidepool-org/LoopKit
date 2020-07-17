@@ -14,20 +14,20 @@ extension GlucoseValueType {
         case .normal, .high:
             return .label
         case .low, .urgentLow, .belowRange:
-            return .systemRed
+            return .critical
         case .aboveRange:
-            return .systemOrange
+            return .warning
         }
     }
     
     public var trendColor: UIColor {
         switch self {
         case .normal:
-            return .systemPurple
+            return .glucose
         case .urgentLow, .low, .belowRange:
-            return .systemRed
+            return .critical
         case .high, .aboveRange:
-            return .systemOrange
+            return .warning
         }
     }
 }

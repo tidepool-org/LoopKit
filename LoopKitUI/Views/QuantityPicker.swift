@@ -87,7 +87,7 @@ public struct QuantityPicker: View {
         case .outsideRecommendedRange(let threshold):
             switch threshold {
                 case .minimum, .maximum:
-                    return .severeWarning
+                    return .critical
                 case .belowRecommended, .aboveRecommended:
                     return .warning
             }

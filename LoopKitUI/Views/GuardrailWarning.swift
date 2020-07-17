@@ -78,7 +78,7 @@ public struct GuardrailWarning: View {
     private func color(for threshold: SafetyClassification.Threshold) -> Color {
         switch threshold {
         case .minimum, .maximum:
-            return .severeWarning
+            return .critical
         case .belowRecommended, .aboveRecommended:
             return .warning
         }

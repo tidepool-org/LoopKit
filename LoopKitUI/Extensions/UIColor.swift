@@ -15,8 +15,8 @@ private func BundleColor(_ name: String, compatibleWith traitCollection: UITrait
 }
 
 extension UIColor {
-    static let delete = BundleColor("Delete")
-    static let invalid = BundleColor("Invalid")
+    static let delete = critical
+    static let invalid = critical
 }
 
 extension UIColor {
@@ -39,18 +39,19 @@ extension UIColor {
     }
 }
 
-// MARK: - Color palette for common elements
+// MARK: - UIColor palette for common elements
 
+/// The intent in providing these suggested context specific colors is to inform the user of the related context of the UI. Note loopAccent is intended to be use as the app accent colour.
 extension UIColor {
-    public static let accentColor = BundleColor("accent-color")
+    @nonobjc public static let carbs = BundleColor("carbs") ?? .systemGreen
 
-    public static let carbs = BundleColor("carbs")
+    @nonobjc public static let critical = BundleColor("critical") ?? .systemRed
 
-    public static let critical = BundleColor("critical")
+    @nonobjc public static let glucose = BundleColor("glucose") ?? . systemBlue
 
-    public static let glucose = BundleColor("glucose")
+    @nonobjc public static let insulin = BundleColor("insulin") ?? .systemOrange
 
-    public static let insulin = BundleColor("insulin")
-
-    public static let warning = BundleColor("warning")
+    @nonobjc public static let loopAccent = BundleColor("accent") ?? .systemBlue
+    
+    @nonobjc public static let warning = BundleColor("warning") ?? .systemYellow
 }

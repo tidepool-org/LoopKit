@@ -11,12 +11,14 @@ import LoopKit
 extension DeviceLifecycleProgressState {
     public var color: UIColor {
         switch self {
-        case .normal:
-            return .systemPurple
+        case .normalCGM:
+            return .glucose
+        case .normalPump:
+            return .insulin
         case .warning:
-            return .systemOrange
+            return .warning
         case .critical:
-            return .systemRed
+            return .critical
         }
     }
 }
