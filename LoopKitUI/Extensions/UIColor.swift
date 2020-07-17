@@ -15,7 +15,7 @@ private func BundleColor(_ name: String, compatibleWith traitCollection: UITrait
 }
 
 extension UIColor {
-    static let delete = critical
+    static let destructive = critical
     static let invalid = critical
 }
 

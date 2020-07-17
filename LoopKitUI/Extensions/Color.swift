@@ -27,16 +27,14 @@ extension Color {
 // MARK: - Context for colors
 extension Color {
     public static let cobTintColor = carbs
-
-    public static let delete = critical
     
-    public static let destructive = critical
+    public static let destructive = Color(UIColor.destructive)
     
     public static let doseTintColor = insulin
     
     public static let glucoseTintColor = glucose
     
-    public static let invalid = critical
+    public static let invalid = Color(UIColor.invalid)
     
     public static let iobTintColor = insulin
 }
