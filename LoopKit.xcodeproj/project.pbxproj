@@ -1496,7 +1496,7 @@
 		E916F56E24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverrideInformationView.swift; sourceTree = "<group>"; };
 		E93BA06524A39DBC00C5D7E6 /* DismissableHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissableHostingController.swift; sourceTree = "<group>"; };
 		E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsInformationView.swift; sourceTree = "<group>"; };
-		E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsEditor.swift; sourceTree = "<group>"; };
+		E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeliveryLimitsEditor.swift; path = "../Information Screens/DeliveryLimitsEditor.swift"; sourceTree = "<group>"; };
 		E949E38E24B3711E00024DA0 /* InsulinModelInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinModelInformationView.swift; sourceTree = "<group>"; };
 		E96175AD24B7BE38008E5080 /* Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
 		E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspendThresholdInformationView.swift; sourceTree = "<group>"; };
@@ -2461,7 +2461,7 @@
 				E949E38E24B3711E00024DA0 /* InsulinModelInformationView.swift */,
 				E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */,
 				E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */,
-				E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */,
+				E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */,
 			);
 			path = "Information Screens";
 			sourceTree = "<group>";
@@ -2493,11 +2493,11 @@
 				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
 				1D1FCE2C24BEA669000300A8 /* Guardrail+Settings.swift */,
 				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
-				E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */,
 				E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */,
 				1D1FCE2A24BE704A000300A8 /* TherapySetting+Settings.swift */,
 				1D1A019D24B678BF0077D86E /* TherapySettingsView.swift */,
 				1D1FCE2424BD42EF000300A8 /* TherapySettingsViewModel.swift */,
+				E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */,
 			);
 			path = "Settings Editors";
 			sourceTree = "<group>";
