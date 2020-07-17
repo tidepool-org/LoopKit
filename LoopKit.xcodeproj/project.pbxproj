@@ -2434,13 +2434,13 @@
 		E916F56724AD31F900BE3547 /* Settings Editors */ = {
 			isa = PBXGroup;
 			children = (
-				E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */,
 				89653C8324738D2B00E1BAA5 /* BasalRateScheduleEditor.swift */,
 				89653C812473592600E1BAA5 /* CarbRatioScheduleEditor.swift */,
 				E916F56824AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift */,
 				1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */,
 				1DC64C7B24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift */,
 				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
+				E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */,
 				1D1FCE2C24BEA669000300A8 /* Guardrail+Settings.swift */,
 				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
 				1D6EAB9024C12C090081249D /* PumpSupportedIncrements.swift */,
