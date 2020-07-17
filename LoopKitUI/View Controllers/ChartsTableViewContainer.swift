@@ -9,7 +9,6 @@ import UIKit
 import HealthKit
 import os.log
 
-// ANNA TODO: should this be in LoopKit?
 public protocol ChartsTableViewControllerDelegate: class {
     var preferredUnit: HKUnit { get }
     var healthStore: HKHealthStore { get }
@@ -24,7 +23,7 @@ open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerD
         }
     }
 
-    private let log = OSLog(category: "ChartsTableViewController2")
+    private let log = OSLog(category: "ChartsTableViewContainer")
 
     open override func viewDidLoad() {
         super.viewDidLoad()

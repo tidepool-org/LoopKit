@@ -9,7 +9,6 @@
 import SwiftUI
 
 public struct InsulinModelInformationView: View {
-    let blueGray = Color("Blue Gray", bundle: Bundle(for: DismissibleHostingController.self))
     var exitPage: (() -> Void)
     var mode: PresentationMode
     
@@ -28,7 +27,7 @@ public struct InsulinModelInformationView: View {
                     diaInfo
                     modelPeakInfo
                 }
-                .foregroundColor(blueGray)
+                .foregroundColor(.secondary)
             },
             onExit: exitPage,
             mode: mode)

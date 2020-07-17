@@ -5,40 +5,12 @@
 //  Created by Michael Pangburn on 6/22/20.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
-
 import SwiftUI
 import HealthKit
 import LoopKit
 
 
-public struct DeliveryLimits: Equatable {
-    enum Setting: Equatable {
-        case maximumBasalRate
-        case maximumBolus
-    }
-
-    var settings: [Setting: HKQuantity]
-
-    public init(maximumBasalRate: HKQuantity?, maximumBolus: HKQuantity?) {
-        settings = [:]
-        settings[.maximumBasalRate] = maximumBasalRate
-        settings[.maximumBolus] = maximumBolus
-    }
-
-    public var maximumBasalRate: HKQuantity? {
-        get { settings[.maximumBasalRate] }
-        set { settings[.maximumBasalRate] = newValue }
-    }
-
-    public var maximumBolus: HKQuantity? {
-        get { settings[.maximumBolus] }
-        set { settings[.maximumBolus] = newValue }
-    }
-}
-
-
 public struct DeliveryLimitsEditor: View {
-    var buttonText: Text
     var initialValue: DeliveryLimits
     var supportedBasalRates: [Double]
     var selectableBasalRates: [Double]
@@ -49,7 +21,6 @@ public struct DeliveryLimitsEditor: View {
 
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
-    @Binding var userHasEdited: Bool
     @State var settingBeingEdited: DeliveryLimits.Setting?
 
     @State var showingConfirmationAlert = false
@@ -58,16 +29,13 @@ public struct DeliveryLimitsEditor: View {
     static let recommendedMaximumScheduledBasalScaleFactor: Double = 6
 
     public init(
-        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         value: DeliveryLimits,
         supportedBasalRates: [Double],
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
-        mode: PresentationMode = .modal,
-        userHasEdited: Binding<Bool> = Binding.constant(false)
+        mode: PresentationMode = .modal
     ) {
-        self.buttonText = buttonText
         self._value = State(initialValue: value)
         self.initialValue = value
         self.supportedBasalRates = supportedBasalRates
@@ -80,12 +48,11 @@ public struct DeliveryLimitsEditor: View {
         self.supportedBolusVolumes = supportedBolusVolumes
         self.save = save
         self.mode = mode
-        self._userHasEdited = userHasEdited
     }
 
     public var body: some View {
         ConfigurationPage(
-            title: Text("Delivery Limits", comment: "Title for delivery limits page"),
+            title: Text(TherapySetting.deliveryLimits.title),
             actionButtonTitle: buttonText,
             actionButtonState: saveButtonState,
             cards: {
@@ -107,7 +74,6 @@ public struct DeliveryLimitsEditor: View {
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
         .onTapGesture {
             self.userDidTap = true
-            self.userHasEdited = self.initialValue != self.value
         }
     }
 
@@ -137,7 +103,7 @@ public struct DeliveryLimitsEditor: View {
 
     var maximumBasalRateCard: Card {
         Card {
-            SettingDescription(text: Text("Maximum basal rate is the highest temporary basal rate Tidepool Loop is allowed to set automatically.", comment: "Maximum bolus setting description"), informationalContent: { TherapySetting.deliveryLimits.helpScreen() })
+            SettingDescription(text: Text(DeliveryLimits.Setting.maximumBasalRate.descriptiveText), informationalContent: { TherapySetting.deliveryLimits.helpScreen() })
             ExpandableSetting(
                 isEditing: Binding(
                     get: { self.settingBeingEdited == .maximumBasalRate },
@@ -148,7 +114,7 @@ public struct DeliveryLimitsEditor: View {
                     }
                 ),
                 leadingValueContent: {
-                    Text("Maximum Basal Rate", comment: "Title text for maximum basal rate configuration")
+                    Text(DeliveryLimits.Setting.maximumBasalRate.title)
                 },
                 trailingValueContent: {
                     GuardrailConstrainedQuantityView(
@@ -194,7 +160,7 @@ public struct DeliveryLimitsEditor: View {
     var maximumBolusCard: Card {
         Card {
             SettingDescription(
-                text: Text("Maximum bolus is the highest bolus amount you can deliver at one time.", comment: "Maximum basal rate setting description"), informationalContent: {TherapySetting.deliveryLimits.helpScreen()})
+                text: Text(DeliveryLimits.Setting.maximumBolus.descriptiveText), informationalContent: { TherapySetting.deliveryLimits.helpScreen() })
             ExpandableSetting(
                 isEditing: Binding(
                     get: { self.settingBeingEdited == .maximumBolus },
@@ -205,7 +171,7 @@ public struct DeliveryLimitsEditor: View {
                     }
                 ),
                 leadingValueContent: {
-                    Text("Maximum Bolus", comment: "Title text for maximum bolus configuration")
+                    Text(DeliveryLimits.Setting.maximumBolus.title)
                 },
                 trailingValueContent: {
                     GuardrailConstrainedQuantityView(
@@ -246,14 +212,15 @@ public struct DeliveryLimitsEditor: View {
 
     private var instructionalContent: some View {
         HStack { // to align with guardrail warning, if present
-            VStack (alignment: .leading, spacing: 20) {
-                Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-                Text(LocalizedString("You can add different correction ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
-            }
+            Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
             .foregroundColor(.accentColor)
             .font(.subheadline)
             Spacer()
         }
+    }
+    
+    private var buttonText: Text {
+        return self.initialValue == self.value ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
     }
 
     private var guardrailWarningIfNecessary: some View {
@@ -362,4 +329,3 @@ struct DeliveryLimitsGuardrailWarning: View {
         }
     }
 }
-
