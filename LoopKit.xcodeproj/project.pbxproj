@@ -732,7 +732,6 @@
 		E96DCB5E24AF7DC7007117BC /* BasalRatesInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */; };
 		E9C00EDA24C1FA5900628F35 /* DeliveryLimitsEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C00ED924C1FA5900628F35 /* DeliveryLimitsEditor.swift */; };
 		E9C00EDC24C201D700628F35 /* SwiftCharts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C00EDB24C201D700628F35 /* SwiftCharts.framework */; };
-		E9C00EDD24C201D700628F35 /* SwiftCharts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E9C00EDB24C201D700628F35 /* SwiftCharts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -846,17 +845,6 @@
 				892A5D4A222F03CC008961AB /* LoopTestingKit.framework in Embed Frameworks */,
 				4301581A1C7ECB5E00B64B63 /* LoopKit.framework in Embed Frameworks */,
 				43BA715C201E484D0058961E /* LoopKitUI.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E9C00EDE24C201D800628F35 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				E9C00EDD24C201D700628F35 /* SwiftCharts.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2619,7 +2607,6 @@
 				43BA7150201E484D0058961E /* Frameworks */,
 				43BA7151201E484D0058961E /* Headers */,
 				43BA7152201E484D0058961E /* Resources */,
-				E9C00EDE24C201D800628F35 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
