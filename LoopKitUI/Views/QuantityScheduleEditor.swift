@@ -121,7 +121,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                 Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
                 Text(LocalizedString("You can add entries for different times of day by using the ➕.", comment: "Description of how to add a range"))
             }
-            .foregroundColor(.secondary)
+            .foregroundColor(.instructionalContent)
             .font(.subheadline)
             Spacer()
         }
