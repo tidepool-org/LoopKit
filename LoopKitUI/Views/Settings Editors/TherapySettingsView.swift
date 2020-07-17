@@ -178,12 +178,12 @@ extension TherapySettingsView {
     
     private var basalRatesSection: some View {
         section(for: .basalRate) {
-            if self.therapySettings.basalRateSchedule != nil && self.viewModel.supportedBasalRates != nil {
+            if self.therapySettings.basalRateSchedule != nil && self.viewModel.pumpSupportedIncrements != nil {
                 ForEach(self.therapySettings.basalRateSchedule!.items, id: \.self) { value in
                     ScheduleValueItem(time: value.startTime,
                                       value: value.value,
                                       unit: .internationalUnitsPerHour,
-                                      guardrail: Guardrail.basalRate(supportedBasalRates: self.viewModel.supportedBasalRates!))
+                                      guardrail: Guardrail.basalRate(supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates))
                 }
             }
         }
@@ -198,13 +198,13 @@ extension TherapySettingsView {
     
     private var maxBasalRateItem: some View {
         HStack {
-            Text(LocalizedString("Maximum Basal Rate", comment: "Maximum Basal Rate settings item title"))
+            Text(DeliveryLimits.Setting.maximumBasalRate.title)
             Spacer()
-            if self.viewModel.supportedBasalRates != nil {
+            if self.viewModel.pumpSupportedIncrements != nil {
                 GuardrailConstrainedQuantityView(
-                    value: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: self.therapySettings.maximumBasalRatePerHour),
+                    value: self.therapySettings.maximumBasalRatePerHour.map { HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0) },
                     unit: .internationalUnitsPerHour,
-                    guardrail: Guardrail.maximumBasalRate(supportedBasalRates: self.viewModel.supportedBasalRates!, scheduledBasalRange: self.therapySettings.basalRateSchedule?.valueRange()),
+                    guardrail: Guardrail.maximumBasalRate(supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates, scheduledBasalRange: self.therapySettings.basalRateSchedule?.valueRange()),
                     isEditing: false,
                     // Workaround for strange animation behavior on appearance
                     forceDisableAnimations: true
@@ -215,13 +215,13 @@ extension TherapySettingsView {
     
     private var maxBolusItem: some View {
         HStack {
-            Text(LocalizedString("Maximum Bolus", comment: "Maximum Bolus settings item title"))
+            Text(DeliveryLimits.Setting.maximumBolus.title)
             Spacer()
-            if self.viewModel.supportedBolusVolumes != nil {
+            if self.viewModel.pumpSupportedIncrements != nil {
                 GuardrailConstrainedQuantityView(
-                    value: HKQuantity(unit: .internationalUnit(), doubleValue: self.therapySettings.maximumBolus),
+                    value: self.therapySettings.maximumBolus.map { HKQuantity(unit: .internationalUnit(), doubleValue: $0) },
                     unit: .internationalUnit(),
-                    guardrail: Guardrail.maximumBolus(supportedBolusVolumes: self.viewModel.supportedBolusVolumes!),
+                    guardrail: Guardrail.maximumBolus(supportedBolusVolumes: self.viewModel.pumpSupportedIncrements!.bolusVolumes),
                     isEditing: false,
                     // Workaround for strange animation behavior on appearance
                     forceDisableAnimations: true
@@ -370,7 +370,9 @@ public struct TherapySettingsView_Previews: PreviewProvider {
     static let preview_supportedBasalRates = [0.2, 0.5, 0.75, 1.0]
     static let preview_supportedBolusVolumes = [5.0, 10.0, 15.0]
 
-    static let preview_viewModel = TherapySettingsViewModel(therapySettings: preview_therapySettings, supportedBasalRates: preview_supportedBasalRates, supportedBolusVolumes: preview_supportedBolusVolumes)
+    static let preview_viewModel = TherapySettingsViewModel(therapySettings: preview_therapySettings,
+                                                            pumpSupportedIncrements: PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
+                                                                                                             bolusVolumes: preview_supportedBolusVolumes))
 
     public static var previews: some View {
         Group {
@@ -386,17 +388,10 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
-            TherapySettingsView(mode: .modal, viewModel: TherapySettingsViewModel(therapySettings: TherapySettings(), supportedBasalRates: nil, supportedBolusVolumes: nil))
+            TherapySettingsView(mode: .modal, viewModel: TherapySettingsViewModel(therapySettings: TherapySettings()))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
         }
-    }
-}
-
-extension HKQuantity {
-    convenience init?(unit: HKUnit, doubleValue: Double?) {
-        guard let doubleValue = doubleValue else { return nil }
-        self.init(unit: unit, doubleValue: doubleValue)
     }
 }
