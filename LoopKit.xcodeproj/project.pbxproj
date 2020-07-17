@@ -393,7 +393,6 @@
 		898E6E6A224179530019E459 /* BasalScheduleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 892A5D60222F6AF3008961AB /* BasalScheduleTableViewController.swift */; };
 		898E6E6C224194060019E459 /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E6B224194050019E459 /* UIColor.swift */; };
 		898E6E6E2241ED9F0019E459 /* SuspendResumeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E6D2241ED9F0019E459 /* SuspendResumeTableViewCell.swift */; };
-		898E6E702241EDB70019E459 /* PercentageTextFieldTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E6F2241EDB70019E459 /* PercentageTextFieldTableViewController.swift */; };
 		898E6E722241EDC10019E459 /* DateAndDurationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E712241EDC10019E459 /* DateAndDurationTableViewController.swift */; };
 		898E6E732241EE000019E459 /* Comparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 892A5DBB2231E20C008961AB /* Comparable.swift */; };
 		899012C1246F1D8F007B88BA /* ExpandableSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 899012C0246F1D8F007B88BA /* ExpandableSetting.swift */; };
@@ -1285,7 +1284,6 @@
 		898E6E66224179300019E459 /* BatteryLevelHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatteryLevelHUDView.swift; sourceTree = "<group>"; };
 		898E6E6B224194050019E459 /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		898E6E6D2241ED9F0019E459 /* SuspendResumeTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuspendResumeTableViewCell.swift; sourceTree = "<group>"; };
-		898E6E6F2241EDB70019E459 /* PercentageTextFieldTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PercentageTextFieldTableViewController.swift; sourceTree = "<group>"; };
 		898E6E712241EDC10019E459 /* DateAndDurationTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateAndDurationTableViewController.swift; sourceTree = "<group>"; };
 		899012C0246F1D8F007B88BA /* ExpandableSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableSetting.swift; sourceTree = "<group>"; };
 		89904031245B5CA500F1C0A2 /* Deletable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deletable.swift; sourceTree = "<group>"; };
@@ -3020,7 +3018,6 @@
 				892A5D9E2231E122008961AB /* StateColorPalette.swift in Sources */,
 				895FE08022011F0C00FCF18A /* EmojiDataSource.swift in Sources */,
 				432CF86920D76B320066B889 /* SetupButton.swift in Sources */,
-				898E6E702241EDB70019E459 /* PercentageTextFieldTableViewController.swift in Sources */,
 				432CF87420D774520066B889 /* NumberFormatter.swift in Sources */,
 				1F5DAB212118C95700048054 /* LocalizedString.swift in Sources */,
 				43FB60E520DCBA02002B996B /* SetupTableViewController.swift in Sources */,
