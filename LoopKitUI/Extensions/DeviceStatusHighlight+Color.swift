@@ -9,11 +9,11 @@
 import LoopKit
 
 extension DeviceStatusHighlight {
-    public var image: UIImage {
+    public var image: UIImage? {
         if let image = UIImage(frameworkImage: imageName) {
             return image
         } else {
-            return UIImage(systemName: imageName)!
+            return UIImage(systemName: imageName)
         }
     }
     

@@ -6,6 +6,10 @@
 //
 import UIKit
 
+private class FrameworkBundle {
+    static let main = Bundle(for: FrameworkBundle.self)
+}
+
 private func BundleColor(_ name: String, compatibleWith traitCollection: UITraitCollection? = nil) -> UIColor? {
     return UIColor(named: name, in: FrameworkBundle.main, compatibleWith: traitCollection)
 }

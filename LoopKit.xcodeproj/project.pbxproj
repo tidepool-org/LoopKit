@@ -660,12 +660,6 @@
 		B41A60B223D1DBC700636320 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41A60B123D1DBC700636320 /* UIFont.swift */; };
 		B429D66C24BF7204003E1B4A /* GlucoseTrend.swift in Sources */ = {isa = PBXBuildFile; fileRef = B429D66B24BF7204003E1B4A /* GlucoseTrend.swift */; };
 		B429D66E24BF7255003E1B4A /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B429D66D24BF7255003E1B4A /* UIImage.swift */; };
-		B429D67624BF7354003E1B4A /* FrameworkBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B429D66F24BF72C9003E1B4A /* FrameworkBundle.swift */; };
-		B429D67924BF73CF003E1B4A /* FrameworkBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B429D66F24BF72C9003E1B4A /* FrameworkBundle.swift */; };
-		B429D67A24BF73EF003E1B4A /* FrameworkBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B429D66F24BF72C9003E1B4A /* FrameworkBundle.swift */; };
-		B429D67B24BF73F0003E1B4A /* FrameworkBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B429D66F24BF72C9003E1B4A /* FrameworkBundle.swift */; };
-		B429D67C24BF73F1003E1B4A /* FrameworkBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B429D66F24BF72C9003E1B4A /* FrameworkBundle.swift */; };
-		B429D67D24BF73F5003E1B4A /* FrameworkBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B429D66F24BF72C9003E1B4A /* FrameworkBundle.swift */; };
 		B42A7472235885B600247B03 /* LoopNotificationUserInfoKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */; };
 		B42C950B24A3BCCD00857C73 /* GlucoseValueType+Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C950824A3BCC200857C73 /* GlucoseValueType+Color.swift */; };
 		B42C950E24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C950C24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift */; };
@@ -1429,7 +1423,6 @@
 		B41A60B123D1DBC700636320 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		B429D66B24BF7204003E1B4A /* GlucoseTrend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseTrend.swift; sourceTree = "<group>"; };
 		B429D66D24BF7255003E1B4A /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
-		B429D66F24BF72C9003E1B4A /* FrameworkBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameworkBundle.swift; sourceTree = "<group>"; };
 		B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopNotificationUserInfoKey.swift; sourceTree = "<group>"; };
 		B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStatusHighlight.swift; sourceTree = "<group>"; };
 		B42C950824A3BCC200857C73 /* GlucoseValueType+Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GlucoseValueType+Color.swift"; sourceTree = "<group>"; };
@@ -1609,7 +1602,6 @@
 		1F5DAB1B2118C91C00048054 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				B429D66F24BF72C9003E1B4A /* FrameworkBundle.swift */,
 				1F5DAB1C2118C95700048054 /* LocalizedString.swift */,
 			);
 			path = Common;
@@ -3007,7 +2999,6 @@
 				430157FC1C7EC03B00B64B63 /* MasterViewController.swift in Sources */,
 				430157FA1C7EC03B00B64B63 /* AppDelegate.swift in Sources */,
 				43177D021D3729E60006E908 /* IdentifiableClass.swift in Sources */,
-				B429D67A24BF73EF003E1B4A /* FrameworkBundle.swift in Sources */,
 				B4AA27F224C1ECDC001B8AFA /* UIColor.swift in Sources */,
 				4302F4D91D4D32D500F0FCAF /* NSTimeInterval.swift in Sources */,
 				435F355E1C9CD16A00C204D2 /* NSUserDefaults.swift in Sources */,
@@ -3133,7 +3124,6 @@
 				8997B4F523727E8A00061132 /* CustomOverrideCollectionViewCell.swift in Sources */,
 				1DD1964E248AE88000420876 /* HorizontalSizeClassOverride.swift in Sources */,
 				892A5D9C2231E118008961AB /* UIAlertController.swift in Sources */,
-				B429D67624BF7354003E1B4A /* FrameworkBundle.swift in Sources */,
 				43BA7181201EE7090058961E /* RepeatingScheduleValueTableViewCell.swift in Sources */,
 				1DC64C7C24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift in Sources */,
 				43BA716E201E49220058961E /* DecimalTextFieldTableViewCell.swift in Sources */,
@@ -3302,7 +3292,6 @@
 				43CACE0E2247F89100F90AF5 /* WeakSynchronizedSet.swift in Sources */,
 				A912BE2B245B9E8600CBE199 /* SettingsObject+CoreDataProperties.swift in Sources */,
 				43D8FDFE1C7290350073BE78 /* LoopMath.swift in Sources */,
-				B429D67924BF73CF003E1B4A /* FrameworkBundle.swift in Sources */,
 				43D8FDFF1C7290350073BE78 /* Date.swift in Sources */,
 				A919889C2354E5EB00B75EEE /* SettingsStore.swift in Sources */,
 				B42A7472235885B600247B03 /* LoopNotificationUserInfoKey.swift in Sources */,
@@ -3348,7 +3337,6 @@
 			files = (
 				1F5DAB202118C95700048054 /* LocalizedString.swift in Sources */,
 				434113B820F2BDE800D05747 /* PersistenceControllerTestCase.swift in Sources */,
-				B429D67C24BF73F1003E1B4A /* FrameworkBundle.swift in Sources */,
 				437874B6202FDD1500A3D8B9 /* InsulinMathTests.swift in Sources */,
 				A95A1D8B2460FD620079378D /* BolusRecommendationTests.swift in Sources */,
 				A99C7373233990D400C80963 /* TempBasalRecommendationTests.swift in Sources */,
@@ -3459,7 +3447,6 @@
 				892A5D28222EF567008961AB /* (null) in Sources */,
 				89D204C221CC8008001238CC /* IdentifiableClass.swift in Sources */,
 				89D204CB21CC8228001238CC /* NumberFormatter.swift in Sources */,
-				B429D67D24BF73F5003E1B4A /* FrameworkBundle.swift in Sources */,
 				89D204BB21CC7F34001238CC /* MockCGMManagerSettingsViewController.swift in Sources */,
 				89D204C521CC815E001238CC /* NSTimeInterval.swift in Sources */,
 				89D204CC21CC8236001238CC /* LocalizedString.swift in Sources */,
@@ -3486,7 +3473,6 @@
 				A9E6758522713F4700E25293 /* GlucoseMath.swift in Sources */,
 				A9E6758622713F4700E25293 /* Model.xcdatamodeld in Sources */,
 				A9E6758722713F4700E25293 /* CarbEntry.swift in Sources */,
-				B429D67B24BF73F0003E1B4A /* FrameworkBundle.swift in Sources */,
 				A9E6758822713F4700E25293 /* HealthKitSampleStore.swift in Sources */,
 				89AE223D228BCB0B00BDFD85 /* Collection.swift in Sources */,
 				A9E6758A22713F4700E25293 /* DeletedCarbEntry.swift in Sources */,
