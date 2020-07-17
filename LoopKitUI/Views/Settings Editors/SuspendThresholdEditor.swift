@@ -58,7 +58,7 @@ public struct SuspendThresholdEditor: View {
 
     public var body: some View {
         ConfigurationPage(
-            title: Text("Suspend Threshold", comment: "Title for suspend threshold configuration page"),
+            title: Text(TherapySetting.suspendThreshold.title),
             actionButtonTitle: buttonText,
             actionButtonState: saveButtonState,
             cards: {
@@ -115,7 +115,7 @@ public struct SuspendThresholdEditor: View {
     }
 
     var description: Text {
-        Text(LocalizedString("When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/hr and will not recommend a bolus.", comment: "Information about suspend threshold"))
+        Text(TherapySetting.suspendThreshold.descriptiveText)
     }
     
     private var instructionalContentIfNecessary: some View {
@@ -128,10 +128,7 @@ public struct SuspendThresholdEditor: View {
 
     private var instructionalContent: some View {
         HStack { // to align with guardrail warning, if present
-            VStack(alignment: .leading, spacing: 20) {
-                Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-                Text(LocalizedString("You can add different correction ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
-            }
+            Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
             .foregroundColor(.accentColor)
             .font(.subheadline)
             Spacer()

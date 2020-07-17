@@ -42,7 +42,7 @@ public struct CorrectionRangeScheduleEditor: View {
 
     public var body: some View {
         ScheduleEditor(
-            title: Text("Correction Ranges", comment: "Title of correction range schedule editor"),
+            title: Text(TherapySetting.glucoseTargetRange.title),
             description: description,
             scheduleItems: $scheduleItems,
             initialScheduleItems: initialSchedule?.items ?? [],
@@ -96,7 +96,7 @@ public struct CorrectionRangeScheduleEditor: View {
     }
 
     var description: Text {
-        Text("The app adjusts insulin delivery in an effort to bring your glucose into your correction range.", comment: "Description of correction range setting")
+        Text(TherapySetting.glucoseTargetRange.descriptiveText)
     }
 
     var saveConfirmation: SaveConfirmation {
@@ -115,7 +115,7 @@ public struct CorrectionRangeScheduleEditor: View {
         HStack { // to align with guardrail warning, if present
             VStack(alignment: .leading, spacing: 20) {
                 Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-                Text(LocalizedString("You can add different correction ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
+                Text(LocalizedString("You can add different ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
             }
             .foregroundColor(.accentColor)
             .font(.subheadline)
