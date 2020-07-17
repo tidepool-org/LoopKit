@@ -1,11 +1,10 @@
 //
 //  DeliveryLimitsEditor.swift
-//  Loop
+//  LoopKitUI
 //
 //  Created by Michael Pangburn on 6/22/20.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
-
 import SwiftUI
 import HealthKit
 import LoopKit
@@ -330,4 +329,3 @@ struct DeliveryLimitsGuardrailWarning: View {
         }
     }
 }
-
