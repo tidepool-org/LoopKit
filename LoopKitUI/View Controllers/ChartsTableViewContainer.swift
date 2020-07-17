@@ -9,6 +9,7 @@ import UIKit
 import HealthKit
 import os.log
 
+// ANNA TODO: should this be in LoopKit?
 public protocol ChartsTableViewControllerDelegate: class {
     var preferredUnit: HKUnit { get }
     var healthStore: HKHealthStore { get }
@@ -17,7 +18,7 @@ public protocol ChartsTableViewControllerDelegate: class {
 /// Abstract class providing boilerplate setup for chart-based table view controllers
 open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerDelegate {
     
-    weak var delegate: ChartsTableViewControllerDelegate? {
+    public weak var delegate: ChartsTableViewControllerDelegate? {
         didSet {
             NotificationCenter.default.addObserver(self, selector: #selector(unitPreferencesDidChange(_:)), name: .HKUserPreferencesDidChange, object: delegate?.healthStore)
         }
