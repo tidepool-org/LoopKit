@@ -67,9 +67,9 @@ RemoteSettings.plist
 .DS_Store
 
 # Avoid checking in derived and override assets
-LoopKitUI/ColorPaletteDerived.xcassets/*
+LoopKitUI/DerivedColorPalette.xcassets/*
 # ...except, keep Contents.json
-!LoopKitUI/ColorPaletteDerived.xcassets/Contents.json
+!LoopKitUI/DerivedColorPalette.xcassets/Contents.json
 
-LoopKitUI/ColorPaletteOverride.xcassets
+LoopKitUI/DerivedColorPaletteOverride.xcassets
 
