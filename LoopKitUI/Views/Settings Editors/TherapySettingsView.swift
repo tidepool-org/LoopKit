@@ -52,6 +52,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
             deliveryLimitsSection
             insulinModelSection
             carbRatioSection
+            insulinSensitivitiesSection
         }
         .listStyle(GroupedListStyle())
         .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
@@ -281,6 +282,19 @@ extension TherapySettingsView {
                                       value: value.value,
                                       unit: .realCarbRatioScheduleUnit,
                                       guardrail: Guardrail.carbRatio)
+                }
+            }
+        }
+    }
+    
+    private var insulinSensitivitiesSection: some View {
+        section(for: .insulinSensitivity) {
+            if self.therapySettings.insulinSensitivitySchedule != nil && self.sensitivityUnit != nil {
+                ForEach(self.therapySettings.insulinSensitivitySchedule!.items, id: \.self) { value in
+                    ScheduleValueItem(time: value.startTime,
+                                      value: value.value,
+                                      unit: self.sensitivityUnit!,
+                                      guardrail: Guardrail.insulinSensitivity)
                 }
             }
         }
