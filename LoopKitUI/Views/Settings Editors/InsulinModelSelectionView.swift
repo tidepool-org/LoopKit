@@ -10,6 +10,15 @@ import HealthKit
 import SwiftUI
 import LoopKit
 
+public struct SupportedModelSettings {
+    var fiaspModelEnabled: Bool
+    var walshModelEnabled: Bool
+    
+    public init(fiaspModelEnabled: Bool, walshModelEnabled: Bool) {
+        self.fiaspModelEnabled = fiaspModelEnabled
+        self.walshModelEnabled = walshModelEnabled
+    }
+}
 
 public final class InsulinModelSelectionViewModel: ObservableObject {
     @Published public var insulinModelSettings: InsulinModelSettings
@@ -41,10 +50,6 @@ public final class InsulinModelSelectionViewModel: ObservableObject {
 }
 
 public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
-    public struct SupportedModelSettings {
-        var fiaspModelEnabled: Bool
-        var walshModelEnabled: Bool
-    }
 
     @ObservedObject var viewModel: InsulinModelSelectionViewModel
     var glucoseUnit: HKUnit
@@ -70,6 +75,18 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     }()
 
     @Environment(\.dismiss) var dismiss
+    
+    public init(
+        viewModel: InsulinModelSelectionViewModel,
+        glucoseUnit: HKUnit,
+        supportedModelSettings: SupportedModelSettings,
+        appName: String
+    ) {
+        self.viewModel = viewModel
+        self.glucoseUnit = glucoseUnit
+        self.supportedModelSettings = supportedModelSettings
+        self.appName = appName
+    }
 
     public var body: some View {
         NavigationView {
