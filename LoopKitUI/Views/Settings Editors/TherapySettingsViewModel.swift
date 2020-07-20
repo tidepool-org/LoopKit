@@ -10,24 +10,33 @@ import LoopKit
 import HealthKit
 
 public class TherapySettingsViewModel: ObservableObject {
-    var initialTherapySettings: TherapySettings
+    // Note: duplicated from InsulinModelSelection
+    public struct SupportedModelSettings {
+        var fiaspModelEnabled: Bool
+        var walshModelEnabled: Bool
+        public init(fiaspModelEnabled: Bool, walshModelEnabled: Bool) {
+            self.fiaspModelEnabled = fiaspModelEnabled
+            self.walshModelEnabled = walshModelEnabled
+        }
+    }
+
+    private let initialTherapySettings: TherapySettings
     @Published public var therapySettings: TherapySettings
+    public var supportedModelSettings: SupportedModelSettings
     public var didFinishStep: (() -> Void)?
     let pumpSupportedIncrements: PumpSupportedIncrements?
 
-    public init(therapySettings: TherapySettings, pumpSupportedIncrements: PumpSupportedIncrements? = nil) {
+    public init(therapySettings: TherapySettings,
+                supportedModelSettings: SupportedModelSettings = SupportedModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
+                pumpSupportedIncrements: PumpSupportedIncrements? = nil) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.pumpSupportedIncrements = pumpSupportedIncrements
+        self.supportedModelSettings = supportedModelSettings
     }
     
-    /// Reset to original
+    /// Reset to initial
     public func reset() {
-        therapySettings = initialTherapySettings
-    }
-    
-    public func reset(settings: TherapySettings) {
-        initialTherapySettings = settings
         therapySettings = initialTherapySettings
     }
     

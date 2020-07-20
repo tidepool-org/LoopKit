@@ -50,6 +50,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
             suspendThresholdSection
             basalRatesSection
             deliveryLimitsSection
+            insulinModelSection
         }
         .listStyle(GroupedListStyle())
         .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
@@ -228,6 +229,54 @@ extension TherapySettingsView {
                 )
             }
         }
+    }
+    
+    private var insulinModelSection: some View {
+        section(for: .insulinModel) {
+            CheckmarkListItem(
+                title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).title),
+                description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).subtitle),
+                isSelected: self.isSelected(.exponentialPreset(.humalogNovologAdult))
+            )
+            .padding(.vertical, 4)
+            CheckmarkListItem(
+                title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).title),
+                description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).subtitle),
+                isSelected: self.isSelected(.exponentialPreset(.humalogNovologChild))
+            )
+            .padding(.vertical, 4)
+                .padding(.bottom, self.viewModel.supportedModelSettings.fiaspModelEnabled ? 0 : 4)
+
+            if self.viewModel.supportedModelSettings.fiaspModelEnabled {
+                CheckmarkListItem(
+                    title: Text(InsulinModelSettings.exponentialPreset(.fiasp).title),
+                    description: Text(InsulinModelSettings.exponentialPreset(.fiasp).subtitle),
+                    isSelected: self.isSelected(.exponentialPreset(.fiasp))
+                )
+                .padding(.vertical, 4)
+            }
+
+            if self.viewModel.supportedModelSettings.walshModelEnabled {
+                DurationBasedCheckmarkListItem(
+                    title: Text(WalshInsulinModel.title),
+                    description: Text(WalshInsulinModel.subtitle),
+                    isSelected: self.isWalshModelSelected,
+                    duration: .constant(self.therapySettings.insulinModel?.actionDuration ?? 0),
+                    validDurationRange: InsulinModelSettings.validWalshModelDurationRange
+                )
+                .padding(.vertical, 4)
+                .padding(.bottom, 4)
+            }
+
+        }
+    }
+    
+    private func isSelected(_ settings: InsulinModelSettings) -> Binding<Bool> {
+        return .constant(self.viewModel.therapySettings.insulinModel == StoredSettings.InsulinModel(settings))
+    }
+    
+    private var isWalshModelSelected: Binding<Bool> {
+        return .constant(self.viewModel.therapySettings.insulinModel?.modelType == .some(.walsh))
     }
     
 }
