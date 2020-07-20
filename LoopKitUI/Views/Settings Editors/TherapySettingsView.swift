@@ -230,47 +230,48 @@ extension TherapySettingsView {
             }
         }
     }
-    
-    private var insulinModelSection: some View {
+        
+    var insulinModelSection: some View {
         section(for: .insulinModel) {
-            CheckmarkListItem(
-                title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).title),
-                description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).subtitle),
-                isSelected: self.isSelected(.exponentialPreset(.humalogNovologAdult))
-            )
-            .padding(.vertical, 4)
-            CheckmarkListItem(
-                title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).title),
-                description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).subtitle),
-                isSelected: self.isSelected(.exponentialPreset(.humalogNovologChild))
-            )
-            .padding(.vertical, 4)
-                .padding(.bottom, self.viewModel.supportedModelSettings.fiaspModelEnabled ? 0 : 4)
+            self.insulinModelItem(InsulinModelSettings.exponentialPreset(.humalogNovologAdult))
+            self.insulinModelItem(InsulinModelSettings.exponentialPreset(.humalogNovologChild))
+                .padding(.bottom, self.viewModel.supportedInsulinModelSettings.fiaspModelEnabled ? 0 : 4)
 
-            if self.viewModel.supportedModelSettings.fiaspModelEnabled {
-                CheckmarkListItem(
-                    title: Text(InsulinModelSettings.exponentialPreset(.fiasp).title),
-                    description: Text(InsulinModelSettings.exponentialPreset(.fiasp).subtitle),
-                    isSelected: self.isSelected(.exponentialPreset(.fiasp))
-                )
-                .padding(.vertical, 4)
+            if self.viewModel.supportedInsulinModelSettings.fiaspModelEnabled {
+                self.insulinModelItem(InsulinModelSettings.exponentialPreset(.fiasp))
             }
 
-            if self.viewModel.supportedModelSettings.walshModelEnabled {
-                DurationBasedCheckmarkListItem(
-                    title: Text(WalshInsulinModel.title),
-                    description: Text(WalshInsulinModel.subtitle),
-                    isSelected: self.isWalshModelSelected,
-                    duration: .constant(self.therapySettings.insulinModel?.actionDuration ?? 0),
-                    validDurationRange: InsulinModelSettings.validWalshModelDurationRange
-                )
-                .padding(.vertical, 4)
-                .padding(.bottom, 4)
+            if self.viewModel.supportedInsulinModelSettings.walshModelEnabled {
+                self.walshInsulinModelItem()
             }
-
         }
     }
+        
+    private func insulinModelItem(_ insulinModelSettings: InsulinModelSettings) -> some View {
+        CheckmarkListItem(
+            title: Text(insulinModelSettings.title),
+            titleFont: .body,
+            description: Text(insulinModelSettings.subtitle),
+            isSelected: self.isSelected(insulinModelSettings),
+            isEnabled: false
+        )
+        .padding(.vertical, 4)
+    }
     
+    private func walshInsulinModelItem() -> some View {
+        return DurationBasedCheckmarkListItem(
+            title: Text(WalshInsulinModel.title),
+            titleFont: .body,
+            description: Text(WalshInsulinModel.subtitle),
+            isSelected: self.isWalshModelSelected,
+            isEnabled: false,
+            duration: .constant(self.therapySettings.insulinModel?.actionDuration ?? 0),
+            validDurationRange: InsulinModelSettings.validWalshModelDurationRange
+        )
+            .padding(.vertical, 4)
+            .padding(.bottom, 4)
+    }
+
     private func isSelected(_ settings: InsulinModelSettings) -> Binding<Bool> {
         return .constant(self.viewModel.therapySettings.insulinModel == StoredSettings.InsulinModel(settings))
     }
@@ -278,7 +279,7 @@ extension TherapySettingsView {
     private var isWalshModelSelected: Binding<Bool> {
         return .constant(self.viewModel.therapySettings.insulinModel?.modelType == .some(.walsh))
     }
-    
+
 }
 
 // MARK: Utilities
@@ -420,6 +421,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
     static let preview_supportedBolusVolumes = [5.0, 10.0, 15.0]
 
     static let preview_viewModel = TherapySettingsViewModel(therapySettings: preview_therapySettings,
+                                                            supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                                                             pumpSupportedIncrements: PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
                                                                                                              bolusVolumes: preview_supportedBolusVolumes))
 
