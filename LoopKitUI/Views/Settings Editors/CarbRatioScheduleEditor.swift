@@ -11,7 +11,7 @@ import HealthKit
 import LoopKit
 
 
-fileprivate extension HKUnit {
+public extension HKUnit {
     static let storedCarbRatioScheduleUnit = HKUnit.gram()
     static let realCarbRatioScheduleUnit = HKUnit.gram().unitDivided(by: .internationalUnit())
 }
