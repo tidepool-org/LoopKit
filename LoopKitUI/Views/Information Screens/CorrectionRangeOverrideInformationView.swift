@@ -25,8 +25,7 @@ public struct CorrectionRangeOverrideInformationView: View {
     
     public var body: some View {
         InformationView(
-            // TODO: make this title be "Temporary Correction Ranges" when SwiftUI supports multi-line titles
-            title: Text(LocalizedString("Temporary Ranges", comment: "Title for correction range override informational screen")),
+            title: Text(TherapySetting.correctionRangeOverrides.title),
             buttonText: Text(LocalizedString("Next: Review Setting", comment: "Button to advance to setting editor")),
             informationalContent: {
                 VStack (alignment: .leading, spacing: 20) {
@@ -71,13 +70,13 @@ public struct CorrectionRangeOverrideInformationView: View {
         case .preMeal:
             return VStack(alignment: .leading, spacing: 20) {
                 Text(LocalizedString("Your pre-meal temp adjust range should be the glucose value (or range of values) you want Tidepool Loop to target by the time you take your first bite of your meal.", comment: "Information about pre-meal range"))
-                Text(LocalizedString("This will typically be", comment: "Information about pre-meal range relative to correction range")) + Text(LocalizedString(" lower ", comment: "Information about pre-meal range relative to correction range")).bold() + Text(LocalizedString("than your correction range", comment: "Information about pre-meal range relative to correction range"))
+                Text(LocalizedString("This will typically be", comment: "Information about pre-meal range relative to correction range")) + Text(LocalizedString(" lower ", comment: "Information about pre-meal range relative to correction range")).bold().italic() + Text(LocalizedString("than your correction range", comment: "Information about pre-meal range relative to correction range"))
             }
             .fixedSize(horizontal: false, vertical: true) // prevent text from being cut off
         case .workout:
             return VStack(alignment: .leading, spacing: 20) {
                 Text(LocalizedString("Workout temp adjust is the glucose value or range of values you want Tidepool Loop to target during activity.", comment: "Information about workout range"))
-                Text(LocalizedString("This will typically be", comment: "Information about workout range relative to correction range")) + Text(LocalizedString(" higher ", comment: "Information about workout range relative to correction range")).bold() + Text(LocalizedString("than your correction range", comment: "Information about workout range relative to correction range"))
+                Text(LocalizedString("This will typically be", comment: "Information about workout range relative to correction range")) + Text(LocalizedString(" higher ", comment: "Information about workout range relative to correction range")).bold().italic() + Text(LocalizedString("than your correction range", comment: "Information about workout range relative to correction range"))
             }
             .fixedSize(horizontal: false, vertical: true) // prevent text from being cut off
         }
