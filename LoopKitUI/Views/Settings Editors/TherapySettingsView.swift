@@ -441,15 +441,15 @@ private extension TherapySettingsView {
     func screen(for setting: TherapySetting) -> some View {
         switch setting {
         case .glucoseTargetRange:
-            return AnyView(CorrectionRangeReviewView(mode: .modal/*mode*/, viewModel: viewModel))
+            return AnyView(CorrectionRangeReviewView(mode: mode, viewModel: viewModel))
         case .correctionRangeOverrides:
-            return AnyView(CorrectionRangeOverrideReview(mode: .modal/*mode*/, viewModel: viewModel))
+            return AnyView(CorrectionRangeOverrideReview(mode: mode, viewModel: viewModel))
         case .suspendThreshold:
-            return AnyView(SuspendThresholdReview(mode: .modal/*mode*/, viewModel: viewModel))
+            return AnyView(SuspendThresholdReview(mode: mode, viewModel: viewModel))
         case .basalRate:
             return AnyView(BasalRatesReview(mode: mode, viewModel: viewModel))
         case .deliveryLimits:
-            return AnyView(DeliveryLimitsReviewView(mode: .modal/*mode*/, viewModel: viewModel))
+            return AnyView(DeliveryLimitsReviewView(mode: mode, viewModel: viewModel))
         case .insulinModel:
             break
         case .carbRatio:
