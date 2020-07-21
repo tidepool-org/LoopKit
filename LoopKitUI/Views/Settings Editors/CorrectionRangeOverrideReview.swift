@@ -17,7 +17,7 @@ public struct CorrectionRangeOverrideReview: View {
         self.viewModel.therapySettings.glucoseUnit!
     }
 
-    public init(mode: PresentationMode = .flow, viewModel: TherapySettingsViewModel) {
+    public init(mode: PresentationMode = .acceptanceFlow, viewModel: TherapySettingsViewModel) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         precondition(viewModel.therapySettings.glucoseTargetRangeSchedule != nil)
         self.mode = mode

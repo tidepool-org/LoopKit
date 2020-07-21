@@ -33,7 +33,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
-        mode: PresentationMode = .modal
+        mode: PresentationMode = .legacySettings
     ) {
         self._value = State(initialValue: value)
         self.initialValue = value
@@ -71,6 +71,7 @@ public struct DeliveryLimitsEditor: View {
             }
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .navigationBarTitle("", displayMode: .inline)
         .onTapGesture {
             self.userDidTap = true
         }
@@ -81,7 +82,7 @@ public struct DeliveryLimitsEditor: View {
             return .disabled
         }
 
-        return value == initialValue && mode == .modal ? .disabled : .enabled
+        return value == initialValue || mode != .acceptanceFlow ? .disabled : .enabled
     }
 
     var maximumBasalRateGuardrail: Guardrail<HKQuantity> {
@@ -183,7 +184,7 @@ public struct DeliveryLimitsEditor: View {
     
     private var instructionalContentIfNecessary: some View {
         return Group {
-            if mode == .flow && !userDidTap {
+            if mode == .acceptanceFlow && !userDidTap {
                 instructionalContent
             }
         }
@@ -205,7 +206,7 @@ public struct DeliveryLimitsEditor: View {
     private var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds
         return Group {
-            if !crossedThresholds.isEmpty && (userDidTap || mode == .modal) {
+            if !crossedThresholds.isEmpty && (userDidTap || mode == .settings || mode == .legacySettings) {
                 DeliveryLimitsGuardrailWarning(crossedThresholds: crossedThresholds, maximumScheduledBasalRate: scheduledBasalRange?.upperBound)
             }
         }

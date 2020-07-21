@@ -14,7 +14,7 @@ public struct CorrectionRangeReviewView: View {
     
     private let mode: PresentationMode
     
-    public init(mode: PresentationMode = .flow, viewModel: TherapySettingsViewModel) {
+    public init(mode: PresentationMode = .acceptanceFlow, viewModel: TherapySettingsViewModel) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         self.mode = mode
         self.viewModel = viewModel
@@ -29,7 +29,7 @@ public struct CorrectionRangeReviewView: View {
                 self.viewModel.saveCorrectionRange(range: newSchedule)
                 self.viewModel.didFinishEditing?()
             },
-            mode: self.mode
+            mode: mode
         )
     }
 }

@@ -15,7 +15,7 @@ public struct DeliveryLimitsReviewView: View {
     @ObservedObject var viewModel: TherapySettingsViewModel
     let mode: PresentationMode
     
-    public init(mode: PresentationMode = .flow, viewModel: TherapySettingsViewModel){
+    public init(mode: PresentationMode = .acceptanceFlow, viewModel: TherapySettingsViewModel){
         self.viewModel = viewModel
         self.mode = mode
     }

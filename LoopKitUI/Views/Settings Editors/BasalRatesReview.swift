@@ -14,7 +14,7 @@ public struct BasalRatesReview: View {
     @ObservedObject var viewModel: TherapySettingsViewModel
     private let mode: PresentationMode
     
-    public init(mode: PresentationMode = .flow, viewModel: TherapySettingsViewModel) {
+    public init(mode: PresentationMode = .acceptanceFlow, viewModel: TherapySettingsViewModel) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         self.viewModel = viewModel
         self.mode = mode

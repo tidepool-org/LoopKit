@@ -109,7 +109,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     
     private var instructionalContentIfNecessary: some View {
         return Group {
-            if mode == .flow && !userDidTap {
+            if mode == .acceptanceFlow && !userDidTap {
                 instructionalContent
             }
         }
@@ -130,7 +130,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     private var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds
         return Group {
-            if !crossedThresholds.isEmpty {
+            if !crossedThresholds.isEmpty && (userDidTap || mode == .settings || mode == .legacySettings) {
                 guardrailWarning(crossedThresholds)
             }
         }
@@ -167,7 +167,7 @@ extension QuantityScheduleEditor {
         confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>,
-        mode: PresentationMode = .modal,
+        mode: PresentationMode = .legacySettings,
         settingType: TherapySetting = .none
     ) {
         self.buttonText = buttonText
