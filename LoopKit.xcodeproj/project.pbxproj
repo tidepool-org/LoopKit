@@ -8,13 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		1D096BFA24C242300078B6B5 /* CheckmarkListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096BF924C242300078B6B5 /* CheckmarkListItem.swift */; };
-		1D096C0124C24C220078B6B5 /* WalshInsulinModel+RawRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096BFE24C24C220078B6B5 /* WalshInsulinModel+RawRepresentable.swift */; };
 		1D096C0224C24C220078B6B5 /* InsulinModelSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096BFF24C24C220078B6B5 /* InsulinModelSettings.swift */; };
 		1D096C0324C24C220078B6B5 /* ExponentialInsulinModelPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */; };
 		1D096C0524C624F70078B6B5 /* InsulinModelSettings+LoopKitUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096C0424C624F70078B6B5 /* InsulinModelSettings+LoopKitUI.swift */; };
 		1D096C0624C626F90078B6B5 /* InsulinModelSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096BFF24C24C220078B6B5 /* InsulinModelSettings.swift */; };
 		1D096C0724C6270B0078B6B5 /* ExponentialInsulinModelPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */; };
-		1D096C0824C627130078B6B5 /* WalshInsulinModel+RawRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096BFE24C24C220078B6B5 /* WalshInsulinModel+RawRepresentable.swift */; };
 		1D1A019E24B678BF0077D86E /* TherapySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1A019D24B678BF0077D86E /* TherapySettingsView.swift */; };
 		1D1FCE2324BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */; };
 		1D1FCE2524BD42EF000300A8 /* TherapySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2424BD42EF000300A8 /* TherapySettingsViewModel.swift */; };
@@ -853,7 +851,6 @@
 
 /* Begin PBXFileReference section */
 		1D096BF924C242300078B6B5 /* CheckmarkListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckmarkListItem.swift; sourceTree = "<group>"; };
-		1D096BFE24C24C220078B6B5 /* WalshInsulinModel+RawRepresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "WalshInsulinModel+RawRepresentable.swift"; sourceTree = "<group>"; };
 		1D096BFF24C24C220078B6B5 /* InsulinModelSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsulinModelSettings.swift; sourceTree = "<group>"; };
 		1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExponentialInsulinModelPreset.swift; sourceTree = "<group>"; };
 		1D096C0424C624F70078B6B5 /* InsulinModelSettings+LoopKitUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InsulinModelSettings+LoopKitUI.swift"; sourceTree = "<group>"; };
@@ -1593,7 +1590,6 @@
 			children = (
 				1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */,
 				1D096BFF24C24C220078B6B5 /* InsulinModelSettings.swift */,
-				1D096BFE24C24C220078B6B5 /* WalshInsulinModel+RawRepresentable.swift */,
 			);
 			path = Insulin;
 			sourceTree = "<group>";
