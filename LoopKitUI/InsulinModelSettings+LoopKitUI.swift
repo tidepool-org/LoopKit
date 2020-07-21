@@ -32,22 +32,22 @@ public extension ExponentialInsulinModelPreset {
     var title: String {
         switch self {
         case .humalogNovologAdult:
-            return NSLocalizedString("Rapid-Acting – Adults", comment: "Title of insulin model preset")
+            return LocalizedString("Rapid-Acting – Adult", comment: "Title of insulin model preset - rapid acting adult")
         case .humalogNovologChild:
-            return NSLocalizedString("Rapid-Acting – Children", comment: "Title of insulin model preset")
+            return LocalizedString("Rapid-Acting – Children", comment: "Title of insulin model preset - rapid acting children")
         case .fiasp:
-            return NSLocalizedString("Fiasp", comment: "Title of insulin model preset")
+            return LocalizedString("Fiasp", comment: "Title of insulin model preset - fiasp")
         }
     }
 
     var subtitle: String {
         switch self {
         case .humalogNovologAdult:
-            return NSLocalizedString("A model based on the published absorption of Humalog, Novolog, and Apidra insulin in adults.", comment: "Subtitle of Rapid-Acting – Adult preset")
+            return LocalizedString("This model assumes peak insulin activity at 75 minutes.", comment: "Subtitle of Rapid-Acting – Adult preset")
         case .humalogNovologChild:
-            return NSLocalizedString("An adjustment to the adult model based on empirical effects in children.", comment: "Subtitle of Rapid-Acting – Children preset")
+            return LocalizedString("This model assumes peak insulin activity at 65 minutes.", comment: "Subtitle of Rapid-Acting – Children preset")
         case .fiasp:
-            return NSLocalizedString("A model based on the published absorption of Fiasp insulin.", comment: "Subtitle of Fiasp preset")
+            return LocalizedString("This model assumes peak insulin activity at 55 minutes.", comment: "Subtitle of Fiasp preset")
         }
     }
 }
@@ -55,7 +55,7 @@ public extension ExponentialInsulinModelPreset {
 
 public extension WalshInsulinModel {
     static var title: String {
-        return NSLocalizedString("Walsh", comment: "Title of insulin model setting")
+        return LocalizedString("Walsh", comment: "Title of insulin model setting")
     }
     
     var title: String {
@@ -63,7 +63,7 @@ public extension WalshInsulinModel {
     }
 
     static var subtitle: String {
-        return NSLocalizedString("The legacy model used by Loop, allowing customization of action duration.", comment: "Subtitle description of Walsh insulin model setting")
+        return LocalizedString("The legacy model used by Loop, allowing customization of action duration.", comment: "Subtitle description of Walsh insulin model setting")
     }
     
     var subtitle: String {

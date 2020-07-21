@@ -37,7 +37,6 @@ public struct CheckmarkListItem: View {
             Spacer(minLength: 12)
 
             selectionIndicator
-                .frame(width: 26, height: 26)
         }
         .animation(nil)
     }
@@ -45,26 +44,39 @@ public struct CheckmarkListItem: View {
     @ViewBuilder
     private var selectionIndicator: some View {
         if isEnabled {
-            if isSelected {
-                Image(systemName: "checkmark.circle.fill")
-                    .resizable()
-                    .background(Circle().stroke()) // Ensure size aligns with open circle
-                    .foregroundColor(.accentColor)
-            } else {
-                Button(action: { self.isSelected = true }) {
-                    Circle()
-                        .stroke()
-                        .foregroundColor(Color(.systemGray4))
-                }
-            }
+            filledCheckmark
+                .frame(width: 26, height: 26)
         } else {
-            if isSelected {
-                Image(systemName: "checkmark")
-                    .resizable()
-                    .foregroundColor(.accentColor)
+            plainCheckmark
+                .frame(width: 22, height: 22)
+        }
+    }
+    
+    @ViewBuilder
+    private var filledCheckmark: some View {
+        if isSelected {
+            Image(systemName: "checkmark.circle.fill")
+                .resizable()
+                .background(Circle().stroke()) // Ensure size aligns with open circle
+                .foregroundColor(.accentColor)
+        } else {
+            Button(action: { self.isSelected = true }) {
+                Circle()
+                    .stroke()
+                    .foregroundColor(Color(.systemGray4))
             }
         }
     }
+    
+    @ViewBuilder
+    private var plainCheckmark: some View {
+        if isSelected {
+            Image(systemName: "checkmark")
+                .resizable()
+                .foregroundColor(.accentColor)
+        }
+    }
+
 }
 
 public struct DurationBasedCheckmarkListItem: View {
