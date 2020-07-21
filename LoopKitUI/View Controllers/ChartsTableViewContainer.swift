@@ -9,39 +9,18 @@ import UIKit
 import HealthKit
 import os.log
 
-public protocol ChartsTableViewControllerDelegate: class {
-    var preferredUnit: HKUnit { get }
-    var healthStore: HKHealthStore { get }
-}
-
 /// Abstract class providing boilerplate setup for chart-based table view controllers
 open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerDelegate {
-    
-    public weak var delegate: ChartsTableViewControllerDelegate? {
-        didSet {
-            NotificationCenter.default.addObserver(self, selector: #selector(unitPreferencesDidChange(_:)), name: .HKUserPreferencesDidChange, object: delegate?.healthStore)
-        }
-    }
 
     private let log = OSLog(category: "ChartsTableViewContainer")
+    public var preferredGlucoseUnit: HKUnit?
 
     open override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let unit = delegate?.preferredUnit {
+        if let unit = preferredGlucoseUnit {
             self.charts.setGlucoseUnit(unit)
         }
-
-        let notificationCenter = NotificationCenter.default
-
-        notificationObservers += [
-            notificationCenter.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
-                self?.active = false
-            },
-            notificationCenter.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
-                self?.active = true
-            }
-        ]
 
         let gestureRecognizer = UILongPressGestureRecognizer()
         gestureRecognizer.delegate = self
@@ -83,27 +62,19 @@ open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerD
         charts.traitCollection = traitCollection
     }
 
-    deinit {
-        for observer in notificationObservers {
-            NotificationCenter.default.removeObserver(observer)
-        }
-    }
-
     // MARK: - State
-    
-    @objc private func unitPreferencesDidChange(_ note: Notification) {
-        DispatchQueue.main.async {
-            if let unit = self.delegate?.preferredUnit {
+    // This function should only be called from the main thread
+    public func unitPreferencesDidChange(to unit: HKUnit?) {
+        //DispatchQueue.main.async {
+            if let unit = unit {
+                print(unit)
                 self.charts.setGlucoseUnit(unit)
-
                 self.glucoseUnitDidChange()
             }
-            self.log.debug("[reloadData] for HealthKit unit preference change")
+            print("[reloadData] chart did update due to glucose unit change")
             self.reloadData()
-        }
+        //}
     }
-    
-    
 
     open func glucoseUnitDidChange() {
         // To override.
