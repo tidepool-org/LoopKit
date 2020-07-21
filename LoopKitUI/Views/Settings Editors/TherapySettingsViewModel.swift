@@ -11,20 +11,24 @@ import HealthKit
 
 public class TherapySettingsViewModel: ObservableObject {
 
-    private let initialTherapySettings: TherapySettings
     @Published public var therapySettings: TherapySettings
     public var supportedInsulinModelSettings: SupportedInsulinModelSettings
-    public var didFinishStep: (() -> Void)?
+    public var didFinishEditing: (() -> Void)?
+
+    private let initialTherapySettings: TherapySettings
     let pumpSupportedIncrements: PumpSupportedIncrements?
+    let pumpSyncSchedule: PumpManager.SyncSchedule?
     let includeSupportSection: Bool
 
     public init(therapySettings: TherapySettings,
                 supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                 pumpSupportedIncrements: PumpSupportedIncrements? = nil,
+                pumpSyncSchedule: PumpManager.SyncSchedule? = nil,
                 includeSupportSection: Bool = true) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.pumpSupportedIncrements = pumpSupportedIncrements
+        self.pumpSyncSchedule = pumpSyncSchedule
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
         self.includeSupportSection = includeSupportSection
     }

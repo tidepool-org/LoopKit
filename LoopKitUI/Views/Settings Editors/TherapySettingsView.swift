@@ -336,11 +336,12 @@ extension TherapySettingsView {
         return .constant(self.viewModel.therapySettings.insulinModel?.modelType == .some(.walsh))
     }
 
-    private func section<Content>(for therapySetting: TherapySetting, @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
+    private func section<Content>(for therapySetting: TherapySetting,
+                                  @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
         SectionWithEdit(isEditing: $isEditing,
                         title: therapySetting.title,
                         descriptiveText: therapySetting.descriptiveText,
-                        editAction: { self.delegate?.gotoEdit(therapySetting: therapySetting) },
+                        destination: self.screen(for: therapySetting),
                         content: content)
     }
 }
@@ -401,11 +402,11 @@ struct CorrectionRangeOverridesRangeItem: View {
 
 // Note: I didn't call this "EditableSection" because it doesn't actually make the section editable,
 // it just optionally provides a link to go to an editor screen.
-struct SectionWithEdit<Content>: View where Content: View {
+struct SectionWithEdit<Content, NavigationDestination>: View where Content: View, NavigationDestination: View  {
     @Binding var isEditing: Bool
     let title: String
     let descriptiveText: String
-    let editAction: () -> Void
+    let destination: NavigationDestination
     let content: () -> Content
     
     @ViewBuilder public var body: some View {
@@ -426,16 +427,43 @@ struct SectionWithEdit<Content>: View where Content: View {
     }
     
     private var navigationButton: some View {
-        Button(action: { self.editAction() }) {
-            HStack {
+        NavigationLink(destination: destination) {
+            Button(action: { }) {
                 Text(String(format: LocalizedString("Edit %@", comment: "The string format for the Edit navigation button"), title))
-                Spacer()
-                Image(systemName: "chevron.right").foregroundColor(.gray).font(.footnote)
             }
         }
-        .disabled(!isEditing)
     }
 }
+
+// MARK: Navigation
+
+private extension TherapySettingsView {
+    func screen(for setting: TherapySetting) -> some View {
+        switch setting {
+        case .glucoseTargetRange:
+            return AnyView(CorrectionRangeReviewView(mode: .modal/*mode*/, viewModel: viewModel))
+        case .correctionRangeOverrides:
+            return AnyView(CorrectionRangeOverrideReview(mode: .modal/*mode*/, viewModel: viewModel))
+        case .suspendThreshold:
+            return AnyView(SuspendThresholdReview(mode: .modal/*mode*/, viewModel: viewModel))
+        case .basalRate:
+            return AnyView(BasalRatesReview(mode: mode, viewModel: viewModel))
+        case .deliveryLimits:
+            return AnyView(DeliveryLimitsReviewView(mode: .modal/*mode*/, viewModel: viewModel))
+        case .insulinModel:
+            break
+        case .carbRatio:
+            break
+        case .insulinSensitivity:
+            break
+        case .none:
+            break
+        }
+        return AnyView(Text("\(setting.title)"))
+    }
+}
+
+// MARK: Previews
 
 public struct TherapySettingsView_Previews: PreviewProvider {
 
@@ -462,7 +490,8 @@ public struct TherapySettingsView_Previews: PreviewProvider {
     static let preview_viewModel = TherapySettingsViewModel(therapySettings: preview_therapySettings,
                                                             supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                                                             pumpSupportedIncrements: PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
-                                                                                                             bolusVolumes: preview_supportedBolusVolumes))
+                                                                                                             bolusVolumes: preview_supportedBolusVolumes,
+                                                                                                             maximumBasalScheduleEntryCount: 24))
 
     public static var previews: some View {
         Group {

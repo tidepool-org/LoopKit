@@ -16,7 +16,7 @@ public struct BasalRateScheduleEditor: View {
     var supportedBasalRates: [Double]
     var guardrail: Guardrail<HKQuantity>
     var maximumScheduleEntryCount: Int
-    var syncSchedule: (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
+    var syncSchedule: PumpManager.SyncSchedule?
     var save: (BasalRateSchedule) -> Void
     let mode: PresentationMode
 
@@ -26,10 +26,7 @@ public struct BasalRateScheduleEditor: View {
         supportedBasalRates: [Double],
         maximumBasalRate: Double?,
         maximumScheduleEntryCount: Int,
-        syncSchedule: @escaping (
-            _ items: [RepeatingScheduleValue<Double>],
-            _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void
-        ) -> Void,
+        syncSchedule: PumpManager.SyncSchedule?,
         onSave save: @escaping (BasalRateSchedule) -> Void,
         mode: PresentationMode = .modal
     ) {
@@ -93,7 +90,7 @@ public struct BasalRateScheduleEditor: View {
         switch mode {
         case .modal:
             return .asynchronous { quantitySchedule, completion in
-                self.syncSchedule(quantitySchedule.items) { result in
+                self.syncSchedule?(quantitySchedule.items) { result in
                     switch result {
                     case .success(let syncedSchedule):
                         DispatchQueue.main.async {
