@@ -10,24 +10,27 @@ import LoopKit
 import HealthKit
 
 public class TherapySettingsViewModel: ObservableObject {
-    var initialTherapySettings: TherapySettings
+
+    private let initialTherapySettings: TherapySettings
     @Published public var therapySettings: TherapySettings
+    public var supportedInsulinModelSettings: SupportedInsulinModelSettings
     public var didFinishStep: (() -> Void)?
     let pumpSupportedIncrements: PumpSupportedIncrements?
+    let includeSupportSection: Bool
 
-    public init(therapySettings: TherapySettings, pumpSupportedIncrements: PumpSupportedIncrements? = nil) {
+    public init(therapySettings: TherapySettings,
+                supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
+                pumpSupportedIncrements: PumpSupportedIncrements? = nil,
+                includeSupportSection: Bool = true) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.pumpSupportedIncrements = pumpSupportedIncrements
+        self.supportedInsulinModelSettings = supportedInsulinModelSettings
+        self.includeSupportSection = includeSupportSection
     }
     
-    /// Reset to original
+    /// Reset to initial
     public func reset() {
-        therapySettings = initialTherapySettings
-    }
-    
-    public func reset(settings: TherapySettings) {
-        initialTherapySettings = settings
         therapySettings = initialTherapySettings
     }
     
