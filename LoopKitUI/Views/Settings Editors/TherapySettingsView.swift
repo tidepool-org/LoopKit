@@ -283,7 +283,7 @@ extension TherapySettingsView {
                 ForEach(self.therapySettings.carbRatioSchedule!.items, id: \.self) { value in
                     ScheduleValueItem(time: value.startTime,
                                       value: value.value,
-                                      unit: .realCarbRatioScheduleUnit,
+                                      unit: .gramsPerUnit,
                                       guardrail: Guardrail.carbRatio)
                 }
             }
