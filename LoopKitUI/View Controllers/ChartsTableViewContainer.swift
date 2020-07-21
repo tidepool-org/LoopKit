@@ -1,5 +1,5 @@
 //
-//  ChartsTableViewController2.swift
+//  ChartsTableViewContainer.swift
 //  LoopKitUI
 //
 //  Copyright © 2017 LoopKit Authors. All rights reserved.
@@ -7,12 +7,10 @@
 
 import UIKit
 import HealthKit
-import os.log
 
 /// Abstract class providing boilerplate setup for chart-based table view controllers
 open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerDelegate {
 
-    private let log = OSLog(category: "ChartsTableViewContainer")
     public var preferredGlucoseUnit: HKUnit?
 
     open override func viewDidLoad() {
@@ -52,7 +50,6 @@ open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerD
     open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        log.debug("[reloadData] for view transition to size: %@", String(describing: size))
         reloadData(animated: false)
     }
 
@@ -66,11 +63,9 @@ open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerD
     // This function should only be called from the main thread
     public func unitPreferencesDidChange(to unit: HKUnit?) {
         if let unit = unit {
-            print(unit)
             self.charts.setGlucoseUnit(unit)
             self.glucoseUnitDidChange()
         }
-        print("[reloadData] chart did update due to glucose unit change")
         self.reloadData()
     }
 
@@ -89,14 +84,12 @@ open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerD
 
     open var active: Bool = true {
         didSet {
-            log.debug("[reloadData] for app change to active: %d, applicationState: %d", active)
             reloadData()
         }
     }
 
     public var visible = false {
         didSet {
-            log.debug("[reloadData] for view change to visible: %d", visible)
             reloadData()
         }
     }
