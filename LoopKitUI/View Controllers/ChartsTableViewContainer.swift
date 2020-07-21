@@ -65,15 +65,13 @@ open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerD
     // MARK: - State
     // This function should only be called from the main thread
     public func unitPreferencesDidChange(to unit: HKUnit?) {
-        //DispatchQueue.main.async {
-            if let unit = unit {
-                print(unit)
-                self.charts.setGlucoseUnit(unit)
-                self.glucoseUnitDidChange()
-            }
-            print("[reloadData] chart did update due to glucose unit change")
-            self.reloadData()
-        //}
+        if let unit = unit {
+            print(unit)
+            self.charts.setGlucoseUnit(unit)
+            self.glucoseUnitDidChange()
+        }
+        print("[reloadData] chart did update due to glucose unit change")
+        self.reloadData()
     }
 
     open func glucoseUnitDidChange() {
