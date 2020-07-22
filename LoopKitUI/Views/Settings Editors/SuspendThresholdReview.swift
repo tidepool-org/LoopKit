@@ -1,6 +1,6 @@
 //
 //  SuspendThresholdReview.swift
-//  TidepoolServiceKitUI
+//  LoopKitUI
 //
 //  Created by Anna Quinlan on 7/3/20.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
