@@ -37,9 +37,9 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
             if viewModel.prescription != nil {
                 prescriptionSection
             }
+            suspendThresholdSection
             correctionRangeSection
             temporaryCorrectionRangesSection
-            suspendThresholdSection
             basalRatesSection
             deliveryLimitsSection
             insulinModelSection
@@ -125,6 +125,7 @@ extension TherapySettingsView {
     
     private var prescriptionSection: some View {
         SectionWithEdit(isEditing: .constant(false),
+                        addExtraSpaceAboveSection: true,
                         title: LocalizedString("Prescription", comment: "title for prescription section"),
                         descriptiveText: prescriptionDescriptiveText,
                         destination: EmptyView(), content: { EmptyView() })
@@ -168,7 +169,7 @@ extension TherapySettingsView {
     }
     
     private var suspendThresholdSection: some View {
-        section(for: .suspendThreshold) {
+        section(for: .suspendThreshold, addExtraSpaceAboveSection: viewModel.prescription == nil) {
             if self.glucoseUnit != nil {
                 HStack {
                     Spacer()
@@ -336,8 +337,10 @@ extension TherapySettingsView {
     }
 
     private func section<Content>(for therapySetting: TherapySetting,
+                                  addExtraSpaceAboveSection: Bool = false,
                                   @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
         SectionWithEdit(isEditing: $isEditing,
+                        addExtraSpaceAboveSection: addExtraSpaceAboveSection,
                         title: therapySetting.title,
                         descriptiveText: therapySetting.descriptiveText,
                         destination: self.screen(for: therapySetting),
@@ -405,13 +408,14 @@ struct CorrectionRangeOverridesRangeItem: View {
 // it just optionally provides a link to go to an editor screen.
 struct SectionWithEdit<Content, NavigationDestination>: View where Content: View, NavigationDestination: View  {
     @Binding var isEditing: Bool
+    let addExtraSpaceAboveSection: Bool
     let title: String
     let descriptiveText: String
     let destination: NavigationDestination
     let content: () -> Content
     
     @ViewBuilder public var body: some View {
-        Section {
+        Section(header: header) {
             VStack(alignment: .leading) {
                 Spacer()
                 Text(title)
@@ -425,6 +429,10 @@ struct SectionWithEdit<Content, NavigationDestination>: View where Content: View
                 navigationButton
             }
         }
+    }
+    
+    private var header: some View {
+        addExtraSpaceAboveSection ? AnyView(Spacer()) : AnyView(EmptyView())
     }
     
     private var navigationButton: some View {
