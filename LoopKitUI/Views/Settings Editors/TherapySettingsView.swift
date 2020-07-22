@@ -132,7 +132,7 @@ extension TherapySettingsView {
     }
     
     private var prescriptionDescriptiveText: String {
-        String(format: LocalizedString("Submitted by %1@, %2@", comment: "Format for prescription descriptive text (1: providerName, 2: datePrescribed)"),
+        String(format: LocalizedString("Submitted by %1$@, %2$@", comment: "Format for prescription descriptive text (1: providerName, 2: datePrescribed)"),
                viewModel.prescription!.providerName,
                DateFormatter.localizedString(from: viewModel.prescription!.datePrescribed, dateStyle: .short, timeStyle: .none))
     }
