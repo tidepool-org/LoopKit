@@ -15,24 +15,23 @@ public struct DeliveryLimitsReviewView: View {
     @ObservedObject var viewModel: TherapySettingsViewModel
     let mode: PresentationMode
     
-    public init(mode: PresentationMode = .acceptanceFlow, viewModel: TherapySettingsViewModel){
+    public init(mode: PresentationMode = .acceptanceFlow, viewModel: TherapySettingsViewModel) {
+        precondition(viewModel.pumpSupportedIncrements != nil)
         self.viewModel = viewModel
         self.mode = mode
     }
     
     @ViewBuilder public var body: some View {
-        if viewModel.pumpSupportedIncrements != nil {
-            DeliveryLimitsEditor(
-                value: DeliveryLimits(maximumBasalRate: maxBasal, maximumBolus: maxBolus),
-                supportedBasalRates: viewModel.pumpSupportedIncrements!.basalRates,
-                scheduledBasalRange: viewModel.therapySettings.basalRateSchedule?.valueRange(),
-                supportedBolusVolumes: viewModel.pumpSupportedIncrements!.bolusVolumes,
-                onSave: { limits in
-                    self.viewModel.saveDeliveryLimits(limits: limits)
-                },
-                mode: mode
-            )
-        }
+        DeliveryLimitsEditor(
+            value: DeliveryLimits(maximumBasalRate: maxBasal, maximumBolus: maxBolus),
+            supportedBasalRates: viewModel.pumpSupportedIncrements!.basalRates,
+            scheduledBasalRange: viewModel.therapySettings.basalRateSchedule?.valueRange(),
+            supportedBolusVolumes: viewModel.pumpSupportedIncrements!.bolusVolumes,
+            onSave: { limits in
+                self.viewModel.saveDeliveryLimits(limits: limits)
+        },
+            mode: mode
+        )
     }
 
     private var maxBasal: HKQuantity {
