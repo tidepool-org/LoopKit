@@ -10,11 +10,9 @@ import Foundation
 import HealthKit
 import LoopKit
 import SwiftCharts
-import os.log
 
 
 open class ChartsManager {
-    private let log = OSLog(category: "ChartsManager")
 
     private lazy var timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -67,7 +65,6 @@ open class ChartsManager {
     public var traitCollection: UITraitCollection
 
     public func didReceiveMemoryWarning() {
-        log.info("Purging chart data in response to memory warning")
 
         for chart in charts {
             chart.didReceiveMemoryWarning()
@@ -82,7 +79,6 @@ open class ChartsManager {
     public var startDate = Date() {
         didSet {
             if startDate != oldValue {
-                log.debug("New chart start date: %@", String(describing: startDate))
                 xAxisValues = nil
 
                 // Set a new minimum end date
@@ -95,7 +91,6 @@ open class ChartsManager {
     private var endDate = Date() {
         didSet {
             if endDate != oldValue {
-                log.debug("New chart end date: %@", String(describing: endDate))
                 xAxisValues = nil
             }
         }
@@ -104,10 +99,6 @@ open class ChartsManager {
     /// The latest allowed date on the X-axis
     public var maxEndDate = Date.distantFuture {
         didSet {
-            if maxEndDate != oldValue {
-                log.debug("New chart max end date: %@", String(describing: maxEndDate))
-            }
-
             endDate = min(endDate, maxEndDate)
         }
     }

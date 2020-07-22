@@ -718,7 +718,6 @@
 		E9077D2724ACD59F0066A88D /* InformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2624ACD59F0066A88D /* InformationView.swift */; };
 		E9077D2A24ACDE2C0066A88D /* CorrectionRangeInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9077D2924ACDE2C0066A88D /* CorrectionRangeInformationView.swift */; };
 		E9086B2924B39EDC0062F5C8 /* ChartsTableViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2824B39EDC0062F5C8 /* ChartsTableViewContainer.swift */; };
-		E9086B2B24B39F6C0062F5C8 /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2A24B39F6C0062F5C8 /* OSLog.swift */; };
 		E9086B2D24B3A4AC0062F5C8 /* ChartsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2C24B3A4AC0062F5C8 /* ChartsManager.swift */; };
 		E9086B2F24B3A5080062F5C8 /* ChartColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */; };
 		E9086B3124B3A7270062F5C8 /* ChartTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9086B3024B3A7270062F5C8 /* ChartTableViewCell.swift */; };
@@ -1504,7 +1503,6 @@
 		E9077D2624ACD59F0066A88D /* InformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationView.swift; sourceTree = "<group>"; };
 		E9077D2924ACDE2C0066A88D /* CorrectionRangeInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeInformationView.swift; sourceTree = "<group>"; };
 		E9086B2824B39EDC0062F5C8 /* ChartsTableViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsTableViewContainer.swift; sourceTree = "<group>"; };
-		E9086B2A24B39F6C0062F5C8 /* OSLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLog.swift; sourceTree = "<group>"; };
 		E9086B2C24B3A4AC0062F5C8 /* ChartsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsManager.swift; sourceTree = "<group>"; };
 		E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartColorPalette.swift; sourceTree = "<group>"; };
 		E9086B3024B3A7270062F5C8 /* ChartTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartTableViewCell.swift; sourceTree = "<group>"; };
@@ -2444,7 +2442,6 @@
 				B42C950824A3BCC200857C73 /* GlucoseValueType+Color.swift */,
 				C1E4B309242E99A800E70CCB /* Image.swift */,
 				E916F56A24AD346D00BE3547 /* UIColor+LoopKit.swift */,
-				E9086B2A24B39F6C0062F5C8 /* OSLog.swift */,
 				E9086B4924B540B70062F5C8 /* DateFormatter.swift */,
 				E96175AD24B7BE38008E5080 /* Dictionary.swift */,
 				89186C0624BF7FC70003D0F3 /* Guardrail+UI.swift */,
@@ -3115,7 +3112,6 @@
 				E9077D2A24ACDE2C0066A88D /* CorrectionRangeInformationView.swift in Sources */,
 				E9C00EE224C5F91500628F35 /* InsulinModelChartView.swift in Sources */,
 				E9C00EE424C5FA1400628F35 /* InsulinModelChart.swift in Sources */,
-				E9086B2B24B39F6C0062F5C8 /* OSLog.swift in Sources */,
 				B4A2AAB3240832350066563F /* MultipleSelectionList.swift in Sources */,
 				B46B62AB23FF0822001E69BA /* LabeledValueView.swift in Sources */,
 				43FB60E720DCBC55002B996B /* RadioSelectionTableViewController.swift in Sources */,
