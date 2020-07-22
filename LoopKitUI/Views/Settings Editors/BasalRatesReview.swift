@@ -16,25 +16,22 @@ public struct BasalRatesReview: View {
     
     public init(mode: PresentationMode = .acceptanceFlow, viewModel: TherapySettingsViewModel) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
+        precondition(viewModel.pumpSupportedIncrements != nil)
         self.viewModel = viewModel
         self.mode = mode
     }
     
     @ViewBuilder public var body: some View {
-        if viewModel.pumpSupportedIncrements != nil {
-            BasalRateScheduleEditor(
-                schedule: viewModel.therapySettings.basalRateSchedule,
-                supportedBasalRates: viewModel.pumpSupportedIncrements!.basalRates ,
-                maximumBasalRate: viewModel.therapySettings.maximumBasalRatePerHour,
-                maximumScheduleEntryCount: viewModel.pumpSupportedIncrements!.maximumBasalScheduleEntryCount,
-                syncSchedule: viewModel.pumpSyncSchedule,
-                onSave: { newRates in
-                    self.viewModel.saveBasalRates(basalRates: newRates)
-                },
-                mode: mode
-            )
-        } else {
-            Text("No Pump")
-        }
+        return BasalRateScheduleEditor(
+            schedule: viewModel.therapySettings.basalRateSchedule,
+            supportedBasalRates: viewModel.pumpSupportedIncrements!.basalRates ,
+            maximumBasalRate: viewModel.therapySettings.maximumBasalRatePerHour,
+            maximumScheduleEntryCount: viewModel.pumpSupportedIncrements!.maximumBasalScheduleEntryCount,
+            syncSchedule: viewModel.pumpSyncSchedule,
+            onSave: { newRates in
+                self.viewModel.saveBasalRates(basalRates: newRates)
+        },
+            mode: mode
+        )
     }
 }

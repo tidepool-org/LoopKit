@@ -81,8 +81,16 @@ public struct DeliveryLimitsEditor: View {
         guard value.maximumBasalRate != nil, value.maximumBolus != nil else {
             return .disabled
         }
+        
+        if mode == .acceptanceFlow {
+            return .enabled
+        }
 
+<<<<<<< HEAD
         return value == initialValue && mode != .acceptanceFlow ? .disabled : .enabled
+=======
+        return value == initialValue ? .disabled : .enabled
+>>>>>>> dev
     }
 
     var maximumBasalRateGuardrail: Guardrail<HKQuantity> {
