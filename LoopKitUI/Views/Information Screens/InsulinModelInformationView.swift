@@ -12,8 +12,7 @@ public struct InsulinModelInformationView: View {
     var exitPage: (() -> Void)
     var mode: PresentationMode
     
-    public init(exitPage: @escaping (() -> Void),
-                mode: PresentationMode = .flow) {
+    public init(exitPage: @escaping (() -> Void), mode: PresentationMode = .acceptanceFlow) {
         self.exitPage = exitPage
         self.mode = mode
     }
