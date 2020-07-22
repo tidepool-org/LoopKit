@@ -86,11 +86,7 @@ public struct DeliveryLimitsEditor: View {
             return .enabled
         }
 
-<<<<<<< HEAD
         return value == initialValue && mode != .acceptanceFlow ? .disabled : .enabled
-=======
-        return value == initialValue ? .disabled : .enabled
->>>>>>> dev
     }
 
     var maximumBasalRateGuardrail: Guardrail<HKQuantity> {

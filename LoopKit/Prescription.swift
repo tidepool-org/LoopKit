@@ -7,6 +7,8 @@
 //
 
 public protocol Prescription {
-    var datePrescribed: Date { get } // Date prescription was prescribed
-    var providerName: String { get } // Name of clinician prescribing
+    /// Date prescription was prescribed
+    var datePrescribed: Date { get }
+    /// Name of clinician prescribing
+    var providerName: String { get }
 }

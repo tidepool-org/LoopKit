@@ -90,10 +90,7 @@ public struct BasalRateScheduleEditor: View {
         switch mode {
         case .settings, .legacySettings:
             return .asynchronous { quantitySchedule, completion in
-<<<<<<< HEAD
-=======
                 precondition(self.syncSchedule != nil)
->>>>>>> dev
                 self.syncSchedule?(quantitySchedule.items) { result in
                     switch result {
                     case .success(let syncedSchedule):
