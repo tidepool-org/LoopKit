@@ -81,6 +81,10 @@ public struct DeliveryLimitsEditor: View {
         guard value.maximumBasalRate != nil, value.maximumBolus != nil else {
             return .disabled
         }
+        
+        if mode == .acceptanceFlow {
+            return .enabled
+        }
 
         return value == initialValue ? .disabled : .enabled
     }
