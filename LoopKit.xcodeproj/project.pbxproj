@@ -24,10 +24,10 @@
 		1D4990E624A17564005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
 		1D4990E724A17898005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
 		1D640FF724525228008F9755 /* sub.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1D640FF524524284008F9755 /* sub.caf */; };
-		1D66303924C6563000F2EF6E /* CorrectionRangeReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D66303824C6562F00F2EF6E /* CorrectionRangeReviewView.swift */; };
+		1D66303924C6563000F2EF6E /* CorrectionRangeReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D66303824C6562F00F2EF6E /* CorrectionRangeReview.swift */; };
 		1D66303B24C65E7C00F2EF6E /* CorrectionRangeOverrideReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D66303A24C65E7B00F2EF6E /* CorrectionRangeOverrideReview.swift */; };
 		1D66303D24C661FD00F2EF6E /* SuspendThresholdReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D66303C24C661FC00F2EF6E /* SuspendThresholdReview.swift */; };
-		1D66304024C662ED00F2EF6E /* DeliveryLimitsReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D66303E24C662ED00F2EF6E /* DeliveryLimitsReviewView.swift */; };
+		1D66304024C662ED00F2EF6E /* DeliveryLimitsReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D66303E24C662ED00F2EF6E /* DeliveryLimitsReview.swift */; };
 		1D66304124C662ED00F2EF6E /* BasalRatesReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D66303F24C662ED00F2EF6E /* BasalRatesReview.swift */; };
 		1D6EAB9124C12C090081249D /* PumpSupportedIncrements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6EAB9024C12C090081249D /* PumpSupportedIncrements.swift */; };
 		1D841AAD24577EE10069DBFF /* AlertSoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D841AAC24577EE10069DBFF /* AlertSoundPlayer.swift */; };
@@ -870,10 +870,10 @@
 		1D25C22D246A2A1A00E87FA0 /* critical.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = critical.caf; sourceTree = "<group>"; };
 		1D4990E524A17564005CC357 /* HKQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKQuery.swift; sourceTree = "<group>"; };
 		1D640FF524524284008F9755 /* sub.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sub.caf; sourceTree = "<group>"; };
-		1D66303824C6562F00F2EF6E /* CorrectionRangeReviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorrectionRangeReviewView.swift; sourceTree = "<group>"; };
+		1D66303824C6562F00F2EF6E /* CorrectionRangeReview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorrectionRangeReview.swift; sourceTree = "<group>"; };
 		1D66303A24C65E7B00F2EF6E /* CorrectionRangeOverrideReview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverrideReview.swift; sourceTree = "<group>"; };
 		1D66303C24C661FC00F2EF6E /* SuspendThresholdReview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuspendThresholdReview.swift; sourceTree = "<group>"; };
-		1D66303E24C662ED00F2EF6E /* DeliveryLimitsReviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsReviewView.swift; sourceTree = "<group>"; };
+		1D66303E24C662ED00F2EF6E /* DeliveryLimitsReview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsReview.swift; sourceTree = "<group>"; };
 		1D66303F24C662ED00F2EF6E /* BasalRatesReview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasalRatesReview.swift; sourceTree = "<group>"; };
 		1D6EAB9024C12C090081249D /* PumpSupportedIncrements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PumpSupportedIncrements.swift; sourceTree = "<group>"; };
 		1D841AAC24577EE10069DBFF /* AlertSoundPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertSoundPlayer.swift; sourceTree = "<group>"; };
@@ -2486,10 +2486,10 @@
 				E916F56824AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift */,
 				1D1FCE2224BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift */,
 				1DC64C7B24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift */,
-				1D66303824C6562F00F2EF6E /* CorrectionRangeReviewView.swift */,
+				1D66303824C6562F00F2EF6E /* CorrectionRangeReview.swift */,
 				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
 				E949E38A24B35DA400024DA0 /* DeliveryLimitsEditor.swift */,
-				1D66303E24C662ED00F2EF6E /* DeliveryLimitsReviewView.swift */,
+				1D66303E24C662ED00F2EF6E /* DeliveryLimitsReview.swift */,
 				1D1FCE2C24BEA669000300A8 /* Guardrail+Settings.swift */,
 				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
 				1D6EAB9024C12C090081249D /* PumpSupportedIncrements.swift */,
@@ -3087,7 +3087,7 @@
 				43F5035A21059AF7009FA89A /* AuthenticationTableViewCell.swift in Sources */,
 				E916F56924AD32F000BE3547 /* CorrectionRangeOverridesEditor.swift in Sources */,
 				43BA7163201E490D0058961E /* InsulinDeliveryTableViewController.swift in Sources */,
-				1D66304024C662ED00F2EF6E /* DeliveryLimitsReviewView.swift in Sources */,
+				1D66304024C662ED00F2EF6E /* DeliveryLimitsReview.swift in Sources */,
 				C1E4B30A242E99A800E70CCB /* Image.swift in Sources */,
 				43BA718A201EE8CF0058961E /* NSTimeInterval.swift in Sources */,
 				B4A2AAB1240830A30066563F /* LabeledTextField.swift in Sources */,
@@ -3168,7 +3168,7 @@
 				43BA7188201EE85B0058961E /* HKUnit.swift in Sources */,
 				B4F3D24F24AF59B50095CE44 /* DeviceLifecycleProgressState+Color.swift in Sources */,
 				89F6E30D2449713600CB9E15 /* CardStack.swift in Sources */,
-				1D66303924C6563000F2EF6E /* CorrectionRangeReviewView.swift in Sources */,
+				1D66303924C6563000F2EF6E /* CorrectionRangeReview.swift in Sources */,
 				89BE75C324649C4C00B145D9 /* RoundedCorners.swift in Sources */,
 				C1E4B306242E98E900E70CCB /* ProgressIndicatorView.swift in Sources */,
 				4369F092208B0DFF000E3E45 /* DateAndDurationTableViewCell.swift in Sources */,

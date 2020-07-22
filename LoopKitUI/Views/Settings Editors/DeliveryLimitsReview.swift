@@ -1,5 +1,5 @@
 //
-//  DeliveryLimitsReviewView.swift
+//  DeliveryLimitsReview.swift
 //  LoopKitUI
 //
 //  Created by Anna Quinlan on 7/6/20.
@@ -11,7 +11,7 @@ import LoopKit
 import HealthKit
 
 
-public struct DeliveryLimitsReviewView: View {
+public struct DeliveryLimitsReview: View {
     @ObservedObject var viewModel: TherapySettingsViewModel
     let mode: PresentationMode
     

@@ -1,5 +1,5 @@
 //
-//  CorrectionRangeReviewView.swift
+//  CorrectionRangeReview.swift
 //  LoopKitUI
 //
 //  Created by Anna Quinlan on 6/29/20.
@@ -9,7 +9,7 @@ import SwiftUI
 import LoopKit
 
 
-public struct CorrectionRangeReviewView: View {
+public struct CorrectionRangeReview: View {
     @ObservedObject var viewModel: TherapySettingsViewModel
     
     private let mode: PresentationMode
