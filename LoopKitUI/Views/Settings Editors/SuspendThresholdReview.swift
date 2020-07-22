@@ -17,7 +17,7 @@ public struct SuspendThresholdReview: View {
         return viewModel.therapySettings.glucoseUnit!
     }
     
-    public init(mode: PresentationMode = .flow, viewModel: TherapySettingsViewModel) {
+    public init(mode: PresentationMode = .acceptanceFlow, viewModel: TherapySettingsViewModel) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         self.viewModel = viewModel
         self.mode = mode
