@@ -11,6 +11,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = E9D95F8E24C8A0590079F47D /* Build configuration list for PBXAggregateTarget "Cartfile" */;
 			buildPhases = (
+				E9D95F9E24C8D6E70079F47D /* Homebrew + Carthage Setup */,
 				E9D95F8F24C8A0ED0079F47D /* Carthage Bootstrap */,
 			);
 			dependencies = (
@@ -3147,6 +3148,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Scripts/copy-frameworks.sh\"\n";
+		};
+		E9D95F9E24C8D6E70079F47D /* Homebrew + Carthage Setup */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Homebrew + Carthage Setup";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if ! [ -x \"$(command -v brew)\" ]; then\n    # Install Homebrew\n    ruby -e \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\"\nfi\n\nif brew ls carthage > /dev/null; then\n    brew upgrade carthage || echo \"Continuing…\"\nelse\n    brew install carthage\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
