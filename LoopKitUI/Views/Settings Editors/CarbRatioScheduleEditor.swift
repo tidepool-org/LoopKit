@@ -63,7 +63,7 @@ public struct CarbRatioScheduleEditor: View {
                 self.save(DailyQuantitySchedule(unit: .storedCarbRatioScheduleUnit, dailyItems: $0.items)!)
             },
             mode: mode,
-            settingType: TherapySetting.carbRatio
+            settingType: .carbRatio
         )
     }
 

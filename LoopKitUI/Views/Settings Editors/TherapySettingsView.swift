@@ -436,16 +436,23 @@ private extension TherapySettingsView {
         case .deliveryLimits:
             return AnyView(DeliveryLimitsReviewView(mode: mode, viewModel: viewModel))
         case .insulinModel:
+            // TODO insulin model
             break
         case .carbRatio:
             return AnyView(CarbRatioScheduleEditor(
                 schedule: viewModel.therapySettings.carbRatioSchedule,
                 mode: mode,
-                onSave: {
-                    self.viewModel.saveCarbRatioSchedule(carbRatioSchedule: $0)
-                }
+                onSave: { self.viewModel.saveCarbRatioSchedule(carbRatioSchedule: $0) }
             ))
         case .insulinSensitivity:
+            if self.viewModel.therapySettings.glucoseUnit != nil {
+                return AnyView(InsulinSensitivityScheduleEditor(
+                    schedule: self.viewModel.therapySettings.insulinSensitivitySchedule,
+                    mode: mode,
+                    glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
+                    onSave: { self.viewModel.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0) }
+                ))
+            }
             break
         case .none:
             break
