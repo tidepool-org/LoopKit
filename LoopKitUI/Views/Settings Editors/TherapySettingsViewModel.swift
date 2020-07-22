@@ -9,15 +9,6 @@
 import LoopKit
 import HealthKit
 
-public struct FakePrescription: Prescription {
-    public let datePrescribed: Date
-    public let providerName: String
-    public init(datePrescribed: Date, providerName: String) {
-        self.datePrescribed = datePrescribed
-        self.providerName = providerName
-    }
-}
-
 public class TherapySettingsViewModel: ObservableObject {
     public typealias SaveCompletion = (TherapySetting, TherapySettings) -> Void
     
@@ -36,7 +27,7 @@ public class TherapySettingsViewModel: ObservableObject {
                 pumpSupportedIncrements: PumpSupportedIncrements? = nil,
                 pumpSyncSchedule: PumpManager.SyncSchedule? = nil,
                 includeSupportSection: Bool = true,
-                prescription: Prescription? = FakePrescription(datePrescribed: Date(), providerName: "Dr. Sally Seastar"),
+                prescription: Prescription? = nil,
                 didSave: SaveCompletion? = nil) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
