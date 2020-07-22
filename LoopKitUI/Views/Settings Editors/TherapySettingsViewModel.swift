@@ -67,4 +67,9 @@ public class TherapySettingsViewModel: ObservableObject {
         therapySettings.maximumBolus = limits.maximumBolus?.doubleValue(for: .internationalUnit())
         didSave?(TherapySetting.deliveryLimits, therapySettings)
     }
+    
+    public func saveCarbRatioSchedule(carbRatioSchedule: CarbRatioSchedule) {
+        therapySettings.carbRatioSchedule = carbRatioSchedule
+        didSave?(TherapySetting.carbRatio, therapySettings)
+    }
 }

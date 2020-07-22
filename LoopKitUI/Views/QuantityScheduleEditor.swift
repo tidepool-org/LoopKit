@@ -36,7 +36,6 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     var buttonText: Text
     var settingType: TherapySetting
     
-    @Environment(\.dismiss) var dismiss
     @State private var userDidTap: Bool = false
 
     var body: some View {
@@ -200,7 +199,9 @@ extension QuantityScheduleEditor {
         scheduleItemLimit: Int = 48,
         confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
-        onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void
+        onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void,
+        mode: PresentationMode = .legacySettings,
+        settingType: TherapySetting = .none
     ) {
         let selectableValues = guardrail.allValues(stridingBy: selectableValueStride, unit: unit)
         self.init(
@@ -215,7 +216,9 @@ extension QuantityScheduleEditor {
             scheduleItemLimit: scheduleItemLimit,
             confirmationAlertContent: confirmationAlertContent,
             guardrailWarning: guardrailWarning,
-            onSave: .synchronous(save)
+            onSave: .synchronous(save),
+            mode: mode,
+            settingType: settingType
         )
     }
 }

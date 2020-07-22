@@ -250,7 +250,9 @@ public struct DeliveryLimitsEditor: View {
 
     private func saveAndDismiss() {
         save(value)
-        dismiss()
+        if mode == .legacySettings {
+            dismiss()
+        }
     }
 }
 

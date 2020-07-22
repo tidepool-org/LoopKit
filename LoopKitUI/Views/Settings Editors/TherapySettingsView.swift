@@ -438,7 +438,13 @@ private extension TherapySettingsView {
         case .insulinModel:
             break
         case .carbRatio:
-            break
+            return AnyView(CarbRatioScheduleEditor(
+                schedule: viewModel.therapySettings.carbRatioSchedule,
+                mode: mode,
+                onSave: {
+                    self.viewModel.saveCarbRatioSchedule(carbRatioSchedule: $0)
+                }
+            ))
         case .insulinSensitivity:
             break
         case .none:
