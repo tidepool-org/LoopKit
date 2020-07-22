@@ -82,7 +82,7 @@ public struct DeliveryLimitsEditor: View {
             return .disabled
         }
 
-        return value == initialValue || mode != .acceptanceFlow ? .disabled : .enabled
+        return value == initialValue ? .disabled : .enabled
     }
 
     var maximumBasalRateGuardrail: Guardrail<HKQuantity> {
@@ -200,7 +200,11 @@ public struct DeliveryLimitsEditor: View {
     }
     
     private var buttonText: Text {
-        return self.initialValue == self.value ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
+        if self.initialValue != self.value || mode == .legacySettings || mode == .settings {
+            return Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
+        } else {
+            return Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting"))
+        }
     }
 
     private var guardrailWarningIfNecessary: some View {

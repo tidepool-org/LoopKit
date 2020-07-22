@@ -30,7 +30,6 @@ public struct BasalRatesReview: View {
                 syncSchedule: viewModel.pumpSyncSchedule,
                 onSave: { newRates in
                     self.viewModel.saveBasalRates(basalRates: newRates)
-                    self.viewModel.didFinishEditing?()
                 },
                 mode: mode
             )

@@ -36,7 +36,6 @@ public struct CorrectionRangeOverrideReview: View {
             minValue: viewModel.therapySettings.suspendThreshold?.quantity,
             onSave: { overrides in
                 self.viewModel.saveCorrectionRangeOverrides(overrides: overrides, unit: self.unit)
-                self.viewModel.didFinishEditing?()
             },
             sensitivityOverridesEnabled: false,
             mode: mode

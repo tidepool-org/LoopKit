@@ -11,19 +11,9 @@ import HealthKit
 import LoopKit
 import SwiftUI
 
-typealias HKQuantityGuardrail = Guardrail<HKQuantity>
-
-public protocol TherapySettingsViewDelegate: class {
-    func gotoEdit(therapySetting: TherapySetting)
-    func save()
-    func cancel()
-}
-
 public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     @Environment(\.dismiss) var dismiss
-    
-    weak var delegate: TherapySettingsViewDelegate?
-    
+        
     @ObservedObject var viewModel: TherapySettingsViewModel
     
     @State var isEditing: Bool = false
@@ -37,7 +27,6 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     
     public var body: some View {
         switch mode {
-        // TODO: Different versions for onboarding vs. in settings
         case .acceptanceFlow, .settings: return AnyView(content)
         case .legacySettings: return AnyView(navigationContent)
         }
@@ -94,7 +83,6 @@ extension TherapySettingsView {
     private var cancelButton: some View {
         return Button( action: {
             // TODO: confirm
-            self.delegate?.cancel()
             self.viewModel.reset()
             self.isEditing.toggle()
         })
@@ -122,7 +110,6 @@ extension TherapySettingsView {
     private var doneButton: some View {
         return Button( action: {
             // TODO: confirm
-            self.delegate?.save()
             self.isEditing.toggle()
         }) {
             Text(LocalizedString("Done", comment: "Done button text"))
@@ -135,8 +122,8 @@ extension TherapySettingsView {
     
     private var correctionRangeSection: some View {
         section(for: .glucoseTargetRange) {
-            if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
-                ForEach(self.therapySettings.glucoseTargetRangeSchedule!.items, id: \.self) { value in
+            if self.glucoseUnit != nil && self.viewModel.therapySettings.glucoseTargetRangeSchedule != nil {
+                ForEach(self.viewModel.therapySettings.glucoseTargetRangeSchedule!.items, id: \.self) { value in
                     ScheduleRangeItem(time: value.startTime,
                                       range: value.value,
                                       unit: self.glucoseUnit!,
@@ -150,14 +137,14 @@ extension TherapySettingsView {
     
     private var temporaryCorrectionRangesSection: some View {
         section(for: .correctionRangeOverrides) {
-            if self.glucoseUnit != nil && self.therapySettings.glucoseTargetRangeSchedule != nil {
+            if self.glucoseUnit != nil && self.viewModel.therapySettings.glucoseTargetRangeSchedule != nil {
                 ForEach(CorrectionRangeOverrides.Preset.allCases, id: \.self) { preset in
                     CorrectionRangeOverridesRangeItem(
-                        preMealTargetRange: self.therapySettings.preMealTargetRange,
-                        workoutTargetRange: self.therapySettings.workoutTargetRange,
+                        preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange,
+                        workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange,
                         unit: self.glucoseUnit!,
                         preset: preset,
-                        correctionRangeScheduleRange: self.therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
+                        correctionRangeScheduleRange: self.viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
                     )
                 }
             }
@@ -170,7 +157,7 @@ extension TherapySettingsView {
                 HStack {
                     Spacer()
                     GuardrailConstrainedQuantityView(
-                        value: self.therapySettings.suspendThreshold?.quantity,
+                        value: self.viewModel.therapySettings.suspendThreshold?.quantity,
                         unit: self.glucoseUnit!,
                         guardrail: .suspendThreshold,
                         isEditing: false,
@@ -184,8 +171,8 @@ extension TherapySettingsView {
     
     private var basalRatesSection: some View {
         section(for: .basalRate) {
-            if self.therapySettings.basalRateSchedule != nil && self.viewModel.pumpSupportedIncrements != nil {
-                ForEach(self.therapySettings.basalRateSchedule!.items, id: \.self) { value in
+            if self.viewModel.therapySettings.basalRateSchedule != nil && self.viewModel.pumpSupportedIncrements != nil {
+                ForEach(self.viewModel.therapySettings.basalRateSchedule!.items, id: \.self) { value in
                     ScheduleValueItem(time: value.startTime,
                                       value: value.value,
                                       unit: .internationalUnitsPerHour,
@@ -208,9 +195,9 @@ extension TherapySettingsView {
             Spacer()
             if self.viewModel.pumpSupportedIncrements != nil {
                 GuardrailConstrainedQuantityView(
-                    value: self.therapySettings.maximumBasalRatePerHour.map { HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0) },
+                    value: self.viewModel.therapySettings.maximumBasalRatePerHour.map { HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0) },
                     unit: .internationalUnitsPerHour,
-                    guardrail: Guardrail.maximumBasalRate(supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates, scheduledBasalRange: self.therapySettings.basalRateSchedule?.valueRange()),
+                    guardrail: Guardrail.maximumBasalRate(supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates, scheduledBasalRange: self.viewModel.therapySettings.basalRateSchedule?.valueRange()),
                     isEditing: false,
                     // Workaround for strange animation behavior on appearance
                     forceDisableAnimations: true
@@ -225,7 +212,7 @@ extension TherapySettingsView {
             Spacer()
             if self.viewModel.pumpSupportedIncrements != nil {
                 GuardrailConstrainedQuantityView(
-                    value: self.therapySettings.maximumBolus.map { HKQuantity(unit: .internationalUnit(), doubleValue: $0) },
+                    value: self.viewModel.therapySettings.maximumBolus.map { HKQuantity(unit: .internationalUnit(), doubleValue: $0) },
                     unit: .internationalUnit(),
                     guardrail: Guardrail.maximumBolus(supportedBolusVolumes: self.viewModel.pumpSupportedIncrements!.bolusVolumes),
                     isEditing: false,
@@ -270,7 +257,7 @@ extension TherapySettingsView {
             description: Text(WalshInsulinModel.subtitle),
             isSelected: self.isWalshModelSelected,
             isEnabled: false,
-            duration: .constant(self.therapySettings.insulinModel?.actionDuration ?? 0),
+            duration: .constant(self.viewModel.therapySettings.insulinModel?.actionDuration ?? 0),
             validDurationRange: InsulinModelSettings.validWalshModelDurationRange
         )
             .padding(.vertical, 4)
@@ -279,8 +266,8 @@ extension TherapySettingsView {
 
     private var carbRatioSection: some View {
         section(for: .carbRatio) {
-            if self.therapySettings.carbRatioSchedule != nil {
-                ForEach(self.therapySettings.carbRatioSchedule!.items, id: \.self) { value in
+            if self.viewModel.therapySettings.carbRatioSchedule != nil {
+                ForEach(self.viewModel.therapySettings.carbRatioSchedule!.items, id: \.self) { value in
                     ScheduleValueItem(time: value.startTime,
                                       value: value.value,
                                       unit: .gramsPerUnit,
@@ -292,8 +279,8 @@ extension TherapySettingsView {
     
     private var insulinSensitivitiesSection: some View {
         section(for: .insulinSensitivity) {
-            if self.therapySettings.insulinSensitivitySchedule != nil && self.sensitivityUnit != nil {
-                ForEach(self.therapySettings.insulinSensitivitySchedule!.items, id: \.self) { value in
+            if self.viewModel.therapySettings.insulinSensitivitySchedule != nil && self.sensitivityUnit != nil {
+                ForEach(self.viewModel.therapySettings.insulinSensitivitySchedule!.items, id: \.self) { value in
                     ScheduleValueItem(time: value.startTime,
                                       value: value.value,
                                       unit: self.sensitivityUnit!,
@@ -316,12 +303,8 @@ extension TherapySettingsView {
 // MARK: Utilities
 extension TherapySettingsView {
     
-    private var therapySettings: TherapySettings {
-        viewModel.therapySettings
-    }
-    
     private var glucoseUnit: HKUnit? {
-        therapySettings.glucoseTargetRangeSchedule?.unit
+        viewModel.therapySettings.glucoseTargetRangeSchedule?.unit
     }
     
     private var sensitivityUnit: HKUnit? {
@@ -329,11 +312,11 @@ extension TherapySettingsView {
     }
     
     private func isSelected(_ settings: InsulinModelSettings) -> Binding<Bool> {
-        return .constant(self.viewModel.therapySettings.insulinModel == StoredSettings.InsulinModel(settings))
+        return .constant(viewModel.therapySettings.insulinModel == StoredSettings.InsulinModel(settings))
     }
     
     private var isWalshModelSelected: Binding<Bool> {
-        return .constant(self.viewModel.therapySettings.insulinModel?.modelType == .some(.walsh))
+        return .constant(viewModel.therapySettings.insulinModel?.modelType == .some(.walsh))
     }
 
     private func section<Content>(for therapySetting: TherapySetting,
@@ -345,6 +328,8 @@ extension TherapySettingsView {
                         content: content)
     }
 }
+
+typealias HKQuantityGuardrail = Guardrail<HKQuantity>
 
 struct ScheduleRangeItem: View {
     let time: TimeInterval

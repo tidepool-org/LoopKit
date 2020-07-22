@@ -27,7 +27,6 @@ public struct CorrectionRangeReviewView: View {
             minValue: viewModel.therapySettings.suspendThreshold?.quantity,
             onSave: { newSchedule in
                 self.viewModel.saveCorrectionRange(range: newSchedule)
-                self.viewModel.didFinishEditing?()
             },
             mode: mode
         )

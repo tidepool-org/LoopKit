@@ -29,7 +29,6 @@ public struct DeliveryLimitsReviewView: View {
                 supportedBolusVolumes: viewModel.pumpSupportedIncrements!.bolusVolumes,
                 onSave: { limits in
                     self.viewModel.saveDeliveryLimits(limits: limits)
-                    self.viewModel.didFinishEditing?()
                 },
                 mode: mode
             )

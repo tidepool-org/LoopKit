@@ -35,7 +35,6 @@ public struct SuspendThresholdReview: View {
             ),
             onSave: { newValue in
                 self.viewModel.saveSuspendThreshold(value: GlucoseThreshold(unit: self.unit, value: newValue.doubleValue(for: self.unit)))
-                self.viewModel.didFinishEditing?()
             },
             mode: mode
         )
