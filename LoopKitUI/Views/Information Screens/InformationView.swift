@@ -8,10 +8,6 @@
 
 import SwiftUI
 
-public enum PresentationMode {
-    case acceptanceFlow, settings, legacySettings
-}
-
 struct InformationView<InformationalContent: View> : View {
     var informationalContent: InformationalContent
     var title: Text
