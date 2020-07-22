@@ -55,7 +55,7 @@ public struct CorrectionRangeOverridesEditor: View {
 
     public var body: some View {
         ConfigurationPage(
-            title: Text(TherapySetting.correctionRangeOverrides.title),
+            title: Text(TherapySetting.correctionRangeOverrides.smallTitle),
             actionButtonTitle: buttonText,
             actionButtonState: value != initialValue || mode == .flow ? .enabled : .disabled,
             cards: {
@@ -149,7 +149,7 @@ public struct CorrectionRangeOverridesEditor: View {
     private var instructionalContent: some View {
         HStack { // to align with guardrail warning, if present
             Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-            .foregroundColor(.accentColor)
+            .foregroundColor(.instructionalContent)
             .font(.subheadline)
             Spacer()
         }
