@@ -34,6 +34,9 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     
     private var content: some View {
         List {
+            if viewModel.prescription != nil {
+                prescriptionSection
+            }
             correctionRangeSection
             temporaryCorrectionRangesSection
             suspendThresholdSection
@@ -119,6 +122,19 @@ extension TherapySettingsView {
 
 // MARK: Sections
 extension TherapySettingsView {
+    
+    private var prescriptionSection: some View {
+        SectionWithEdit(isEditing: .constant(false),
+                        title: LocalizedString("Prescription", comment: "title for prescription section"),
+                        descriptiveText: prescriptionDescriptiveText,
+                        destination: EmptyView(), content: { EmptyView() })
+    }
+    
+    private var prescriptionDescriptiveText: String {
+        String(format: LocalizedString("Submitted by %@, %@", comment: "Format for prescription descriptive text (1: providerName, 2: datePrescribed)"),
+               viewModel.prescription!.providerName,
+               DateFormatter.localizedString(from: viewModel.prescription!.datePrescribed, dateStyle: .short, timeStyle: .none))
+    }
     
     private var correctionRangeSection: some View {
         section(for: .glucoseTargetRange) {
