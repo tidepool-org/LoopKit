@@ -759,6 +759,8 @@
 		E9C00EEC24C5FFE900628F35 /* ChartLineModel+LoopKitUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C00EEB24C5FFE900628F35 /* ChartLineModel+LoopKitUI.swift */; };
 		E9C00EEE24C6016600628F35 /* ChartSettings+LoopKitUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C00EED24C6016600628F35 /* ChartSettings+LoopKitUI.swift */; };
 		E9D95F6324C782BF0079F47D /* ExponentialInsulinModelPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */; };
+		E9D95F9524C8A63B0079F47D /* SwiftCharts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9D95F9424C8A63B0079F47D /* SwiftCharts.framework */; };
+		E9D95F9624C8A63B0079F47D /* SwiftCharts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E9D95F9424C8A63B0079F47D /* SwiftCharts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -860,6 +862,20 @@
 			remoteGlobalIDString = 43D8FDCA1C728FDF0073BE78;
 			remoteInfo = LoopKit;
 		};
+		E9D95F9024C8A4990079F47D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E9D95F8B24C8A0590079F47D;
+			remoteInfo = Cartfile;
+		};
+		E9D95F9224C8A4DB0079F47D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E9D95F8B24C8A0590079F47D;
+			remoteInfo = Cartfile;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -872,6 +888,7 @@
 				892A5D4A222F03CC008961AB /* LoopTestingKit.framework in Embed Frameworks */,
 				4301581A1C7ECB5E00B64B63 /* LoopKit.framework in Embed Frameworks */,
 				43BA715C201E484D0058961E /* LoopKitUI.framework in Embed Frameworks */,
+				E9D95F9624C8A63B0079F47D /* SwiftCharts.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1542,6 +1559,8 @@
 		E9C00EE324C5FA1400628F35 /* InsulinModelChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinModelChart.swift; sourceTree = "<group>"; };
 		E9C00EEB24C5FFE900628F35 /* ChartLineModel+LoopKitUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChartLineModel+LoopKitUI.swift"; sourceTree = "<group>"; };
 		E9C00EED24C6016600628F35 /* ChartSettings+LoopKitUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChartSettings+LoopKitUI.swift"; sourceTree = "<group>"; };
+		E9D95F9424C8A63B0079F47D /* SwiftCharts.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftCharts.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9D95F9724C8A7230079F47D /* SwiftCharts.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftCharts.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1557,6 +1576,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9D95F9524C8A63B0079F47D /* SwiftCharts.framework in Frameworks */,
 				892A5D49222F03CC008961AB /* LoopTestingKit.framework in Frameworks */,
 				4301582D1C7ECD7A00B64B63 /* HealthKit.framework in Frameworks */,
 				430158191C7ECB5E00B64B63 /* LoopKit.framework in Frameworks */,
@@ -1995,6 +2015,8 @@
 		43BA718D202020140058961E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E9D95F9724C8A7230079F47D /* SwiftCharts.framework */,
+				E9D95F9424C8A63B0079F47D /* SwiftCharts.framework */,
 				E9C00EDB24C201D700628F35 /* SwiftCharts.framework */,
 				A9E675F4227140DD00E25293 /* HealthKit.framework */,
 				4353D172203D3E7E007B4ECD /* CoreData.framework */,
@@ -2647,6 +2669,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E9D95F9324C8A4DB0079F47D /* PBXTargetDependency */,
 				4301581C1C7ECB5E00B64B63 /* PBXTargetDependency */,
 				43BA715A201E484D0058961E /* PBXTargetDependency */,
 				892A5D48222F03CB008961AB /* PBXTargetDependency */,
@@ -2670,6 +2693,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E9D95F9124C8A4990079F47D /* PBXTargetDependency */,
 				A9E6757F22713C5300E25293 /* PBXTargetDependency */,
 			);
 			name = LoopKitUI;
@@ -3820,6 +3844,16 @@
 			target = 43D8FDCA1C728FDF0073BE78 /* LoopKit */;
 			targetProxy = A9E6757E22713C5300E25293 /* PBXContainerItemProxy */;
 		};
+		E9D95F9124C8A4990079F47D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E9D95F8B24C8A0590079F47D /* Cartfile */;
+			targetProxy = E9D95F9024C8A4990079F47D /* PBXContainerItemProxy */;
+		};
+		E9D95F9324C8A4DB0079F47D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E9D95F8B24C8A0590079F47D /* Cartfile */;
+			targetProxy = E9D95F9224C8A4DB0079F47D /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -4250,11 +4284,11 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 75U4X84TEG;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 41;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -4275,11 +4309,11 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 75U4X84TEG;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 41;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -4440,10 +4474,10 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 75U4X84TEG;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 41;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -4464,10 +4498,10 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 75U4X84TEG;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 41;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
