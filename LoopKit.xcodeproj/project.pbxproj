@@ -760,6 +760,7 @@
 		E9C00EEE24C6016600628F35 /* ChartSettings+LoopKitUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C00EED24C6016600628F35 /* ChartSettings+LoopKitUI.swift */; };
 		E9D95F6324C782BF0079F47D /* ExponentialInsulinModelPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */; };
 		E9D95F9A24C8BA790079F47D /* SwiftCharts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9D95F9924C8BA790079F47D /* SwiftCharts.framework */; };
+		E9D95FA124C8DFDF0079F47D /* SwiftCharts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9D95F9924C8BA790079F47D /* SwiftCharts.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1573,6 +1574,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9D95FA124C8DFDF0079F47D /* SwiftCharts.framework in Frameworks */,
 				892A5D49222F03CC008961AB /* LoopTestingKit.framework in Frameworks */,
 				4301582D1C7ECD7A00B64B63 /* HealthKit.framework in Frameworks */,
 				430158191C7ECB5E00B64B63 /* LoopKit.framework in Frameworks */,
