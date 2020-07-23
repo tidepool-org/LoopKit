@@ -21,7 +21,7 @@ extension PresentationMode {
     var buttonText: String {
         switch self {
         case .acceptanceFlow:
-            return LocalizedString("Confirm", comment: "The button text for confirming the setting")
+            return LocalizedString("Confirm Setting", comment: "The button text for confirming the setting")
         case .settings, .legacySettings:
             return LocalizedString("Save", comment: "The button text for saving on a configuration page")
         }
