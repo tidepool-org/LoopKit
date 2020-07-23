@@ -6,21 +6,6 @@
 	objectVersion = 48;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		E9D95F8B24C8A0590079F47D /* Cartfile */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = E9D95F8E24C8A0590079F47D /* Build configuration list for PBXAggregateTarget "Cartfile" */;
-			buildPhases = (
-				E9D95F9E24C8D6E70079F47D /* Homebrew + Carthage Setup */,
-				E9D95F8F24C8A0ED0079F47D /* Carthage Bootstrap */,
-			);
-			dependencies = (
-			);
-			name = Cartfile;
-			productName = Cartfile;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		1D096BFA24C242300078B6B5 /* CheckmarkListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096BF924C242300078B6B5 /* CheckmarkListItem.swift */; };
 		1D096C0224C24C220078B6B5 /* InsulinModelSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096BFF24C24C220078B6B5 /* InsulinModelSettings.swift */; };
@@ -865,20 +850,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 43D8FDCA1C728FDF0073BE78;
 			remoteInfo = LoopKit;
-		};
-		E9D95F9024C8A4990079F47D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E9D95F8B24C8A0590079F47D;
-			remoteInfo = Cartfile;
-		};
-		E9D95F9224C8A4DB0079F47D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E9D95F8B24C8A0590079F47D;
-			remoteInfo = Cartfile;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2685,7 +2656,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E9D95F9324C8A4DB0079F47D /* PBXTargetDependency */,
 				4301581C1C7ECB5E00B64B63 /* PBXTargetDependency */,
 				43BA715A201E484D0058961E /* PBXTargetDependency */,
 				892A5D48222F03CB008961AB /* PBXTargetDependency */,
@@ -2709,7 +2679,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E9D95F9124C8A4990079F47D /* PBXTargetDependency */,
 				A9E6757F22713C5300E25293 /* PBXTargetDependency */,
 			);
 			name = LoopKitUI;
@@ -2885,9 +2854,6 @@
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
-					E9D95F8B24C8A0590079F47D = {
-						CreatedOnToolsVersion = 11.5;
-					};
 				};
 			};
 			buildConfigurationList = 43D8FDC51C728FDF0073BE78 /* Build configuration list for PBXProject "LoopKit" */;
@@ -2921,7 +2887,6 @@
 				89D2047121CC7BD7001238CC /* MockKit */,
 				89D2048E21CC7C12001238CC /* MockKitUI */,
 				892A5D33222F03CB008961AB /* LoopTestingKit */,
-				E9D95F8B24C8A0590079F47D /* Cartfile */,
 			);
 		};
 /* End PBXProject section */
@@ -3123,24 +3088,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		E9D95F8F24C8A0ED0079F47D /* Carthage Bootstrap */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Carthage Bootstrap";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "echo \"Bootstrapping carthage dependencies\"\nunset LLVM_TARGET_TRIPLE_SUFFIX\n\nif ! cmp -s Cartfile.Resolved Carthage/Cartfile.resolved; then\n    time /usr/local/bin/carthage bootstrap --project-directory \"$SRCROOT\" --platform ios,watchos --cache-builds --verbose\n    cp Cartfile.resolved Carthage\nelse\n    echo \"Carthage: not bootstrapping\"\nfi\n";
-		};
 		E9D95F9B24C8BB3D0079F47D /* Copy Frameworks with Carthage */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -3160,24 +3107,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Scripts/copy-frameworks.sh\"\n";
-		};
-		E9D95F9E24C8D6E70079F47D /* Homebrew + Carthage Setup */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Homebrew + Carthage Setup";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if ! [ -x \"$(command -v brew)\" ]; then\n    # Install Homebrew\n    ruby -e \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\"\nfi\n\nif brew ls carthage > /dev/null; then\n    brew upgrade carthage || echo \"Continuing…\"\nelse\n    brew install carthage\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -3904,16 +3833,6 @@
 			target = 43D8FDCA1C728FDF0073BE78 /* LoopKit */;
 			targetProxy = A9E6757E22713C5300E25293 /* PBXContainerItemProxy */;
 		};
-		E9D95F9124C8A4990079F47D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E9D95F8B24C8A0590079F47D /* Cartfile */;
-			targetProxy = E9D95F9024C8A4990079F47D /* PBXContainerItemProxy */;
-		};
-		E9D95F9324C8A4DB0079F47D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E9D95F8B24C8A0590079F47D /* Cartfile */;
-			targetProxy = E9D95F9224C8A4DB0079F47D /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -4593,22 +4512,6 @@
 			};
 			name = Release;
 		};
-		E9D95F8C24C8A0590079F47D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		E9D95F8D24C8A0590079F47D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -4698,15 +4601,6 @@
 			buildConfigurations = (
 				A9E675EE22713F4700E25293 /* Debug */,
 				A9E675EF22713F4700E25293 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		E9D95F8E24C8A0590079F47D /* Build configuration list for PBXAggregateTarget "Cartfile" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E9D95F8C24C8A0590079F47D /* Debug */,
-				E9D95F8D24C8A0590079F47D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
