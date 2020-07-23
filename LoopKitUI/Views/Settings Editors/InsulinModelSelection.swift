@@ -11,8 +11,8 @@ import SwiftUI
 import LoopKit
 
 
-final class InsulinModelSelectionViewModel: ObservableObject {
-    @Published var insulinModelSettings: InsulinModelSettings
+public final class InsulinModelSelectionViewModel: ObservableObject {
+    @Published public var insulinModelSettings: InsulinModelSettings
     var insulinSensitivitySchedule: InsulinSensitivitySchedule
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
@@ -34,13 +34,13 @@ final class InsulinModelSelectionViewModel: ObservableObject {
         }
     }
 
-    init(insulinModelSettings: InsulinModelSettings, insulinSensitivitySchedule: InsulinSensitivitySchedule?) {
+    public init(insulinModelSettings: InsulinModelSettings, insulinSensitivitySchedule: InsulinSensitivitySchedule?) {
         self._insulinModelSettings = Published(wrappedValue: insulinModelSettings)
         self.insulinSensitivitySchedule = insulinSensitivitySchedule ?? Self.defaultInsulinSensitivitySchedule
     }
 }
 
-struct InsulinModelSelection: View, HorizontalSizeClassOverride {
+public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
 
     @ObservedObject var viewModel: InsulinModelSelectionViewModel
     var glucoseUnit: HKUnit
@@ -68,7 +68,7 @@ struct InsulinModelSelection: View, HorizontalSizeClassOverride {
 
     @Environment(\.dismiss) var dismiss
 
-    var body: some View {
+    public var body: some View {
         NavigationView {
             List {
                 Section {
