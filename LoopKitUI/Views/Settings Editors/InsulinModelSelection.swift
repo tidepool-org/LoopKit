@@ -46,6 +46,18 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     var glucoseUnit: HKUnit
     var supportedModelSettings: SupportedInsulinModelSettings
     let appName: String
+    
+    public init(
+        viewModel: InsulinModelSelectionViewModel,
+        glucoseUnit: HKUnit,
+        supportedModelSettings: SupportedInsulinModelSettings,
+        appName: String
+    ){
+        self.viewModel = viewModel
+        self.glucoseUnit = glucoseUnit
+        self.supportedModelSettings = supportedModelSettings
+        self.appName = appName
+    }
 
     let chartManager: ChartsManager = {
         let chartManager = ChartsManager(
