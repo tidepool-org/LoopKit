@@ -1,5 +1,5 @@
 //
-//  ChartsTableViewContainer.swift
+//  ChartsTableViewController.swift
 //  LoopKitUI
 //
 //  Copyright © 2017 LoopKit Authors. All rights reserved.
@@ -9,7 +9,7 @@ import UIKit
 import HealthKit
 
 /// Abstract class providing boilerplate setup for chart-based table view controllers
-open class ChartsTableViewContainer: UITableViewController, UIGestureRecognizerDelegate {
+open class ChartsTableViewController: UITableViewController, UIGestureRecognizerDelegate {
 
     public var preferredGlucoseUnit: HKUnit?
 
