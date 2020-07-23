@@ -1,6 +1,6 @@
 //
 //  InsulinModelSelection.swift
-//  LoopKitUI
+//  Loop
 //
 //  Created by Michael Pangburn on 7/14/20.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
@@ -8,26 +8,18 @@
 
 import HealthKit
 import SwiftUI
+import LoopCore
 import LoopKit
 
-public struct SupportedModelSettings {
-    var fiaspModelEnabled: Bool
-    var walshModelEnabled: Bool
-    
-    public init(fiaspModelEnabled: Bool, walshModelEnabled: Bool) {
-        self.fiaspModelEnabled = fiaspModelEnabled
-        self.walshModelEnabled = walshModelEnabled
-    }
-}
 
-public final class InsulinModelSelectionViewModel: ObservableObject {
-    @Published public var insulinModelSettings: InsulinModelSettings
+final class InsulinModelSelectionViewModel: ObservableObject {
+    @Published var insulinModelSettings: InsulinModelSettings
     var insulinSensitivitySchedule: InsulinSensitivitySchedule
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
 
     static let defaultWalshInsulinModelDuration = TimeInterval(hours: 6)
-    static let validWalshModelDurationRange = TimeInterval(hours: 2)...TimeInterval(hours: 8)
+    static let validWalshModelDurationRange = InsulinModelSettings.validWalshModelDurationRange
 
     var walshActionDuration: TimeInterval {
         get {
@@ -43,18 +35,18 @@ public final class InsulinModelSelectionViewModel: ObservableObject {
         }
     }
 
-    public init(insulinModelSettings: InsulinModelSettings, insulinSensitivitySchedule: InsulinSensitivitySchedule?) {
+    init(insulinModelSettings: InsulinModelSettings, insulinSensitivitySchedule: InsulinSensitivitySchedule?) {
         self._insulinModelSettings = Published(wrappedValue: insulinModelSettings)
         self.insulinSensitivitySchedule = insulinSensitivitySchedule ?? Self.defaultInsulinSensitivitySchedule
     }
 }
 
-public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
+struct InsulinModelSelection: View, HorizontalSizeClassOverride {
 
     @ObservedObject var viewModel: InsulinModelSelectionViewModel
     var glucoseUnit: HKUnit
-    var supportedModelSettings: SupportedModelSettings
-    var appName: String
+    var supportedModelSettings: SupportedInsulinModelSettings
+    let appName: String
 
     let chartManager: ChartsManager = {
         let chartManager = ChartsManager(
@@ -76,20 +68,8 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     }()
 
     @Environment(\.dismiss) var dismiss
-    
-    public init(
-        viewModel: InsulinModelSelectionViewModel,
-        glucoseUnit: HKUnit,
-        supportedModelSettings: SupportedModelSettings,
-        appName: String
-    ) {
-        self.viewModel = viewModel
-        self.glucoseUnit = glucoseUnit
-        self.supportedModelSettings = supportedModelSettings
-        self.appName = appName
-    }
 
-    public var body: some View {
+    var body: some View {
         NavigationView {
             List {
                 Section {
@@ -113,35 +93,35 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
                         )
                         .frame(height: 170)
 
-                        InsulinModelSettingsRow(
-                            title: Text("Rapid Acting - Adult", comment: "Title for rapid acting adult insulin model"),
-                            description: Text("This model assumes peak insulin activity at 75 minutes.", comment: "Description for rapid acting adult insulin model"),
+                        CheckmarkListItem(
+                            title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).title),
+                            description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).subtitle),
                             isSelected: isSelected(.exponentialPreset(.humalogNovologAdult))
                         )
                         .padding(.vertical, 4)
                     }
 
-                    InsulinModelSettingsRow(
-                        title: Text("Rapid Acting - Child", comment: "Title for rapid acting child insulin model"),
-                        description: Text("This model assumes peak insulin activity at 65 minutes.", comment: "Description for rapid acting child insulin model"),
+                    CheckmarkListItem(
+                        title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).title),
+                        description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).subtitle),
                         isSelected: isSelected(.exponentialPreset(.humalogNovologChild))
                     )
                     .padding(.vertical, 4)
                     .padding(.bottom, supportedModelSettings.fiaspModelEnabled ? 0 : 4)
 
                     if supportedModelSettings.fiaspModelEnabled {
-                        InsulinModelSettingsRow(
-                            title: Text("Fiasp", comment: "Title for Fiasp insulin model"),
-                            description: Text("This model assumes peak insulin activity at 55 minutes.", comment: "Description for Fiasp insulin model"),
+                        CheckmarkListItem(
+                            title: Text(InsulinModelSettings.exponentialPreset(.fiasp).title),
+                            description: Text(InsulinModelSettings.exponentialPreset(.fiasp).subtitle),
                             isSelected: isSelected(.exponentialPreset(.fiasp))
                         )
                         .padding(.vertical, 4)
                     }
 
                     if supportedModelSettings.walshModelEnabled {
-                        DurationBasedInsulinModelSettingsRow(
-                            title: Text("Walsh", comment: "Title for Walsh insulin model"),
-                            description: Text("A legacy model, allowing customization of action duration."),
+                        DurationBasedCheckmarkListItem(
+                            title: Text(WalshInsulinModel.title),
+                            description: Text(WalshInsulinModel.subtitle),
                             isSelected: isWalshModelSelected,
                             duration: $viewModel.walshActionDuration,
                             validDurationRange: InsulinModelSelectionViewModel.validWalshModelDurationRange
@@ -154,7 +134,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             }
             .listStyle(GroupedListStyle())
             .environment(\.horizontalSizeClass, horizontalOverride)
-            .navigationBarTitle(Text("Insulin Model", comment: "Title for insulin model selection screen"), displayMode: .large)
+            .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
             .navigationBarItems(leading: dismissButton)
         }
     }
@@ -245,66 +225,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     }
 }
 
-fileprivate struct InsulinModelSettingsRow: View {
-    var title: Text
-    var description: Text
-    @Binding var isSelected: Bool
-
-    var body: some View {
-        HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                title
-                    .font(.headline)
-                description
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-            }
-
-            Spacer(minLength: 12)
-
-            selectionIndicator
-                .frame(width: 26, height: 26)
-        }
-        .animation(nil)
-    }
-
-    @ViewBuilder
-    private var selectionIndicator: some View {
-        if isSelected {
-            Image(systemName: "checkmark.circle.fill")
-                .resizable()
-                .background(Circle().stroke()) // Ensure size aligns with open circle
-                .foregroundColor(.accentColor)
-        } else {
-            Button(action: { self.isSelected = true }) {
-                Circle()
-                    .stroke()
-                    .foregroundColor(Color(.systemGray4))
-            }
-        }
-    }
-}
-
-fileprivate struct DurationBasedInsulinModelSettingsRow: View {
-    var title: Text
-    var description: Text
-    @Binding var isSelected: Bool
-    @Binding var duration: TimeInterval
-    var validDurationRange: ClosedRange<TimeInterval>
-
-    var body: some View {
-        VStack(spacing: 0) {
-            InsulinModelSettingsRow(title: title, description: description, isSelected: $isSelected)
-
-            if isSelected {
-                DurationPicker(duration: $duration, validDurationRange: validDurationRange)
-                    .frame(height: 216)
-                    .transition(.fadeInFromTop)
-            }
-        }
-    }
-}
-
 fileprivate extension HKUnit {
     /// An example value for the "ideal" target
     var glucoseExampleTargetValue: Double {
@@ -313,5 +233,19 @@ fileprivate extension HKUnit {
         } else {
             return 5.5
         }
+    }
+}
+
+fileprivate extension AnyTransition {
+    static let fadeInFromTop = move(edge: .top).combined(with: .opacity)
+        .delayingInsertion(by: 0.1)
+        .speedingUpRemoval(by: 1.8)
+
+    func delayingInsertion(by delay: TimeInterval) -> AnyTransition {
+        .asymmetric(insertion: animation(Animation.default.delay(delay)), removal: self)
+    }
+
+    func speedingUpRemoval(by factor: Double) -> AnyTransition {
+        .asymmetric(insertion: self, removal: animation(Animation.default.speed(factor)))
     }
 }
