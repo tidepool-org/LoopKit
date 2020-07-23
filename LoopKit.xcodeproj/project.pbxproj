@@ -3096,7 +3096,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/SwiftCharts.framework",
+				"$(BUILT_PRODUCTS_DIR)/SwiftCharts.framework/SwiftCharts",
 			);
 			name = "Copy Frameworks with Carthage";
 			outputFileListPaths = (
