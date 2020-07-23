@@ -8,7 +8,6 @@
 
 import HealthKit
 import SwiftUI
-import LoopCore
 import LoopKit
 
 
@@ -233,19 +232,5 @@ fileprivate extension HKUnit {
         } else {
             return 5.5
         }
-    }
-}
-
-fileprivate extension AnyTransition {
-    static let fadeInFromTop = move(edge: .top).combined(with: .opacity)
-        .delayingInsertion(by: 0.1)
-        .speedingUpRemoval(by: 1.8)
-
-    func delayingInsertion(by delay: TimeInterval) -> AnyTransition {
-        .asymmetric(insertion: animation(Animation.default.delay(delay)), removal: self)
-    }
-
-    func speedingUpRemoval(by factor: Double) -> AnyTransition {
-        .asymmetric(insertion: self, removal: animation(Animation.default.speed(factor)))
     }
 }
