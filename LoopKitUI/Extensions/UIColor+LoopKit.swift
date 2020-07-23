@@ -8,7 +8,7 @@
 import UIKit
 
 extension UIColor {
-    // TODO: make these colors user-configurable
+    // TODO: make these colors configurable
     @nonobjc static let axisLabelColor = secondaryLabelColor
 
     @nonobjc static let axisLineColor = UIColor.clear
