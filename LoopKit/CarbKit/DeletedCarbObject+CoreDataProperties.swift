@@ -9,6 +9,7 @@
 import Foundation
 import CoreData
 
+// DEPRECATED: Remains only to facilitate migration to updated CachedCarbObject
 
 extension DeletedCarbObject {
 

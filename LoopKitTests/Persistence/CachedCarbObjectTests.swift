@@ -31,42 +31,19 @@ class CachedCarbObjectTests: PersistenceControllerTestCase {
         }
     }
 
-    func testSyncIdentifierUniqueConstraint() {
-        cacheStore.managedObjectContext.performAndWait {
-            let uuid = UUID()
-
-            let object1 = CachedCarbObject(context: cacheStore.managedObjectContext)
-            object1.setDefaultValues()
-            object1.syncIdentifier = uuid.uuidString
-
-            try! cacheStore.managedObjectContext.save()
-
-            let object2 = CachedCarbObject(context: cacheStore.managedObjectContext)
-            object2.setDefaultValues()
-            object2.syncIdentifier = uuid.uuidString
-
-            try! cacheStore.managedObjectContext.save()
-
-            let objects: [CachedCarbObject] = cacheStore.managedObjectContext.all()
-            XCTAssertEqual(1, objects.count)
-        }
-    }
-
-    func testAllUniqueConstraints() {
+    func testUUIDUniqueConstraints() {
         cacheStore.managedObjectContext.performAndWait {
             let uuid = UUID()
 
             let object1 = CachedCarbObject(context: cacheStore.managedObjectContext)
             object1.setDefaultValues()
             object1.uuid = uuid
-            object1.syncIdentifier = uuid.uuidString
 
             try! cacheStore.managedObjectContext.save()
 
             let object2 = CachedCarbObject(context: cacheStore.managedObjectContext)
             object2.setDefaultValues()
             object2.uuid = uuid
-            object2.syncIdentifier = uuid.uuidString
 
             try! cacheStore.managedObjectContext.save()
 

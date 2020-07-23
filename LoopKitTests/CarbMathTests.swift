@@ -63,9 +63,11 @@ class CarbMathTests: XCTestCase {
             } else {
                 absorptionTime = nil
             }
+            let startDate = dateFormatter.date(from: $0["start_at"] as! String)!
             return NewCarbEntry(
+                recordDate: startDate,
                 quantity: HKQuantity(unit: HKUnit(from: $0["unit"] as! String), doubleValue: $0["amount"] as! Double),
-                startDate: dateFormatter.date(from: $0["start_at"] as! String)!,
+                startDate: startDate,
                 foodType: nil,
                 absorptionTime: absorptionTime
             )
@@ -116,6 +118,7 @@ class CarbMathTests: XCTestCase {
         )
         
         let carbEntry = NewCarbEntry(
+            recordDate: inputICE[0].startDate,
             quantity: HKQuantity(unit: HKUnit.gram(), doubleValue: 0),
             startDate: inputICE[0].startDate,
             foodType: nil,

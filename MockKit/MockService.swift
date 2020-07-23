@@ -92,9 +92,9 @@ extension MockService: LoggingService {
 
 extension MockService: RemoteDataService {
     
-    public func uploadCarbData(deleted: [DeletedCarbEntry], stored: [StoredCarbEntry], completion: @escaping (Result<Bool, Error>) -> Void) {
+    public func uploadCarbData(_ stored: [StoredCarbEntry], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Upload carb data (deleted: \(deleted.count), stored: \(stored.count))")
+            record("[RemoteDataService] Upload carb data (stored: \(stored.count))")
         }
         completion(.success(false))
     }

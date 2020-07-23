@@ -9,6 +9,7 @@
 import Foundation
 import CoreData
 
+// DEPRECATED: Remains only to facilitate migration to updated CachedCarbObject
 
 class DeletedCarbObject: NSManagedObject {
     var uploadState: UploadState {
@@ -32,23 +33,19 @@ class DeletedCarbObject: NSManagedObject {
     }
 }
 
-extension DeletedCarbObject {
-
-    func update(from cachedCarbObject: CachedCarbObject) {
-        externalID = cachedCarbObject.externalID
-        uploadState = cachedCarbObject.uploadState
-        startDate = cachedCarbObject.startDate
-        uuid = cachedCarbObject.uuid
-        syncIdentifier = cachedCarbObject.syncIdentifier
-        syncVersion = cachedCarbObject.syncVersion
-    }
-
-    func update(from entry: DeletedCarbEntry) {
-        externalID = entry.externalID
-        uploadState = entry.isUploaded ? .uploaded : .notUploaded
-        startDate = entry.startDate
-        uuid = entry.uuid
-        syncIdentifier = entry.syncIdentifier
-        syncVersion = Int32(entry.syncVersion)
+extension CachedCarbObject {
+    func update(from deletedObject: DeletedCarbObject) {
+        recordDate = nil
+        primitiveAbsorptionTime = nil
+        createdByCurrentApp = true
+        externalID = deletedObject.externalID
+        foodType = nil
+        grams = 0
+        startDate = deletedObject.startDate
+        uploadState = deletedObject.uploadState
+        uuid = deletedObject.uuid
+        syncIdentifier = deletedObject.syncIdentifier
+        syncVersion = deletedObject.syncVersion
+        isActive = false
     }
 }

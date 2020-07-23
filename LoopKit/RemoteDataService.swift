@@ -17,11 +17,10 @@ public protocol RemoteDataService: Service {
     /**
      Upload carb data to the remote data service.
 
-     - Parameter deleted: The deleted carb data to upload.
      - Parameter stored: The stored carb data to upload.
      - Parameter completion: The completion function to call with any success or failure.
      */
-    func uploadCarbData(deleted: [DeletedCarbEntry], stored: [StoredCarbEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+    func uploadCarbData(_ stored: [StoredCarbEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
 
     /// The maximum number of dose data to upload to the remote data service at one time.
     var doseDataLimit: Int? { get }
@@ -84,7 +83,7 @@ public extension RemoteDataService {
 
     var carbDataLimit: Int? { return nil }
 
-    func uploadCarbData(deleted: [DeletedCarbEntry], stored: [StoredCarbEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void) {
+    func uploadCarbData(_ stored: [StoredCarbEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void) {
         completion(.success(false))
     }
 

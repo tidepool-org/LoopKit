@@ -63,6 +63,7 @@ class CachedCarbObject: NSManagedObject {
 
 extension CachedCarbObject {
     func update(from entry: StoredCarbEntry) {
+        recordDate = entry.recordDate
         uuid = entry.sampleUUID
         syncIdentifier = entry.syncIdentifier
         syncVersion = Int32(clamping: entry.syncVersion)
@@ -71,6 +72,7 @@ extension CachedCarbObject {
         foodType = entry.foodType
         absorptionTime = entry.absorptionTime
         createdByCurrentApp = entry.createdByCurrentApp
+        isActive = entry.isActive
 
         if let id = entry.externalID {
             externalID = id

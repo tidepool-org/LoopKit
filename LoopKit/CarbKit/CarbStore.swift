@@ -213,7 +213,7 @@ public final class CarbStore: HealthKitSampleStore {
             guard error == nil else { return }
 
             // Migrate modifiedCarbEntries and deletedCarbEntryIDs
-            self.cacheStore.managedObjectContext.perform {
+            self.cacheStore.managedObjectContext.performAndWait {
                 for entry in UserDefaults.standard.modifiedCarbEntries ?? [] {
                     let object = CachedCarbObject(context: self.cacheStore.managedObjectContext)
                     object.update(from: entry)
@@ -229,7 +229,28 @@ public final class CarbStore: HealthKitSampleStore {
             }
 
             UserDefaults.standard.purgeLegacyCarbEntryKeys()
-            
+
+            // Migrate all DeletedCarbObject to updated CachedCarbObject
+            self.cacheStore.managedObjectContext.performAndWait {
+                do {
+                    let deletedRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
+
+                    let deletedObjects = try self.cacheStore.managedObjectContext.fetch(deletedRequest)
+                    if !deletedObjects.isEmpty {
+                        for deletedObject in deletedObjects {
+                            let cachedObject = CachedCarbObject(context: self.cacheStore.managedObjectContext)
+                            cachedObject.update(from: deletedObject)
+
+                            self.cacheStore.managedObjectContext.delete(deletedObject)
+                        }
+
+                        self.cacheStore.save()
+                    }
+                } catch let error {
+                    self.log.error("Unable to migrate deleted carb objects to cached carb objects: %{public}@", String(describing: error))
+                }
+            }
+
             // Carb model settings based on the selected absorption model
             switch self.carbAbsorptionModel {
             case .linear:
@@ -524,13 +545,22 @@ extension CarbStore {
     private func replaceCachedObject(for oldEntry: StoredCarbEntry, with newEntry: StoredCarbEntry) {
         dispatchPrecondition(condition: .onQueue(queue))
 
+        var deleted = false
+
         cacheStore.managedObjectContext.performAndWait {
             for object in self.cacheStore.managedObjectContext.cachedCarbObjectsWithUUID(oldEntry.sampleUUID) {
-                object.update(from: newEntry)
-                object.uploadState = .notUploaded
+                if object.isActive {
+                    object.isActive = false
+                    deleted = true
+                }
             }
 
-            self.cacheStore.save()
+            if deleted {
+                let object = CachedCarbObject(context: self.cacheStore.managedObjectContext)
+                object.update(from: newEntry)
+
+                self.cacheStore.save()
+            }
         }
     }
 
@@ -552,60 +582,22 @@ extension CarbStore {
 
         cacheStore.managedObjectContext.performAndWait {
             for object in self.cacheStore.managedObjectContext.cachedCarbObjectsWithUUID(uuid) {
-                let deletedObject = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
-                deletedObject.update(from: object)
-
-                self.cacheStore.managedObjectContext.delete(object)
-                deleted = true
+                if object.isActive {
+                    object.isActive = false
+                    deleted = true
+                }
             }
 
-            self.cacheStore.save()
+            if deleted {
+                self.cacheStore.save()
+            }
         }
 
         return deleted
     }
 
-    private var cachedDeletedCarbEntries: [DeletedCarbEntry] {
-        dispatchPrecondition(condition: .onQueue(queue))
-        var entries: [DeletedCarbEntry] = []
-        
-        cacheStore.managedObjectContext.performAndWait {
-            let request: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
-
-            guard let objects = try? self.cacheStore.managedObjectContext.fetch(request) else {
-                return
-            }
-            
-            entries = objects.compactMap { DeletedCarbEntry(managedObject: $0) }
-        }
-        
-        return entries
-    }
-
     private func purgeExpiredCachedCarbEntries() {
-        dispatchPrecondition(condition: .onQueue(queue))
-
-        cacheStore.managedObjectContext.performAndWait {
-            let predicate = NSPredicate(format: "startDate < %@", earliestCacheDate as NSDate)
-
-            do {
-                let fetchRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
-                fetchRequest.predicate = predicate
-                let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
-                self.log.info("Deleted %d CachedCarbObjects", count)
-            } catch let error {
-                self.log.error("Unable to purge CachedCarbObjects: %{public}@", String(describing: error))
-            }
-
-            do {
-                let fetchRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
-                fetchRequest.predicate = predicate
-                let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: fetchRequest)
-                self.log.info("Deleted %d DeletedCarbObjects", count)
-            } catch let error {
-                self.log.error("Unable to purge DeletedCarbObjects: %{public}@", String(describing: error))
-            }
-        }
+        purgeCachedCarbObjects(before: earliestCacheDate)
     }
 
     public func purgeCachedCarbEntries(before date: Date, completion: @escaping (Error?) -> Void) {
@@ -624,23 +616,15 @@ extension CarbStore {
     private func purgeCachedCarbObjects(before date: Date, completion: ((Error?) -> Void)? = nil) {
         dispatchPrecondition(condition: .onQueue(queue))
 
-        let predicate = NSPredicate(format: "startDate < %@", date as NSDate)
         var purgeError: Error?
 
         cacheStore.managedObjectContext.performAndWait {
             do {
+                let predicate = NSPredicate(format: "startDate < %@", date as NSDate)
                 let count = try self.cacheStore.managedObjectContext.purgeObjects(of: CachedCarbObject.self, matching: predicate)
                 self.log.info("Purged %d CachedCarbObjects", count)
             } catch let error {
                 self.log.error("Unable to purge CachedCarbObjects: %{public}@", String(describing: error))
-                purgeError = error
-            }
-
-            do {
-                let count = try self.cacheStore.managedObjectContext.purgeObjects(of: DeletedCarbObject.self, matching: predicate)
-                self.log.info("Purged %d DeletedCarbObjects", count)
-            } catch let error {
-                self.log.error("Unable to purge DeletedCarbObjects: %{public}@", String(describing: error))
                 purgeError = error
             }
         }
@@ -668,7 +652,12 @@ extension CarbStore {
 
         cacheStore.managedObjectContext.performAndWait {
             let request: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
-            request.predicate = predicate
+            let isActivePredicate = NSPredicate(format: "isActive == true")
+            if let predicate = predicate {
+                request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, isActivePredicate])
+            } else {
+                request.predicate = isActivePredicate
+            }
             request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: true)]
 
             guard let objects = try? self.cacheStore.managedObjectContext.fetch(request) else {
@@ -970,124 +959,84 @@ extension CarbStore {
             report.append("]")
             report.append("")
 
-            report.append("deletedCarbEntries: [")
-            report.append("\tDeletedCarbEntry(externalID, isUploaded)")
-            for entry in self.cachedDeletedCarbEntries {
-                report.append("\t\(String(describing: entry.externalID)), \(entry.isUploaded)")
-            }
-            report.append("]")
-            report.append("")
-
             completionHandler(report.joined(separator: "\n"))
         }
     }
 }
 
 extension CarbStore {
-    
     public struct QueryAnchor: RawRepresentable {
-        
         public typealias RawValue = [String: Any]
-        
-        internal var deletedModificationCounter: Int64
-        
-        internal var storedModificationCounter: Int64
-        
+
+        internal var modificationCounter: Int64
+
         public init() {
-            self.deletedModificationCounter = 0
-            self.storedModificationCounter = 0
+            self.modificationCounter = 0
         }
-        
+
         public init?(rawValue: RawValue) {
-            guard let deletedModificationCounter = rawValue["deletedModificationCounter"] as? Int64,
-                let storedModificationCounter = rawValue["storedModificationCounter"] as? Int64
-                else {
-                    return nil
+            guard let modificationCounter = rawValue["modificationCounter"] as? Int64 else {
+                return nil
             }
-            self.deletedModificationCounter = deletedModificationCounter
-            self.storedModificationCounter = storedModificationCounter
+            self.modificationCounter = modificationCounter
         }
-        
+
         public var rawValue: RawValue {
             var rawValue: RawValue = [:]
-            rawValue["deletedModificationCounter"] = deletedModificationCounter
-            rawValue["storedModificationCounter"] = storedModificationCounter
+            rawValue["modificationCounter"] = modificationCounter
             return rawValue
         }
     }
-    
+
     public enum CarbQueryResult {
-        case success(QueryAnchor, [DeletedCarbEntry], [StoredCarbEntry])
+        case success(QueryAnchor, [StoredCarbEntry])
         case failure(Error)
     }
-    
+
     public func executeCarbQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (CarbQueryResult) -> Void) {
         queue.async {
             var queryAnchor = queryAnchor ?? QueryAnchor()
-            var queryDeletedResult = [DeletedCarbEntry]()
-            var queryStoredResult = [StoredCarbEntry]()
+            var queryResult = [StoredCarbEntry]()
             var queryError: Error?
 
             guard limit > 0 else {
-                completion(.success(queryAnchor, queryDeletedResult, queryStoredResult))
+                completion(.success(queryAnchor, queryResult))
                 return
             }
-            
+
             self.cacheStore.managedObjectContext.performAndWait {
-                let deletedRequest: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
-                
-                deletedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.deletedModificationCounter)
-                deletedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
-                deletedRequest.fetchLimit = limit
-                
-                do {
-                    let deleted = try self.cacheStore.managedObjectContext.fetch(deletedRequest)
-                    if let modificationCounter = deleted.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                        queryAnchor.deletedModificationCounter = modificationCounter
-                    }
-                    queryDeletedResult.append(contentsOf: deleted.compactMap { DeletedCarbEntry(managedObject: $0) })
-                } catch let error {
-                    queryError = error
-                    return
-                }
-                
-                if queryDeletedResult.count >= limit {
-                    return
-                }
-                
                 let storedRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
-                
-                storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.storedModificationCounter)
+
+                storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter)
                 storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
-                storedRequest.fetchLimit = limit - queryDeletedResult.count
-                
+                storedRequest.fetchLimit = limit
+
                 do {
                     let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
                     if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                        queryAnchor.storedModificationCounter = modificationCounter
+                        queryAnchor.modificationCounter = modificationCounter
                     }
-                    queryStoredResult.append(contentsOf: stored.compactMap { StoredCarbEntry(managedObject: $0) })
+                    queryResult.append(contentsOf: stored.compactMap { StoredCarbEntry(managedObject: $0) })
                 } catch let error {
                     queryError = error
                     return
                 }
             }
-            
+
             if let queryError = queryError {
                 completion(.failure(queryError))
                 return
             }
-            
-            completion(.success(queryAnchor, queryDeletedResult, queryStoredResult))
+
+            completion(.success(queryAnchor, queryResult))
         }
     }
-    
 }
 
 // MARK: - Core Data (Bulk) - TEST ONLY
 
 extension CarbStore {
-    public func addStoredCarbEntries(entries: [StoredCarbEntry], completion: @escaping (Error?) -> Void) {
+    public func addCarbEntries(entries: [StoredCarbEntry], completion: @escaping (Error?) -> Void) {
         guard !entries.isEmpty else {
             completion(nil)
             return
@@ -1110,34 +1059,6 @@ extension CarbStore {
             }
 
             self.log.info("Added %d CachedCarbObjects", entries.count)
-            self.delegate?.carbStoreHasUpdatedCarbData(self)
-            completion(nil)
-        }
-    }
-
-    public func addDeletedCarbEntries(entries: [DeletedCarbEntry], completion: @escaping (Error?) -> Void) {
-        guard !entries.isEmpty else {
-            completion(nil)
-            return
-        }
-
-        queue.async {
-            var error: Error?
-
-            self.cacheStore.managedObjectContext.performAndWait {
-                for entry in entries {
-                    let object = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
-                    object.update(from: entry)
-                }
-                self.cacheStore.save { error = $0 }
-            }
-
-            guard error == nil else {
-                completion(error)
-                return
-            }
-
-            self.log.info("Added %d DeletedCarbObjects", entries.count)
             self.delegate?.carbStoreHasUpdatedCarbData(self)
             completion(nil)
         }

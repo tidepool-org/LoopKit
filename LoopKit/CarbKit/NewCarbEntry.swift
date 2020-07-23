@@ -13,6 +13,7 @@ import HealthKit
 public struct NewCarbEntry: CarbEntry, Equatable, RawRepresentable {
     public typealias RawValue = [String: Any]
 
+    public let recordDate: Date
     public let quantity: HKQuantity
     public let startDate: Date
     public let foodType: String?
@@ -22,7 +23,8 @@ public struct NewCarbEntry: CarbEntry, Equatable, RawRepresentable {
     public let syncIdentifier: String?
     public let isUploaded: Bool
 
-    public init(quantity: HKQuantity, startDate: Date, foodType: String?, absorptionTime: TimeInterval?, isUploaded: Bool = false, externalID: String? = nil, syncIdentifier: String? = nil) {
+    public init(recordDate: Date = Date(), quantity: HKQuantity, startDate: Date, foodType: String?, absorptionTime: TimeInterval?, isUploaded: Bool = false, externalID: String? = nil, syncIdentifier: String? = nil) {
+        self.recordDate = recordDate
         self.quantity = quantity
         self.startDate = startDate
         self.foodType = foodType
@@ -34,6 +36,7 @@ public struct NewCarbEntry: CarbEntry, Equatable, RawRepresentable {
 
     public init?(rawValue: RawValue) {
         guard
+            let recordDate = rawValue["recordDate"] as? Date,
             let grams = rawValue["grams"] as? Double,
             let startDate = rawValue["startDate"] as? Date
         else {
@@ -43,6 +46,7 @@ public struct NewCarbEntry: CarbEntry, Equatable, RawRepresentable {
         let externalID = rawValue["externalID"] as? String
 
         self.init(
+            recordDate: recordDate,
             quantity: HKQuantity(unit: .gram(), doubleValue: grams),
             startDate: startDate,
             foodType: rawValue["foodType"] as? String,
@@ -55,6 +59,7 @@ public struct NewCarbEntry: CarbEntry, Equatable, RawRepresentable {
 
     public var rawValue: RawValue {
         var rawValue: RawValue = [
+            "recordDate": recordDate,
             "grams": quantity.doubleValue(for: .gram()),
             "startDate": startDate
         ]
@@ -72,6 +77,8 @@ public struct NewCarbEntry: CarbEntry, Equatable, RawRepresentable {
 extension NewCarbEntry {
     func createSample(from oldEntry: StoredCarbEntry? = nil, syncVersion: Int = 1) -> HKQuantitySample {
         var metadata = [String: Any]()
+
+        metadata[MetadataKeyRecordDate] = recordDate
 
         if let absorptionTime = absorptionTime {
             metadata[MetadataKeyAbsorptionTimeMinutes] = absorptionTime

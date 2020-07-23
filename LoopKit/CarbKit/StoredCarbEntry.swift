@@ -14,6 +14,10 @@ private let unit = HKUnit.gram()
 
 public struct StoredCarbEntry: CarbEntry {
 
+    public var recordDate: Date?
+
+    // MARK: - Sample
+
     public let sampleUUID: UUID
 
     // MARK: - HealthKit Sync Support
@@ -37,8 +41,13 @@ public struct StoredCarbEntry: CarbEntry {
     public var externalID: String?
     public var isUploaded: Bool
 
+    // MARK: - Active state
+
+    public var isActive: Bool
+
     init(sample: HKQuantitySample, createdByCurrentApp: Bool? = nil) {
         self.init(
+            recordDate: sample.recordDate,
             sampleUUID: sample.uuid,
             syncIdentifier: sample.metadata?[HKMetadataKeySyncIdentifier] as? String,
             syncVersion: sample.metadata?[HKMetadataKeySyncVersion] as? Int ?? 1,
@@ -49,11 +58,13 @@ public struct StoredCarbEntry: CarbEntry {
             absorptionTime: sample.absorptionTime,
             createdByCurrentApp: createdByCurrentApp ?? sample.createdByCurrentApp,
             externalID: sample.externalID,
-            isUploaded: sample.externalID != nil
+            isUploaded: sample.externalID != nil,
+            isActive: true
         )
     }
 
     public init(
+        recordDate: Date?,
         sampleUUID: UUID,
         syncIdentifier: String?,
         syncVersion: Int,
@@ -64,8 +75,10 @@ public struct StoredCarbEntry: CarbEntry {
         absorptionTime: TimeInterval?,
         createdByCurrentApp: Bool,
         externalID: String?,
-        isUploaded: Bool
+        isUploaded: Bool,
+        isActive: Bool
     ) {
+        self.recordDate = recordDate
         self.sampleUUID = sampleUUID
         self.syncIdentifier = syncIdentifier
         self.syncVersion = syncVersion
@@ -76,6 +89,7 @@ public struct StoredCarbEntry: CarbEntry {
         self.createdByCurrentApp = createdByCurrentApp
         self.externalID = externalID
         self.isUploaded = isUploaded
+        self.isActive = isActive
     }
 }
 
@@ -117,6 +131,7 @@ extension StoredCarbEntry {
         let externalID = rawValue["externalId"] as? String
 
         self.init(
+            recordDate: nil,
             sampleUUID: sampleUUID,
             syncIdentifier: nil,
             syncVersion: 1,
@@ -127,7 +142,8 @@ extension StoredCarbEntry {
             absorptionTime: rawValue["absorptionTime"] as? TimeInterval,
             createdByCurrentApp: createdByCurrentApp,
             externalID: externalID,
-            isUploaded: externalID != nil
+            isUploaded: externalID != nil,
+            isActive: true
         )
     }
 }
@@ -136,6 +152,7 @@ extension StoredCarbEntry {
 extension StoredCarbEntry {
     init(managedObject: CachedCarbObject) {
         self.init(
+            recordDate: managedObject.recordDate,
             sampleUUID: managedObject.uuid!,
             syncIdentifier: managedObject.syncIdentifier,
             syncVersion: Int(managedObject.syncVersion),
@@ -146,7 +163,8 @@ extension StoredCarbEntry {
             absorptionTime: managedObject.absorptionTime,
             createdByCurrentApp: managedObject.createdByCurrentApp,
             externalID: managedObject.externalID,
-            isUploaded: (managedObject.uploadState == .uploaded)
+            isUploaded: (managedObject.uploadState == .uploaded),
+            isActive: managedObject.isActive
         )
     }
 }

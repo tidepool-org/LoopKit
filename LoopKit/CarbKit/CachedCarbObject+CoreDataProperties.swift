@@ -16,6 +16,7 @@ extension CachedCarbObject {
         return NSFetchRequest<CachedCarbObject>(entityName: "CachedCarbObject")
     }
 
+    @NSManaged public var recordDate: Date?
     @NSManaged public var primitiveAbsorptionTime: NSNumber?
     @NSManaged public var createdByCurrentApp: Bool
     @NSManaged public var externalID: String?
@@ -26,6 +27,7 @@ extension CachedCarbObject {
     @NSManaged public var uuid: UUID?
     @NSManaged public var syncIdentifier: String?
     @NSManaged public var syncVersion: Int32
+    @NSManaged public var isActive: Bool
     @NSManaged public var modificationCounter: Int64
 
 }

@@ -9,9 +9,14 @@
 import HealthKit
 
 
+let MetadataKeyRecordDate = "com.loopkit.CarbKit.HKMetadataKey.RecordDate"
 let MetadataKeyAbsorptionTimeMinutes = "com.loudnate.CarbKit.HKMetadataKey.AbsorptionTimeMinutes"
 
 extension HKQuantitySample {
+    public var recordDate: Date? {
+        return metadata?[MetadataKeyRecordDate] as? Date
+    }
+
     public var foodType: String? {
         return metadata?[HKMetadataKeyFoodType] as? String
     }

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19F101" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19G73" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CachedCarbObject" representedClassName=".CachedCarbObject" syncable="YES">
         <attribute name="absorptionTime" optional="YES" attributeType="Double" usesScalarValueType="NO"/>
         <attribute name="createdByCurrentApp" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="externalID" optional="YES" attributeType="String"/>
         <attribute name="foodType" optional="YES" attributeType="String"/>
         <attribute name="grams" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="isActive" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="modificationCounter" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="recordDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="syncIdentifier" optional="YES" attributeType="String"/>
         <attribute name="syncVersion" attributeType="Integer 32" defaultValueString="1" usesScalarValueType="YES"/>
@@ -15,9 +17,6 @@
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="uuid"/>
-            </uniquenessConstraint>
-            <uniquenessConstraint>
-                <constraint value="syncIdentifier"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
@@ -151,7 +150,7 @@
         <attribute name="modificationCounter" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="CachedCarbObject" positionX="-63" positionY="72" width="128" height="208"/>
+        <element name="CachedCarbObject" positionX="-63" positionY="72" width="128" height="238"/>
         <element name="CachedGlucoseObject" positionX="-63" positionY="99" width="128" height="208"/>
         <element name="CachedInsulinDeliveryObject" positionX="-63" positionY="108" width="128" height="208"/>
         <element name="DeletedCarbObject" positionX="-63" positionY="90" width="128" height="148"/>
