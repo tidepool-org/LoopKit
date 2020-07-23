@@ -33,10 +33,8 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     var guardrailWarning: (_ crossedThresholds: [SafetyClassification.Threshold]) -> ActionAreaContent
     var savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>
     var mode: PresentationMode
-    var buttonText: Text
     var settingType: TherapySetting
     
-    @Environment(\.dismiss) var dismiss
     @State private var userDidTap: Bool = false
 
     var body: some View {
@@ -109,7 +107,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     
     private var instructionalContentIfNecessary: some View {
         return Group {
-            if mode == .flow && !userDidTap {
+            if mode == .acceptanceFlow && !userDidTap {
                 instructionalContent
             }
         }
@@ -130,7 +128,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     private var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds
         return Group {
-            if !crossedThresholds.isEmpty {
+            if !crossedThresholds.isEmpty && (userDidTap || mode == .settings || mode == .legacySettings) {
                 guardrailWarning(crossedThresholds)
             }
         }
@@ -154,7 +152,6 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
 
 extension QuantityScheduleEditor {
     init(
-        buttonText: Text = Text("Save", comment: "The button text for saving on a configuration page"),
         title: Text,
         description: Text,
         schedule: DailyQuantitySchedule<Double>?,
@@ -167,10 +164,9 @@ extension QuantityScheduleEditor {
         confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>,
-        mode: PresentationMode = .modal,
+        mode: PresentationMode = .legacySettings,
         settingType: TherapySetting = .none
     ) {
-        self.buttonText = buttonText
         self.title = title
         self.description = description
         self.initialScheduleItems = schedule?.items ?? []
@@ -200,7 +196,9 @@ extension QuantityScheduleEditor {
         scheduleItemLimit: Int = 48,
         confirmationAlertContent: AlertContent,
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
-        onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void
+        onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void,
+        mode: PresentationMode = .legacySettings,
+        settingType: TherapySetting = .none
     ) {
         let selectableValues = guardrail.allValues(stridingBy: selectableValueStride, unit: unit)
         self.init(
@@ -215,7 +213,9 @@ extension QuantityScheduleEditor {
             scheduleItemLimit: scheduleItemLimit,
             confirmationAlertContent: confirmationAlertContent,
             guardrailWarning: guardrailWarning,
-            onSave: .synchronous(save)
+            onSave: .synchronous(save),
+            mode: mode,
+            settingType: settingType
         )
     }
 }
