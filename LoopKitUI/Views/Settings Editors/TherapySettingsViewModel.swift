@@ -83,4 +83,37 @@ public class TherapySettingsViewModel: ObservableObject {
         therapySettings.insulinSensitivitySchedule = insulinSensitivitySchedule
         didSave?(TherapySetting.insulinSensitivity, therapySettings)
     }
+    
+    public func saveInsulinModel(insulinModel: InsulinModelSettings) {
+        therapySettings.insulinModel = StoredSettings.InsulinModel.init(insulinModel)
+    }
 }
+
+// ANNA TODO
+public extension StoredSettings.InsulinModel {
+    init(_ insulinModelSettings: InsulinModelSettings) {
+        var modelType: StoredSettings.InsulinModel.ModelType
+        var actionDuration: TimeInterval
+        var peakActivity: TimeInterval?
+        
+        switch insulinModelSettings {
+        case .exponentialPreset(let preset):
+            switch preset {
+            case .humalogNovologAdult:
+                modelType = .rapidAdult
+            case .humalogNovologChild:
+                modelType = .rapidChild
+            case .fiasp:
+                modelType = .fiasp
+            }
+            actionDuration = preset.actionDuration
+            peakActivity = preset.peakActivity
+        case .walsh(let model):
+            modelType = .walsh
+            actionDuration = model.actionDuration
+        }
+        
+        self.init(modelType: modelType, actionDuration: actionDuration, peakActivity: peakActivity)
+    }
+}
+
