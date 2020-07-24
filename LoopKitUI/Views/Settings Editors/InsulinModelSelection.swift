@@ -87,8 +87,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
                     SettingDescription(
                         text: insulinModelSettingDescription,
                         informationalContent: {
-                            // TODO: Implement informational content
-                            Text("Not implemented")
+                            TherapySetting.insulinModel.helpScreen()
                         }
                     )
                     .padding(4)
