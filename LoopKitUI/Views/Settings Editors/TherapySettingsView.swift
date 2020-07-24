@@ -12,8 +12,7 @@ import LoopKit
 import SwiftUI
 
 public struct TherapySettingsView: View, HorizontalSizeClassOverride {
-    @Environment(\.dismiss) var dismiss
-        
+    
     @ObservedObject var viewModel: TherapySettingsViewModel
         
     private let mode: PresentationMode
