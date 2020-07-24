@@ -15,9 +15,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     @Environment(\.dismiss) var dismiss
         
     @ObservedObject var viewModel: TherapySettingsViewModel
-    
-    @State var isEditing: Bool = false
-    
+        
     private let mode: PresentationMode
     
     public init(mode: PresentationMode = .settings, viewModel: TherapySettingsViewModel) {
@@ -51,8 +49,6 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         }
         .listStyle(GroupedListStyle())
         .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
-        .navigationBarItems(leading: backOrCancelButton, trailing: editOrDoneButton)
-        .navigationBarBackButtonHidden(isEditing)
         .environment(\.horizontalSizeClass, horizontalOverride)
     }
     
@@ -63,69 +59,11 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     }
 }
 
-// MARK: Buttons
-extension TherapySettingsView {
-    
-    private var backOrCancelButton: some View {
-        if self.isEditing {
-            return AnyView(cancelButton)
-        } else {
-            return AnyView(backButton)
-        }
-    }
-    
-    private var backButton: some View {
-        return Button<AnyView>( action: { self.dismiss() }) {
-            switch mode {
-            case .settings, .acceptanceFlow: return AnyView(EmptyView())
-            case .legacySettings: return AnyView(Text(LocalizedString("Back", comment: "Back button text")))
-            }
-        }
-    }
-    
-    private var cancelButton: some View {
-        return Button( action: {
-            // TODO: confirm
-            self.viewModel.reset()
-            self.isEditing.toggle()
-        })
-        {
-            Text(LocalizedString("Cancel", comment: "Cancel button text"))
-        }
-    }
-    
-    private var editOrDoneButton: some View {
-        if self.isEditing {
-            return AnyView(doneButton)
-        } else {
-            return AnyView(editButton)
-        }
-    }
-    
-    private var editButton: some View {
-        return Button( action: {
-            self.isEditing.toggle()
-        }) {
-            Text(LocalizedString("Edit", comment: "Edit button text"))
-        }
-    }
-    
-    private var doneButton: some View {
-        return Button( action: {
-            // TODO: confirm
-            self.isEditing.toggle()
-        }) {
-            Text(LocalizedString("Done", comment: "Done button text"))
-        }
-    }
-}
-
 // MARK: Sections
 extension TherapySettingsView {
     
     private var prescriptionSection: some View {
-        SectionWithEdit(isEditing: .constant(false),
-                        addExtraSpaceAboveSection: true,
+        SectionWithEdit(addExtraSpaceAboveSection: true,
                         title: LocalizedString("Prescription", comment: "title for prescription section"),
                         descriptiveText: prescriptionDescriptiveText,
                         destination: EmptyView(), content: { EmptyView() })
@@ -304,8 +242,7 @@ extension TherapySettingsView {
     private func section<Content>(for therapySetting: TherapySetting,
                                   addExtraSpaceAboveSection: Bool = false,
                                   @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
-        SectionWithEdit(isEditing: $isEditing,
-                        addExtraSpaceAboveSection: addExtraSpaceAboveSection,
+        SectionWithEdit(addExtraSpaceAboveSection: addExtraSpaceAboveSection,
                         title: therapySetting.title,
                         descriptiveText: therapySetting.descriptiveText,
                         destination: self.screen(for: therapySetting),
@@ -369,15 +306,14 @@ struct CorrectionRangeOverridesRangeItem: View {
     }
 }
 
-// Note: I didn't call this "EditableSection" because it doesn't actually make the section editable,
-// it just optionally provides a link to go to an editor screen.
 struct SectionWithEdit<Content, NavigationDestination>: View where Content: View, NavigationDestination: View  {
-    @Binding var isEditing: Bool
     let addExtraSpaceAboveSection: Bool
     let title: String
     let descriptiveText: String
     let destination: NavigationDestination
     let content: () -> Content
+
+    @State var activate: Bool = false
     
     @ViewBuilder public var body: some View {
         Section(header: header) {
@@ -386,26 +322,22 @@ struct SectionWithEdit<Content, NavigationDestination>: View where Content: View
                 Text(title)
                     .bold()
                 Spacer()
-                DescriptiveText(label: descriptiveText)
+                NavigationLink(destination: destination, isActive: $activate) {
+                    DescriptiveText(label: descriptiveText)
+                }
                 Spacer()
             }
             content()
-            if isEditing {
-                navigationButton
-            }
         }
+        .highPriorityGesture(
+            TapGesture()
+                .onEnded { _ in
+                    self.activate = true
+        })
     }
     
     private var header: some View {
         addExtraSpaceAboveSection ? AnyView(Spacer()) : AnyView(EmptyView())
-    }
-    
-    private var navigationButton: some View {
-        NavigationLink(destination: destination) {
-            Button(action: { }) {
-                Text(String(format: LocalizedString("Edit %@", comment: "The string format for the Edit navigation button"), title))
-            }
-        }
     }
 }
 
