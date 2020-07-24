@@ -24,8 +24,9 @@ public struct DeliveryLimitsEditor: View {
     @State private var userDidTap: Bool = false
     @State var settingBeingEdited: DeliveryLimits.Setting?
 
-    @State var showingConfirmationAlert = false
+    @State var presentedAlert: PresentedAlert?
     @Environment(\.dismiss) var dismiss
+    @Environment(\.authenticate) var authenticate
 
     public init(
         value: DeliveryLimits,
@@ -64,13 +65,13 @@ public struct DeliveryLimitsEditor: View {
             },
             action: {
                 if self.crossedThresholds.isEmpty {
-                    self.saveAndDismiss()
+                    self.startSaving()
                 } else {
-                    self.showingConfirmationAlert = true
+                    self.presentedAlert = .saveConfirmation(self.confirmationContent)
                 }
             }
         )
-        .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .alert(item: $presentedAlert, content: alert(for:))
         .navigationBarTitle("", displayMode: .inline)
         .onTapGesture {
             self.userDidTap = true
@@ -234,24 +235,33 @@ public struct DeliveryLimitsEditor: View {
         return crossedThresholds
     }
 
-    private func confirmationAlert() -> SwiftUI.Alert {
-        SwiftUI.Alert(
+    private var confirmationContent: AlertContent {
+        return AlertContent(
             title: Text("Save Delivery Limits?", comment: "Alert title for confirming delivery limits outside the recommended range"),
             message: Text("One or more of the values you have entered are outside of what Tidepool generally recommends.", comment: "Alert message for confirming delivery limits outside the recommended range"),
-            primaryButton: .cancel(Text("Go Back")),
-            secondaryButton: .default(
-                Text("Continue"),
-                action: saveAndDismiss
-            )
+            cancel: Text("Go Back"),
+            ok: Text("Continue")
         )
     }
-
-    private func saveAndDismiss() {
-        save(value)
-        if mode == .legacySettings {
-            dismiss()
+    
+    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
+        return presentedAlert.alert(okAction: startSaving)
+    }
+    
+    private func startSaving() {
+        authenticate(LocalizedString("Authenticate to change setting", comment: "Authentication hint string")) {
+            switch $0 {
+            case .success:
+                self.save(self.value)
+            case .failure(let error):
+                self.presentedAlert = .saveError(error)
+            }
+            if self.mode == .legacySettings {
+                self.dismiss()
+            }
         }
     }
+
 }
 
 

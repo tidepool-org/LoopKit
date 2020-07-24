@@ -30,9 +30,10 @@ public struct CorrectionRangeOverridesEditor: View {
             }
         }
     }
-
-    @State var showingConfirmationAlert = false
+    
+    @State var presentedAlert: PresentedAlert?
     @Environment(\.dismiss) var dismiss
+    @Environment(\.authenticate) var authenticate
 
     public init(
         value: CorrectionRangeOverrides,
@@ -70,13 +71,13 @@ public struct CorrectionRangeOverridesEditor: View {
             },
             action: {
                 if self.crossedThresholds.isEmpty {
-                    self.saveAndDismiss()
+                    self.startSaving()
                 } else {
-                    self.showingConfirmationAlert = true
+                    self.presentedAlert = .saveConfirmation(self.confirmationContent)
                 }
             }
         )
-        .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .alert(item: $presentedAlert, content: alert(for:))
         .navigationBarTitle("", displayMode: .inline)
         .onTapGesture {
             self.userDidTap = true
@@ -195,22 +196,28 @@ public struct CorrectionRangeOverridesEditor: View {
             }
     }
 
-    private func confirmationAlert() -> SwiftUI.Alert {
-        SwiftUI.Alert(
-            title: Text("Save Correction Range Overrides?", comment: "Alert title for confirming correction range overrides outside the recommended range"),
-            message: Text("One or more of the values you have entered are outside of what Tidepool generally recommends.", comment: "Alert message for confirming correction range overrides outside the recommended range"),
-            primaryButton: .cancel(Text("Go Back")),
-            secondaryButton: .default(
-                Text("Continue"),
-                action: saveAndDismiss
-            )
-        )
+    private var confirmationContent: AlertContent {
+        return AlertContent(title: Text("Save Correction Range Overrides?", comment: "Alert title for confirming correction range overrides outside the recommended range"),
+                            message: Text("One or more of the values you have entered are outside of what Tidepool generally recommends.", comment: "Alert message for confirming correction range overrides outside the recommended range"),
+                            cancel: Text("Go Back"),
+                            ok: Text("Continue"))
+    }
+    
+    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
+        return presentedAlert.alert(okAction: startSaving)
     }
 
-    private func saveAndDismiss() {
-        save(value)
-        if mode == .legacySettings {
-            dismiss()
+    private func startSaving() {
+        authenticate(LocalizedString("Authenticate to change setting", comment: "Authentication hint string")) {
+            switch $0 {
+            case .success:
+                self.save(self.value)
+            case .failure(let error):
+                self.presentedAlert = .saveError(error)
+            }
+            if self.mode == .legacySettings {
+                self.dismiss()
+            }
         }
     }
 

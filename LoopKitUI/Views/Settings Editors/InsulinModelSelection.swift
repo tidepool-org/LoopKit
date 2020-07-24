@@ -12,14 +12,17 @@ import LoopKit
 
 public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     @Environment(\.appName) private var appName   
-    
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.authenticate) var authenticate
+
     let initialValue: InsulinModelSettings
     @State var value: InsulinModelSettings
     let insulinSensitivitySchedule: InsulinSensitivitySchedule
     let glucoseUnit: HKUnit
     let supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
-    let save: (InsulinModelSettings) -> Void
+    let save: (_ insulinModelSettings: InsulinModelSettings) -> Void
+    @State var presentedAlert: PresentedAlert?
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
     
@@ -40,14 +43,14 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             }
         )
     }
-
+    
     public init(
         value: InsulinModelSettings,
         insulinSensitivitySchedule: InsulinSensitivitySchedule?,
         glucoseUnit: HKUnit,
         supportedModelSettings: SupportedInsulinModelSettings,
         mode: PresentationMode,
-        onSave save: @escaping (InsulinModelSettings) -> Void
+        onSave save: @escaping (_ insulinModelSettings: InsulinModelSettings) -> Void
     ){
         self._value = State(initialValue: value)
         self.initialValue = value
@@ -77,27 +80,25 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         return chartManager
     }()
 
-    @Environment(\.dismiss) var dismiss
-    
     public var body: some View {
         switch mode {
-        case .acceptanceFlow: return AnyView(contentWithSaveButton)
-        case .settings:       return AnyView(contentWithSaveButton)
+        case .acceptanceFlow: return AnyView(content)
+        case .settings:       return AnyView(content)
         case .legacySettings: return AnyView(navigationContent)
         }
     }
     
     private var navigationContent: some View {
         NavigationView {
-            contentWithSaveButton
+            content
             .navigationBarItems(leading: dismissButton)
         }
     }
     
-    private var contentWithSaveButton: some View {
+    private var content: some View {
         VStack(spacing: 0) {
-            content
-            Button(action: { self.doSave() }) {
+            list
+            Button(action: { self.startSaving() }) {
                 Text(mode.buttonText)
                     .actionButtonStyle(.primary)
                     .padding()
@@ -107,10 +108,14 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             .padding(.bottom)
             .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
         }
+        .alert(item: $presentedAlert, content: alert(for:))
+        .environment(\.horizontalSizeClass, horizontalOverride)
+        .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
+        .supportedInterfaceOrientations(.portrait)
         .edgesIgnoringSafeArea(.bottom)
     }
     
-    private var content: some View {
+    private var list: some View {
         List {
             Section {
                 SettingDescription(
@@ -172,9 +177,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             .buttonStyle(PlainButtonStyle()) // Disable row highlighting on selection
         }
         .listStyle(GroupedListStyle())
-        .environment(\.horizontalSizeClass, horizontalOverride)
-        .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
-        .supportedInterfaceOrientations(.portrait)
     }
 
     var insulinModelSettingDescription: Text {
@@ -255,14 +257,25 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             }
         )
     }
-
-    private func doSave() {
-        save(value)
-        if mode == .legacySettings {
-            dismiss()
-        }
+    
+    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
+        return presentedAlert.alert(okAction: startSaving)
     }
     
+    private func startSaving() {
+        authenticate(LocalizedString("Authenticate to change setting", comment: "Authentication hint string")) {
+            switch $0 {
+            case .success:
+                self.save(self.value)
+            case .failure(let error):
+                self.presentedAlert = .saveError(error)
+            }
+            if self.mode == .legacySettings {
+                self.dismiss()
+            }
+        }
+    }
+
     var dismissButton: some View {
         Button(action: dismiss) {
             Text("Close", comment: "Button text to close a modal")

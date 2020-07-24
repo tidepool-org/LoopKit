@@ -10,7 +10,6 @@ import SwiftUI
 import HealthKit
 import LoopKit
 
-
 enum SavingMechanism<Value> {
     case synchronous((_ value: Value) -> Void)
     case asynchronous((_ value: Value, _ completion: @escaping (Error?) -> Void) -> Void)
@@ -33,13 +32,9 @@ enum SaveConfirmation {
 }
 
 struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, ActionAreaContent: View>: View {
-    fileprivate enum PresentedAlert {
-        case saveConfirmation(AlertContent)
-        case saveError(Error)
-    }
-
     var title: Text
     var description: Text
+    let authenticationChallengeDescription: String
     var initialScheduleItems: [RepeatingScheduleValue<Value>]
     @Binding var scheduleItems: [RepeatingScheduleValue<Value>]
     var defaultFirstScheduleItemValue: Value
@@ -75,10 +70,12 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     @State private var presentedAlert: PresentedAlert?
 
     @Environment(\.dismiss) var dismiss
+    @Environment(\.authenticate) var authenticate
 
     init(
         title: Text,
         description: Text,
+        authenticationChallengeDescription: String = LocalizedString("Authenticate to change setting", comment: "Authentication hint string"),
         scheduleItems: Binding<[RepeatingScheduleValue<Value>]>,
         initialScheduleItems: [RepeatingScheduleValue<Value>],
         defaultFirstScheduleItemValue: Value,
@@ -104,6 +101,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         self.savingMechanism = savingMechanism
         self.mode = mode
         self.therapySettingType = therapySettingType
+        self.authenticationChallengeDescription = authenticationChallengeDescription
     }
 
     var body: some View {
@@ -352,6 +350,21 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     }
 
     private func beginSaving() {
+        guard mode == .settings || mode == .legacySettings else {
+            self.continueSaving()
+            return
+        }
+        
+        authenticate(authenticationChallengeDescription) {
+            switch $0 {
+            case .success: self.continueSaving()
+            case .failure(let error): self.presentedAlert = .saveError(error)
+            }
+        }
+    }
+    
+    private func continueSaving() {
+
         switch savingMechanism {
         case .synchronous(let save):
             save(scheduleItems)
@@ -380,23 +393,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     }
 
     private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
-        switch presentedAlert {
-        case .saveConfirmation(let content):
-            return Alert(
-                title: content.title,
-                message: content.message,
-                primaryButton: .cancel(Text("Go Back", comment: "Button text to return to editing a schedule after from alert popup when some schedule values are outside the recommended range")),
-                secondaryButton: .default(
-                    Text("Continue", comment: "Button text to confirm saving from alert popup when some schedule values are outside the recommended range"),
-                    action: beginSaving
-                )
-            )
-        case .saveError(let error):
-            return Alert(
-                title: Text("Unable to Save", comment: "Alert title when error occurs while saving a schedule"),
-                message: Text(error.localizedDescription)
-            )
-        }
+        return presentedAlert.alert(okAction: beginSaving)
     }
 }
 
@@ -405,16 +402,5 @@ struct DarkenedOverlay: View {
         Rectangle()
             .fill(Color.black.opacity(0.3))
             .edgesIgnoringSafeArea(.all)
-    }
-}
-
-extension ScheduleEditor.PresentedAlert: Identifiable {
-    var id: Int {
-        switch self {
-        case .saveConfirmation:
-            return 0
-        case .saveError:
-            return 1
-        }
     }
 }
