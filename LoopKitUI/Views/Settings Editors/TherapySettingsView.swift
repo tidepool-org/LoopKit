@@ -107,7 +107,7 @@ extension TherapySettingsView {
         return Button<AnyView>( action: { self.dismiss() }) {
             switch viewModel.mode {
             case .settings, .acceptanceFlow: return AnyView(EmptyView())
-            case .legacySettings: return AnyView(Text(LocalizedString("BackXX", comment: "Back button text")))
+            case .legacySettings: return AnyView(Text(LocalizedString("Back", comment: "Back button text")))
             }
         }
     }
