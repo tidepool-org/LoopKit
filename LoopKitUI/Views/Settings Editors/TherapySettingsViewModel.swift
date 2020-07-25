@@ -86,6 +86,7 @@ public class TherapySettingsViewModel: ObservableObject {
     
     public func saveInsulinModel(insulinModel: InsulinModelSettings) {
         therapySettings.insulinModel = StoredSettings.InsulinModel.init(insulinModel)
+        didSave?(TherapySetting.insulinModel, therapySettings)
     }
 }
 

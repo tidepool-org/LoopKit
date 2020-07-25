@@ -745,7 +745,7 @@
 		E93C86A424C8F79C0073089B /* ChartLineModel+LoopKitUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86A324C8F79C0073089B /* ChartLineModel+LoopKitUI.swift */; };
 		E93C86A624C8F7D90073089B /* ChartSettings+LoopKitUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86A524C8F7D90073089B /* ChartSettings+LoopKitUI.swift */; };
 		E93C86A824C8F7F70073089B /* InsulinModelChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86A724C8F7F60073089B /* InsulinModelChartView.swift */; };
-		E93C86AA24CBA51D0073089B /* InsulinModelReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86A924CBA51D0073089B /* InsulinModelReview.swift */; };
+		E93C86AC24CBE1BE0073089B /* InsulinModelReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86AB24CBE1BE0073089B /* InsulinModelReview.swift */; };
 		E94141CE24C8F2950096C326 /* ExponentialInsulinModelPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */; };
 		E94141D024C8F31C0096C326 /* DeliveryLimitsEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */; };
 		E949E38924AFC82F00024DA0 /* DeliveryLimitsInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */; };
@@ -1539,7 +1539,7 @@
 		E93C86A324C8F79C0073089B /* ChartLineModel+LoopKitUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ChartLineModel+LoopKitUI.swift"; sourceTree = "<group>"; };
 		E93C86A524C8F7D90073089B /* ChartSettings+LoopKitUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ChartSettings+LoopKitUI.swift"; sourceTree = "<group>"; };
 		E93C86A724C8F7F60073089B /* InsulinModelChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsulinModelChartView.swift; sourceTree = "<group>"; };
-		E93C86A924CBA51D0073089B /* InsulinModelReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinModelReview.swift; sourceTree = "<group>"; };
+		E93C86AB24CBE1BE0073089B /* InsulinModelReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinModelReview.swift; sourceTree = "<group>"; };
 		E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsEditor.swift; sourceTree = "<group>"; };
 		E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsInformationView.swift; sourceTree = "<group>"; };
 		E949E38E24B3711E00024DA0 /* InsulinModelInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinModelInformationView.swift; sourceTree = "<group>"; };
@@ -2573,7 +2573,7 @@
 				E9D95F6424C7BC400079F47D /* PresentationMode.swift */,
 				E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */,
 				E93C869F24C8F6E00073089B /* InsulinModelSelection.swift */,
-				E93C86A924CBA51D0073089B /* InsulinModelReview.swift */,
+				E93C86AB24CBE1BE0073089B /* InsulinModelReview.swift */,
 			);
 			path = "Settings Editors";
 			sourceTree = "<group>";
@@ -3303,7 +3303,7 @@
 				43BA718B201EE93C0058961E /* TimeZone.swift in Sources */,
 				A991161423426A0A00A4B2E9 /* ServiceSetupNotifying.swift in Sources */,
 				89FC6892245A2D680075CF59 /* ScheduleEditor.swift in Sources */,
-				E93C86AA24CBA51D0073089B /* InsulinModelReview.swift in Sources */,
+				E93C86AC24CBE1BE0073089B /* InsulinModelReview.swift in Sources */,
 				43BA717B201EE6A40058961E /* NibLoadable.swift in Sources */,
 				E916F56F24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift in Sources */,
 				89BE75C124649C2E00B145D9 /* ModalHeaderButtonBar.swift in Sources */,

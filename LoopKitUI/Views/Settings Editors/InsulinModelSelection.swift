@@ -90,9 +90,9 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     private var configuredBody: some View {
         switch mode {
         case .acceptanceFlow:
-            return settingsContent
+            return AnyView(content)
         case .legacySettings, .settings:
-            return settingsContent
+            return AnyView(settingsContent)
         }
     }
     
