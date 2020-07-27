@@ -1,6 +1,6 @@
 //
 //  DeliveryLimitsEditor.swift
-//  Loop
+//  LoopKitUI
 //
 //  Created by Michael Pangburn on 6/22/20.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
@@ -33,7 +33,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
-        mode: PresentationMode = .modal
+        mode: PresentationMode = .legacySettings
     ) {
         self._value = State(initialValue: value)
         self.initialValue = value
@@ -52,7 +52,7 @@ public struct DeliveryLimitsEditor: View {
     public var body: some View {
         ConfigurationPage(
             title: Text(TherapySetting.deliveryLimits.title),
-            actionButtonTitle: buttonText,
+            actionButtonTitle: Text(mode.buttonText),
             actionButtonState: saveButtonState,
             cards: {
                 maximumBasalRateCard
@@ -71,6 +71,7 @@ public struct DeliveryLimitsEditor: View {
             }
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .navigationBarTitle("", displayMode: .inline)
         .onTapGesture {
             self.userDidTap = true
         }
@@ -80,8 +81,12 @@ public struct DeliveryLimitsEditor: View {
         guard value.maximumBasalRate != nil, value.maximumBolus != nil else {
             return .disabled
         }
+        
+        if mode == .acceptanceFlow {
+            return .enabled
+        }
 
-        return value == initialValue && mode == .modal ? .disabled : .enabled
+        return value == initialValue && mode != .acceptanceFlow ? .disabled : .enabled
     }
 
     var maximumBasalRateGuardrail: Guardrail<HKQuantity> {
@@ -183,7 +188,7 @@ public struct DeliveryLimitsEditor: View {
     
     private var instructionalContentIfNecessary: some View {
         return Group {
-            if mode == .flow && !userDidTap {
+            if mode == .acceptanceFlow && !userDidTap {
                 instructionalContent
             }
         }
@@ -192,20 +197,16 @@ public struct DeliveryLimitsEditor: View {
     private var instructionalContent: some View {
         HStack { // to align with guardrail warning, if present
             Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-            .foregroundColor(.accentColor)
+            .foregroundColor(.instructionalContent)
             .font(.subheadline)
             Spacer()
         }
-    }
-    
-    private var buttonText: Text {
-        return self.initialValue == self.value ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
     }
 
     private var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds
         return Group {
-            if !crossedThresholds.isEmpty && (userDidTap || mode == .modal) {
+            if !crossedThresholds.isEmpty && (userDidTap || mode == .settings || mode == .legacySettings) {
                 DeliveryLimitsGuardrailWarning(crossedThresholds: crossedThresholds, maximumScheduledBasalRate: scheduledBasalRange?.upperBound)
             }
         }
@@ -245,7 +246,9 @@ public struct DeliveryLimitsEditor: View {
 
     private func saveAndDismiss() {
         save(value)
-        dismiss()
+        if mode == .legacySettings {
+            dismiss()
+        }
     }
 }
 

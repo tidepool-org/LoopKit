@@ -41,7 +41,7 @@ public struct CorrectionRangeOverridesEditor: View {
         minValue: HKQuantity?,
         onSave save: @escaping (_ overrides: CorrectionRangeOverrides) -> Void,
         sensitivityOverridesEnabled: Bool,
-        mode: PresentationMode = .modal
+        mode: PresentationMode = .legacySettings
     ) {
         self._value = State(initialValue: value)
         self.initialValue = value
@@ -55,9 +55,9 @@ public struct CorrectionRangeOverridesEditor: View {
 
     public var body: some View {
         ConfigurationPage(
-            title: Text(TherapySetting.correctionRangeOverrides.title),
-            actionButtonTitle: buttonText,
-            actionButtonState: value != initialValue || mode == .flow ? .enabled : .disabled,
+            title: Text(TherapySetting.correctionRangeOverrides.smallTitle),
+            actionButtonTitle: Text(mode.buttonText),
+            actionButtonState: value != initialValue || mode == .acceptanceFlow ? .enabled : .disabled,
             cards: {
                 card(for: .preMeal)
                 if !sensitivityOverridesEnabled {
@@ -77,6 +77,7 @@ public struct CorrectionRangeOverridesEditor: View {
             }
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .navigationBarTitle("", displayMode: .inline)
         .onTapGesture {
             self.userDidTap = true
         }
@@ -128,19 +129,10 @@ public struct CorrectionRangeOverridesEditor: View {
     private func guardrail(for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity> {
         return Guardrail.correctionRangeOverridePreset(preset, correctionRangeScheduleRange: correctionRangeScheduleRange)
     }
-
-    private var buttonText: Text {
-        switch mode {
-        case .modal:
-            return Text("Save", comment: "The button text for saving on a configuration page")
-        case .flow:
-            return self.initialValue == self.value ? Text(LocalizedString("Accept Setting", comment: "The button text for accepting the prescribed setting")) : Text(LocalizedString("Save Setting", comment: "The button text for saving the edited setting"))
-        }
-    }
     
     private var instructionalContentIfNecessary: some View {
         return Group {
-            if mode == .flow && !userDidTap {
+            if mode == .acceptanceFlow && !userDidTap {
                 instructionalContent
             }
         }
@@ -149,7 +141,7 @@ public struct CorrectionRangeOverridesEditor: View {
     private var instructionalContent: some View {
         HStack { // to align with guardrail warning, if present
             Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-            .foregroundColor(.accentColor)
+            .foregroundColor(.instructionalContent)
             .font(.subheadline)
             Spacer()
         }
@@ -179,7 +171,7 @@ public struct CorrectionRangeOverridesEditor: View {
     private var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds
         return Group {
-            if !crossedThresholds.isEmpty && (userDidTap || mode == .modal) {
+            if !crossedThresholds.isEmpty && (userDidTap || mode == .settings || mode == .legacySettings) {
                 CorrectionRangeOverridesGuardrailWarning(crossedThresholds: crossedThresholds)
             }
         }
@@ -216,7 +208,7 @@ public struct CorrectionRangeOverridesEditor: View {
 
     private func saveAndDismiss() {
         save(value)
-        if mode == .modal {
+        if mode == .legacySettings {
             dismiss()
         }
     }

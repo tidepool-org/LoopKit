@@ -30,7 +30,7 @@ public struct CorrectionRangeScheduleEditor: View {
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void,
-        mode: PresentationMode = .modal
+        mode: PresentationMode = .legacySettings
     ) {
         self.initialSchedule = schedule
         self._scheduleItems = State(initialValue: schedule?.items ?? [])
@@ -105,7 +105,7 @@ public struct CorrectionRangeScheduleEditor: View {
     
     var instructionalContentIfNecessary: some View {
         return Group {
-            if mode == .flow && !userDidTap {
+            if mode == .acceptanceFlow && !userDidTap {
                 instructionalContent
             }
         }
@@ -115,9 +115,9 @@ public struct CorrectionRangeScheduleEditor: View {
         HStack { // to align with guardrail warning, if present
             VStack(alignment: .leading, spacing: 20) {
                 Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-                Text(LocalizedString("You can add different ranges for different times of day by using the [+].", comment: "Description of how to add a configuration range"))
+                Text(LocalizedString("You can add different ranges for different times of day by using the ➕.", comment: "Description of how to add a configuration range"))
             }
-            .foregroundColor(.accentColor)
+            .foregroundColor(.instructionalContent)
             .font(.subheadline)
             Spacer()
         }
@@ -126,7 +126,7 @@ public struct CorrectionRangeScheduleEditor: View {
     var guardrailWarningIfNecessary: some View {
         let crossedThresholds = self.crossedThresholds
         return Group {
-            if !crossedThresholds.isEmpty && (userDidTap || mode == .modal) {
+            if !crossedThresholds.isEmpty && (userDidTap || mode == .settings || mode == .legacySettings) {
                 CorrectionRangeGuardrailWarning(crossedThresholds: crossedThresholds)
             }
         }
