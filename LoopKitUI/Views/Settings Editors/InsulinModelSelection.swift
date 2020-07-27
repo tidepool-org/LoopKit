@@ -99,9 +99,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     private var navigationContent: some View {
         NavigationView {
             content
-            .listStyle(GroupedListStyle())
-            .environment(\.horizontalSizeClass, horizontalOverride)
-            .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
             .navigationBarItems(leading: dismissButton)
         }
     }
@@ -167,6 +164,9 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             }
             .buttonStyle(PlainButtonStyle()) // Disable row highlighting on selection
         }
+        .listStyle(GroupedListStyle())
+        .environment(\.horizontalSizeClass, horizontalOverride)
+        .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
     }
 
     var insulinModelSettingDescription: Text {
