@@ -12,7 +12,7 @@ import LoopKit
 
 
 public final class InsulinModelSelectionViewModel: ObservableObject {
-    @Published public var insulinModelSettings: InsulinModelSettings
+    @Binding public var insulinModelSettings: InsulinModelSettings
     var insulinSensitivitySchedule: InsulinSensitivitySchedule
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
@@ -34,8 +34,8 @@ public final class InsulinModelSelectionViewModel: ObservableObject {
         }
     }
 
-    public init(insulinModelSettings: InsulinModelSettings, insulinSensitivitySchedule: InsulinSensitivitySchedule?) {
-        self._insulinModelSettings = Published(wrappedValue: insulinModelSettings)
+    public init(insulinModelSettings: Binding<InsulinModelSettings>, insulinSensitivitySchedule: InsulinSensitivitySchedule?) {
+        self._insulinModelSettings = insulinModelSettings
         self.insulinSensitivitySchedule = insulinSensitivitySchedule ?? Self.defaultInsulinSensitivitySchedule
     }
 }
@@ -45,18 +45,21 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     @ObservedObject var viewModel: InsulinModelSelectionViewModel
     var glucoseUnit: HKUnit
     var supportedModelSettings: SupportedInsulinModelSettings
+    let mode: PresentationMode
     let appName: String
     
     public init(
         viewModel: InsulinModelSelectionViewModel,
         glucoseUnit: HKUnit,
         supportedModelSettings: SupportedInsulinModelSettings,
-        appName: String
+        appName: String,
+        mode: PresentationMode
     ){
         self.viewModel = viewModel
         self.glucoseUnit = glucoseUnit
         self.supportedModelSettings = supportedModelSettings
         self.appName = appName
+        self.mode = mode
     }
 
     let chartManager: ChartsManager = {
@@ -79,75 +82,89 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     }()
 
     @Environment(\.dismiss) var dismiss
-
+    
     public var body: some View {
-        NavigationView {
-            List {
-                Section {
-                    SettingDescription(
-                        text: insulinModelSettingDescription,
-                        informationalContent: {
-                            // TODO: Implement informational content
-                            Text("Not implemented")
-                        }
-                    )
-                    .padding(4)
-                    .padding(.top, 4)
-
-                    VStack {
-                        InsulinModelChartView(
-                            chartManager: chartManager,
-                            glucoseUnit: glucoseUnit,
-                            selectedInsulinModelValues: selectedInsulinModelValues,
-                            unselectedInsulinModelValues: unselectedInsulinModelValues,
-                            glucoseDisplayRange: endingGlucoseQuantity...startingGlucoseQuantity
-                        )
-                        .frame(height: 170)
-
-                        CheckmarkListItem(
-                            title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).title),
-                            description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).subtitle),
-                            isSelected: isSelected(.exponentialPreset(.humalogNovologAdult))
-                        )
-                        .padding(.vertical, 4)
+        switch mode {
+        case .acceptanceFlow:
+            return AnyView(NavigationView {
+                content
+                    .navigationBarItems(leading: dismissButton)
+            })
+        case .legacySettings, .settings:
+            return AnyView(content)
+        }
+    }
+    
+    var content: some View {
+        list
+        .environment(\.horizontalSizeClass, horizontalOverride)
+        .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
+    }
+    
+    var list: some View {
+        List {
+            Section {
+                SettingDescription(
+                    text: insulinModelSettingDescription,
+                    informationalContent: {
+                        // TODO: Implement informational content
+                        Text("Not implemented")
                     }
+                )
+                .padding(4)
+                .padding(.top, 4)
+
+                VStack {
+                    InsulinModelChartView(
+                        chartManager: chartManager,
+                        glucoseUnit: glucoseUnit,
+                        selectedInsulinModelValues: selectedInsulinModelValues,
+                        unselectedInsulinModelValues: unselectedInsulinModelValues,
+                        glucoseDisplayRange: endingGlucoseQuantity...startingGlucoseQuantity
+                    )
+                    .frame(height: 170)
 
                     CheckmarkListItem(
-                        title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).title),
-                        description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).subtitle),
-                        isSelected: isSelected(.exponentialPreset(.humalogNovologChild))
+                        title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).title),
+                        description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologAdult).subtitle),
+                        isSelected: isSelected(.exponentialPreset(.humalogNovologAdult))
                     )
                     .padding(.vertical, 4)
-                    .padding(.bottom, supportedModelSettings.fiaspModelEnabled ? 0 : 4)
-
-                    if supportedModelSettings.fiaspModelEnabled {
-                        CheckmarkListItem(
-                            title: Text(InsulinModelSettings.exponentialPreset(.fiasp).title),
-                            description: Text(InsulinModelSettings.exponentialPreset(.fiasp).subtitle),
-                            isSelected: isSelected(.exponentialPreset(.fiasp))
-                        )
-                        .padding(.vertical, 4)
-                    }
-
-                    if supportedModelSettings.walshModelEnabled {
-                        DurationBasedCheckmarkListItem(
-                            title: Text(WalshInsulinModel.title),
-                            description: Text(WalshInsulinModel.subtitle),
-                            isSelected: isWalshModelSelected,
-                            duration: $viewModel.walshActionDuration,
-                            validDurationRange: InsulinModelSelectionViewModel.validWalshModelDurationRange
-                        )
-                        .padding(.vertical, 4)
-                        .padding(.bottom, 4)
-                    }
                 }
-                .buttonStyle(PlainButtonStyle()) // Disable row highlighting on selection
+
+                CheckmarkListItem(
+                    title: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).title),
+                    description: Text(InsulinModelSettings.exponentialPreset(.humalogNovologChild).subtitle),
+                    isSelected: isSelected(.exponentialPreset(.humalogNovologChild))
+                )
+                .padding(.vertical, 4)
+                .padding(.bottom, supportedModelSettings.fiaspModelEnabled ? 0 : 4)
+
+                if supportedModelSettings.fiaspModelEnabled {
+                    CheckmarkListItem(
+                        title: Text(InsulinModelSettings.exponentialPreset(.fiasp).title),
+                        description: Text(InsulinModelSettings.exponentialPreset(.fiasp).subtitle),
+                        isSelected: isSelected(.exponentialPreset(.fiasp))
+                    )
+                    .padding(.vertical, 4)
+                }
+
+                if supportedModelSettings.walshModelEnabled {
+                    DurationBasedCheckmarkListItem(
+                        title: Text(WalshInsulinModel.title),
+                        description: Text(WalshInsulinModel.subtitle),
+                        isSelected: isWalshModelSelected,
+                        duration: $viewModel.walshActionDuration,
+                        validDurationRange: InsulinModelSelectionViewModel.validWalshModelDurationRange
+                    )
+                    .padding(.vertical, 4)
+                    .padding(.bottom, 4)
+                }
             }
-            .listStyle(GroupedListStyle())
-            .environment(\.horizontalSizeClass, horizontalOverride)
-            .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
-            .navigationBarItems(leading: dismissButton)
+            .buttonStyle(PlainButtonStyle()) // Disable row highlighting on selection
         }
+        .listStyle(GroupedListStyle())
+
     }
 
     var insulinModelSettingDescription: Text {

@@ -8,6 +8,7 @@
 
 import LoopKit
 import HealthKit
+import SwiftUI
 
 public class TherapySettingsViewModel: ObservableObject {
     public typealias SaveCompletion = (TherapySetting, TherapySettings) -> Void
@@ -23,6 +24,8 @@ public class TherapySettingsViewModel: ObservableObject {
     let syncPumpSchedule: PumpManager.SyncSchedule?
     let sensitivityOverridesEnabled: Bool
     let prescription: Prescription?
+    let includeSupportSection: Bool
+    let appName: String
 
     public init(mode: PresentationMode,
                 therapySettings: TherapySettings,
@@ -31,6 +34,7 @@ public class TherapySettingsViewModel: ObservableObject {
                 syncPumpSchedule: PumpManager.SyncSchedule? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
+                appName: String = "",
                 didSave: SaveCompletion? = nil) {
         self.mode = mode
         self.therapySettings = therapySettings
@@ -40,7 +44,20 @@ public class TherapySettingsViewModel: ObservableObject {
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.prescription = prescription
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
+        self.includeSupportSection = includeSupportSection
+        self.appName = appName
         self.didSave = didSave
+    }
+    
+    var insulinModelSelectionViewModel: InsulinModelSelectionViewModel {
+        let binding = Binding<InsulinModelSettings>(
+            get: { self.therapySettings.insulinModelSettings! },
+            set: { self.therapySettings.insulinModelSettings = $0 }
+        )
+        let result = InsulinModelSelectionViewModel(
+            insulinModelSettings: binding,
+            insulinSensitivitySchedule: therapySettings.insulinSensitivitySchedule!)
+        return result
     }
     
     /// Reset to initial
@@ -73,6 +90,11 @@ public class TherapySettingsViewModel: ObservableObject {
         therapySettings.maximumBasalRatePerHour = limits.maximumBasalRate?.doubleValue(for: .internationalUnitsPerHour)
         therapySettings.maximumBolus = limits.maximumBolus?.doubleValue(for: .internationalUnit())
         didSave?(TherapySetting.deliveryLimits, therapySettings)
+    }
+    
+    public func saveInsulinModel(insulinModelSettings: InsulinModelSettings) {
+        therapySettings.insulinModelSettings = insulinModelSettings
+        didSave?(TherapySetting.insulinModel, therapySettings)
     }
     
     public func saveCarbRatioSchedule(carbRatioSchedule: CarbRatioSchedule) {

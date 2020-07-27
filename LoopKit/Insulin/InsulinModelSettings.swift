@@ -90,6 +90,38 @@ extension InsulinModelSettings: RawRepresentable {
     }
 }
 
+extension ExponentialInsulinModelPreset: Codable {}
+extension InsulinModelSettings: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case exponentialPreset, walsh
+    }
+    private struct Exponential: Codable {
+        let preset: ExponentialInsulinModelPreset
+    }
+    private struct Walsh: Codable {
+        let value: WalshInsulinModel
+    }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let exp = try? container.decode(Exponential.self, forKey: .exponentialPreset) {
+            self = .exponentialPreset(exp.preset)
+        } else if let walsh = try? container.decode(Walsh.self, forKey: .walsh) {
+            self = .walsh(walsh.value)
+        } else {
+            throw decoder.enumDecodingError
+        }
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .exponentialPreset(let preset):
+            try container.encode(Exponential(preset: preset), forKey: .exponentialPreset)
+        case .walsh(let value):
+            try container.encode(Walsh(value: value), forKey: .walsh)
+        }
+    }
+}
+
 public extension InsulinModelSettings {
     init(from storedSettingsInsulinModel: StoredSettings.InsulinModel) {
         switch storedSettingsInsulinModel.modelType {
