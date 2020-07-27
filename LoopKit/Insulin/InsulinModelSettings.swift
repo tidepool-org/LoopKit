@@ -90,7 +90,6 @@ extension InsulinModelSettings: RawRepresentable {
     }
 }
 
-extension ExponentialInsulinModelPreset: Codable {}
 extension InsulinModelSettings: Codable {
     private enum CodingKeys: String, CodingKey {
         case exponentialPreset, walsh

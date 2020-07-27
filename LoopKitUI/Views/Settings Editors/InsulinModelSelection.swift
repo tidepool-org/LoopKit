@@ -85,12 +85,12 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     
     public var body: some View {
         switch mode {
-        case .acceptanceFlow, .legacySettings:
+        case .legacySettings:
             return AnyView(NavigationView {
                 content
                     .navigationBarItems(leading: dismissButton)
             })
-        case .settings:
+        case .settings, .acceptanceFlow:
             return AnyView(content)
         }
     }
