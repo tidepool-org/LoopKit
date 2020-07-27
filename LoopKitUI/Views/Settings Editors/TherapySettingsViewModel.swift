@@ -85,36 +85,7 @@ public class TherapySettingsViewModel: ObservableObject {
     }
     
     public func saveInsulinModel(insulinModel: InsulinModelSettings) {
-        therapySettings.insulinModel = StoredSettings.InsulinModel.init(insulinModel)
+        therapySettings.insulinModel = insulinModel
         didSave?(TherapySetting.insulinModel, therapySettings)
     }
 }
-
-// ANNA TODO
-public extension StoredSettings.InsulinModel {
-    init(_ insulinModelSettings: InsulinModelSettings) {
-        var modelType: StoredSettings.InsulinModel.ModelType
-        var actionDuration: TimeInterval
-        var peakActivity: TimeInterval?
-        
-        switch insulinModelSettings {
-        case .exponentialPreset(let preset):
-            switch preset {
-            case .humalogNovologAdult:
-                modelType = .rapidAdult
-            case .humalogNovologChild:
-                modelType = .rapidChild
-            case .fiasp:
-                modelType = .fiasp
-            }
-            actionDuration = preset.actionDuration
-            peakActivity = preset.peakActivity
-        case .walsh(let model):
-            modelType = .walsh
-            actionDuration = model.actionDuration
-        }
-        
-        self.init(modelType: modelType, actionDuration: actionDuration, peakActivity: peakActivity)
-    }
-}
-

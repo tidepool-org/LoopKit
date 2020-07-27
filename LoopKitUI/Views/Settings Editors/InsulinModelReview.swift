@@ -23,10 +23,9 @@ public struct InsulinModelReview: View {
         self.settingsViewModel = settingsViewModel
         self.supportedModels = supportedModels
         self.appName = appName
-        
-        let insulinModel = InsulinModelSettings(from: settingsViewModel.therapySettings.insulinModel!)
+
         self.insulinSelectionViewModel = InsulinModelSelectionViewModel(
-            insulinModelSettings: insulinModel,
+            insulinModelSettings: settingsViewModel.therapySettings.insulinModel!,
             insulinSensitivitySchedule: settingsViewModel.therapySettings.insulinSensitivitySchedule
         )
     }
