@@ -459,7 +459,7 @@ private extension TherapySettingsView {
                                                      glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
                                                      supportedModelSettings: viewModel.supportedInsulinModelSettings,
                                                      appName: viewModel.appName,
-                                                     mode: mode))
+                                                     mode: viewModel.mode))
             }
             break
         case .carbRatio:

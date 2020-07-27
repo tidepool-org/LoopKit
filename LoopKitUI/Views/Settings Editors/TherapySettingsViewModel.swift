@@ -24,7 +24,6 @@ public class TherapySettingsViewModel: ObservableObject {
     let syncPumpSchedule: PumpManager.SyncSchedule?
     let sensitivityOverridesEnabled: Bool
     let prescription: Prescription?
-    let includeSupportSection: Bool
     let appName: String
 
     public init(mode: PresentationMode,
@@ -44,7 +43,6 @@ public class TherapySettingsViewModel: ObservableObject {
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.prescription = prescription
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
-        self.includeSupportSection = includeSupportSection
         self.appName = appName
         self.didSave = didSave
     }
@@ -52,7 +50,10 @@ public class TherapySettingsViewModel: ObservableObject {
     var insulinModelSelectionViewModel: InsulinModelSelectionViewModel {
         let binding = Binding<InsulinModelSettings>(
             get: { self.therapySettings.insulinModelSettings! },
-            set: { self.therapySettings.insulinModelSettings = $0 }
+            set: {
+                self.therapySettings.insulinModelSettings = $0
+                self.saveInsulinModel(insulinModelSettings: $0)
+            }
         )
         let result = InsulinModelSelectionViewModel(
             insulinModelSettings: binding,
