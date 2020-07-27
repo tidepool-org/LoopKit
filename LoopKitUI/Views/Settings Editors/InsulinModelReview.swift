@@ -52,6 +52,7 @@ public struct InsulinModelReview: View {
             }
             // Styling to mimic the floating button of a ConfigurationPage
             .padding(.bottom)
+            .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
         }
         .edgesIgnoringSafeArea(.bottom)
     }

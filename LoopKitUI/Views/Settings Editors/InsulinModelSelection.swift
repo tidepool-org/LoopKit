@@ -58,7 +58,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         self.viewModel = viewModel
         self.glucoseUnit = glucoseUnit
         self.supportedModelSettings = supportedModelSettings
-        self.appName = appName
+        self.appName = appName // TODO: pull this from the environment
         self.mode = mode
     }
 
