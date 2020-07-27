@@ -45,21 +45,21 @@ extension UIColor {
 extension UIColor {    
     @nonobjc public static let axisLabelColor = secondaryLabel
     
-    @nonobjc public static let axisLineColor = UIColor.clear
+    @nonobjc public static let axisLineColor = clear
     
-    @nonobjc public static let carbs = BundleColor("carbs") ?? .systemGreen
+    @nonobjc public static let carbs = BundleColor("carbs") ?? systemGreen
 
-    @nonobjc public static let critical = BundleColor("critical") ?? .systemRed
+    @nonobjc public static let critical = BundleColor("critical") ?? systemRed
 
-    @nonobjc public static let glucose = BundleColor("glucose") ?? . systemBlue
+    @nonobjc public static let glucose = BundleColor("glucose") ?? systemBlue
 
-    @nonobjc public static let gridColor = UIColor(white: 0, alpha: 0.4)
+    @nonobjc public static let gridColor = systemGray3
     
-    @nonobjc public static let insulin = BundleColor("insulin") ?? .systemOrange
+    @nonobjc public static let insulin = BundleColor("insulin") ?? systemOrange
 
-    @nonobjc public static let loopAccent = BundleColor("accent") ?? .systemBlue
+    @nonobjc public static let loopAccent = BundleColor("accent") ?? systemBlue
     
-    @nonobjc public static let warning = BundleColor("warning") ?? .systemYellow
+    @nonobjc public static let warning = BundleColor("warning") ?? systemYellow
 }
 
 // MARK: - Context for colors
