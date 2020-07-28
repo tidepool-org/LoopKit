@@ -12,18 +12,15 @@ public struct InsulinModelReview: View {
     @ObservedObject var settingsViewModel: TherapySettingsViewModel
     var insulinSelectionViewModel: InsulinModelSelectionViewModel
     var supportedModels: SupportedInsulinModelSettings
-    let appName: String
     
     public init(
         settingsViewModel: TherapySettingsViewModel,
-        supportedModels: SupportedInsulinModelSettings,
-        appName: String
+        supportedModels: SupportedInsulinModelSettings
     ) {
         precondition(settingsViewModel.therapySettings.glucoseUnit != nil)
         precondition(settingsViewModel.therapySettings.insulinModelSettings != nil)
         self.settingsViewModel = settingsViewModel
         self.supportedModels = supportedModels
-        self.appName = appName
 
         self.insulinSelectionViewModel = InsulinModelSelectionViewModel(
             insulinModelSettings: settingsViewModel.therapySettings.insulinModelSettings!,
@@ -38,7 +35,6 @@ public struct InsulinModelReview: View {
                     viewModel: insulinSelectionViewModel,
                     glucoseUnit: settingsViewModel.therapySettings.glucoseUnit!,
                     supportedModelSettings: supportedModels,
-                    appName: appName,
                     mode: .acceptanceFlow // don't wrap the view in a navigation view
                 )
             }

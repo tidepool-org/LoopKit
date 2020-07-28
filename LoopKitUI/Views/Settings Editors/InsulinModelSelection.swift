@@ -41,24 +41,22 @@ public final class InsulinModelSelectionViewModel: ObservableObject {
 }
 
 public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
+    @Environment(\.appName) var appName
 
     @ObservedObject var viewModel: InsulinModelSelectionViewModel
     var glucoseUnit: HKUnit
     var supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
-    let appName: String
     
     public init(
         viewModel: InsulinModelSelectionViewModel,
         glucoseUnit: HKUnit,
         supportedModelSettings: SupportedInsulinModelSettings,
-        appName: String,
         mode: PresentationMode
     ){
         self.viewModel = viewModel
         self.glucoseUnit = glucoseUnit
         self.supportedModelSettings = supportedModelSettings
-        self.appName = appName
         self.mode = mode
     }
 
