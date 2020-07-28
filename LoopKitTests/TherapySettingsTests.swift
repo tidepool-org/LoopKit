@@ -83,7 +83,7 @@ class TherapySettingsTests: XCTestCase {
             insulinSensitivitySchedule: insulinSensitivitySchedule,
             carbRatioSchedule: carbRatioSchedule,
             basalRateSchedule: basalRateSchedule,
-            insulinModel: InsulinModelSettings(model: ExponentialInsulinModelPreset.humalogNovologAdult)
+            insulinModelSettings: InsulinModelSettings(model: ExponentialInsulinModelPreset.humalogNovologAdult)
         )
     }
 
@@ -317,7 +317,7 @@ class TherapySettingsTests: XCTestCase {
         XCTAssertEqual(decoded.maximumBasalRatePerHour, expected.maximumBasalRatePerHour)
         XCTAssertEqual(decoded.suspendThreshold, expected.suspendThreshold)
         XCTAssertEqual(decoded.carbRatioSchedule, expected.carbRatioSchedule)
-        XCTAssertEqual(decoded.insulinModel, expected.insulinModel)
+        XCTAssertEqual(decoded.insulinModelSettings, expected.insulinModelSettings)
         XCTAssertEqual(decoded.glucoseTargetRangeSchedule, expected.glucoseTargetRangeSchedule)
     }
 }
