@@ -12,46 +12,61 @@ import LoopKit
 import SwiftUI
 
 public struct TherapySettingsView: View, HorizontalSizeClassOverride {
-    
-    @ObservedObject var viewModel: TherapySettingsViewModel
-        
-    private let mode: PresentationMode
-    
-    public init(mode: PresentationMode = .settings, viewModel: TherapySettingsViewModel) {
-        self.mode = mode
-        self.viewModel = viewModel
+    public struct ActionButton {
+        public init(localizedString: String, action: @escaping () -> Void) {
+            self.localizedString = localizedString
+            self.action = action
+        }
+        let localizedString: String
+        let action: () -> Void
     }
     
+    @Environment(\.dismiss) var dismiss
+
+    @ObservedObject var viewModel: TherapySettingsViewModel
+        
+    private let actionButton: ActionButton?
+        
+    public init(viewModel: TherapySettingsViewModel,
+                actionButton: ActionButton? = nil) {
+        self.viewModel = viewModel
+        self.actionButton = actionButton
+    }
+        
     public var body: some View {
-        switch mode {
-        case .acceptanceFlow, .settings: return AnyView(content)
-        case .legacySettings: return AnyView(navigationContent)
+        switch viewModel.mode {
+        case .acceptanceFlow: return AnyView(content)
+        case .settings: return AnyView(content)
+        case .legacySettings: return AnyView(navigationViewWrappedContent)
         }
     }
     
     private var content: some View {
         List {
-            if viewModel.prescription != nil {
-                prescriptionSection
+            Group {
+                if viewModel.mode == .acceptanceFlow && viewModel.prescription != nil {
+                    prescriptionSection
+                }
+                suspendThresholdSection
+                correctionRangeSection
+                temporaryCorrectionRangesSection
+                basalRatesSection
+                deliveryLimitsSection
+                insulinModelSection
+                carbRatioSection
+                insulinSensitivitiesSection
             }
-            suspendThresholdSection
-            correctionRangeSection
-            temporaryCorrectionRangesSection
-            basalRatesSection
-            deliveryLimitsSection
-            insulinModelSection
-            carbRatioSection
-            insulinSensitivitiesSection
-            if viewModel.includeSupportSection {
-                supportSection
-            }
+            lastItem
         }
         .listStyle(GroupedListStyle())
+        .onAppear() {
+            UITableView.appearance().separatorStyle = .singleLine // Add lines between rows
+        }
         .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
         .environment(\.horizontalSizeClass, horizontalOverride)
     }
     
-    private var navigationContent: some View {
+    private var navigationViewWrappedContent: some View {
         NavigationView {
             content
         }
@@ -179,11 +194,11 @@ extension TherapySettingsView {
         
     private var insulinModelSection: some View {
         section(for: .insulinModel) {
-            if self.viewModel.therapySettings.insulinModel != nil {
+            if self.viewModel.therapySettings.insulinModelSettings != nil {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(InsulinModelSettings(from: self.viewModel.therapySettings.insulinModel!).title)
+                    Text(self.viewModel.therapySettings.insulinModelSettings!.title)
                         .font(.body)
-                    Text(InsulinModelSettings(from: self.viewModel.therapySettings.insulinModel!).subtitle)
+                    Text(self.viewModel.therapySettings.insulinModelSettings!.subtitle)
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
@@ -314,7 +329,7 @@ struct SectionWithEdit<Content, NavigationDestination>: View where Content: View
 
     @State var activate: Bool = false
     
-    @ViewBuilder public var body: some View {
+    public var body: some View {
         Section(header: header) {
             VStack(alignment: .leading) {
                 Spacer()
@@ -346,34 +361,38 @@ private extension TherapySettingsView {
     func screen(for setting: TherapySetting) -> some View {
         switch setting {
         case .glucoseTargetRange:
-            return AnyView(CorrectionRangeReview(mode: mode, viewModel: viewModel))
+            return AnyView(CorrectionRangeReview(mode: viewModel.mode, viewModel: viewModel))
         case .correctionRangeOverrides:
-            return AnyView(CorrectionRangeOverrideReview(mode: mode, viewModel: viewModel))
+            return AnyView(CorrectionRangeOverrideReview(mode: viewModel.mode, viewModel: viewModel))
         case .suspendThreshold:
-            return AnyView(SuspendThresholdReview(mode: mode, viewModel: viewModel))
+            return AnyView(SuspendThresholdReview(mode: viewModel.mode, viewModel: viewModel))
         case .basalRate:
-            return AnyView(BasalRatesReview(mode: mode, viewModel: viewModel))
+            return AnyView(BasalRatesReview(mode: viewModel.mode, viewModel: viewModel))
         case .deliveryLimits:
-            return AnyView(DeliveryLimitsReview(mode: mode, viewModel: viewModel))
+            return AnyView(DeliveryLimitsReview(mode: viewModel.mode, viewModel: viewModel))
         case .insulinModel:
-            // TODO insulin model
-            break
+            if viewModel.therapySettings.glucoseUnit != nil && viewModel.therapySettings.insulinModelSettings != nil && viewModel.therapySettings.insulinSensitivitySchedule != nil {
+                return AnyView(InsulinModelSelection(viewModel: viewModel.insulinModelSelectionViewModel,
+                                                     glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
+                                                     supportedModelSettings: viewModel.supportedInsulinModelSettings,
+                                                     appName: viewModel.appName,
+                                                     mode: viewModel.mode))
+            }
         case .carbRatio:
             return AnyView(CarbRatioScheduleEditor(
                 schedule: viewModel.therapySettings.carbRatioSchedule,
-                mode: mode,
+                mode: viewModel.mode,
                 onSave: { self.viewModel.saveCarbRatioSchedule(carbRatioSchedule: $0) }
             ))
         case .insulinSensitivity:
             if self.viewModel.therapySettings.glucoseUnit != nil {
                 return AnyView(InsulinSensitivityScheduleEditor(
                     schedule: self.viewModel.therapySettings.insulinSensitivitySchedule,
-                    mode: mode,
+                    mode: viewModel.mode,
                     glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
                     onSave: { self.viewModel.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0) }
                 ))
             }
-            break
         case .none:
             break
         }
@@ -405,27 +424,31 @@ public struct TherapySettingsView_Previews: PreviewProvider {
     static let preview_supportedBasalRates = [0.2, 0.5, 0.75, 1.0]
     static let preview_supportedBolusVolumes = [5.0, 10.0, 15.0]
 
-    static let preview_viewModel = TherapySettingsViewModel(therapySettings: preview_therapySettings,
-                                                            supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
-                                                            pumpSupportedIncrements: PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
-                                                                                                             bolusVolumes: preview_supportedBolusVolumes,
-                                                                                                             maximumBasalScheduleEntryCount: 24))
+    static func preview_viewModel(mode: PresentationMode) -> TherapySettingsViewModel {
+        TherapySettingsViewModel(mode: mode,
+                                 therapySettings: preview_therapySettings,
+                                 appName: "Loop",
+                                 supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
+                                 pumpSupportedIncrements: PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
+                                                                                  bolusVolumes: preview_supportedBolusVolumes,
+                                                                                  maximumBasalScheduleEntryCount: 24))
+    }
 
     public static var previews: some View {
         Group {
-            TherapySettingsView(mode: .acceptanceFlow, viewModel: preview_viewModel)
+            TherapySettingsView(viewModel: preview_viewModel(mode: .acceptanceFlow))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (onboarding)")
-            TherapySettingsView(mode: .settings, viewModel: preview_viewModel)
+            TherapySettingsView(viewModel: preview_viewModel(mode: .settings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (settings)")
-            TherapySettingsView(mode: .settings, viewModel: preview_viewModel)
+            TherapySettingsView(viewModel: preview_viewModel(mode: .settings))
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
-            TherapySettingsView(mode: .legacySettings, viewModel: TherapySettingsViewModel(therapySettings: TherapySettings()))
+            TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .legacySettings, therapySettings: TherapySettings(), appName: "Loop"))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
