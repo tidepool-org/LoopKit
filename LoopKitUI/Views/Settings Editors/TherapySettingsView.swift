@@ -71,6 +71,20 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
             content
         }
     }
+    
+    @ViewBuilder private var lastItem: some View {
+        if viewModel.mode == .acceptanceFlow {
+            if actionButton != nil {
+                Button(action: actionButton!.action) {
+                    Text(actionButton!.localizedString)
+                }
+                .buttonStyle(ActionButtonStyle(.primary))
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            }
+        } else {
+            supportSection
+        }
+    }
 }
 
 // MARK: Sections
