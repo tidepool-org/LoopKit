@@ -6,6 +6,7 @@
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
+import Combine
 import LoopKit
 import HealthKit
 import SwiftUI
@@ -25,6 +26,8 @@ public class TherapySettingsViewModel: ObservableObject {
     let sensitivityOverridesEnabled: Bool
     let prescription: Prescription?
     let appName: String
+
+    lazy private var cancellables = Set<AnyCancellable>()
 
     public init(mode: PresentationMode,
                 therapySettings: TherapySettings,
@@ -48,16 +51,14 @@ public class TherapySettingsViewModel: ObservableObject {
     }
     
     var insulinModelSelectionViewModel: InsulinModelSelectionViewModel {
-        let binding = Binding<InsulinModelSettings>(
-            get: { self.therapySettings.insulinModelSettings! },
-            set: {
-                self.therapySettings.insulinModelSettings = $0
-                self.saveInsulinModel(insulinModelSettings: $0)
-            }
-        )
         let result = InsulinModelSelectionViewModel(
-            insulinModelSettings: binding,
+            insulinModelSettings: therapySettings.insulinModelSettings!,
             insulinSensitivitySchedule: therapySettings.insulinSensitivitySchedule!)
+        result.$insulinModelSettings
+            .dropFirst() // This is needed to avoid reading the initial value, which starts off an infinite loop
+            .sink {
+            [weak self] in self?.saveInsulinModel(insulinModelSettings: $0)
+        }.store(in: &cancellables)
         return result
     }
     

@@ -12,7 +12,7 @@ import LoopKit
 
 
 public final class InsulinModelSelectionViewModel: ObservableObject {
-    @Binding public var insulinModelSettings: InsulinModelSettings
+    @Published public var insulinModelSettings: InsulinModelSettings
     var insulinSensitivitySchedule: InsulinSensitivitySchedule
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
@@ -34,8 +34,8 @@ public final class InsulinModelSelectionViewModel: ObservableObject {
         }
     }
 
-    public init(insulinModelSettings: Binding<InsulinModelSettings>, insulinSensitivitySchedule: InsulinSensitivitySchedule?) {
-        self._insulinModelSettings = insulinModelSettings
+    public init(insulinModelSettings: InsulinModelSettings, insulinSensitivitySchedule: InsulinSensitivitySchedule?) {
+        self._insulinModelSettings = Published(wrappedValue: insulinModelSettings)
         self.insulinSensitivitySchedule = insulinSensitivitySchedule ?? Self.defaultInsulinSensitivitySchedule
     }
 }
