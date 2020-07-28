@@ -1,15 +1,15 @@
 //
-//  SuspendThresholdInformationView.swift
+//  CarbRatioInformationView.swift
 //  LoopKitUI
 //
-//  Created by Anna Quinlan on 7/2/20.
+//  Created by Anna Quinlan on 7/28/20.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
 import SwiftUI
 import LoopKit
 
-public struct SuspendThresholdInformationView: View {
+public struct CarbRatioInformationView: View {
     var onExit: (() -> Void)?
     var mode: PresentationMode
     
@@ -25,7 +25,7 @@ public struct SuspendThresholdInformationView: View {
     
     public var body: some View {
         InformationView(
-            title: Text(TherapySetting.suspendThreshold.title),
+            title: Text(TherapySetting.carbRatio.title),
             informationalContent: {text},
             onExit: onExit ?? { self.presentationMode.wrappedValue.dismiss() },
             mode: mode
@@ -34,7 +34,7 @@ public struct SuspendThresholdInformationView: View {
     
     private var text: some View {
         VStack(alignment: .leading, spacing: 25) {
-            Text(TherapySetting.suspendThreshold.descriptiveText)
+            Text(TherapySetting.carbRatio.descriptiveText)
         }
         .accentColor(.secondary)
         .foregroundColor(.accentColor)
