@@ -9,7 +9,6 @@
 import SwiftUI
 import HealthKit
 import LoopKit
-import LocalAuthentication
 
 
 enum SavingMechanism<Value> {
@@ -41,7 +40,6 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
 
     var title: Text
     var description: Text
-    let authenticationChallengeDescription: String
     var initialScheduleItems: [RepeatingScheduleValue<Value>]
     @Binding var scheduleItems: [RepeatingScheduleValue<Value>]
     var defaultFirstScheduleItemValue: Value
@@ -81,7 +79,6 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     init(
         title: Text,
         description: Text,
-        authenticationChallengeDescription: String = "Authenticate to change setting",
         scheduleItems: Binding<[RepeatingScheduleValue<Value>]>,
         initialScheduleItems: [RepeatingScheduleValue<Value>],
         defaultFirstScheduleItemValue: Value,
@@ -107,7 +104,6 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         self.savingMechanism = savingMechanism
         self.mode = mode
         self.therapySettingType = therapySettingType
-        self.authenticationChallengeDescription = authenticationChallengeDescription
     }
 
     var body: some View {
@@ -360,22 +356,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
             self.continueSaving()
             return
         }
-        
-        let context = LAContext()
-        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) {
-            context.evaluatePolicy(.deviceOwnerAuthentication,
-                                   localizedReason: authenticationChallengeDescription,
-                                   reply: { (success, error) in
-                                    if success {
-                                        DispatchQueue.main.async {
-                                            self.continueSaving()
-                                        }
-                                    }
-            })
-        } else {
-            self.continueSaving()
-        }
-    }
+}
     
     private func continueSaving() {
 
