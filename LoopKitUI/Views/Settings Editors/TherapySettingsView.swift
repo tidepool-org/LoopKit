@@ -464,7 +464,6 @@ private extension TherapySettingsView {
                                                      appName: viewModel.appName,
                                                      mode: viewModel.mode))
             }
-            break
         case .carbRatio:
             return AnyView(CarbRatioScheduleEditor(
                 schedule: viewModel.therapySettings.carbRatioSchedule,
