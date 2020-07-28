@@ -16,15 +16,4 @@ extension DeviceStatusHighlight {
             return UIImage(systemName: imageName)
         }
     }
-    
-    public var color: UIColor {
-        switch state {
-        case .normal:
-            return .systemPurple
-        case .warning:
-            return .systemOrange
-        case .critical:
-            return .systemRed
-        }
-    }
 }
