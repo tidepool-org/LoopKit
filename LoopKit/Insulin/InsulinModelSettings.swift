@@ -32,6 +32,34 @@ public enum InsulinModelSettings: Equatable {
     }
 }
 
+extension InsulinModelSettings: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        do {
+            let exponential =  try container.decode(ExponentialInsulinModelPreset.self, forKey: .exponential)
+            self = .exponentialPreset(exponential)
+        } catch {
+            let walsh =  try container.decode(WalshInsulinModel.self, forKey: .walsh)
+            self = .walsh(walsh)
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .exponentialPreset(let model):
+            try container.encode(model, forKey: .exponential)
+        case .walsh(let model):
+            try container.encode(model, forKey: .walsh)
+        }
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case exponential
+        case walsh
+    }
+}
+
 extension InsulinModelSettings: CustomDebugStringConvertible {
     public var debugDescription: String {
         return String(reflecting: model)
@@ -86,37 +114,6 @@ extension InsulinModelSettings: RawRepresentable {
     private enum InsulinModelType: String {
         case exponentialPreset
         case walsh
-    }
-}
-
-extension InsulinModelSettings: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case exponentialPreset, walsh
-    }
-    private struct Exponential: Codable {
-        let preset: ExponentialInsulinModelPreset
-    }
-    private struct Walsh: Codable {
-        let value: WalshInsulinModel
-    }
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let exp = try? container.decode(Exponential.self, forKey: .exponentialPreset) {
-            self = .exponentialPreset(exp.preset)
-        } else if let walsh = try? container.decode(Walsh.self, forKey: .walsh) {
-            self = .walsh(walsh.value)
-        } else {
-            throw decoder.enumDecodingError
-        }
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .exponentialPreset(let preset):
-            try container.encode(Exponential(preset: preset), forKey: .exponentialPreset)
-        case .walsh(let value):
-            try container.encode(Walsh(value: value), forKey: .walsh)
-        }
     }
 }
 
