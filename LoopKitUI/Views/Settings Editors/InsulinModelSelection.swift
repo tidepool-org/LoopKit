@@ -85,30 +85,27 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     
     public var body: some View {
         switch mode {
-        case .legacySettings:
-            return AnyView(NavigationView {
-                content
-                    .navigationBarItems(leading: dismissButton)
-            })
-        case .settings, .acceptanceFlow:
+        case .acceptanceFlow, .settings:
             return AnyView(content)
+        case .legacySettings:
+            return AnyView(navigationContent)
         }
     }
     
-    var content: some View {
-        list
-        .environment(\.horizontalSizeClass, horizontalOverride)
-        .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
+    private var navigationContent: some View {
+        NavigationView {
+            content
+            .navigationBarItems(leading: dismissButton)
+        }
     }
     
-    var list: some View {
+    private var content: some View {
         List {
             Section {
                 SettingDescription(
                     text: insulinModelSettingDescription,
                     informationalContent: {
-                        // TODO: Implement informational content
-                        Text("Not implemented")
+                        TherapySetting.insulinModel.helpScreen()
                     }
                 )
                 .padding(4)
@@ -164,7 +161,8 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             .buttonStyle(PlainButtonStyle()) // Disable row highlighting on selection
         }
         .listStyle(GroupedListStyle())
-
+        .environment(\.horizontalSizeClass, horizontalOverride)
+        .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
     }
 
     var insulinModelSettingDescription: Text {

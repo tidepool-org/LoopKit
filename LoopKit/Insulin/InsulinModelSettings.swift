@@ -32,7 +32,6 @@ public enum InsulinModelSettings: Equatable {
     }
 }
 
-
 extension InsulinModelSettings: CustomDebugStringConvertible {
     public var debugDescription: String {
         return String(reflecting: model)
