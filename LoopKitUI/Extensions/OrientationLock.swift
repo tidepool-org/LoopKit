@@ -6,7 +6,7 @@
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
-import UIKit
+import SwiftUI
 
 
 public protocol DeviceOrientationController: AnyObject {
@@ -15,7 +15,7 @@ public protocol DeviceOrientationController: AnyObject {
 
 /// A class whose lifetime defines the application's supported interface orientations.
 ///
-/// Construct an OrientationLock as a `@State` property in a SwiftUI view to constrain the view's supported orientations.
+/// Use the `supportedInterfaceOrientations` modifier on a SwiftUI view to lock its orientation.
 /// To function, `OrientationLock.deviceOrientationController` must be assigned prior to use.
 public final class OrientationLock {
     private let originalSupportedInterfaceOrientations: UIInterfaceOrientationMask
@@ -24,7 +24,7 @@ public final class OrientationLock {
     /// The property must be assigned prior to instantiating any OrientationLock.
     public static weak var deviceOrientationController: DeviceOrientationController?
 
-    public init(_ supportedInterfaceOrientations: UIInterfaceOrientationMask) {
+    fileprivate init(_ supportedInterfaceOrientations: UIInterfaceOrientationMask) {
         assert(Self.deviceOrientationController != nil, "OrientationLock.deviceOrientationController must be assigned prior to constructing an OrientationLock")
         originalSupportedInterfaceOrientations = Self.deviceOrientationController?.supportedInterfaceOrientations ?? .allButUpsideDown
         Self.deviceOrientationController?.supportedInterfaceOrientations = supportedInterfaceOrientations
@@ -35,3 +35,23 @@ public final class OrientationLock {
     }
 }
 
+extension View {
+    /// Use the `supportedInterfaceOrientations` modifier on a SwiftUI view to lock its orientation.
+    /// To function, `OrientationLock.deviceOrientationController` must be assigned prior to use.
+    public func supportedInterfaceOrientations(_ supportedInterfaceOrientations: UIInterfaceOrientationMask) -> some View {
+        OrientationLocked(supportedInterfaceOrientations: supportedInterfaceOrientations, content: self)
+    }
+}
+
+private struct OrientationLocked<Content: View>: View {
+    // Annotated with `@State` to ensure SwiftUI keeps the object alive for the duration of the view's lifetime
+    @State var orientationLock: OrientationLock
+    var content: Content
+
+    init(supportedInterfaceOrientations: UIInterfaceOrientationMask, content: Content) {
+        self._orientationLock = State(wrappedValue: OrientationLock(supportedInterfaceOrientations))
+        self.content = content
+    }
+
+    var body: some View { content }
+}

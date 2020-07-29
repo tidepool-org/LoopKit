@@ -46,8 +46,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     var supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
     let appName: String
-
-    @State var orientationLock = OrientationLock(.portrait)
     
     public init(
         viewModel: InsulinModelSelectionViewModel,
@@ -164,6 +162,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         .listStyle(GroupedListStyle())
         .environment(\.horizontalSizeClass, horizontalOverride)
         .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
+        .supportedInterfaceOrientations(.portrait)
     }
 
     var insulinModelSettingDescription: Text {
