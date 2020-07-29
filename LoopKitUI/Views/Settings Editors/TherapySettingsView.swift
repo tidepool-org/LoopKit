@@ -338,7 +338,7 @@ struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content:
     let destination: NavigationDestination
     let content: () -> Content
 
-    @State var activate: Bool = false
+    @State var isActive: Bool = false
     
     public var body: some View {
         Section(header: header) {
@@ -349,7 +349,7 @@ struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content:
                 Spacer()
                 ZStack(alignment: .leading) {
                     DescriptiveText(label: descriptiveText)
-                    NavigationLink(destination: destination, isActive: $activate) {
+                    NavigationLink(destination: destination, isActive: $isActive) {
                         EmptyView()
                     }
                 }
@@ -360,7 +360,7 @@ struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content:
         .highPriorityGesture(
             TapGesture()
                 .onEnded { _ in
-                    self.activate = true
+                    self.isActive = true
         })
     }
     
