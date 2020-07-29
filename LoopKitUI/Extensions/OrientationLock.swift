@@ -25,6 +25,7 @@ public final class OrientationLock {
     public static weak var deviceOrientationController: DeviceOrientationController?
 
     public init(_ supportedInterfaceOrientations: UIInterfaceOrientationMask) {
+        assert(Self.deviceOrientationController != nil, "OrientationLock.deviceOrientationController must be assigned prior to constructing an OrientationLock")
         originalSupportedInterfaceOrientations = Self.deviceOrientationController?.supportedInterfaceOrientations ?? .allButUpsideDown
         Self.deviceOrientationController?.supportedInterfaceOrientations = supportedInterfaceOrientations
     }
