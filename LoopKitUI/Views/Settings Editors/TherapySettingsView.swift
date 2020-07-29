@@ -466,6 +466,9 @@ private extension TherapySettingsView {
                                                   appName: self.viewModel.appName,
                                                   mode: self.viewModel.mode,
                                                   onSave: { _ in
+                                                    // Note: TherapySettingsViewModel takes care of calling saveInsulinModel.
+                                                    // This is different than the others because it had to construct an
+                                                    // InsulinModelSelectionViewModel on its own and "listen" to changes
                                                     back()
                                                   }
                     ))
