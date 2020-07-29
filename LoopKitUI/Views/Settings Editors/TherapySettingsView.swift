@@ -98,6 +98,7 @@ extension TherapySettingsView {
                     .bold()
                 Spacer()
                 DescriptiveText(label: prescriptionDescriptiveText)
+                Spacer()
             }
         }
     }
