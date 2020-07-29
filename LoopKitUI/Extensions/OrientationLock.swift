@@ -8,7 +8,7 @@
 
 import UIKit
 
-/// To enable orientation locking via OrientationLock, the application's delegate must conform to DeviceOrientationController.
+
 public protocol DeviceOrientationController: AnyObject {
     var supportedInterfaceOrientations: UIInterfaceOrientationMask { get set }
 }
