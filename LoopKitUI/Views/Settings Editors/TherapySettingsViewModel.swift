@@ -7,9 +7,8 @@
 //
 
 import Combine
-import HealthKit
-import LocalAuthentication
 import LoopKit
+import HealthKit
 import SwiftUI
 
 public class TherapySettingsViewModel: ObservableObject {
@@ -27,7 +26,6 @@ public class TherapySettingsViewModel: ObservableObject {
     let sensitivityOverridesEnabled: Bool
     let prescription: Prescription?
     let appName: String
-    let authenticationChallengeDescription: String
 
     lazy private var cancellables = Set<AnyCancellable>()
 
@@ -39,7 +37,6 @@ public class TherapySettingsViewModel: ObservableObject {
                 syncPumpSchedule: PumpManager.SyncSchedule? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
-                authenticationChallengeDescription: String = "Authenticate to change setting",
                 didSave: SaveCompletion? = nil) {
         self.mode = mode
         self.therapySettings = therapySettings
@@ -50,7 +47,6 @@ public class TherapySettingsViewModel: ObservableObject {
         self.prescription = prescription
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
         self.appName = appName
-        self.authenticationChallengeDescription = authenticationChallengeDescription
         self.didSave = didSave
     }
     
@@ -73,64 +69,43 @@ public class TherapySettingsViewModel: ObservableObject {
     
     public func saveCorrectionRange(range: GlucoseRangeSchedule) {
         therapySettings.glucoseTargetRangeSchedule = range
-        beginSaving(TherapySetting.glucoseTargetRange)
+        didSave?(TherapySetting.glucoseTargetRange, therapySettings)
     }
     
     public func saveCorrectionRangeOverrides(overrides: CorrectionRangeOverrides, unit: HKUnit) {
         therapySettings.preMealTargetRange = overrides.preMeal?.doubleRange(for: unit)
         therapySettings.workoutTargetRange = overrides.workout?.doubleRange(for: unit)
-        beginSaving(TherapySetting.correctionRangeOverrides)
+        didSave?(TherapySetting.correctionRangeOverrides, therapySettings)
     }
     
     public func saveSuspendThreshold(value: GlucoseThreshold) {
         therapySettings.suspendThreshold = value
-        beginSaving(TherapySetting.suspendThreshold)
+        didSave?(TherapySetting.suspendThreshold, therapySettings)
     }
     
     public func saveBasalRates(basalRates: BasalRateSchedule) {
         therapySettings.basalRateSchedule = basalRates
-        beginSaving(TherapySetting.basalRate)
+        didSave?(TherapySetting.basalRate, therapySettings)
     }
     
     public func saveDeliveryLimits(limits: DeliveryLimits) {
         therapySettings.maximumBasalRatePerHour = limits.maximumBasalRate?.doubleValue(for: .internationalUnitsPerHour)
         therapySettings.maximumBolus = limits.maximumBolus?.doubleValue(for: .internationalUnit())
-        beginSaving(TherapySetting.deliveryLimits)
+        didSave?(TherapySetting.deliveryLimits, therapySettings)
     }
     
     public func saveInsulinModel(insulinModelSettings: InsulinModelSettings) {
         therapySettings.insulinModelSettings = insulinModelSettings
-        beginSaving(TherapySetting.insulinModel)
+        didSave?(TherapySetting.insulinModel, therapySettings)
     }
     
     public func saveCarbRatioSchedule(carbRatioSchedule: CarbRatioSchedule) {
         therapySettings.carbRatioSchedule = carbRatioSchedule
-        beginSaving(TherapySetting.carbRatio)
+        didSave?(TherapySetting.carbRatio, therapySettings)
     }
     
     public func saveInsulinSensitivitySchedule(insulinSensitivitySchedule: InsulinSensitivitySchedule) {
         therapySettings.insulinSensitivitySchedule = insulinSensitivitySchedule
-        beginSaving(TherapySetting.insulinSensitivity)
-    }
-    
-    private func beginSaving(_ setting: TherapySetting) {
-        let context = LAContext()
-        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) {
-            context.evaluatePolicy(.deviceOwnerAuthentication,
-                                   localizedReason: authenticationChallengeDescription,
-                                   reply: { (success, error) in
-                                    if success {
-                                        DispatchQueue.main.async {
-                                            self.continueSaving(setting)
-                                        }
-                                    }
-            })
-        } else {
-            self.continueSaving(setting)
-        }
-    }
-    
-    private func continueSaving(_ setting: TherapySetting) {
-        didSave?(setting, therapySettings)
+        didSave?(TherapySetting.insulinSensitivity, therapySettings)
     }
 }

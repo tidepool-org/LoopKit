@@ -91,7 +91,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
 extension TherapySettingsView {
     
     private var prescriptionSection: some View {
-        SectionWithEdit(addExtraSpaceAboveSection: true,
+        SectionWithTapToEdit(addExtraSpaceAboveSection: true,
                         title: LocalizedString("Prescription", comment: "title for prescription section"),
                         descriptiveText: prescriptionDescriptiveText,
                         destination: EmptyView(), content: { EmptyView() })
@@ -112,8 +112,6 @@ extension TherapySettingsView {
                                       unit: self.glucoseUnit!,
                                       guardrail: .correctionRange)
                 }
-            } else {
-                DescriptiveText(label: LocalizedString("Tap \"Edit\" to add a Correction Range", comment: "Correction Range section edit hint"))
             }
         }
     }
@@ -247,8 +245,7 @@ extension TherapySettingsView {
     }
     
     private var supportSection: some View {
-        Section(header: SectionHeader(label: LocalizedString("Support", comment: "Title for support section")),
-                footer: DescriptiveText(label: "Text description here.")) {
+        Section(header: SectionHeader(label: LocalizedString("Support", comment: "Title for support section"))) {
             NavigationLink(destination: Text("Therapy Settings Support Placeholder")) {
                 Text("Get help with Therapy Settings", comment: "Support button for Therapy Settings")
             }
@@ -270,7 +267,7 @@ extension TherapySettingsView {
     private func section<Content>(for therapySetting: TherapySetting,
                                   addExtraSpaceAboveSection: Bool = false,
                                   @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
-        SectionWithEdit(addExtraSpaceAboveSection: addExtraSpaceAboveSection,
+        SectionWithTapToEdit(addExtraSpaceAboveSection: addExtraSpaceAboveSection,
                         title: therapySetting.title,
                         descriptiveText: therapySetting.descriptiveText,
                         destination: self.screen(for: therapySetting),
@@ -334,7 +331,7 @@ struct CorrectionRangeOverridesRangeItem: View {
     }
 }
 
-struct SectionWithEdit<Content, NavigationDestination>: View where Content: View, NavigationDestination: View  {
+struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content: View, NavigationDestination: View  {
     let addExtraSpaceAboveSection: Bool
     let title: String
     let descriptiveText: String
@@ -350,8 +347,11 @@ struct SectionWithEdit<Content, NavigationDestination>: View where Content: View
                 Text(title)
                     .bold()
                 Spacer()
-                NavigationLink(destination: destination, isActive: $activate) {
+                ZStack(alignment: .leading) {
                     DescriptiveText(label: descriptiveText)
+                    NavigationLink(destination: destination, isActive: $activate) {
+                        EmptyView()
+                    }
                 }
                 Spacer()
             }
