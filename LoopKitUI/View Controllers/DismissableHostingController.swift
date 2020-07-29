@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-
 public class DismissibleHostingController: UIHostingController<AnyView> {
     public enum DismissalMode {
         case modalDismiss
@@ -21,11 +20,12 @@ public class DismissibleHostingController: UIHostingController<AnyView> {
         rootView: Content,
         dismissalMode: DismissalMode = .modalDismiss,
         isModalInPresentation: Bool = true,
-        onDisappear: @escaping () -> Void = {}
+        onDisappear: @escaping () -> Void = {},
+        colorPalette: ColorPalette? = nil
     ) {
         // Delay initialization of dismissal closure pushed into SwiftUI Environment until after calling the designated initializer
         var dismiss = {}
-        self.init(rootView: AnyView(rootView.environment(\.dismiss, { dismiss() })))
+        self.init(rootView: AnyView(rootView.environment(\.dismiss, { dismiss() }).environment(\.colorPalette, colorPalette)))
 
         switch dismissalMode {
         case .modalDismiss:
