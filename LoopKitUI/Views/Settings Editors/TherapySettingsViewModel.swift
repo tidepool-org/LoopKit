@@ -62,6 +62,11 @@ public class TherapySettingsViewModel: ObservableObject {
         return result
     }
     
+    var deliveryLimits: DeliveryLimits {
+        return DeliveryLimits(maximumBasalRate: therapySettings.maximumBasalRatePerHour.map { HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0) },
+                              maximumBolus: therapySettings.maximumBolus.map { HKQuantity(unit: .internationalUnit(), doubleValue: $0) } )
+    }
+    
     /// Reset to initial
     public func reset() {
         therapySettings = initialTherapySettings
