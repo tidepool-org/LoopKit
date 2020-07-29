@@ -13,23 +13,17 @@ public struct InsulinModelReview: View {
     var insulinSelectionViewModel: InsulinModelSelectionViewModel
     var supportedModels: SupportedInsulinModelSettings
     let appName: String
-    let mode: PresentationMode
-    var onSave: ((InsulinModelSettings) -> Void)?
     
     public init(
         settingsViewModel: TherapySettingsViewModel,
         supportedModels: SupportedInsulinModelSettings,
-        appName: String,
-        mode: PresentationMode = .acceptanceFlow, // don't wrap the view in a navigation view
-        onSave: ((InsulinModelSettings) -> Void)? = nil
+        appName: String
     ) {
         precondition(settingsViewModel.therapySettings.glucoseUnit != nil)
         precondition(settingsViewModel.therapySettings.insulinModelSettings != nil)
         self.settingsViewModel = settingsViewModel
         self.supportedModels = supportedModels
         self.appName = appName
-        self.mode = mode
-        self.onSave = onSave
 
         self.insulinSelectionViewModel = InsulinModelSelectionViewModel(
             insulinModelSettings: settingsViewModel.therapySettings.insulinModelSettings!,
@@ -45,14 +39,12 @@ public struct InsulinModelReview: View {
                     glucoseUnit: settingsViewModel.therapySettings.glucoseUnit!,
                     supportedModelSettings: supportedModels,
                     appName: appName,
-                    mode: mode,
-                    onSave: onSave
+                    mode: .acceptanceFlow // don't wrap the view in a navigation view
                 )
             }
             VStack {
                 Button(action: {
                     self.settingsViewModel.saveInsulinModel(insulinModelSettings: self.insulinSelectionViewModel.insulinModelSettings)
-                    self.onSave?(self.insulinSelectionViewModel.insulinModelSettings)
                 }) {
                     Text(PresentationMode.acceptanceFlow.buttonText)
                     .actionButtonStyle(.primary)
