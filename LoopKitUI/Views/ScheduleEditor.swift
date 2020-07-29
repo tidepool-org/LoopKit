@@ -352,14 +352,6 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     }
 
     private func beginSaving() {
-        guard mode == .settings else {
-            self.continueSaving()
-            return
-        }
-}
-    
-    private func continueSaving() {
-
         switch savingMechanism {
         case .synchronous(let save):
             save(scheduleItems)
