@@ -504,6 +504,7 @@
 		89D204CB21CC8228001238CC /* NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434C5F9D209938CD00B2FD1A /* NumberFormatter.swift */; };
 		89D204CC21CC8236001238CC /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5DAB1C2118C95700048054 /* LocalizedString.swift */; };
 		89D204D221CC837A001238CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 89D204D121CC837A001238CC /* Assets.xcassets */; };
+		89E7E61024D11AB600591386 /* OrientationLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89E7E60F24D11AB600591386 /* OrientationLock.swift */; };
 		89ED164024A29BA300C9A105 /* Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89ED163F24A29BA300C9A105 /* Sequence.swift */; };
 		89ED164124A29BA300C9A105 /* Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89ED163F24A29BA300C9A105 /* Sequence.swift */; };
 		89ED164324A29BE400C9A105 /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89ED164224A29BE400C9A105 /* ClosedRange.swift */; };
@@ -1415,6 +1416,7 @@
 		89D2049221CC7C13001238CC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		89D204D121CC837A001238CC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		89DC540C21B75AE7005A1CE0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
+		89E7E60F24D11AB600591386 /* OrientationLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationLock.swift; sourceTree = "<group>"; };
 		89ED163F24A29BA300C9A105 /* Sequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequence.swift; sourceTree = "<group>"; };
 		89ED164224A29BE400C9A105 /* ClosedRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosedRange.swift; sourceTree = "<group>"; };
 		89F6E30C2449713600CB9E15 /* CardStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStack.swift; sourceTree = "<group>"; };
@@ -2460,21 +2462,22 @@
 		B41A60B023D1DBB700636320 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				E93C86A524C8F7D90073089B /* ChartSettings+LoopKitUI.swift */,
-				E93C86A324C8F79C0073089B /* ChartLineModel+LoopKitUI.swift */,
 				898B4E74246CCAB50053C484 /* Binding.swift */,
+				E93C86A324C8F79C0073089B /* ChartLineModel+LoopKitUI.swift */,
+				E93C86A524C8F7D90073089B /* ChartSettings+LoopKitUI.swift */,
 				B4C004B8241085FE00B40429 /* Color.swift */,
+				E9086B4924B540B70062F5C8 /* DateFormatter.swift */,
 				B4F3D24E24AF59B50095CE44 /* DeviceLifecycleProgressState+Color.swift */,
 				B46A70B924B3B4BF00B4DEEC /* DeviceStatusHighlight+Color.swift */,
+				E96175AD24B7BE38008E5080 /* Dictionary.swift */,
 				89BE75C62464B4A900B145D9 /* Environment+Dismiss.swift */,
 				B429D66B24BF7204003E1B4A /* GlucoseTrend.swift */,
 				B42C950824A3BCC200857C73 /* GlucoseValueType+Color.swift */,
+				89186C0624BF7FC70003D0F3 /* Guardrail+UI.swift */,
 				C1E4B309242E99A800E70CCB /* Image.swift */,
 				89CAB36C24C9EC98009EE3CE /* Keyboard.swift */,
+				89E7E60F24D11AB600591386 /* OrientationLock.swift */,
 				E916F56A24AD346D00BE3547 /* UIColor+LoopKit.swift */,
-				E9086B4924B540B70062F5C8 /* DateFormatter.swift */,
-				E96175AD24B7BE38008E5080 /* Dictionary.swift */,
-				89186C0624BF7FC70003D0F3 /* Guardrail+UI.swift */,
 				B41A60B123D1DBC700636320 /* UIFont.swift */,
 				B429D66D24BF7255003E1B4A /* UIImage.swift */,
 				89CAB36E24C9ECCA009EE3CE /* View+KeyboardAware.swift */,
@@ -3172,6 +3175,7 @@
 				B4C004D12416961300B40429 /* GuidePage.swift in Sources */,
 				898B4E7E246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift in Sources */,
 				898E6E69224179310019E459 /* BatteryLevelHUDView.swift in Sources */,
+				89E7E61024D11AB600591386 /* OrientationLock.swift in Sources */,
 				E916F56B24AD346D00BE3547 /* UIColor+LoopKit.swift in Sources */,
 				89B0B2AA2453C0AB0063D4A7 /* GuardrailConstraintedQuantityView.swift in Sources */,
 				898B4E75246CCAB50053C484 /* Binding.swift in Sources */,

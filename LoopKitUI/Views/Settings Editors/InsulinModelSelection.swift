@@ -41,12 +41,13 @@ public final class InsulinModelSelectionViewModel: ObservableObject {
 }
 
 public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
-
     @ObservedObject var viewModel: InsulinModelSelectionViewModel
     var glucoseUnit: HKUnit
     var supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
     let appName: String
+
+    @State var orientationLock = OrientationLock(.portrait)
     
     public init(
         viewModel: InsulinModelSelectionViewModel,
