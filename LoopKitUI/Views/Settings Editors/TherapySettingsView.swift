@@ -272,7 +272,6 @@ extension TherapySettingsView {
     private func section<Content>(for therapySetting: TherapySetting,
                                   addExtraSpaceAboveSection: Bool = false,
                                   @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
-        
         SectionWithTapToEdit(addExtraSpaceAboveSection: addExtraSpaceAboveSection,
                              title: therapySetting.title,
                              descriptiveText: therapySetting.descriptiveText,
@@ -344,7 +343,7 @@ struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content:
     let destination: (@escaping () -> Void) -> NavigationDestination
     let content: () -> Content
 
-    @State var activate: Bool = false
+    @State var isActive: Bool = false
     
     public var body: some View {
         Section(header: header) {
@@ -355,7 +354,7 @@ struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content:
                 Spacer()
                 ZStack(alignment: .leading) {
                     DescriptiveText(label: descriptiveText)
-                    NavigationLink(destination: destination({ self.activate = false }), isActive: $activate) {
+                    NavigationLink(destination: destination({ self.isActive = false }), isActive: $isActive) {
                         EmptyView()
                     }
                 }
@@ -366,7 +365,7 @@ struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content:
         .highPriorityGesture(
             TapGesture()
                 .onEnded { _ in
-                    self.activate = true
+                    self.isActive = true
         })
     }
     
