@@ -92,9 +92,9 @@ extension TherapySettingsView {
     
     private var prescriptionSection: some View {
         SectionWithTapToEdit(addExtraSpaceAboveSection: true,
-                        title: LocalizedString("Prescription", comment: "title for prescription section"),
-                        descriptiveText: prescriptionDescriptiveText,
-                        destination: EmptyView(), content: { EmptyView() })
+                             title: LocalizedString("Prescription", comment: "title for prescription section"),
+                             descriptiveText: prescriptionDescriptiveText,
+                             destination: EmptyView(), content: { EmptyView() })
     }
     
     private var prescriptionDescriptiveText: String {
@@ -268,10 +268,10 @@ extension TherapySettingsView {
                                   addExtraSpaceAboveSection: Bool = false,
                                   @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
         SectionWithTapToEdit(addExtraSpaceAboveSection: addExtraSpaceAboveSection,
-                        title: therapySetting.title,
-                        descriptiveText: therapySetting.descriptiveText,
-                        destination: self.screen(for: therapySetting),
-                        content: content)
+                             title: therapySetting.title,
+                             descriptiveText: therapySetting.descriptiveText,
+                             destination: self.screen(for: therapySetting),
+                             content: content)
     }
 }
 
