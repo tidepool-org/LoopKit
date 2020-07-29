@@ -8,8 +8,8 @@
 
 import UIKit
 
-/// To enable orientation locking via OrientationLock, the application's delegate must conform to OrientationLockable.
-public protocol OrientationLockable: AnyObject {
+/// To enable orientation locking via OrientationLock, the application's delegate must conform to DeviceOrientationController.
+public protocol DeviceOrientationController: AnyObject {
     var supportedInterfaceOrientations: UIInterfaceOrientationMask { get set }
 }
 
@@ -22,15 +22,15 @@ public final class OrientationLock {
 
     /// The global controller for device orientation.
     /// The property must be assigned prior to instantiating any OrientationLock.
-    public static weak var deviceOrientationController: OrientationLockable!
+    public static weak var deviceOrientationController: DeviceOrientationController?
 
     public init(_ supportedInterfaceOrientations: UIInterfaceOrientationMask) {
-        originalSupportedInterfaceOrientations = Self.deviceOrientationController.supportedInterfaceOrientations
-        Self.deviceOrientationController.supportedInterfaceOrientations = supportedInterfaceOrientations
+        originalSupportedInterfaceOrientations = Self.deviceOrientationController?.supportedInterfaceOrientations ?? .allButUpsideDown
+        Self.deviceOrientationController?.supportedInterfaceOrientations = supportedInterfaceOrientations
     }
 
     deinit {
-        Self.deviceOrientationController.supportedInterfaceOrientations = originalSupportedInterfaceOrientations
+        Self.deviceOrientationController?.supportedInterfaceOrientations = originalSupportedInterfaceOrientations
     }
 }
 
