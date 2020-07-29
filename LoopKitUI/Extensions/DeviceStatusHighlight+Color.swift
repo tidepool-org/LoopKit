@@ -16,17 +16,4 @@ extension DeviceStatusHighlight {
             return UIImage(systemName: imageName)
         }
     }
-    
-    public var color: UIColor {
-        switch state {
-        case .normalCGM:
-            return .glucose
-        case .normalPump:
-            return .insulin
-        case .warning:
-            return .warning
-        case .critical:
-            return .critical
-        }
-    }
 }

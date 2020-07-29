@@ -13,9 +13,9 @@ extension CorrectionRangeOverrides.Preset {
     var icon: some View {
         switch self {
         case .preMeal:
-            return icon(named: "Pre-Meal", tinted: Color.cobTintColor)
+            return icon(named: "Pre-Meal", tinted: .green)// Color(UIColor.cobTintColor))//Color.cobTintColor)
         case .workout:
-            return icon(named: "workout", tinted: Color.glucoseTintColor)
+            return icon(named: "workout", tinted: .blue)// Color(UIColor.glucoseTintColor))//Color.glucoseTintColor)
         }
     }
     

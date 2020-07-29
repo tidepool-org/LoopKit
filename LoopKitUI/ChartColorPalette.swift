@@ -25,6 +25,6 @@ public struct ChartColorPalette {
     }
     
     static var `default`: ChartColorPalette {
-        return ChartColorPalette(axisLine: .axisLineColor, axisLabel: .axisLabelColor, grid: .gridColor, glucoseTint: .glucoseTintColor, doseTint: .doseTintColor)
+        return ChartColorPalette(axisLine: .clear, axisLabel: .secondaryLabel, grid: .systemGray3, glucoseTint: .systemBlue, doseTint: .systemOrange) // .axisLineColor .axisLabelColor  .gridColor .glucoseTintColor .doseTintColor
     }
 }

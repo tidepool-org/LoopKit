@@ -22,7 +22,7 @@ public struct ActionButtonStyle: ButtonStyle {
     private let cornerRadius: CGFloat = 10
     private let squidge: CGFloat = 1
 
-    public init(_ style: ButtonType = .primary) {
+    public init(_ style: ButtonType = .primary, destructiveColor: Color? = nil) {
         switch style {
         case .primary:
             fontColor = .white
@@ -30,7 +30,7 @@ public struct ActionButtonStyle: ButtonStyle {
             edgeColor = .clear
         case .destructive:
             fontColor = .white
-            backgroundColor = .destructive
+            backgroundColor = destructiveColor ?? .red//.destructive
             edgeColor = .clear
         case .secondary:
             fontColor = .accentColor

@@ -19,9 +19,9 @@ extension Guardrail where Value == HKQuantity {
         case .outsideRecommendedRange(let threshold):
             switch threshold {
             case .minimum, .maximum:
-                return .critical
+                return .red//.critical
             case .belowRecommended, .aboveRecommended:
-                return .warning
+                return .orange//.warning
             }
         }
     }

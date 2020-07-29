@@ -8,26 +8,26 @@
 
 import LoopKit
 
-extension GlucoseValueType {
-    public var glucoseColor: UIColor {
-        switch self {
-        case .normal, .high:
-            return .label
-        case .low, .urgentLow, .belowRange:
-            return .critical
-        case .aboveRange:
-            return .warning
-        }
-    }
-    
-    public var trendColor: UIColor {
-        switch self {
-        case .normal:
-            return .glucose
-        case .urgentLow, .low, .belowRange:
-            return .critical
-        case .high, .aboveRange:
-            return .warning
-        }
-    }
-}
+//extension GlucoseValueType {
+//    public var glucoseColor: UIColor {
+//        switch self {
+//        case .normal, .high:
+//            return .label
+//        case .low, .urgentLow, .belowRange:
+//            return .critical
+//        case .aboveRange:
+//            return .warning
+//        }
+//    }
+//    
+//    public var trendColor: UIColor {
+//        switch self {
+//        case .normal:
+//            return .glucose
+//        case .urgentLow, .low, .belowRange:
+//            return .critical
+//        case .high, .aboveRange:
+//            return .warning
+//        }
+//    }
+//}

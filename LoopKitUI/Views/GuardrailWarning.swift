@@ -19,30 +19,40 @@ public struct GuardrailWarning: View {
     private var title: Text
     private var crossedThresholds: CrossedThresholds
     private var captionOverride: Text?
+//    private let warningColor: Color
+//    private let criticalColor: Color
 
     public init(
         title: Text,
         threshold: SafetyClassification.Threshold,
         caption: Text? = nil
+//        warningColor: Color,
+//        criticalColor: Color
     ) {
         self.title = title
         self.crossedThresholds = .one(threshold)
         self.captionOverride = caption
+//        self.warningColor = warningColor
+//        self.criticalColor = criticalColor
     }
 
     public init(
         title: Text,
         thresholds: [SafetyClassification.Threshold],
         caption: Text? = nil
+//        warningColor: Color,
+//        criticalColor: Color
     ) {
         precondition(!thresholds.isEmpty)
         self.title = title
         self.crossedThresholds = .oneOrMore(thresholds)
         self.captionOverride = caption
+//        self.warningColor = warningColor
+//        self.criticalColor = criticalColor
     }
 
     public var body: some View {
-        WarningView(title: title, caption: caption, severity: severity)
+        WarningView(title: title, caption: caption, severity: severity)//, defaultColor: warningColor, criticalColor: criticalColor)
     }
 
     private var severity: WarningSeverity {

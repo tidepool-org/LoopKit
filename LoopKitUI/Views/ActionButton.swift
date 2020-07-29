@@ -22,7 +22,7 @@ public struct ActionButton: ViewModifier {
         case deactivated
     }
     
-    init(_ style: ButtonType = .primary) {
+    init(_ style: ButtonType = .primary, destructiveColor: Color?) {
         switch style {
         case .primary:
             fontColor = .white
@@ -30,7 +30,7 @@ public struct ActionButton: ViewModifier {
             edgeColor = .clear
         case .destructive:
             fontColor = .white
-            backgroundColor = .destructive
+            backgroundColor = destructiveColor ?? .red//.destructive
             edgeColor = .clear
         case .secondary:
             fontColor = .accentColor
@@ -58,6 +58,6 @@ public struct ActionButton: ViewModifier {
 
 public extension View {
     func actionButtonStyle(_ style: ActionButton.ButtonType = .primary) -> some View {
-        ModifiedContent(content: self, modifier: ActionButton(style))
+        ModifiedContent(content: self, modifier: ActionButton(style, destructiveColor: .red))
     }
 }

@@ -8,41 +8,13 @@
 
 import SwiftUI
 
-// MARK: - Color palette for common elements
-/// The intent in providing these suggested context specific colors is to inform the user of the related context of the UI. Note loopAccent is intended to be use as the app accent colour.
+// TODO these colours need to be provided from Loop. remove
 extension Color {
-    public static let axisLabelColor = Color(UIColor.axisLabelColor)
+//    public static let destructive = red
     
-    public static let axisLineColor = Color(UIColor.axisLineColor)
-    
-    public static let carbs = Color(UIColor.carbs)
-
-    public static let critical = Color(UIColor.critical)
-
-    public static let glucose = Color(UIColor.glucose)
-    
-    public static let gridColor = Color(UIColor.gridColor)
-
-    public static let insulin = Color(UIColor.insulin)
-
-    public static let loopAccent = Color(UIColor.loopAccent)
-
-    public static let warning = Color(UIColor.warning)
-}
-
-// MARK: - Context for colors
-extension Color {
-    public static let cobTintColor = carbs
-
-    public static let destructive = Color(UIColor.destructive)
-
-    public static let doseTintColor = insulin
-
-    public static let glucoseTintColor = glucose
-
-    public static let instructionalContent = Color.secondary
-
-    public static let invalid = Color(UIColor.invalid)
-
-    public static let iobTintColor = insulin
+//    public static let warning = Color(UIColor(dynamicProvider: { traitCollection in
+//        return traitCollection.userInterfaceStyle == .dark
+//            ? UIColor(red: 0.902, green: 0.494, blue: 0.039, alpha: 1)
+//            : UIColor(red: 0.863, green: 0.455, blue: 0, alpha: 1)
+//    }))
 }

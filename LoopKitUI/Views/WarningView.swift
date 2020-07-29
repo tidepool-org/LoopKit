@@ -22,11 +22,20 @@ public struct WarningView: View {
     var title: Text
     var caption: Text
     var severity: WarningSeverity
+//    private let defaultColor: Color
+//    private let criticalColor: Color
 
-    public init(title: Text, caption: Text, severity: WarningSeverity = .default) {
+    public init(title: Text,
+                caption: Text,
+                severity: WarningSeverity = .default
+//                defaultColor: Color,
+//                criticalColor: Color
+    ) {
         self.title = title
         self.caption = caption
         self.severity = severity
+//        self.defaultColor = defaultColor
+//        self.criticalColor = criticalColor
     }
 
     public var body: some View {
@@ -57,9 +66,9 @@ public struct WarningView: View {
     private var warningColor: Color {
         switch severity {
         case .default:
-            return .warning
+            return .orange// .warning
         case .critical:
-            return .critical
+            return .red// .critical
         }
     }
 }

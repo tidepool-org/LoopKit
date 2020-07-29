@@ -15,8 +15,11 @@ private func BundleColor(_ name: String, compatibleWith traitCollection: UITrait
 }
 
 extension UIColor {
-    static let destructive = critical
-    static let invalid = critical    
+    static let delete = BundleColor("Delete")
+    static let invalid = BundleColor("Invalid")
+    static let warning = BundleColor("Warning")
+    static let lightenedInsulin = BundleColor("Lightened Insulin")
+    static let darkenedInsulin = BundleColor("Darkened Insulin")
 }
 
 extension UIColor {
@@ -37,38 +40,4 @@ extension UIColor {
         getRed(&r, green: &g, blue: &b, alpha: &a)
         return (red: r, green: g, blue: b, alpha: a)
     }
-}
-
-// MARK: - UIColor palette for common elements
-
-/// The intent in providing these suggested context specific colors is to inform the user of the related context of the UI. Note loopAccent is intended to be use as the app accent colour.
-extension UIColor {    
-    @nonobjc public static let axisLabelColor = secondaryLabel
-    
-    @nonobjc public static let axisLineColor = clear
-    
-    @nonobjc public static let carbs = BundleColor("carbs") ?? systemGreen
-
-    @nonobjc public static let critical = BundleColor("critical") ?? systemRed
-
-    @nonobjc public static let glucose = BundleColor("glucose") ?? systemBlue
-
-    @nonobjc public static let gridColor = systemGray3
-    
-    @nonobjc public static let insulin = BundleColor("insulin") ?? systemOrange
-
-    @nonobjc public static let loopAccent = BundleColor("accent") ?? systemBlue
-    
-    @nonobjc public static let warning = BundleColor("warning") ?? systemYellow
-}
-
-// MARK: - Context for colors
-extension UIColor {
-    public static let cobTintColor = carbs
-
-    public static let doseTintColor = insulin
-
-    public static let glucoseTintColor = glucose
-
-    public static let iobTintColor = insulin
 }

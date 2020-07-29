@@ -86,9 +86,9 @@ public struct CorrectionRangeOverrideInformationView: View {
     private func icon(for preset: CorrectionRangeOverrides.Preset) -> some View {
         switch preset {
         case .preMeal:
-            return icon(named: "Pre-Meal", tinted: Color.cobTintColor)
+            return icon(named: "Pre-Meal", tinted: .green)// Color(UIColor.cobTintColor))//Color.cobTintColor)
         case .workout:
-            return icon(named: "workout", tinted: Color.glucoseTintColor)
+            return icon(named: "workout", tinted: .blue)// Color(UIColor.glucoseTintColor))//Color.glucoseTintColor)
         }
     }
 
