@@ -45,7 +45,8 @@ public struct InsulinModelReview: View {
                     glucoseUnit: settingsViewModel.therapySettings.glucoseUnit!,
                     supportedModelSettings: supportedModels,
                     appName: appName,
-                    mode: mode
+                    mode: mode,
+                    onSave: onSave
                 )
             }
             VStack {

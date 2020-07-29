@@ -460,19 +460,15 @@ private extension TherapySettingsView {
         case .insulinModel:
             if self.viewModel.therapySettings.glucoseUnit != nil && self.viewModel.therapySettings.insulinModelSettings != nil && self.viewModel.therapySettings.insulinSensitivitySchedule != nil {
                 return { back in
-                    // TODO
-//                    AnyView(InsulinModelSelection(viewModel: self.viewModel.insulinModelSelectionViewModel,
-//                                                  glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
-//                                                  supportedModelSettings: self.viewModel.supportedInsulinModelSettings,
-//                                                  appName: self.viewModel.appName,
-//                                                  mode: self.viewModel.mode))
-                    AnyView(InsulinModelReview(settingsViewModel: self.viewModel,
-                                               supportedModels: self.viewModel.supportedInsulinModelSettings,
-                                               appName: self.viewModel.appName,
-                                               mode: self.viewModel.mode,
-                                               onSave: { _ in
-                        back()
-                    }))
+                    AnyView(InsulinModelSelection(viewModel: self.viewModel.insulinModelSelectionViewModel,
+                                                  glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
+                                                  supportedModelSettings: self.viewModel.supportedInsulinModelSettings,
+                                                  appName: self.viewModel.appName,
+                                                  mode: self.viewModel.mode,
+                                                  onSave: { _ in
+                                                    back()
+                                                  }
+                    ))
                 }
             }
         case .carbRatio:
