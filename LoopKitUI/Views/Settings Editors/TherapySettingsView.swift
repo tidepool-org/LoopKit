@@ -62,7 +62,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         .onAppear() {
             UITableView.appearance().separatorStyle = .singleLine // Add lines between rows
         }
-        .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
+        .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")), displayMode: .large)
         .environment(\.horizontalSizeClass, horizontalOverride)
     }
     
@@ -213,12 +213,15 @@ extension TherapySettingsView {
     private var insulinModelSection: some View {
         section(for: .insulinModel) {
             if self.viewModel.therapySettings.insulinModelSettings != nil {
+                // Spacing and paddings here is my best guess based on the design...
                 VStack(alignment: .leading, spacing: 4) {
                     Text(self.viewModel.therapySettings.insulinModelSettings!.title)
                         .font(.body)
+                        .padding(.top, 5)
                     Text(self.viewModel.therapySettings.insulinModelSettings!.subtitle)
                         .font(.footnote)
                         .foregroundColor(.secondary)
+                        .padding(.bottom, 8)
                 }
             }
         }
