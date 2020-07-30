@@ -16,7 +16,7 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
     var textColor: UIColor
     var textAlignment: NSTextAlignment
     var keyboardType: UIKeyboardType
-    var didBecomeFirstResponder: Bool
+    var shouldBecomeFirstResponder: Bool
 
     public init(
         text: Binding<String>,
@@ -25,7 +25,7 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         textColor: UIColor = .label,
         textAlignment: NSTextAlignment = .natural,
         keyboardType: UIKeyboardType = .default,
-        didBecomeFirstResponder: Bool = false
+        shouldBecomeFirstResponder: Bool = false
     ) {
         self._text = text
         self.placeholder = placeholder
@@ -33,7 +33,7 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         self.textColor = textColor
         self.textAlignment = textAlignment
         self.keyboardType = keyboardType
-        self.didBecomeFirstResponder = didBecomeFirstResponder
+        self.shouldBecomeFirstResponder = shouldBecomeFirstResponder
     }
 
     public func makeUIView(context: Context) -> UITextField {
@@ -60,7 +60,7 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         textField.textAlignment = textAlignment
         textField.keyboardType = keyboardType
 
-        if didBecomeFirstResponder && !context.coordinator.didBecomeFirstResponder {
+        if shouldBecomeFirstResponder && !context.coordinator.didBecomeFirstResponder {
             textField.becomeFirstResponder()
             context.coordinator.didBecomeFirstResponder = true
         }

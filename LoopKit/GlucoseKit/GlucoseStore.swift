@@ -567,14 +567,17 @@ extension GlucoseStore {
         _ completion: @escaping (_ effects: [GlucoseEffectVelocity]) -> Void
     ) {
         getCachedGlucoseSamples(start: start, end: end) { (samples) in
-            var samples = samples
-            if let unstoredGlucoseSample = unstoredGlucoseSample {
-                let additionalSample = StoredGlucoseSample(sample: unstoredGlucoseSample.quantitySample)
-                let insertionIndex = samples.partitioningIndex(where: { additionalSample.startDate < $0.startDate })
-                samples.insert(additionalSample, at: insertionIndex)
-            }
-            completion(samples.counteractionEffects(to: effects))
+            completion(self.counteractionEffects(for: samples, to: effects))
         }
+    }
+
+    /// Calculates a timeline of effect velocity (glucose/time) observed in glucose that counteract the specified effects.
+    ///
+    /// - Parameter:
+    ///   - samples: The observed timeline of samples
+    ///   - effects: An array of velocities describing the change in glucose samples compared to the specified effects
+    public func counteractionEffects<Sample: GlucoseSampleValue>(for samples: [Sample], to effects: [GlucoseEffect]) -> [GlucoseEffectVelocity] {
+        samples.counteractionEffects(to: effects)
     }
 }
 
