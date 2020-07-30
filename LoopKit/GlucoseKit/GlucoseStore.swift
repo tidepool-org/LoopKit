@@ -556,10 +556,23 @@ extension GlucoseStore {
     ///   - start: The earliest date of glucose values to include
     ///   - end: The latest date of glucose values to include, if provided
     ///   - effects: Glucose effects to be countered, in chronological order
+    ///   - unstoredGlucoseSample: A sample not included in the glucose store to be included in the computation of counteraction effects
     ///   - completion: A closure called once the values have been retrieved
     ///   - effects: An array of velocities describing the change in glucose samples compared to the specified effects
-    public func getCounteractionEffects(start: Date, end: Date? = nil, to effects: [GlucoseEffect], _ completion: @escaping (_ effects: [GlucoseEffectVelocity]) -> Void) {
+    public func getCounteractionEffects(
+        start: Date,
+        end: Date? = nil,
+        to effects: [GlucoseEffect],
+        unstoredGlucoseSample: NewGlucoseSample? = nil,
+        _ completion: @escaping (_ effects: [GlucoseEffectVelocity]) -> Void
+    ) {
         getCachedGlucoseSamples(start: start, end: end) { (samples) in
+            var samples = samples
+            if let unstoredGlucoseSample = unstoredGlucoseSample {
+                let additionalSample = StoredGlucoseSample(sample: unstoredGlucoseSample.quantitySample)
+                let insertionIndex = samples.partitioningIndex(where: { additionalSample.startDate < $0.startDate })
+                samples.insert(additionalSample, at: insertionIndex)
+            }
             completion(samples.counteractionEffects(to: effects))
         }
     }
