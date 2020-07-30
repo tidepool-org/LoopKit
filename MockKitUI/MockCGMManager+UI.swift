@@ -14,7 +14,7 @@ import MockKit
 
 
 extension MockCGMManager: CGMManagerUI {
-    public var smallImage: UIImage? { return UIImage(named: "iCGM", in: Bundle(for: MockCGMManagerSettingsViewController.self), compatibleWith: nil) }
+    public var smallImage: UIImage? { return UIImage(named: "mockCGM", in: Bundle(for: MockCGMManagerSettingsViewController.self), compatibleWith: nil) }
 
     public static func setupViewController() -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)? {
         return nil
