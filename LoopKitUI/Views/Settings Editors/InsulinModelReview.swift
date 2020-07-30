@@ -10,8 +10,6 @@ import LoopKit
 
 public struct InsulinModelReview: View {
     @ObservedObject var settingsViewModel: TherapySettingsViewModel
-    var insulinSelectionViewModel: InsulinModelSelectionViewModel
-    var supportedModels: SupportedInsulinModelSettings
     let appName: String
     
     public init(
@@ -22,27 +20,22 @@ public struct InsulinModelReview: View {
         precondition(settingsViewModel.therapySettings.glucoseUnit != nil)
         precondition(settingsViewModel.therapySettings.insulinModelSettings != nil)
         self.settingsViewModel = settingsViewModel
-        self.supportedModels = supportedModels
         self.appName = appName
-
-        self.insulinSelectionViewModel = InsulinModelSelectionViewModel(
-            insulinModelSettings: settingsViewModel.therapySettings.insulinModelSettings!,
-            insulinSensitivitySchedule: settingsViewModel.therapySettings.insulinSensitivitySchedule
-        )
     }
     
     public var body: some View {
         VStack(spacing: 0) {
             InsulinModelSelection(
-                viewModel: insulinSelectionViewModel,
+                value: settingsViewModel.therapySettings.insulinModelSettings!,
+                insulinSensitivitySchedule: settingsViewModel.therapySettings.insulinSensitivitySchedule,
                 glucoseUnit: settingsViewModel.therapySettings.glucoseUnit!,
-                supportedModelSettings: supportedModels,
+                supportedModelSettings: settingsViewModel.supportedInsulinModelSettings,
                 appName: appName,
                 mode: .acceptanceFlow // don't wrap the view in a navigation view
             )
             VStack(spacing: 0) {
                 Button(action: {
-                    self.settingsViewModel.saveInsulinModel(insulinModelSettings: self.insulinSelectionViewModel.insulinModelSettings)
+                    self.settingsViewModel.saveInsulinModel(insulinModelSettings: self.settingsViewModel.therapySettings.insulinModelSettings!)
                 }) {
                     Text(PresentationMode.acceptanceFlow.buttonText)
                     .actionButtonStyle(.primary)
