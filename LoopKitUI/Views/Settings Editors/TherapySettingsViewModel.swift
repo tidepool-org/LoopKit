@@ -50,10 +50,14 @@ public class TherapySettingsViewModel: ObservableObject {
         self.didSave = didSave
     }
     
-    var insulinModelSelectionViewModel: InsulinModelSelectionViewModel {
+    var insulinModelSelectionViewModel: InsulinModelSelectionViewModel? {
+        guard let insulinModelSettings = therapySettings.insulinModelSettings,
+            let insulinSensitivitySchedule = therapySettings.insulinSensitivitySchedule else {
+            return nil
+        }
         let result = InsulinModelSelectionViewModel(
-            insulinModelSettings: therapySettings.insulinModelSettings!,
-            insulinSensitivitySchedule: therapySettings.insulinSensitivitySchedule!)
+            insulinModelSettings: insulinModelSettings,
+            insulinSensitivitySchedule: insulinSensitivitySchedule)
         result.$insulinModelSettings
             .dropFirst() // This is needed to avoid reading the initial value, which starts off an infinite loop
             .sink {

@@ -341,7 +341,7 @@ struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content:
     let addExtraSpaceAboveSection: Bool
     let title: String
     let descriptiveText: String
-    let destination: (@escaping () -> Void) -> NavigationDestination
+    let destination: (_ goBack: @escaping () -> Void) -> NavigationDestination
     let content: () -> Content
 
     @State var isActive: Bool = false
@@ -379,38 +379,40 @@ struct SectionWithTapToEdit<Content, NavigationDestination>: View where Content:
 
 private extension TherapySettingsView {
     
-    func screen(for setting: TherapySetting) -> (@escaping () -> Void) -> AnyView {
+    func screen(for setting: TherapySetting) -> (_ goBack: @escaping () -> Void) -> AnyView {
         switch setting {
         case .glucoseTargetRange:
             if viewModel.therapySettings.glucoseUnit != nil {
-                return { back in
+                return { goBack in
                     AnyView(CorrectionRangeScheduleEditor(
                         schedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
                         unit: self.viewModel.therapySettings.glucoseUnit!,
                         minValue: self.viewModel.therapySettings.suspendThreshold?.quantity,
                         onSave: { newSchedule in
                             self.viewModel.saveCorrectionRange(range: newSchedule)
-                            back()
+                            goBack()
                         },
                         mode: self.viewModel.mode))
                 }
             }
         case .correctionRangeOverrides:
-            return { back in
-                AnyView(CorrectionRangeScheduleEditor(
-                    schedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
-                    unit: self.viewModel.therapySettings.glucoseUnit!,
-                    minValue: self.viewModel.therapySettings.suspendThreshold?.quantity,
-                    onSave: { newSchedule in
-                        self.viewModel.saveCorrectionRange(range: newSchedule)
-                        back()
+            if self.viewModel.therapySettings.glucoseUnit != nil {
+                return { goBack in
+                    AnyView(CorrectionRangeScheduleEditor(
+                        schedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
+                        unit: self.viewModel.therapySettings.glucoseUnit!,
+                        minValue: self.viewModel.therapySettings.suspendThreshold?.quantity,
+                        onSave: { newSchedule in
+                            self.viewModel.saveCorrectionRange(range: newSchedule)
+                            goBack()
                     },
-                    mode: self.viewModel.mode
-                ))
+                        mode: self.viewModel.mode
+                    ))
+                }
             }
         case .suspendThreshold:
             if viewModel.therapySettings.glucoseUnit != nil {
-                return { back in
+                return { goBack in
                     AnyView(SuspendThresholdEditor(
                         value: self.viewModel.therapySettings.suspendThreshold?.quantity,
                         unit: self.viewModel.therapySettings.glucoseUnit!,
@@ -422,45 +424,49 @@ private extension TherapySettingsView {
                         ),
                         onSave: { newValue in
                             self.viewModel.saveSuspendThreshold(value: GlucoseThreshold(unit: self.viewModel.therapySettings.glucoseUnit!, value: newValue.doubleValue(for: self.viewModel.therapySettings.glucoseUnit!)))
-                            back()
+                            goBack()
                         },
                         mode: self.viewModel.mode
                     ))
                 }
             }
         case .basalRate:
-            return { back in
-                AnyView(BasalRateScheduleEditor(
-                    schedule: self.viewModel.therapySettings.basalRateSchedule,
-                    supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates ,
-                    maximumBasalRate: self.viewModel.therapySettings.maximumBasalRatePerHour,
-                    maximumScheduleEntryCount: self.viewModel.pumpSupportedIncrements!.maximumBasalScheduleEntryCount,
-                    syncSchedule: self.viewModel.syncPumpSchedule,
-                    onSave: { newRates in
-                        self.viewModel.saveBasalRates(basalRates: newRates)
-                        back()
+            if self.viewModel.pumpSupportedIncrements != nil {
+                return { goBack in
+                    AnyView(BasalRateScheduleEditor(
+                        schedule: self.viewModel.therapySettings.basalRateSchedule,
+                        supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates ,
+                        maximumBasalRate: self.viewModel.therapySettings.maximumBasalRatePerHour,
+                        maximumScheduleEntryCount: self.viewModel.pumpSupportedIncrements!.maximumBasalScheduleEntryCount,
+                        syncSchedule: self.viewModel.syncPumpSchedule,
+                        onSave: { newRates in
+                            self.viewModel.saveBasalRates(basalRates: newRates)
+                            goBack()
                     },
-                    mode: self.viewModel.mode
-                ))
+                        mode: self.viewModel.mode
+                    ))
+                }
             }
         case .deliveryLimits:
-            return { back in
-                AnyView(DeliveryLimitsEditor(
-                    value: self.viewModel.deliveryLimits,
-                    supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates,
-                    scheduledBasalRange: self.viewModel.therapySettings.basalRateSchedule?.valueRange(),
-                    supportedBolusVolumes: self.viewModel.pumpSupportedIncrements!.bolusVolumes,
-                    onSave: { limits in
-                        self.viewModel.saveDeliveryLimits(limits: limits)
-                        back()
+            if self.viewModel.pumpSupportedIncrements != nil {
+                return { goBack in
+                    AnyView(DeliveryLimitsEditor(
+                        value: self.viewModel.deliveryLimits,
+                        supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates,
+                        scheduledBasalRange: self.viewModel.therapySettings.basalRateSchedule?.valueRange(),
+                        supportedBolusVolumes: self.viewModel.pumpSupportedIncrements!.bolusVolumes,
+                        onSave: { limits in
+                            self.viewModel.saveDeliveryLimits(limits: limits)
+                            goBack()
                     },
-                    mode: self.viewModel.mode
-                ))
+                        mode: self.viewModel.mode
+                    ))
+                }
             }
         case .insulinModel:
-            if self.viewModel.therapySettings.glucoseUnit != nil && self.viewModel.therapySettings.insulinModelSettings != nil && self.viewModel.therapySettings.insulinSensitivitySchedule != nil {
-                return { back in
-                    AnyView(InsulinModelSelection(viewModel: self.viewModel.insulinModelSelectionViewModel,
+            if self.viewModel.therapySettings.glucoseUnit != nil && self.viewModel.insulinModelSelectionViewModel != nil {
+                return { goBack in
+                    AnyView(InsulinModelSelection(viewModel: self.viewModel.insulinModelSelectionViewModel!,
                                                   glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
                                                   supportedModelSettings: self.viewModel.supportedInsulinModelSettings,
                                                   appName: self.viewModel.appName,
@@ -469,32 +475,32 @@ private extension TherapySettingsView {
                                                     // Note: TherapySettingsViewModel takes care of calling saveInsulinModel.
                                                     // This is different than the others because it had to construct an
                                                     // InsulinModelSelectionViewModel on its own and "listen" to changes
-                                                    back()
+                                                    goBack()
                                                   }
                     ))
                 }
             }
         case .carbRatio:
-            return { back in
+            return { goBack in
                 AnyView(CarbRatioScheduleEditor(
                     schedule: self.viewModel.therapySettings.carbRatioSchedule,
                     mode: self.viewModel.mode,
                     onSave: {
                         self.viewModel.saveCarbRatioSchedule(carbRatioSchedule: $0)
-                        back()
+                        goBack()
                     }
                 ))
             }
         case .insulinSensitivity:
             if self.viewModel.therapySettings.glucoseUnit != nil {
-                return { back in
+                return { goBack in
                     return AnyView(InsulinSensitivityScheduleEditor(
                         schedule: self.viewModel.therapySettings.insulinSensitivitySchedule,
                         mode: self.viewModel.mode,
                         glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
                         onSave: {
                             self.viewModel.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0)
-                            back()
+                            goBack()
                         }
                     ))
                 }
