@@ -26,14 +26,19 @@ public extension Guardrail where Value == HKQuantity {
         return 6
     }
     
-    static func maximumBasalRate(supportedBasalRates: [Double], scheduledBasalRange: ClosedRange<Double>?) -> Guardrail {
+    static func maximumBasalRate(
+        supportedBasalRates: [Double],
+        scheduledBasalRange: ClosedRange<Double>?,
+        maximumBasalRatePrecision decimalPlaces: Int = 3
+    ) -> Guardrail {
         let minimumSupportedBasalRate = supportedBasalRates.first!
         let recommendedLowerBound = minimumSupportedBasalRate == 0 ? supportedBasalRates.dropFirst().first! : minimumSupportedBasalRate
         let recommendedUpperBound: Double
         if let maximumScheduledBasalRate = scheduledBasalRange?.upperBound {
+            let scaledMaximumScheduledBasalRate = (recommendedMaximumScheduledBasalScaleFactor * maximumScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
             recommendedUpperBound = maximumScheduledBasalRate == 0
                 ? recommendedLowerBound
-                : recommendedMaximumScheduledBasalScaleFactor * maximumScheduledBasalRate
+                : scaledMaximumScheduledBasalRate
         } else {
             recommendedUpperBound = supportedBasalRates.last!
         }

@@ -341,6 +341,7 @@
 		7D68A9B81FE0A3D100522C49 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7D68A9BA1FE0A3D100522C49 /* InfoPlist.strings */; };
 		7D68A9C21FE0A3D200522C49 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7D68A9C41FE0A3D200522C49 /* InfoPlist.strings */; };
 		8907E35921A9D0EC00335852 /* GlucoseEntryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8907E35821A9D0EC00335852 /* GlucoseEntryTableViewController.swift */; };
+		8912F3AC24D37FD80072050F /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8912F3AB24D37FD80072050F /* FloatingPoint.swift */; };
 		89186C0524BEC9CA0003D0F3 /* SegmentedControlTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89186C0424BEC9CA0003D0F3 /* SegmentedControlTableViewCell.swift */; };
 		89186C0724BF7FC70003D0F3 /* Guardrail+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89186C0624BF7FC70003D0F3 /* Guardrail+UI.swift */; };
 		89186C0B24BFD6DB0003D0F3 /* DurationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89186C0A24BFD6DB0003D0F3 /* DurationPicker.swift */; };
@@ -1284,6 +1285,7 @@
 		7D68AAC61FE31BE900522C49 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8907E35821A9D0EC00335852 /* GlucoseEntryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseEntryTableViewController.swift; sourceTree = "<group>"; };
 		8907E35A21A9D1B200335852 /* SineCurveParametersTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SineCurveParametersTableViewController.swift; sourceTree = "<group>"; };
+		8912F3AB24D37FD80072050F /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
 		89186C0424BEC9CA0003D0F3 /* SegmentedControlTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControlTableViewCell.swift; sourceTree = "<group>"; };
 		89186C0624BF7FC70003D0F3 /* Guardrail+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guardrail+UI.swift"; sourceTree = "<group>"; };
 		89186C0A24BFD6DB0003D0F3 /* DurationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationPicker.swift; sourceTree = "<group>"; };
@@ -2482,6 +2484,7 @@
 				B41A60B123D1DBC700636320 /* UIFont.swift */,
 				B429D66D24BF7255003E1B4A /* UIImage.swift */,
 				89CAB36E24C9ECCA009EE3CE /* View+KeyboardAware.swift */,
+				8912F3AB24D37FD80072050F /* FloatingPoint.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3245,6 +3248,7 @@
 				89186C0724BF7FC70003D0F3 /* Guardrail+UI.swift in Sources */,
 				432CF87420D774520066B889 /* NumberFormatter.swift in Sources */,
 				1F5DAB212118C95700048054 /* LocalizedString.swift in Sources */,
+				8912F3AC24D37FD80072050F /* FloatingPoint.swift in Sources */,
 				43FB60E520DCBA02002B996B /* SetupTableViewController.swift in Sources */,
 				43BA7180201EE7090058961E /* SingleValueScheduleTableViewController.swift in Sources */,
 				898E6E5D2241783C0019E459 /* SetConstrainedScheduleEntryTableViewCell.swift in Sources */,
