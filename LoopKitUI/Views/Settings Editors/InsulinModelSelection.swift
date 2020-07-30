@@ -82,7 +82,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     
     public var body: some View {
         switch mode {
-        case .acceptanceFlow: return AnyView(content)
+        case .acceptanceFlow: return AnyView(contentWithSaveButton)
         case .settings:       return AnyView(contentWithSaveButton)
         case .legacySettings: return AnyView(navigationContent)
         }
@@ -103,7 +103,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
                     .actionButtonStyle(.primary)
                     .padding()
             }
-            .disabled(value == initialValue)
+            .disabled(value == initialValue && mode != .acceptanceFlow)
             // Styling to mimic the floating button of a ConfigurationPage
             .padding(.bottom)
             .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
