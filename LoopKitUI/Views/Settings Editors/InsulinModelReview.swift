@@ -31,7 +31,8 @@ public struct InsulinModelReview: View {
                 glucoseUnit: settingsViewModel.therapySettings.glucoseUnit!,
                 supportedModelSettings: settingsViewModel.supportedInsulinModelSettings,
                 appName: appName,
-                mode: .acceptanceFlow // don't wrap the view in a navigation view
+                mode: .acceptanceFlow, // don't wrap the view in a navigation view
+                onSave: {_ in }
             )
             VStack(spacing: 0) {
                 Button(action: {

@@ -18,7 +18,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     let supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
     let appName: String
-    let save: ((InsulinModelSettings) -> Void)?
+    let save: (InsulinModelSettings) -> Void
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
     
@@ -47,7 +47,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         supportedModelSettings: SupportedInsulinModelSettings,
         appName: String,
         mode: PresentationMode,
-        onSave save: ((InsulinModelSettings) -> Void)? = nil
+        onSave save: @escaping (InsulinModelSettings) -> Void
     ){
         self._value = State(initialValue: value)
         self.initialValue = value
@@ -257,7 +257,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     }
 
     private func doSave() {
-        save?(value)
+        save(value)
         if mode == .legacySettings {
             dismiss()
         }
