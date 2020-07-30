@@ -1,5 +1,5 @@
 //
-//  DeviceStatusHighlight+Color.swift
+//  DeviceStatusHighlight+Image.swift
 //  LoopKitUI
 //
 //  Created by Nathaniel Hamming on 2020-07-06.
@@ -10,7 +10,7 @@ import LoopKit
 
 extension DeviceStatusHighlight {
     public var image: UIImage? {
-        if let image = UIImage(frameworkImage: imageName) {
+        if let image = UIImage(named: imageName) {
             return image
         } else {
             return UIImage(systemName: imageName)
