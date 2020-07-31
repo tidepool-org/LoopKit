@@ -50,8 +50,8 @@ public struct DeliveryLimitsEditor: View {
     }
     
     public init(
-        viewModel: TherapySettingsViewModel,
-        mode: PresentationMode = .acceptanceFlow
+           viewModel: TherapySettingsViewModel,
+           onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void
     ) {
         precondition(viewModel.pumpSupportedIncrements != nil)
         let maxBasal = HKQuantity(unit: .internationalUnitsPerHour, doubleValue: viewModel.therapySettings.maximumBasalRatePerHour!)
@@ -62,10 +62,8 @@ public struct DeliveryLimitsEditor: View {
             supportedBasalRates: viewModel.pumpSupportedIncrements!.basalRates,
             scheduledBasalRange: viewModel.therapySettings.basalRateSchedule?.valueRange(),
             supportedBolusVolumes: viewModel.pumpSupportedIncrements!.bolusVolumes,
-            onSave: { limits in
-                viewModel.saveDeliveryLimits(limits: limits)
-        },
-            mode: mode
+            onSave: save,
+            mode: viewModel.mode
         )
     }
 

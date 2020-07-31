@@ -58,8 +58,8 @@ public struct SuspendThresholdEditor: View {
     }
     
     public init(
-        viewModel: TherapySettingsViewModel,
-        mode: PresentationMode = .acceptanceFlow
+           viewModel: TherapySettingsViewModel,
+           onSave save: @escaping (_ suspendThreshold: HKQuantity) -> Void
     ) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         let unit = viewModel.therapySettings.glucoseUnit!
@@ -72,10 +72,8 @@ public struct SuspendThresholdEditor: View {
                 workoutTargetRange: viewModel.therapySettings.workoutTargetRange,
                 unit: unit
             ),
-            onSave: { newValue in
-                viewModel.saveSuspendThreshold(value: GlucoseThreshold(unit: unit, value: newValue.doubleValue(for: unit)))
-            },
-            mode: mode
+            onSave: save,
+            mode: viewModel.mode
         )
     }
 
