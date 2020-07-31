@@ -22,11 +22,9 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     }
     
     @Environment(\.dismiss) var dismiss
-
+   
     @ObservedObject var viewModel: TherapySettingsViewModel
-    
-    @State var isEditing: Bool = false
-    
+        
     private let actionButton: ActionButton?
         
     public init(viewModel: TherapySettingsViewModel,
@@ -38,7 +36,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     public var body: some View {
         switch viewModel.mode {
         case .acceptanceFlow: return AnyView(content)
-        case .settings: return AnyView(contentWithNavigationButtons)
+        case .settings: return AnyView(content)
         case .legacySettings: return AnyView(navigationViewWrappedContent)
         }
     }
@@ -68,15 +66,9 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         .environment(\.horizontalSizeClass, horizontalOverride)
     }
     
-    private var contentWithNavigationButtons: some View {
-        content
-            .navigationBarItems(leading: backOrCancelButton, trailing: editOrDoneButton)
-            .navigationBarBackButtonHidden(isEditing)
-    }
-    
     private var navigationViewWrappedContent: some View {
         NavigationView {
-            contentWithNavigationButtons
+            content
         }
     }
     
@@ -95,72 +87,20 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     }
 }
 
-// MARK: Buttons
-extension TherapySettingsView {
-    
-    private var backOrCancelButton: some View {
-        if self.isEditing {
-            return AnyView(cancelButton)
-        } else {
-            return AnyView(backButton)
-        }
-    }
-    
-    private var backButton: some View {
-        return Button<AnyView>( action: { self.dismiss() }) {
-            switch viewModel.mode {
-            case .settings, .acceptanceFlow: return AnyView(EmptyView())
-            case .legacySettings: return AnyView(Text(LocalizedString("Back", comment: "Back button text")))
-            }
-        }
-    }
-    
-    private var cancelButton: some View {
-        return Button( action: {
-            // TODO: confirm
-            self.viewModel.reset()
-            self.isEditing.toggle()
-        })
-        {
-            Text(LocalizedString("Cancel", comment: "Cancel button text"))
-        }
-    }
-    
-    private var editOrDoneButton: some View {
-        if self.isEditing {
-            return AnyView(doneButton)
-        } else {
-            return AnyView(editButton)
-        }
-    }
-    
-    private var editButton: some View {
-        return Button( action: {
-            self.isEditing.toggle()
-        }) {
-            Text(LocalizedString("Edit", comment: "Edit button text"))
-        }
-    }
-    
-    private var doneButton: some View {
-        return Button( action: {
-            // TODO: confirm
-            self.isEditing.toggle()
-        }) {
-            Text(LocalizedString("Done", comment: "Done button text"))
-        }
-    }
-}
-
 // MARK: Sections
 extension TherapySettingsView {
     
     private var prescriptionSection: some View {
-        SectionWithEdit(isEditing: .constant(false),
-                        addExtraSpaceAboveSection: true,
-                        title: LocalizedString("Prescription", comment: "title for prescription section"),
-                        descriptiveText: prescriptionDescriptiveText,
-                        destination: EmptyView(), content: { EmptyView() })
+        Section(header: Spacer()) {
+            VStack(alignment: .leading) {
+                Spacer()
+                Text(LocalizedString("Prescription", comment: "title for prescription section"))
+                    .bold()
+                Spacer()
+                DescriptiveText(label: prescriptionDescriptiveText)
+                Spacer()
+            }
+        }
     }
     
     private var prescriptionDescriptiveText: String {
@@ -178,8 +118,6 @@ extension TherapySettingsView {
                                       unit: self.glucoseUnit!,
                                       guardrail: .correctionRange)
                 }
-            } else {
-                DescriptiveText(label: LocalizedString("Tap \"Edit\" to add a Correction Range", comment: "Correction Range section edit hint"))
             }
         }
     }
@@ -313,8 +251,7 @@ extension TherapySettingsView {
     }
     
     private var supportSection: some View {
-        Section(header: SectionHeader(label: LocalizedString("Support", comment: "Title for support section")),
-                footer: DescriptiveText(label: "Text description here.")) {
+        Section(header: SectionHeader(label: LocalizedString("Support", comment: "Title for support section"))) {
             NavigationLink(destination: Text("Therapy Settings Support Placeholder")) {
                 Text("Get help with Therapy Settings", comment: "Support button for Therapy Settings")
             }
@@ -336,12 +273,12 @@ extension TherapySettingsView {
     private func section<Content>(for therapySetting: TherapySetting,
                                   addExtraSpaceAboveSection: Bool = false,
                                   @ViewBuilder content: @escaping () -> Content) -> some View where Content: View {
-        SectionWithEdit(isEditing: $isEditing,
-                        addExtraSpaceAboveSection: addExtraSpaceAboveSection,
-                        title: therapySetting.title,
-                        descriptiveText: therapySetting.descriptiveText,
-                        destination: self.screen(for: therapySetting),
-                        content: content)
+        SectionWithTapToEdit(isEnabled: viewModel.mode != .acceptanceFlow,
+                             header: addExtraSpaceAboveSection ? AnyView(Spacer()) : AnyView(EmptyView()),
+                             title: therapySetting.title,
+                             descriptiveText: therapySetting.descriptiveText,
+                             destination: screen(for: therapySetting),
+                             content: content)
     }
 }
 
@@ -401,15 +338,15 @@ struct CorrectionRangeOverridesRangeItem: View {
     }
 }
 
-// Note: I didn't call this "EditableSection" because it doesn't actually make the section editable,
-// it just optionally provides a link to go to an editor screen.
-struct SectionWithEdit<Content, NavigationDestination>: View where Content: View, NavigationDestination: View  {
-    @Binding var isEditing: Bool
-    let addExtraSpaceAboveSection: Bool
+struct SectionWithTapToEdit<Header, Content, NavigationDestination>: View where Header: View, Content: View, NavigationDestination: View  {
+    let isEnabled: Bool
+    let header: Header
     let title: String
     let descriptiveText: String
-    let destination: NavigationDestination
+    let destination: (_ goBack: @escaping () -> Void) -> NavigationDestination
     let content: () -> Content
+
+    @State var isActive: Bool = false
     
     public var body: some View {
         Section(header: header) {
@@ -418,70 +355,159 @@ struct SectionWithEdit<Content, NavigationDestination>: View where Content: View
                 Text(title)
                     .bold()
                 Spacer()
-                DescriptiveText(label: descriptiveText)
+                ZStack(alignment: .leading) {
+                    DescriptiveText(label: descriptiveText)
+                    if isEnabled {
+                        NavigationLink(destination: destination({ self.isActive = false }), isActive: $isActive) {
+                            EmptyView()
+                        }
+                    }
+                }
                 Spacer()
             }
             content()
-            if isEditing {
-                navigationButton
-            }
         }
-    }
-    
-    private var header: some View {
-        addExtraSpaceAboveSection ? AnyView(Spacer()) : AnyView(EmptyView())
-    }
-    
-    private var navigationButton: some View {
-        NavigationLink(destination: destination) {
-            Button(action: { }) {
-                Text(String(format: LocalizedString("Edit %@", comment: "The string format for the Edit navigation button"), title))
-            }
-        }
+        .highPriorityGesture(
+            TapGesture()
+                .onEnded { _ in
+                    self.isActive = true
+        })
     }
 }
 
 // MARK: Navigation
 
 private extension TherapySettingsView {
-    func screen(for setting: TherapySetting) -> some View {
+    
+    func screen(for setting: TherapySetting) -> (_ goBack: @escaping () -> Void) -> AnyView {
         switch setting {
         case .glucoseTargetRange:
-            return AnyView(CorrectionRangeReview(mode: viewModel.mode, viewModel: viewModel))
+            if viewModel.therapySettings.glucoseUnit != nil {
+                return { goBack in
+                    AnyView(CorrectionRangeScheduleEditor(
+                        schedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
+                        unit: self.viewModel.therapySettings.glucoseUnit!,
+                        minValue: self.viewModel.therapySettings.suspendThreshold?.quantity,
+                        onSave: { newSchedule in
+                            self.viewModel.saveCorrectionRange(range: newSchedule)
+                            goBack()
+                        },
+                        mode: self.viewModel.mode))
+                }
+            }
         case .correctionRangeOverrides:
-            return AnyView(CorrectionRangeOverrideReview(mode: viewModel.mode, viewModel: viewModel))
+            if self.viewModel.therapySettings.glucoseUnit != nil {
+                return { goBack in
+                    AnyView(CorrectionRangeScheduleEditor(
+                        schedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
+                        unit: self.viewModel.therapySettings.glucoseUnit!,
+                        minValue: self.viewModel.therapySettings.suspendThreshold?.quantity,
+                        onSave: { newSchedule in
+                            self.viewModel.saveCorrectionRange(range: newSchedule)
+                            goBack()
+                    },
+                        mode: self.viewModel.mode
+                    ))
+                }
+            }
         case .suspendThreshold:
-            return AnyView(SuspendThresholdReview(mode: viewModel.mode, viewModel: viewModel))
+            if viewModel.therapySettings.glucoseUnit != nil {
+                return { goBack in
+                    AnyView(SuspendThresholdEditor(
+                        value: self.viewModel.therapySettings.suspendThreshold?.quantity,
+                        unit: self.viewModel.therapySettings.glucoseUnit!,
+                        maxValue: Guardrail.maxSuspendThresholdValue(
+                            correctionRangeSchedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
+                            preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange,
+                            workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange,
+                            unit: self.viewModel.therapySettings.glucoseUnit!
+                        ),
+                        onSave: { newValue in
+                            self.viewModel.saveSuspendThreshold(value: GlucoseThreshold(unit: self.viewModel.therapySettings.glucoseUnit!, value: newValue.doubleValue(for: self.viewModel.therapySettings.glucoseUnit!)))
+                            goBack()
+                        },
+                        mode: self.viewModel.mode
+                    ))
+                }
+            }
         case .basalRate:
-            return AnyView(BasalRatesReview(mode: viewModel.mode, viewModel: viewModel))
+            if self.viewModel.pumpSupportedIncrements != nil {
+                return { goBack in
+                    AnyView(BasalRateScheduleEditor(
+                        schedule: self.viewModel.therapySettings.basalRateSchedule,
+                        supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates ,
+                        maximumBasalRate: self.viewModel.therapySettings.maximumBasalRatePerHour,
+                        maximumScheduleEntryCount: self.viewModel.pumpSupportedIncrements!.maximumBasalScheduleEntryCount,
+                        syncSchedule: self.viewModel.syncPumpSchedule,
+                        onSave: { newRates in
+                            self.viewModel.saveBasalRates(basalRates: newRates)
+                            goBack()
+                        },
+                        mode: self.viewModel.mode
+                    ))
+                }
+            }
         case .deliveryLimits:
-            return AnyView(DeliveryLimitsReview(mode: viewModel.mode, viewModel: viewModel))
+            if self.viewModel.pumpSupportedIncrements != nil {
+                return { goBack in
+                    AnyView(DeliveryLimitsEditor(
+                        value: self.viewModel.deliveryLimits,
+                        supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates,
+                        scheduledBasalRange: self.viewModel.therapySettings.basalRateSchedule?.valueRange(),
+                        supportedBolusVolumes: self.viewModel.pumpSupportedIncrements!.bolusVolumes,
+                        onSave: { limits in
+                            self.viewModel.saveDeliveryLimits(limits: limits)
+                            goBack()
+                        },
+                        mode: self.viewModel.mode
+                    ))
+                }
+            }
         case .insulinModel:
-            if viewModel.therapySettings.glucoseUnit != nil && viewModel.therapySettings.insulinModelSettings != nil && viewModel.therapySettings.insulinSensitivitySchedule != nil {
-                return AnyView(InsulinModelSelection(viewModel: viewModel.insulinModelSelectionViewModel,
-                                                     glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
-                                                     supportedModelSettings: viewModel.supportedInsulinModelSettings,
-                                                     mode: viewModel.mode))
+            if self.viewModel.therapySettings.glucoseUnit != nil && self.viewModel.therapySettings.insulinModelSettings != nil {
+                return { goBack in
+                    AnyView(InsulinModelSelection(value: self.viewModel.therapySettings.insulinModelSettings!,
+                                                  insulinSensitivitySchedule: self.viewModel.therapySettings.insulinSensitivitySchedule,
+                                                  glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
+                                                  supportedModelSettings: self.viewModel.supportedInsulinModelSettings,
+                                                  appName: self.viewModel.appName,
+                                                  mode: self.viewModel.mode,
+                                                  onSave: { insulinModelSettings in
+                                                      self.viewModel.saveInsulinModel(insulinModelSettings: insulinModelSettings)
+                                                      goBack()
+                                                  }
+                    ))
+                }
             }
         case .carbRatio:
-            return AnyView(CarbRatioScheduleEditor(
-                schedule: viewModel.therapySettings.carbRatioSchedule,
-                mode: viewModel.mode,
-                onSave: { self.viewModel.saveCarbRatioSchedule(carbRatioSchedule: $0) }
-            ))
+            return { goBack in
+                AnyView(CarbRatioScheduleEditor(
+                    schedule: self.viewModel.therapySettings.carbRatioSchedule,
+                    mode: self.viewModel.mode,
+                    onSave: {
+                        self.viewModel.saveCarbRatioSchedule(carbRatioSchedule: $0)
+                        goBack()
+                    }
+                ))
+            }
         case .insulinSensitivity:
             if self.viewModel.therapySettings.glucoseUnit != nil {
-                return AnyView(InsulinSensitivityScheduleEditor(
-                    schedule: self.viewModel.therapySettings.insulinSensitivitySchedule,
-                    mode: viewModel.mode,
-                    glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
-                    onSave: { self.viewModel.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0) }
-                ))
+                return { goBack in
+                    return AnyView(InsulinSensitivityScheduleEditor(
+                        schedule: self.viewModel.therapySettings.insulinSensitivitySchedule,
+                        mode: self.viewModel.mode,
+                        glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
+                        onSave: {
+                            self.viewModel.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0)
+                            goBack()
+                        }
+                    ))
+                }
             }
         case .none:
             break
         }
-        return AnyView(Text("\(setting.title)"))
+        return { _ in AnyView(Text("\(setting.title)")) }
     }
 }
 
