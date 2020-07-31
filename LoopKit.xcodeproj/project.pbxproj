@@ -1351,8 +1351,6 @@
 		898B4E76246DAE280053C484 /* GlucoseRangePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseRangePicker.swift; sourceTree = "<group>"; };
 		898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeScheduleEditor.swift; sourceTree = "<group>"; };
 		898B4E7D246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardrailConstrainedQuantityRangeView.swift; sourceTree = "<group>"; };
-		898C896024D394D2002FA994 /* GuardrailTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardrailTests.swift; sourceTree = "<group>"; };
-		898C896224D394D2002FA994 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		898C896924D4BF11002FA994 /* Guardrail+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guardrail+Settings.swift"; sourceTree = "<group>"; };
 		898C896C24D4BF75002FA994 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
 		898C897024D4C0E4002FA994 /* GuardrailTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardrailTests.swift; sourceTree = "<group>"; };
@@ -2030,7 +2028,6 @@
 				1DEE230524A6960400693C32 /* LoopKitHostedTests */,
 				43D8FDD91C728FDF0073BE78 /* LoopKitTests */,
 				43BA7155201E484D0058961E /* LoopKitUI */,
-				898C895F24D394D2002FA994 /* LoopKitUITests */,
 				89D2047321CC7BD7001238CC /* MockKit */,
 				89D2049021CC7C13001238CC /* MockKitUI */,
 				892A5D35222F03CB008961AB /* LoopTestingKit */,
@@ -2393,15 +2390,6 @@
 				89AF78C12447E353002B4FCC /* Splat.swift */,
 			);
 			path = CardList;
-			sourceTree = "<group>";
-		};
-		898C895F24D394D2002FA994 /* LoopKitUITests */ = {
-			isa = PBXGroup;
-			children = (
-				898C896024D394D2002FA994 /* GuardrailTests.swift */,
-				898C896224D394D2002FA994 /* Info.plist */,
-			);
-			path = LoopKitUITests;
 			sourceTree = "<group>";
 		};
 		8992426321EC137900EA512B /* Extensions */ = {
