@@ -12,7 +12,7 @@ import LoopKit
 
 
 public struct GlucoseValuePicker: View {
-    @Environment(\.warningColor) var warningColor
+    @Environment(\.guardrailColors) var guardrailColors
     @Binding var value: HKQuantity
     var unit: HKUnit
     var guardrail: Guardrail<HKQuantity>
@@ -43,7 +43,12 @@ public struct GlucoseValuePicker: View {
     }
 
     public var body: some View {
-        QuantityPicker(value: $value, unit: unit, guardrail: guardrail, selectableValues: selectableValues, isUnitLabelVisible: isUnitLabelVisible, warningColor: warningColor)
+        QuantityPicker(value: $value,
+                       unit: unit,
+                       guardrail: guardrail,
+                       selectableValues: selectableValues,
+                       isUnitLabelVisible: isUnitLabelVisible,
+                       guardrailColors: guardrailColors)
     }
 
     private var selectableValues: [Double] {

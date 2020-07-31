@@ -19,7 +19,7 @@ public enum WarningSeverity: Int, Comparable {
 }
 
 public struct WarningView: View {
-    @Environment(\.warningColor) var warning
+    @Environment(\.guardrailColors) var guardrailColors
     var title: Text
     var caption: Text
     var severity: WarningSeverity
@@ -58,9 +58,9 @@ public struct WarningView: View {
     private var warningColor: Color {
         switch severity {
         case .default:
-            return warning
+            return guardrailColors.warning
         case .critical:
-            return .critical
+            return guardrailColors.critical
         }
     }
 }

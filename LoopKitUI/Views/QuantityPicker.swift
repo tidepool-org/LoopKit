@@ -35,9 +35,7 @@ public struct QuantityPicker: View {
         guardrail: Guardrail<HKQuantity>,
         formatter: NumberFormatter? = nil,
         isUnitLabelVisible: Bool = true,
-        inRangeColor: Color = .primary,
-        warningColor: Color = .warning,
-        criticalColor: Color = .critical
+        guardrailColors: GuardrailColors = GuardrailColors()
     ) {
         let selectableValues = guardrail.allValues(stridingBy: stride, unit: unit)
         self.init(value: value,
@@ -46,9 +44,7 @@ public struct QuantityPicker: View {
                   selectableValues: selectableValues,
                   formatter: formatter,
                   isUnitLabelVisible: isUnitLabelVisible,
-                  inRangeColor: inRangeColor,
-                  warningColor: warningColor,
-                  criticalColor: criticalColor)
+                  guardrailColors: guardrailColors)
     }
 
     public init(
@@ -58,9 +54,7 @@ public struct QuantityPicker: View {
         selectableValues: [Double],
         formatter: NumberFormatter? = nil,
         isUnitLabelVisible: Bool = true,
-        inRangeColor: Color = .primary,
-        warningColor: Color = .warning,
-        criticalColor: Color = .critical
+        guardrailColors: GuardrailColors
     ) {
         self.init(
             value: value,
@@ -70,7 +64,7 @@ public struct QuantityPicker: View {
             isUnitLabelVisible: isUnitLabelVisible,
             colorForValue: { value in
                 let quantity = HKQuantity(unit: unit, doubleValue: value)
-                return guardrail.color(for: quantity, inRangeColor: inRangeColor,  warningColor: warningColor, criticalColor: criticalColor)
+                return guardrail.color(for: quantity, guardrailColors: guardrailColors)
             }
         )
     }

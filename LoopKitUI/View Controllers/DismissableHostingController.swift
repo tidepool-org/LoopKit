@@ -11,7 +11,7 @@ import SwiftUI
 public class DismissibleHostingController: UIHostingController<AnyView> {
     public static var cobTintColor: Color = .green
     public static var glucoseTintColor: Color = Color(.systemTeal)
-    public static var warningColor: Color = .warning
+    public static var guardrailColors: GuardrailColors = GuardrailColors()
     
     public enum DismissalMode {
         case modalDismiss
@@ -31,7 +31,7 @@ public class DismissibleHostingController: UIHostingController<AnyView> {
         self.init(rootView: AnyView(rootView.environment(\.dismiss, { dismiss() })
             .environment(\.cobTintColor, DismissibleHostingController.cobTintColor)
             .environment(\.glucoseTintColor, DismissibleHostingController.glucoseTintColor)
-            .environment(\.warningColor, DismissibleHostingController.warningColor)))
+            .environment(\.guardrailColors, DismissibleHostingController.guardrailColors)))
 
         switch dismissalMode {
         case .modalDismiss:
