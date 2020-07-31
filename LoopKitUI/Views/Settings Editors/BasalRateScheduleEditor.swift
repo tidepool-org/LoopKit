@@ -50,6 +50,23 @@ public struct BasalRateScheduleEditor: View {
         self.save = save
         self.mode = mode
     }
+    
+    public init(
+        viewModel: TherapySettingsViewModel,
+        mode: PresentationMode = .acceptanceFlow
+    ) {
+        self.init(
+            schedule: viewModel.therapySettings.basalRateSchedule,
+            supportedBasalRates: viewModel.pumpSupportedIncrements!.basalRates ,
+            maximumBasalRate: viewModel.therapySettings.maximumBasalRatePerHour,
+            maximumScheduleEntryCount: viewModel.pumpSupportedIncrements!.maximumBasalScheduleEntryCount,
+            syncSchedule: viewModel.syncPumpSchedule,
+            onSave: { newRates in
+                viewModel.saveBasalRates(basalRates: newRates)
+        },
+            mode: mode
+        )
+    }
 
     public var body: some View {
         QuantityScheduleEditor(

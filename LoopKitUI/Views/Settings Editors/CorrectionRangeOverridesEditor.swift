@@ -52,6 +52,27 @@ public struct CorrectionRangeOverridesEditor: View {
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.mode = mode
     }
+    
+    public init(
+       viewModel: TherapySettingsViewModel,
+       mode: PresentationMode = .acceptanceFlow
+    ) {
+        self.init(
+            value: CorrectionRangeOverrides(
+                preMeal: viewModel.therapySettings.preMealTargetRange,
+                workout: viewModel.therapySettings.workoutTargetRange,
+                unit: viewModel.therapySettings.glucoseUnit!
+            ),
+            unit: viewModel.therapySettings.glucoseUnit!,
+            correctionRangeScheduleRange: viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange(),
+            minValue: viewModel.therapySettings.suspendThreshold?.quantity,
+            onSave: { overrides in
+                viewModel.saveCorrectionRangeOverrides(overrides: overrides, unit: viewModel.therapySettings.glucoseUnit!)
+            },
+            sensitivityOverridesEnabled: viewModel.sensitivityOverridesEnabled,
+            mode: mode
+        )
+    }
 
     public var body: some View {
         ConfigurationPage(

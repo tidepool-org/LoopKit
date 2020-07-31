@@ -39,6 +39,22 @@ public struct CorrectionRangeScheduleEditor: View {
         self.save = save
         self.mode = mode
     }
+    
+    public init(
+        viewModel: TherapySettingsViewModel,
+        mode: PresentationMode = .acceptanceFlow
+    ) {
+        precondition(viewModel.therapySettings.glucoseUnit != nil)
+        self.init(
+            schedule: viewModel.therapySettings.glucoseTargetRangeSchedule,
+            unit: viewModel.therapySettings.glucoseUnit!,
+            minValue: viewModel.therapySettings.suspendThreshold?.quantity,
+            onSave: { newSchedule in
+                viewModel.saveCorrectionRange(range: newSchedule)
+            },
+            mode: mode
+        )
+    }
 
     public var body: some View {
         ScheduleEditor(
