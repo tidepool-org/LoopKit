@@ -168,6 +168,56 @@ class CarbMathTests: XCTestCase {
         }
     }
     
+    func testGlucoseEffectDynamicAbsorptionNoneObserved() {
+        let inputICE = loadICEInputFixture("ice_35_min_input")
+        let carbEntries = loadCarbEntryFixture()
+        let output = loadCOBOutputFixture("dynamic_glucose_effect_none_observed_output")
+
+        let (carbRatios, insulinSensitivities) = loadSchedules()
+        let defaultAbsorptionTimes = CarbStore.DefaultAbsorptionTimes(
+            fast: TimeInterval(hours: 1),
+            medium: TimeInterval(hours: 2),
+            slow: TimeInterval(hours: 4)
+        )
+        
+        let futureCarbEntry = carbEntries[2]
+        
+        let statuses = [futureCarbEntry].map(
+            to: inputICE,
+            carbRatio: carbRatios,
+            insulinSensitivity: insulinSensitivities,
+            absorptionTimeOverrun: defaultAbsorptionTimes.slow / defaultAbsorptionTimes.medium,
+            defaultAbsorptionTime: defaultAbsorptionTimes.medium,
+            delay: TimeInterval(minutes: 0),
+            initialAbsorptionTimeOverrun: defaultAbsorptionTimes.slow / defaultAbsorptionTimes.medium,
+            absorptionModel: LinearAbsorption(),
+            adaptiveAbsorptionRateEnabled: false,
+            adaptiveRateStandbyIntervalFraction: 0.2
+        )
+        
+        XCTAssertEqual(statuses.count, 1)
+        
+        // Full absorption remains
+        XCTAssertEqual(statuses[0].absorption!.estimatedTimeRemaining, TimeInterval(hours: 4), accuracy: 1)
+        
+        let effects = statuses.dynamicGlucoseEffects(
+            from: inputICE[0].startDate,
+            to: inputICE[0].startDate.addingTimeInterval(TimeInterval(hours: 6)),
+            carbRatios: carbRatios,
+            insulinSensitivities: insulinSensitivities,
+            defaultAbsorptionTime: defaultAbsorptionTimes.medium,
+            absorptionModel: LinearAbsorption()
+        )
+
+        XCTAssertEqual(output.count, effects.count)
+
+        // This is a bit hacky because the fixture is 10 mins off in terms of effects
+        for i in 0...output.count - 3 {
+            XCTAssertEqual(output[i].startDate, effects[i].startDate)
+            XCTAssertEqual(output[i].quantity.doubleValue(for: .milligramsPerDeciliter), effects[i+2].quantity.doubleValue(for: .milligramsPerDeciliter), accuracy: Double(Float.ulpOfOne))
+        }
+    }
+    
     func testDynamicAbsorptionNoneObserved() {
         let inputICE = loadICEInputFixture("ice_35_min_input")
         let carbEntries = loadCarbEntryFixture()
