@@ -19,6 +19,8 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         case fractional
     }
 
+    @Environment(\.warningColor) var warningColor
+    
     var title: Text
     var description: Text
     var initialScheduleItems: [RepeatingScheduleValue<Double>]
@@ -60,7 +62,8 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                         value: item.value.animation().withUnit(self.unit),
                         unit: self.unit,
                         guardrail: self.guardrail,
-                        selectableValues: self.selectableValues
+                        selectableValues: self.selectableValues,
+                        warningColor: self.warningColor
                     )
                     .frame(width: availableWidth / 2)
                     // Ensure overlaid unit label is not clipped

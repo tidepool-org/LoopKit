@@ -12,6 +12,7 @@ import LoopKit
 
 
 public struct GuardrailConstrainedQuantityView: View {
+    @Environment(\.warningColor) var warning
     var value: HKQuantity?
     var unit: HKUnit
     var guardrail: Guardrail<HKQuantity>
@@ -97,9 +98,9 @@ public struct GuardrailConstrainedQuantityView: View {
         case .outsideRecommendedRange(let threshold):
             switch threshold {
             case .minimum, .maximum:
-                return .severeWarning
+                return .critical
             case .belowRecommended, .aboveRecommended:
-                return .warning
+                return warning
             }
         }
     }

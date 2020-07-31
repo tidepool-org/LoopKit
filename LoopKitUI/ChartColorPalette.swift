@@ -10,6 +10,8 @@ import UIKit
 
 /// A palette of colors for displaying charts
 public struct ChartColorPalette {
+    public static var defaultPalette = ChartColorPalette(axisLine: .clear, axisLabel: .secondaryLabel, grid: .systemGray3, glucoseTint: .systemTeal, doseTint: .systemOrange)
+    
     public let axisLine: UIColor
     public let axisLabel: UIColor
     public let grid: UIColor
@@ -22,9 +24,5 @@ public struct ChartColorPalette {
         self.grid = grid
         self.glucoseTint = glucoseTint
         self.doseTint = doseTint
-    }
-    
-    static var `default`: ChartColorPalette {
-        return ChartColorPalette(axisLine: .axisLineColor, axisLabel: .axisLabelColor, grid: .gridColor, glucoseTint: .glucoseTintColor, doseTint: .doseTintColor)
-    }
+    }    
 }

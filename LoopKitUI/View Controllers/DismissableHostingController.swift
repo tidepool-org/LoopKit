@@ -8,8 +8,11 @@
 
 import SwiftUI
 
-
 public class DismissibleHostingController: UIHostingController<AnyView> {
+    public static var cobTintColor: Color = .green
+    public static var glucoseTintColor: Color = Color(.systemTeal)
+    public static var warningColor: Color = .warning
+    
     public enum DismissalMode {
         case modalDismiss
         case pop(to: UIViewController.Type)
@@ -25,7 +28,10 @@ public class DismissibleHostingController: UIHostingController<AnyView> {
     ) {
         // Delay initialization of dismissal closure pushed into SwiftUI Environment until after calling the designated initializer
         var dismiss = {}
-        self.init(rootView: AnyView(rootView.environment(\.dismiss, { dismiss() })))
+        self.init(rootView: AnyView(rootView.environment(\.dismiss, { dismiss() })
+            .environment(\.cobTintColor, DismissibleHostingController.cobTintColor)
+            .environment(\.glucoseTintColor, DismissibleHostingController.glucoseTintColor)
+            .environment(\.warningColor, DismissibleHostingController.warningColor)))
 
         switch dismissalMode {
         case .modalDismiss:

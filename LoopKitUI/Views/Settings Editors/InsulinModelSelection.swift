@@ -61,7 +61,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
 
     let chartManager: ChartsManager = {
         let chartManager = ChartsManager(
-            colors: .default,
+            colors: ChartColorPalette.defaultPalette,
             settings: .default,
             axisLabelFont: .systemFont(ofSize: 12),
             charts: [InsulinModelChart()],
