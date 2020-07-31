@@ -898,4 +898,39 @@ class CarbMathTests: XCTestCase {
         XCTAssertEqual(carbsOnBoard[10].quantity.doubleValue(for: unit), 15, accuracy: 1)
         XCTAssertEqual(carbsOnBoard.last!.quantity.doubleValue(for: unit), 0, accuracy: 1)
     }
+    
+    func testDynamicAbsorptionMultipleEntries() {
+        let inputICE = loadICEInputFixture("ice_35_min_input")
+        let carbEntries = loadCarbEntryFixture()
+
+        let (carbRatios, insulinSensitivities) = loadSchedules()
+        let defaultAbsorptionTimes = CarbStore.DefaultAbsorptionTimes(
+            fast: TimeInterval(hours: 1),
+            medium: TimeInterval(hours: 2),
+            slow: TimeInterval(hours: 4)
+        )
+        
+        let statuses = carbEntries.map(
+            to: inputICE,
+            carbRatio: carbRatios,
+            insulinSensitivity: insulinSensitivities,
+            absorptionTimeOverrun: defaultAbsorptionTimes.slow / defaultAbsorptionTimes.medium,
+            defaultAbsorptionTime: defaultAbsorptionTimes.medium,
+            delay: TimeInterval(minutes: 0),
+            initialAbsorptionTimeOverrun: defaultAbsorptionTimes.slow / defaultAbsorptionTimes.medium,
+            absorptionModel: LinearAbsorption(),
+            adaptiveAbsorptionRateEnabled: false,
+            adaptiveRateStandbyIntervalFraction: 0.2
+        )
+        
+        
+        // Tuple structure: (observed absorption, estimated time remaining)
+        let expected = [(16.193665456944906, 9100.254941363484), (1.806334543055097, 13532.959419333554) , (0, 14400)]
+        XCTAssertEqual(expected.count, statuses.count)
+        
+        for (expected, calculated) in zip(expected, statuses) {
+            XCTAssertEqual(expected.0, calculated.absorption?.observed.doubleValue(for: HKUnit.gram()))
+            XCTAssertEqual(expected.1, calculated.absorption?.estimatedTimeRemaining)
+        }
+    }
 }
