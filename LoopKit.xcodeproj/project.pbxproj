@@ -18,7 +18,6 @@
 		1D1FCE2724BE4DE2000300A8 /* CorrectionRangeOverrides.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2624BE4DE2000300A8 /* CorrectionRangeOverrides.swift */; };
 		1D1FCE2924BE4F11000300A8 /* TherapySetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2824BE4F11000300A8 /* TherapySetting.swift */; };
 		1D1FCE2B24BE704A000300A8 /* TherapySetting+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2A24BE704A000300A8 /* TherapySetting+Settings.swift */; };
-		1D1FCE2D24BEA669000300A8 /* Guardrail+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2C24BEA669000300A8 /* Guardrail+Settings.swift */; };
 		1D24A8D524C896E100AB8DB9 /* Prescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D24A8D424C896E100AB8DB9 /* Prescription.swift */; };
 		1D25C22E246A2A1A00E87FA0 /* critical.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1D25C22D246A2A1A00E87FA0 /* critical.caf */; };
 		1D4990E624A17564005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
@@ -342,7 +341,6 @@
 		7D68A9B81FE0A3D100522C49 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7D68A9BA1FE0A3D100522C49 /* InfoPlist.strings */; };
 		7D68A9C21FE0A3D200522C49 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7D68A9C41FE0A3D200522C49 /* InfoPlist.strings */; };
 		8907E35921A9D0EC00335852 /* GlucoseEntryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8907E35821A9D0EC00335852 /* GlucoseEntryTableViewController.swift */; };
-		8912F3AC24D37FD80072050F /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8912F3AB24D37FD80072050F /* FloatingPoint.swift */; };
 		89186C0524BEC9CA0003D0F3 /* SegmentedControlTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89186C0424BEC9CA0003D0F3 /* SegmentedControlTableViewCell.swift */; };
 		89186C0724BF7FC70003D0F3 /* Guardrail+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89186C0624BF7FC70003D0F3 /* Guardrail+UI.swift */; };
 		89186C0B24BFD6DB0003D0F3 /* DurationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89186C0A24BFD6DB0003D0F3 /* DurationPicker.swift */; };
@@ -410,8 +408,9 @@
 		898B4E77246DAE280053C484 /* GlucoseRangePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898B4E76246DAE280053C484 /* GlucoseRangePicker.swift */; };
 		898B4E7B246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */; };
 		898B4E7E246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898B4E7D246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift */; };
-		898C896124D394D2002FA994 /* GuardrailTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898C896024D394D2002FA994 /* GuardrailTests.swift */; };
-		898C896324D394D2002FA994 /* LoopKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43BA7154201E484D0058961E /* LoopKitUI.framework */; };
+		898C896A24D4BF11002FA994 /* Guardrail+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898C896924D4BF11002FA994 /* Guardrail+Settings.swift */; };
+		898C896D24D4BF75002FA994 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898C896C24D4BF75002FA994 /* FloatingPoint.swift */; };
+		898C897124D4C0E4002FA994 /* GuardrailTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898C897024D4C0E4002FA994 /* GuardrailTests.swift */; };
 		898E6E5D2241783C0019E459 /* SetConstrainedScheduleEntryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 892A5D63222F6B13008961AB /* SetConstrainedScheduleEntryTableViewCell.swift */; };
 		898E6E67224179310019E459 /* BaseHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 898E6E64224179300019E459 /* BaseHUDView.swift */; };
 		898E6E68224179310019E459 /* BatteryLevelHUDView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 898E6E65224179300019E459 /* BatteryLevelHUDView.xib */; };
@@ -839,13 +838,6 @@
 			remoteGlobalIDString = 892A5D33222F03CB008961AB;
 			remoteInfo = LoopTestingKit;
 		};
-		898C896424D394D2002FA994 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 43BA7153201E484D0058961E;
-			remoteInfo = LoopKitUI;
-		};
 		A9E6757A22713C3F00E25293 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
@@ -896,7 +888,6 @@
 		1D1FCE2624BE4DE2000300A8 /* CorrectionRangeOverrides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverrides.swift; sourceTree = "<group>"; };
 		1D1FCE2824BE4F11000300A8 /* TherapySetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySetting.swift; sourceTree = "<group>"; };
 		1D1FCE2A24BE704A000300A8 /* TherapySetting+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TherapySetting+Settings.swift"; sourceTree = "<group>"; };
-		1D1FCE2C24BEA669000300A8 /* Guardrail+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guardrail+Settings.swift"; sourceTree = "<group>"; };
 		1D24A8D424C896E100AB8DB9 /* Prescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prescription.swift; sourceTree = "<group>"; };
 		1D25C22D246A2A1A00E87FA0 /* critical.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = critical.caf; sourceTree = "<group>"; };
 		1D4990E524A17564005CC357 /* HKQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKQuery.swift; sourceTree = "<group>"; };
@@ -1292,7 +1283,6 @@
 		7D68AAC61FE31BE900522C49 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8907E35821A9D0EC00335852 /* GlucoseEntryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseEntryTableViewController.swift; sourceTree = "<group>"; };
 		8907E35A21A9D1B200335852 /* SineCurveParametersTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SineCurveParametersTableViewController.swift; sourceTree = "<group>"; };
-		8912F3AB24D37FD80072050F /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
 		89186C0424BEC9CA0003D0F3 /* SegmentedControlTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControlTableViewCell.swift; sourceTree = "<group>"; };
 		89186C0624BF7FC70003D0F3 /* Guardrail+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guardrail+UI.swift"; sourceTree = "<group>"; };
 		89186C0A24BFD6DB0003D0F3 /* DurationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationPicker.swift; sourceTree = "<group>"; };
@@ -1361,9 +1351,11 @@
 		898B4E76246DAE280053C484 /* GlucoseRangePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseRangePicker.swift; sourceTree = "<group>"; };
 		898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeScheduleEditor.swift; sourceTree = "<group>"; };
 		898B4E7D246DEB920053C484 /* GuardrailConstrainedQuantityRangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardrailConstrainedQuantityRangeView.swift; sourceTree = "<group>"; };
-		898C895E24D394D2002FA994 /* LoopKitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoopKitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		898C896024D394D2002FA994 /* GuardrailTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardrailTests.swift; sourceTree = "<group>"; };
 		898C896224D394D2002FA994 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		898C896924D4BF11002FA994 /* Guardrail+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guardrail+Settings.swift"; sourceTree = "<group>"; };
+		898C896C24D4BF75002FA994 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
+		898C897024D4C0E4002FA994 /* GuardrailTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardrailTests.swift; sourceTree = "<group>"; };
 		898E6E64224179300019E459 /* BaseHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseHUDView.swift; sourceTree = "<group>"; };
 		898E6E65224179300019E459 /* BatteryLevelHUDView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BatteryLevelHUDView.xib; sourceTree = "<group>"; };
 		898E6E66224179300019E459 /* BatteryLevelHUDView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatteryLevelHUDView.swift; sourceTree = "<group>"; };
@@ -1617,14 +1609,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				892A5D5C222F1210008961AB /* LoopKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		898C895B24D394D2002FA994 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				898C896324D394D2002FA994 /* LoopKitUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1940,6 +1924,7 @@
 			children = (
 				43D8FDF01C7290350073BE78 /* Date.swift */,
 				43D8FDE91C7290350073BE78 /* Double.swift */,
+				898C896C24D4BF75002FA994 /* FloatingPoint.swift */,
 				437AFF23203BE402008C4892 /* HKHealthStore.swift */,
 				43AF1FB11C926CDD00EA2F3D /* HKQuantity.swift */,
 				432762731D60505F0083215A /* HKQuantitySample.swift */,
@@ -2066,7 +2051,6 @@
 				892A5D34222F03CB008961AB /* LoopTestingKit.framework */,
 				A9E675F022713F4700E25293 /* LoopKit.framework */,
 				1DEE230124A676A300693C32 /* LoopKitHostedTests.xctest */,
-				898C895E24D394D2002FA994 /* LoopKitUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2131,6 +2115,7 @@
 				437874B4202FDC8300A3D8B9 /* Persistence */,
 				C16DA83E22E8D88F008624C2 /* LoopPlugin.swift */,
 				89F6E30E244A1A5D00CB9E15 /* Guardrail.swift */,
+				898C896924D4BF11002FA994 /* Guardrail+Settings.swift */,
 				E9086B3824B3CB4B0062F5C8 /* TherapySettings.swift */,
 				1D1FCE2624BE4DE2000300A8 /* CorrectionRangeOverrides.swift */,
 				1D1FCE2824BE4F11000300A8 /* TherapySetting.swift */,
@@ -2164,6 +2149,7 @@
 				A971C89E23C68B030099BEFC /* GlucoseStoreTests.swift */,
 				A99C73762339A67A00C80963 /* GlucoseThresholdTests.swift */,
 				A95A1D862460F1250079378D /* GlucoseValueTests.swift */,
+				898C897024D4C0E4002FA994 /* GuardrailTests.swift */,
 				43D8FEC81C7294640073BE78 /* InsulinMathTests.swift */,
 				43D8FDDA1C728FDF0073BE78 /* LoopKitTests.swift */,
 				43D9888C1C87EBE400DA4467 /* LoopMathTests.swift */,
@@ -2507,7 +2493,6 @@
 				B41A60B123D1DBC700636320 /* UIFont.swift */,
 				B429D66D24BF7255003E1B4A /* UIImage.swift */,
 				89CAB36E24C9ECCA009EE3CE /* View+KeyboardAware.swift */,
-				8912F3AB24D37FD80072050F /* FloatingPoint.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2598,7 +2583,6 @@
 				1D66303824C6562F00F2EF6E /* CorrectionRangeReview.swift */,
 				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
 				1D66303E24C662ED00F2EF6E /* DeliveryLimitsReview.swift */,
-				1D1FCE2C24BEA669000300A8 /* Guardrail+Settings.swift */,
 				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
 				E93C86A724C8F7F60073089B /* InsulinModelChartView.swift */,
 				1D6EAB9024C12C090081249D /* PumpSupportedIncrements.swift */,
@@ -2793,24 +2777,6 @@
 			productReference = 892A5D34222F03CB008961AB /* LoopTestingKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		898C895D24D394D2002FA994 /* LoopKitUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 898C896824D394D2002FA994 /* Build configuration list for PBXNativeTarget "LoopKitUITests" */;
-			buildPhases = (
-				898C895A24D394D2002FA994 /* Sources */,
-				898C895B24D394D2002FA994 /* Frameworks */,
-				898C895C24D394D2002FA994 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				898C896524D394D2002FA994 /* PBXTargetDependency */,
-			);
-			name = LoopKitUITests;
-			productName = LoopKitUITests;
-			productReference = 898C895E24D394D2002FA994 /* LoopKitUITests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		89D2047121CC7BD7001238CC /* MockKit */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 89AE2221228BC54C00BDFD85 /* Build configuration list for PBXNativeTarget "MockKit" */;
@@ -2910,10 +2876,6 @@
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
-					898C895D24D394D2002FA994 = {
-						CreatedOnToolsVersion = 11.6;
-						ProvisioningStyle = Automatic;
-					};
 					89D2047121CC7BD7001238CC = {
 						CreatedOnToolsVersion = 10.0;
 						LastSwiftMigration = 1020;
@@ -2958,7 +2920,6 @@
 				43D8FDD41C728FDF0073BE78 /* LoopKitTests */,
 				1DEE226824A676A300693C32 /* LoopKitHostedTests */,
 				43BA7153201E484D0058961E /* LoopKitUI */,
-				898C895D24D394D2002FA994 /* LoopKitUITests */,
 				89D2047121CC7BD7001238CC /* MockKit */,
 				89D2048E21CC7C12001238CC /* MockKitUI */,
 				892A5D33222F03CB008961AB /* LoopTestingKit */,
@@ -3133,13 +3094,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		898C895C24D394D2002FA994 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		89D2047021CC7BD7001238CC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3300,7 +3254,6 @@
 				89186C0724BF7FC70003D0F3 /* Guardrail+UI.swift in Sources */,
 				432CF87420D774520066B889 /* NumberFormatter.swift in Sources */,
 				1F5DAB212118C95700048054 /* LocalizedString.swift in Sources */,
-				8912F3AC24D37FD80072050F /* FloatingPoint.swift in Sources */,
 				43FB60E520DCBA02002B996B /* SetupTableViewController.swift in Sources */,
 				43BA7180201EE7090058961E /* SingleValueScheduleTableViewController.swift in Sources */,
 				898E6E5D2241783C0019E459 /* SetConstrainedScheduleEntryTableViewCell.swift in Sources */,
@@ -3314,7 +3267,6 @@
 				E9086B2924B39EDC0062F5C8 /* ChartsTableViewController.swift in Sources */,
 				43BA7187201EE7090058961E /* GlucoseRangeScheduleTableViewController.swift in Sources */,
 				B46B62AF23FF0BF6001E69BA /* SectionHeader.swift in Sources */,
-				1D1FCE2D24BEA669000300A8 /* Guardrail+Settings.swift in Sources */,
 				43BA7183201EE7090058961E /* DailyQuantityScheduleTableViewController.swift in Sources */,
 				1D1FCE2324BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift in Sources */,
 				E93BA06624A39DBC00C5D7E6 /* DismissableHostingController.swift in Sources */,
@@ -3441,6 +3393,7 @@
 				C17F39C123CD24A000FA1113 /* DeviceLog.xcdatamodeld in Sources */,
 				B42C951924A508CE00857C73 /* DeviceStatusHighlight.swift in Sources */,
 				4322B779202FA2790002837D /* NewCarbEntry.swift in Sources */,
+				898C896A24D4BF11002FA994 /* Guardrail+Settings.swift in Sources */,
 				4322B76E202FA26B0002837D /* GlucoseMath.swift in Sources */,
 				4322B791202FA2B70002837D /* Model.xcdatamodeld in Sources */,
 				891A3FDB224BEC0D00378B27 /* CarbSensitivitySchedule.swift in Sources */,
@@ -3479,6 +3432,7 @@
 				432762741D60505F0083215A /* HKQuantitySample.swift in Sources */,
 				43D8FDF81C7290350073BE78 /* Double.swift in Sources */,
 				A95A1D822460BBDC0079378D /* DosingDecisionObject+CoreDataProperties.swift in Sources */,
+				898C896D24D4BF75002FA994 /* FloatingPoint.swift in Sources */,
 				43F5034B21051FCE009FA89A /* KeychainManager.swift in Sources */,
 				891A3FD5224B047200378B27 /* DailyQuantitySchedule+Override.swift in Sources */,
 				432CF87320D774220066B889 /* PumpManager.swift in Sources */,
@@ -3618,6 +3572,7 @@
 				A971C8A223C6B17D0099BEFC /* SettingsStoreTests.swift in Sources */,
 				1DFB99D6245CB2E900DCC8C9 /* AlertTests.swift in Sources */,
 				4303C4941E2D665F00ADEDC8 /* TimeZone.swift in Sources */,
+				898C897124D4C0E4002FA994 /* GuardrailTests.swift in Sources */,
 				4322B76D202F9EF20002837D /* GlucoseMathTests.swift in Sources */,
 				43025DAF1D5AB2E300106C28 /* NSTimeInterval.swift in Sources */,
 				43D8FDDB1C728FDF0073BE78 /* LoopKitTests.swift in Sources */,
@@ -3651,14 +3606,6 @@
 				89ADE136226BF0BE0067222B /* DateRelativeGlucoseSample.swift in Sources */,
 				89ADE139226BF51E0067222B /* NSData.swift in Sources */,
 				892A5D56222F0414008961AB /* TestingCGMManager.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		898C895A24D394D2002FA994 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				898C896124D394D2002FA994 /* GuardrailTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3914,11 +3861,6 @@
 			isa = PBXTargetDependency;
 			target = 892A5D33222F03CB008961AB /* LoopTestingKit */;
 			targetProxy = 892A5D47222F03CB008961AB /* PBXContainerItemProxy */;
-		};
-		898C896524D394D2002FA994 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 43BA7153201E484D0058961E /* LoopKitUI */;
-			targetProxy = 898C896424D394D2002FA994 /* PBXContainerItemProxy */;
 		};
 		A9E6757B22713C3F00E25293 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -4448,54 +4390,6 @@
 			};
 			name = Release;
 		};
-		898C896624D394D2002FA994 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 5Q5Q8W9ATZ;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = LoopKitUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.loopkit.LoopKitUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		898C896724D394D2002FA994 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 5Q5Q8W9ATZ;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = LoopKitUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.loopkit.LoopKitUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		89AE2219228BC50900BDFD85 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -4715,15 +4609,6 @@
 			buildConfigurations = (
 				43D8FDE31C728FDF0073BE78 /* Debug */,
 				43D8FDE41C728FDF0073BE78 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		898C896824D394D2002FA994 /* Build configuration list for PBXNativeTarget "LoopKitUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				898C896624D394D2002FA994 /* Debug */,
-				898C896724D394D2002FA994 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -113,16 +113,6 @@
                ReferencedContainer = "container:LoopKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "898C895D24D394D2002FA994"
-               BuildableName = "LoopKitUITests.xctest"
-               BlueprintName = "LoopKitUITests"
-               ReferencedContainer = "container:LoopKit.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

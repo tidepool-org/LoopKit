@@ -1,13 +1,13 @@
 //
 //  FloatingPoint.swift
-//  LoopKitUI
+//  LoopKit
 //
 //  Created by Michael Pangburn on 7/30/20.
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
 extension Double {
-    func matchingOrTruncatedValue(from supportedValues: [Double], withinDecimalPlaces precision: Int) -> Double {
+    public func matchingOrTruncatedValue(from supportedValues: [Double], withinDecimalPlaces precision: Int) -> Double {
         let nearestSupportedValue = roundedToNearest(of: supportedValues)
         return abs(nearestSupportedValue - self) <= pow(10.0, Double(-precision))
             ? nearestSupportedValue
@@ -17,7 +17,7 @@ extension Double {
 
 extension FloatingPoint {
     /// Precondition: - `supportedValues` is sorted in ascending order.
-    func roundedToNearest(of supportedValues: [Self]) -> Self {
+    public func roundedToNearest(of supportedValues: [Self]) -> Self {
         guard !supportedValues.isEmpty else {
             return self
         }
@@ -35,7 +35,7 @@ extension FloatingPoint {
     }
 
     /// Precondition: - `supportedValues` is sorted in ascending order.
-    func truncating(toOneOf supportedValues: [Self]) -> Self {
+    public func truncating(toOneOf supportedValues: [Self]) -> Self {
         guard !supportedValues.isEmpty else {
             return self
         }
