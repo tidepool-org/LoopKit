@@ -23,6 +23,8 @@ extension View {
 public struct KeyboardAware: ViewModifier {
     @State var keyboardHeight: CGFloat = 0
 
+    public init() { } // To enable initialization in other modules
+
     public func body(content: Content) -> some View {
         content
             .padding(.bottom, keyboardHeight)
