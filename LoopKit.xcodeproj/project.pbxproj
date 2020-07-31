@@ -2966,10 +2966,10 @@
 				43D8FDD41C728FDF0073BE78 /* LoopKitTests */,
 				1DEE226824A676A300693C32 /* LoopKitHostedTests */,
 				43BA7153201E484D0058961E /* LoopKitUI */,
+				898C895D24D394D2002FA994 /* LoopKitUITests */,
 				89D2047121CC7BD7001238CC /* MockKit */,
 				89D2048E21CC7C12001238CC /* MockKitUI */,
 				892A5D33222F03CB008961AB /* LoopTestingKit */,
-				898C895D24D394D2002FA994 /* LoopKitUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -4469,7 +4469,7 @@
 				DEVELOPMENT_TEAM = 5Q5Q8W9ATZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = LoopKitUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4494,7 +4494,7 @@
 				DEVELOPMENT_TEAM = 5Q5Q8W9ATZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = LoopKitUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopkit.LoopKitUITests;
