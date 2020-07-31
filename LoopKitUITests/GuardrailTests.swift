@@ -21,7 +21,13 @@ class GuardrailTests: XCTestCase {
         guardrail = .maximumBasalRate(supportedBasalRates: podBasalRates, scheduledBasalRange: 0.1...0.2)
         XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), smallestSupportedBasalRate...1.2)
 
+        guardrail = .maximumBasalRate(supportedBasalRates: podBasalRates, scheduledBasalRange: 0.25...0.3.nextDown)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), smallestSupportedBasalRate...1.8)
+
         guardrail = .maximumBasalRate(supportedBasalRates: podBasalRates, scheduledBasalRange: 0.25...0.3)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), smallestSupportedBasalRate...1.8)
+
+        guardrail = .maximumBasalRate(supportedBasalRates: podBasalRates, scheduledBasalRange: 0.25...0.3.nextUp)
         XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), smallestSupportedBasalRate...1.8)
 
         guardrail = .maximumBasalRate(supportedBasalRates: podBasalRates, scheduledBasalRange: 0.35...0.35)
