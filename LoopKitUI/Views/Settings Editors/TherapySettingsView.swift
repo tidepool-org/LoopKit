@@ -470,7 +470,6 @@ private extension TherapySettingsView {
                                                   insulinSensitivitySchedule: self.viewModel.therapySettings.insulinSensitivitySchedule,
                                                   glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
                                                   supportedModelSettings: self.viewModel.supportedInsulinModelSettings,
-                                                  appName: self.viewModel.appName,
                                                   mode: self.viewModel.mode,
                                                   onSave: { insulinModelSettings in
                                                       self.viewModel.saveInsulinModel(insulinModelSettings: insulinModelSettings)
