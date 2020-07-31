@@ -401,14 +401,20 @@ private extension TherapySettingsView {
         case .correctionRangeOverrides:
             if self.viewModel.therapySettings.glucoseUnit != nil {
                 return { goBack in
-                    AnyView(CorrectionRangeScheduleEditor(
-                        schedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
+                   AnyView(CorrectionRangeOverridesEditor(
+                        value: CorrectionRangeOverrides(
+                            preMeal: self.viewModel.therapySettings.preMealTargetRange,
+                            workout: self.viewModel.therapySettings.workoutTargetRange,
+                            unit: self.viewModel.therapySettings.glucoseUnit!
+                        ),
                         unit: self.viewModel.therapySettings.glucoseUnit!,
+                        correctionRangeScheduleRange: self.viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange(),
                         minValue: self.viewModel.therapySettings.suspendThreshold?.quantity,
-                        onSave: { newSchedule in
-                            self.viewModel.saveCorrectionRange(range: newSchedule)
+                        onSave: { overrides in
+                            self.viewModel.saveCorrectionRangeOverrides(overrides: overrides, unit: self.viewModel.therapySettings.glucoseUnit!)
                             goBack()
-                    },
+                        },
+                        sensitivityOverridesEnabled: self.viewModel.sensitivityOverridesEnabled,
                         mode: self.viewModel.mode
                     ))
                 }
