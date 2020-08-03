@@ -9,26 +9,30 @@
 import LocalAuthentication
 import SwiftUI
 
-public typealias Completion<Value> = (Result<Value, Error>) -> Void
-public typealias AuthenticationChallenge = (_ description: String, _ completion: @escaping Completion<Void>) -> Void
+public typealias AuthenticationChallenge = (_ description: String, _ completion: @escaping (Result<Void, Error>) -> Void) -> Void
 public extension Result where Success == Void {
     static var success: Result {
-        return Result.success(Void())
+        return Result.success(())
     }
 }
-public struct UnknownError: Swift.Error { }
+fileprivate struct UnknownError: Swift.Error { }
 
 private struct AuthenticationChallengeKey: EnvironmentKey {
     static let defaultValue: AuthenticationChallenge = { authenticationChallengeDescription, completion in
         let context = LAContext()
-        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) {
+        var error:NSError?
+        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
             context.evaluatePolicy(.deviceOwnerAuthentication,
                                    localizedReason: authenticationChallengeDescription,
                                    reply: { (success, error) in
                                     DispatchQueue.main.async {
+                                        assert(error != nil)
                                         completion(success ? .success : .failure(error ?? UnknownError()))
                                     }
             })
+        } else {
+            assert(error != nil)
+            completion(.failure(error ?? UnknownError()))
         }
     }
 }

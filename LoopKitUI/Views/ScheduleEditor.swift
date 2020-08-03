@@ -67,7 +67,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
 
     @State var isSyncing = false
 
-    @State private var presentedAlert: PresentedAlert?
+    @State private var settingSaveAlert: SettingSaveAlert?
 
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
@@ -178,13 +178,13 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
             action: {
                 switch self.saveConfirmation {
                 case .required(let alertContent):
-                    self.presentedAlert = .saveConfirmation(alertContent)
+                    self.settingSaveAlert = .saveConfirmation(alertContent)
                 case .notRequired:
                     self.startSaving()
                 }
             }
         )
-        .alert(item: $presentedAlert, content: alert(for:))
+        .alert(item: $settingSaveAlert, content: alert(for:))
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarItems(
             trailing: trailingNavigationItems
@@ -358,7 +358,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         authenticate(authenticationChallengeDescription) {
             switch $0 {
             case .success: self.continueSaving()
-            case .failure(let error): self.presentedAlert = .saveError(error)
+            case .failure(let error): self.settingSaveAlert = .saveError(error)
             }
         }
     }
@@ -383,7 +383,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                         withAnimation {
                             self.isSyncing = false
                         }
-                        self.presentedAlert = .saveError(error)
+                        self.settingSaveAlert = .saveError(error)
                     } else if self.mode == .legacySettings {
                         self.dismiss()
                     }
@@ -392,8 +392,8 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         }
     }
 
-    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
-        return presentedAlert.alert(okAction: startSaving)
+    private func alert(for settingSaveAlert: SettingSaveAlert) -> SwiftUI.Alert {
+        return settingSaveAlert.alert(okAction: startSaving)
     }
 }
 

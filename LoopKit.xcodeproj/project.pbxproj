@@ -21,7 +21,7 @@
 		1D24A8D524C896E100AB8DB9 /* Prescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D24A8D424C896E100AB8DB9 /* Prescription.swift */; };
 		1D25C22E246A2A1A00E87FA0 /* critical.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1D25C22D246A2A1A00E87FA0 /* critical.caf */; };
 		1D498E4724D892B0000627F2 /* Environment+Authenticate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D498E4624D892B0000627F2 /* Environment+Authenticate.swift */; };
-		1D498E4924D8A2CB000627F2 /* PresentedAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D498E4824D8A2CB000627F2 /* PresentedAlert.swift */; };
+		1D498E4924D8A2CB000627F2 /* SettingSaveAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D498E4824D8A2CB000627F2 /* SettingSaveAlert.swift */; };
 		1D4990E624A17564005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
 		1D4990E724A17898005CC357 /* HKQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4990E524A17564005CC357 /* HKQuery.swift */; };
 		1D60355E24D39ED10095DC2A /* Environment+AppName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D60355D24D39ED10095DC2A /* Environment+AppName.swift */; };
@@ -898,7 +898,7 @@
 		1D24A8D424C896E100AB8DB9 /* Prescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prescription.swift; sourceTree = "<group>"; };
 		1D25C22D246A2A1A00E87FA0 /* critical.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = critical.caf; sourceTree = "<group>"; };
 		1D498E4624D892B0000627F2 /* Environment+Authenticate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+Authenticate.swift"; sourceTree = "<group>"; };
-		1D498E4824D8A2CB000627F2 /* PresentedAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentedAlert.swift; sourceTree = "<group>"; };
+		1D498E4824D8A2CB000627F2 /* SettingSaveAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingSaveAlert.swift; sourceTree = "<group>"; };
 		1D4990E524A17564005CC357 /* HKQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKQuery.swift; sourceTree = "<group>"; };
 		1D60355D24D39ED10095DC2A /* Environment+AppName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Environment+AppName.swift"; sourceTree = "<group>"; };
 		1D640FF524524284008F9755 /* sub.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sub.caf; sourceTree = "<group>"; };
@@ -2603,7 +2603,7 @@
 				E9D95F6424C7BC400079F47D /* PresentationMode.swift */,
 				E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */,
 				E93C869F24C8F6E00073089B /* InsulinModelSelection.swift */,
-				1D498E4824D8A2CB000627F2 /* PresentedAlert.swift */,
+				1D498E4824D8A2CB000627F2 /* SettingSaveAlert.swift */,
 			);
 			path = "Settings Editors";
 			sourceTree = "<group>";
@@ -3284,7 +3284,7 @@
 				B46B62AF23FF0BF6001E69BA /* SectionHeader.swift in Sources */,
 				43BA7183201EE7090058961E /* DailyQuantityScheduleTableViewController.swift in Sources */,
 				1D1FCE2324BD13A2000300A8 /* CorrectionRangeOverridesExpandableSetting.swift in Sources */,
-				1D498E4924D8A2CB000627F2 /* PresentedAlert.swift in Sources */,
+				1D498E4924D8A2CB000627F2 /* SettingSaveAlert.swift in Sources */,
 				E93BA06624A39DBC00C5D7E6 /* DismissableHostingController.swift in Sources */,
 				43F503632106C761009FA89A /* ServiceAuthenticationUI.swift in Sources */,
 				1D6EAB9124C12C090081249D /* PumpSupportedIncrements.swift in Sources */,

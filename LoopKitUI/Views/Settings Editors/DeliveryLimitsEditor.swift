@@ -24,7 +24,7 @@ public struct DeliveryLimitsEditor: View {
     @State private var userDidTap: Bool = false
     @State var settingBeingEdited: DeliveryLimits.Setting?
 
-    @State var presentedAlert: PresentedAlert?
+    @State var settingSaveAlert: SettingSaveAlert?
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
 
@@ -67,11 +67,11 @@ public struct DeliveryLimitsEditor: View {
                 if self.crossedThresholds.isEmpty {
                     self.startSaving()
                 } else {
-                    self.presentedAlert = .saveConfirmation(self.confirmationContent)
+                    self.settingSaveAlert = .saveConfirmation(self.confirmationContent)
                 }
             }
         )
-        .alert(item: $presentedAlert, content: alert(for:))
+        .alert(item: $settingSaveAlert, content: alert(for:))
         .navigationBarTitle("", displayMode: .inline)
         .onTapGesture {
             self.userDidTap = true
@@ -244,8 +244,8 @@ public struct DeliveryLimitsEditor: View {
         )
     }
     
-    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
-        return presentedAlert.alert(okAction: startSaving)
+    private func alert(for settingSaveAlert: SettingSaveAlert) -> SwiftUI.Alert {
+        return settingSaveAlert.alert(okAction: startSaving)
     }
     
     private func startSaving() {
@@ -256,7 +256,7 @@ public struct DeliveryLimitsEditor: View {
         authenticate(LocalizedString("Authenticate to change setting", comment: "Authentication hint string")) {
             switch $0 {
             case .success: self.continueSaving()
-            case .failure(let error): self.presentedAlert = .saveError(error)
+            case .failure(let error): self.settingSaveAlert = .saveError(error)
             }
         }
     }

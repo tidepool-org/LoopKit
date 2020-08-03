@@ -1,5 +1,5 @@
 //
-//  PresentedAlert.swift
+//  SettingSaveAlert.swift
 //  LoopKitUI
 //
 //  Created by Rick Pasetto on 8/3/20.
@@ -8,12 +8,12 @@
 
 import SwiftUI
 
-enum PresentedAlert {
+enum SettingSaveAlert {
     case saveConfirmation(AlertContent)
     case saveError(Error)
 }
 
-extension PresentedAlert: Identifiable {
+extension SettingSaveAlert: Identifiable {
     var id: Int {
         switch self {
         case .saveConfirmation:
@@ -24,7 +24,7 @@ extension PresentedAlert: Identifiable {
     }
 }
 
-extension PresentedAlert {
+extension SettingSaveAlert {
     func alert(okAction action: @escaping () -> Void) -> SwiftUI.Alert {
         switch self {
         case .saveConfirmation(let content):
