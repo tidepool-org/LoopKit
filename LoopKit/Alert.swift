@@ -124,19 +124,6 @@ extension Alert: Codable {
         let decoder = JSONDecoder()
         return try decoder.decode(Alert.self, from: data)
     }
-    public func encodeToString() throws -> String {
-        let data = try encode()
-        guard let result = String(data: data, encoding: .utf8) else {
-            throw CodableError.encodeFailed
-        }
-        return result
-    }
-    public static func decode(from string: String) throws -> Alert {
-        guard let data = string.data(using: .utf8) else {
-            throw CodableError.decodeFailed
-        }
-        return try decode(from: data)
-    }
 }
 
 extension Alert.Content: Codable { }
