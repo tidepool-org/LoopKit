@@ -16,6 +16,8 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
     var textColor: UIColor
     var textAlignment: NSTextAlignment
     var keyboardType: UIKeyboardType
+    var autocapitalizationType: UITextAutocapitalizationType
+    var autocorrectionType: UITextAutocorrectionType
     var shouldBecomeFirstResponder: Bool
 
     public init(
@@ -25,6 +27,8 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         textColor: UIColor = .label,
         textAlignment: NSTextAlignment = .natural,
         keyboardType: UIKeyboardType = .default,
+        autocapitalizationType: UITextAutocapitalizationType = .sentences,
+        autocorrectionType: UITextAutocorrectionType = .default,
         shouldBecomeFirstResponder: Bool = false
     ) {
         self._text = text
@@ -33,6 +37,8 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         self.textColor = textColor
         self.textAlignment = textAlignment
         self.keyboardType = keyboardType
+        self.autocapitalizationType = autocapitalizationType
+        self.autocorrectionType = autocorrectionType
         self.shouldBecomeFirstResponder = shouldBecomeFirstResponder
     }
 
@@ -59,6 +65,8 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         textField.textColor = textColor
         textField.textAlignment = textAlignment
         textField.keyboardType = keyboardType
+        textField.autocapitalizationType = autocapitalizationType
+        textField.autocorrectionType = autocorrectionType
 
         if shouldBecomeFirstResponder && !context.coordinator.didBecomeFirstResponder {
             textField.becomeFirstResponder()
