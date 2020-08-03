@@ -168,7 +168,7 @@ class CarbMathTests: XCTestCase {
         }
     }
     
-    func testGlucoseEffectDynamicAbsorptionNoneObserved() {
+    func testDynamicGlucoseEffectAbsorptionNoneObserved() {
         let inputICE = loadICEInputFixture("ice_35_min_input")
         let carbEntries = loadCarbEntryFixture()
         let output = loadCOBOutputFixture("dynamic_glucose_effect_none_observed_output")
@@ -206,15 +206,15 @@ class CarbMathTests: XCTestCase {
             carbRatios: carbRatios,
             insulinSensitivities: insulinSensitivities,
             defaultAbsorptionTime: defaultAbsorptionTimes.medium,
-            absorptionModel: LinearAbsorption()
+            absorptionModel: LinearAbsorption(),
+            delay: 0
         )
 
         XCTAssertEqual(output.count, effects.count)
 
-        // The indexing in the file is a bit off because the fixture was created before the 10 min delay was added
-        for i in 0...output.count - 3 {
-            XCTAssertEqual(output[i].startDate, effects[i].startDate)
-            XCTAssertEqual(output[i].quantity.doubleValue(for: .milligramsPerDeciliter), effects[i+2].quantity.doubleValue(for: .milligramsPerDeciliter), accuracy: Double(Float.ulpOfOne))
+        for (expected, calculated) in zip(output, effects) {
+            XCTAssertEqual(expected.startDate, calculated.startDate)
+            XCTAssertEqual(expected.quantity.doubleValue(for: .milligramsPerDeciliter), calculated.quantity.doubleValue(for: .milligramsPerDeciliter), accuracy: Double(Float.ulpOfOne))
         }
     }
     
