@@ -16,10 +16,10 @@ public final class Keyboard: ObservableObject {
         public var animationDuration: TimeInterval = 0.25
     }
 
-    @Published public var state = State()
+    @Published var state = State()
     private var keyboardFrameChangeCancellable: AnyCancellable?
 
-    public static let shared = Keyboard()
+    static let shared = Keyboard()
 
     private init() {
         keyboardFrameChangeCancellable = NotificationCenter.default
