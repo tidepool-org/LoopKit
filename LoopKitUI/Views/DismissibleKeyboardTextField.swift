@@ -26,8 +26,8 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         textColor: UIColor = .label,
         textAlignment: NSTextAlignment = .natural,
         keyboardType: UIKeyboardType = .default,
-        autocapitalizationType: UITextAutocapitalizationType = .none,
-        autocorrectionType: UITextAutocorrectionType = .yes
+        autocapitalizationType: UITextAutocapitalizationType = .sentences,
+        autocorrectionType: UITextAutocorrectionType = .default
     ) {
         self._text = text
         self.placeholder = placeholder
