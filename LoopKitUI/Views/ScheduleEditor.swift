@@ -180,7 +180,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                 case .required(let alertContent):
                     self.presentedAlert = .saveConfirmation(alertContent)
                 case .notRequired:
-                    self.beginSaving()
+                    self.startSaving()
                 }
             }
         )
@@ -349,7 +349,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         .disabled(tableDeletionState != .disabled || scheduleItems.count >= scheduleItemLimit)
     }
 
-    private func beginSaving() {
+    private func startSaving() {
         guard mode == .settings || mode == .legacySettings else {
             self.continueSaving()
             return
@@ -393,7 +393,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     }
 
     private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
-        return presentedAlert.alert(okAction: beginSaving)
+        return presentedAlert.alert(okAction: startSaving)
     }
 }
 

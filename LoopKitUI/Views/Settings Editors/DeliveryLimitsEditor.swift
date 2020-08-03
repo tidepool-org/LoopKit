@@ -249,19 +249,24 @@ public struct DeliveryLimitsEditor: View {
     }
     
     private func startSaving() {
+        guard mode == .settings || mode == .legacySettings else {
+            self.continueSaving()
+            return
+        }
         authenticate(LocalizedString("Authenticate to change setting", comment: "Authentication hint string")) {
             switch $0 {
-            case .success:
-                self.save(self.value)
-            case .failure(let error):
-                self.presentedAlert = .saveError(error)
-            }
-            if self.mode == .legacySettings {
-                self.dismiss()
+            case .success: self.continueSaving()
+            case .failure(let error): self.presentedAlert = .saveError(error)
             }
         }
     }
-
+    
+    private func continueSaving() {
+        self.save(self.value)
+        if self.mode == .legacySettings {
+            self.dismiss()
+        }
+    }
 }
 
 
