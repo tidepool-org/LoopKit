@@ -26,7 +26,7 @@ private struct AuthenticationChallengeKey: EnvironmentKey {
                                    localizedReason: authenticationChallengeDescription,
                                    reply: { (success, error) in
                                     DispatchQueue.main.async {
-                                        assert(error != nil)
+                                        assert(success || error != nil)
                                         completion(success ? .success : .failure(error ?? UnknownError()))
                                     }
             })
