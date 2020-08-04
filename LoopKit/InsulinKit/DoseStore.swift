@@ -33,6 +33,10 @@ public enum DoseStoreResult<T> {
     case failure(DoseStore.DoseStoreError)
 }
 
+public protocol DoseStoreTestingProtocol {
+    func getGlucoseEffects(start: Date, end: Date?, basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void)
+    
+}
 
 /**
  Manages storage, retrieval, and calculation of insulin pump delivery data.
@@ -57,7 +61,7 @@ public enum DoseStoreResult<T> {
 
  Private members should be assumed to not be thread-safe, and access should be contained to within blocks submitted to `persistenceStore.managedObjectContext`, which executes them on a private, serial queue.
  */
-public final class DoseStore {
+public final class DoseStore: DoseStoreTestingProtocol {
     
     /// Notification posted when data was modifed.
     public static let valuesDidChange = NSNotification.Name(rawValue: "com.loopkit.DoseStore.valuesDidChange")
