@@ -9,10 +9,6 @@
 import SwiftUI
 
 public class DismissibleHostingController: UIHostingController<AnyView> {
-    public static var cobTintColor: Color = .green
-    public static var glucoseTintColor: Color = Color(.systemTeal)
-    public static var guardrailColors: GuardrailColors = GuardrailColors()
-    
     public enum DismissalMode {
         case modalDismiss
         case pop(to: UIViewController.Type)
@@ -24,14 +20,17 @@ public class DismissibleHostingController: UIHostingController<AnyView> {
         rootView: Content,
         dismissalMode: DismissalMode = .modalDismiss,
         isModalInPresentation: Bool = true,
-        onDisappear: @escaping () -> Void = {}
+        onDisappear: @escaping () -> Void = {},
+        cobTintColor: Color = .green,
+        glucoseTintColor: Color = Color(.systemTeal),
+        guardrailColors: GuardrailColors = GuardrailColors()
     ) {
         // Delay initialization of dismissal closure pushed into SwiftUI Environment until after calling the designated initializer
         var dismiss = {}
         self.init(rootView: AnyView(rootView.environment(\.dismiss, { dismiss() })
-            .environment(\.cobTintColor, DismissibleHostingController.cobTintColor)
-            .environment(\.glucoseTintColor, DismissibleHostingController.glucoseTintColor)
-            .environment(\.guardrailColors, DismissibleHostingController.guardrailColors)))
+            .environment(\.cobTintColor, cobTintColor)
+            .environment(\.glucoseTintColor, glucoseTintColor)
+            .environment(\.guardrailColors, guardrailColors)))
 
         switch dismissalMode {
         case .modalDismiss:
