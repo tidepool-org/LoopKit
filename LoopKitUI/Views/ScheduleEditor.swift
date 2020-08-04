@@ -363,7 +363,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         authenticate(authenticationChallengeDescription) {
             switch $0 {
             case .success: self.continueSaving()
-            case .failure(let error): print("Authentication failed: \(error)")
+            case .failure(let error): break
             }
         }
     }

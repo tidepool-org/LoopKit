@@ -190,7 +190,7 @@ public struct SuspendThresholdEditor: View {
         authenticate(LocalizedString("Authenticate to change setting", comment: "Authentication hint string")) {
             switch $0 {
             case .success: self.continueSaving()
-            case .failure(let error): print("Authentication failed: \(error)")
+            case .failure(let error): break
             }
         }
     }
