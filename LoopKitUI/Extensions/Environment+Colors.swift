@@ -19,14 +19,14 @@ public extension EnvironmentValues {
     }
 }
 
-private struct COBTintColorKey: EnvironmentKey {
+private struct CarbTintColorKey: EnvironmentKey {
     static var defaultValue: Color = .green
 }
 
 public extension EnvironmentValues {
-    var cobTintColor: Color {
-        get { self[COBTintColorKey.self] }
-        set { self[COBTintColorKey.self] = newValue }
+    var carbTintColor: Color {
+        get { self[CarbTintColorKey.self] }
+        set { self[CarbTintColorKey.self] = newValue }
     }
 }
 

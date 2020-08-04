@@ -14,7 +14,7 @@ public struct CorrectionRangeOverrideInformationView: View {
     var mode: PresentationMode
     
     @Environment(\.presentationMode) var presentationMode
-    @Environment(\.cobTintColor) var cobTintColor
+    @Environment(\.carbTintColor) var carbTintColor
     @Environment(\.glucoseTintColor) var glucoseTintColor
     
     public init(
@@ -85,6 +85,6 @@ public struct CorrectionRangeOverrideInformationView: View {
     
     
     private func icon(for preset: CorrectionRangeOverrides.Preset) -> some View {
-        return preset.icon(usingCOBTintColor: cobTintColor, orGlucoseTintColor: glucoseTintColor)
+        return preset.icon(usingCarbTintColor: carbTintColor, orGlucoseTintColor: glucoseTintColor)
     }
 }

@@ -10,12 +10,12 @@ import LoopKit
 import SwiftUI
 
 extension CorrectionRangeOverrides.Preset {
-    public func icon(usingCOBTintColor cobTintColor: Color,
+    public func icon(usingCarbTintColor carbTintColor: Color,
                      orGlucoseTintColor glucoseTintColor: Color) -> some View
     {
         switch self {
         case .preMeal:
-            return icon(named: "Pre-Meal", tinted: cobTintColor)
+            return icon(named: "Pre-Meal", tinted: carbTintColor)
         case .workout:
             return icon(named: "workout", tinted: glucoseTintColor)
         }

@@ -12,7 +12,7 @@ import LoopKit
 
 
 public struct CorrectionRangeOverridesExpandableSetting<ExpandedContent: View>: View {
-    @Environment(\.cobTintColor) var cobTintColor
+    @Environment(\.carbTintColor) var carbTintColor
     @Environment(\.glucoseTintColor) var glucoseTintColor
     @Binding var isEditing: Bool
     @Binding var value: CorrectionRangeOverrides
@@ -26,7 +26,7 @@ public struct CorrectionRangeOverridesExpandableSetting<ExpandedContent: View>: 
             isEditing: $isEditing,
             leadingValueContent: {
                 HStack {
-                    preset.icon(usingCOBTintColor: cobTintColor, orGlucoseTintColor: glucoseTintColor)
+                    preset.icon(usingCarbTintColor: carbTintColor, orGlucoseTintColor: glucoseTintColor)
                     Text(preset.title)
                 }
             },
