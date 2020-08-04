@@ -32,6 +32,11 @@ enum SaveConfirmation {
 }
 
 struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, ActionAreaContent: View>: View {
+    fileprivate enum PresentedAlert {
+        case saveConfirmation(AlertContent)
+        case saveError(Error)
+    }
+
     var title: Text
     var description: Text
     let authenticationChallengeDescription: String
@@ -67,7 +72,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
 
     @State var isSyncing = false
 
-    @State private var settingSaveAlert: SettingSaveAlert?
+    @State private var presentedAlert: PresentedAlert?
 
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
@@ -178,13 +183,13 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
             action: {
                 switch self.saveConfirmation {
                 case .required(let alertContent):
-                    self.settingSaveAlert = .saveConfirmation(alertContent)
+                    self.presentedAlert = .saveConfirmation(alertContent)
                 case .notRequired:
                     self.startSaving()
                 }
             }
         )
-        .alert(item: $settingSaveAlert, content: alert(for:))
+        .alert(item: $presentedAlert, content: alert(for:))
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarItems(
             trailing: trailingNavigationItems
@@ -358,7 +363,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         authenticate(authenticationChallengeDescription) {
             switch $0 {
             case .success: self.continueSaving()
-            case .failure(let error): self.settingSaveAlert = .saveError(error)
+            case .failure(let error): print("Authentication failed: \(error)")
             }
         }
     }
@@ -383,7 +388,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
                         withAnimation {
                             self.isSyncing = false
                         }
-                        self.settingSaveAlert = .saveError(error)
+                        self.presentedAlert = .saveError(error)
                     } else if self.mode == .legacySettings {
                         self.dismiss()
                     }
@@ -392,8 +397,24 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         }
     }
 
-    private func alert(for settingSaveAlert: SettingSaveAlert) -> SwiftUI.Alert {
-        return settingSaveAlert.alert(okAction: startSaving)
+    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
+        switch presentedAlert {
+        case .saveConfirmation(let content):
+            return Alert(
+                title: content.title,
+                message: content.message,
+                primaryButton: .cancel(Text("Go Back", comment: "Button text to return to editing a schedule after from alert popup when some schedule values are outside the recommended range")),
+                secondaryButton: .default(
+                    Text("Continue", comment: "Button text to confirm saving from alert popup when some schedule values are outside the recommended range"),
+                    action: startSaving
+                )
+            )
+        case .saveError(let error):
+            return Alert(
+                title: Text("Unable to Save", comment: "Alert title when error occurs while saving a schedule"),
+                message: Text(error.localizedDescription)
+            )
+        }
     }
 }
 
@@ -402,5 +423,16 @@ struct DarkenedOverlay: View {
         Rectangle()
             .fill(Color.black.opacity(0.3))
             .edgesIgnoringSafeArea(.all)
+    }
+}
+
+extension ScheduleEditor.PresentedAlert: Identifiable {
+    var id: Int {
+        switch self {
+        case .saveConfirmation:
+            return 0
+        case .saveError:
+            return 1
+        }
     }
 }

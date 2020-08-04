@@ -21,7 +21,7 @@ public struct SuspendThresholdEditor: View {
     @State private var userDidTap: Bool = false
     @State var value: HKQuantity
     @State var isEditing = false
-    @State var settingSaveAlert: SettingSaveAlert?
+    @State var showingConfirmationAlert = false
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
 
@@ -125,11 +125,11 @@ public struct SuspendThresholdEditor: View {
                 if self.warningThreshold == nil {
                     self.startSaving()
                 } else {
-                    self.settingSaveAlert = .saveConfirmation(self.confirmationContent)
+                    self.showingConfirmationAlert = true
                 }
             }
         )
-        .alert(item: $settingSaveAlert, content: alert(for:))
+        .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
         .navigationBarTitle("", displayMode: .inline)
         .onTapGesture {
             self.userDidTap = true
@@ -170,16 +170,16 @@ public struct SuspendThresholdEditor: View {
         }
     }
 
-    private var confirmationContent: AlertContent {
-        return AlertContent(
+    private func confirmationAlert() -> SwiftUI.Alert {
+        SwiftUI.Alert(
             title: Text("Save Suspend Threshold?", comment: "Alert title for confirming a suspend threshold outside the recommended range"),
             message: Text("The suspend threshold you have entered is outside of what Tidepool generally recommends.", comment: "Alert message for confirming a suspend threshold outside the recommended range"),
-            cancel: Text("Go Back"),
-            ok: Text("Continue")
+            primaryButton: .cancel(Text("Go Back")),
+            secondaryButton: .default(
+                Text("Continue"),
+                action: startSaving
+            )
         )
-    }
-    private func alert(for settingSaveAlert: SettingSaveAlert) -> SwiftUI.Alert {
-        return settingSaveAlert.alert(okAction: startSaving)
     }
     
     private func startSaving() {
@@ -190,7 +190,7 @@ public struct SuspendThresholdEditor: View {
         authenticate(LocalizedString("Authenticate to change setting", comment: "Authentication hint string")) {
             switch $0 {
             case .success: self.continueSaving()
-            case .failure(let error): self.settingSaveAlert = .saveError(error)
+            case .failure(let error): print("Authentication failed: \(error)")
             }
         }
     }

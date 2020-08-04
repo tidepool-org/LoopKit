@@ -22,7 +22,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     let supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
     let save: (_ insulinModelSettings: InsulinModelSettings) -> Void
-    @State var settingSaveAlert: SettingSaveAlert?
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
     
@@ -108,7 +107,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             .padding(.bottom)
             .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
         }
-        .alert(item: $settingSaveAlert, content: alert(for:))
         .environment(\.horizontalSizeClass, horizontalOverride)
         .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
         .supportedInterfaceOrientations(.portrait)
@@ -258,10 +256,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         )
     }
     
-    private func alert(for settingSaveAlert: SettingSaveAlert) -> SwiftUI.Alert {
-        return settingSaveAlert.alert(okAction: startSaving)
-    }
-    
     private func startSaving() {
         guard mode == .settings || mode == .legacySettings else {
             self.continueSaving()
@@ -270,7 +264,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         authenticate(LocalizedString("Authenticate to change setting", comment: "Authentication hint string")) {
             switch $0 {
             case .success: self.continueSaving()
-            case .failure(let error): self.settingSaveAlert = .saveError(error)
+            case .failure(let error): print("Authentication failed: \(error)")
             }
         }
     }

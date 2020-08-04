@@ -10,11 +10,6 @@ import LocalAuthentication
 import SwiftUI
 
 public typealias AuthenticationChallenge = (_ description: String, _ completion: @escaping (Result<Void, Error>) -> Void) -> Void
-public extension Result where Success == Void {
-    static var success: Result {
-        return Result.success(())
-    }
-}
 fileprivate struct UnknownError: Swift.Error { }
 
 private struct AuthenticationChallengeKey: EnvironmentKey {
@@ -27,12 +22,12 @@ private struct AuthenticationChallengeKey: EnvironmentKey {
                                    reply: { (success, error) in
                                     DispatchQueue.main.async {
                                         assert(success || error != nil)
-                                        completion(success ? .success : .failure(error ?? UnknownError()))
+                                        completion(success ? .success(()) : .failure(error ?? UnknownError()))
                                     }
             })
         } else {
-            assert(error != nil)
-            completion(.failure(error ?? UnknownError()))
+            // The logic here is to not fail to execute completion just because there is no authentication set up on the iPhone
+            completion(.success(()))
         }
     }
 }
