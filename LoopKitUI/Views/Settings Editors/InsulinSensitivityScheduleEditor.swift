@@ -15,13 +15,15 @@ public struct InsulinSensitivityScheduleEditor: View {
     private var schedule: DailyQuantitySchedule<Double>?
     private var glucoseUnit: HKUnit
     private var save: (InsulinSensitivitySchedule) -> Void
+    private let cancel: (() -> Void)?
     private var mode: PresentationMode
 
     public init(
         schedule: InsulinSensitivitySchedule?,
         mode: PresentationMode = .legacySettings,
         glucoseUnit: HKUnit,
-        onSave save: @escaping (InsulinSensitivitySchedule) -> Void
+        onSave save: @escaping (InsulinSensitivitySchedule) -> Void,
+        onCancel cancel: (() -> Void)? = nil
     ) {
         // InsulinSensitivitySchedule stores only the glucose unit.
         // For consistency across display & computation, convert to "real" <glucose unit>/U units.
@@ -33,10 +35,40 @@ public struct InsulinSensitivityScheduleEditor: View {
         }
         self.glucoseUnit = glucoseUnit
         self.save = save
+        self.cancel = cancel
         self.mode = mode
+    }
+    
+    public init(
+        viewModel: TherapySettingsViewModel,
+        didSave: (() -> Void)? = nil,
+        onCancel cancel: (() -> Void)? = nil
+    ) {
+        self.init(
+            schedule: viewModel.therapySettings.insulinSensitivitySchedule,
+            mode: viewModel.mode,
+            glucoseUnit: viewModel.therapySettings.glucoseUnit!,
+            onSave: { [weak viewModel] in
+                viewModel?.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0)
+                didSave?()
+            },
+            onCancel: cancel
+        )
     }
 
     public var body: some View {
+        switch mode {
+        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
+        case .acceptanceFlow: return AnyView(content)
+        case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+    
+    private var content: some View {
         QuantityScheduleEditor(
             title: Text(TherapySetting.insulinSensitivity.title),
             description: description,

@@ -18,6 +18,7 @@ public struct DeliveryLimitsEditor: View {
     var scheduledBasalRange: ClosedRange<Double>?
     var supportedBolusVolumes: [Double]
     var save: (_ deliveryLimits: DeliveryLimits) -> Void
+    let cancel: (() -> Void)?
     let mode: PresentationMode
 
     @State var value: DeliveryLimits
@@ -34,6 +35,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
+        onCancel cancel: (() -> Void)? = nil,
         mode: PresentationMode = .legacySettings
     ) {
         self._value = State(initialValue: value)
@@ -47,12 +49,14 @@ public struct DeliveryLimitsEditor: View {
         self.scheduledBasalRange = scheduledBasalRange
         self.supportedBolusVolumes = supportedBolusVolumes
         self.save = save
+        self.cancel = cancel
         self.mode = mode
     }
     
     public init(
            viewModel: TherapySettingsViewModel,
-           didSave: (() -> Void)? = nil
+           didSave: (() -> Void)? = nil,
+           onCancel cancel: (() -> Void)? = nil
     ) {
         precondition(viewModel.pumpSupportedIncrements != nil)
         let maxBasal = HKQuantity(unit: .internationalUnitsPerHour, doubleValue: viewModel.therapySettings.maximumBasalRatePerHour!)
@@ -67,11 +71,24 @@ public struct DeliveryLimitsEditor: View {
                 viewModel?.saveDeliveryLimits(limits: newLimits)
                 didSave?()
             },
+            onCancel: cancel,
             mode: viewModel.mode
         )
     }
 
     public var body: some View {
+        switch mode {
+        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
+        case .acceptanceFlow: return AnyView(content)
+        case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+    
+    private var content: some View {
         ConfigurationPage(
             title: Text(TherapySetting.deliveryLimits.title),
             actionButtonTitle: Text(mode.buttonText),

@@ -22,6 +22,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     let supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
     let save: (_ insulinModelSettings: InsulinModelSettings) -> Void
+    let cancel: (() -> Void)?
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
     
@@ -48,18 +49,41 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         insulinSensitivitySchedule: InsulinSensitivitySchedule?,
         glucoseUnit: HKUnit,
         supportedModelSettings: SupportedInsulinModelSettings,
-        mode: PresentationMode,
-        onSave save: @escaping (_ insulinModelSettings: InsulinModelSettings) -> Void
+        onSave save: @escaping (_ insulinModelSettings: InsulinModelSettings) -> Void,
+        onCancel cancel: (() -> Void)? = nil,
+        mode: PresentationMode
     ){
         self._value = State(initialValue: value)
         self.initialValue = value
         self.insulinSensitivitySchedule = insulinSensitivitySchedule ?? Self.defaultInsulinSensitivitySchedule
         self.save = save
+        self.cancel = cancel
         self.glucoseUnit = glucoseUnit
         self.supportedModelSettings = supportedModelSettings
         self.mode = mode
     }
 
+    public init(
+           viewModel: TherapySettingsViewModel,
+           didSave: (() -> Void)? = nil,
+           onCancel cancel: (() -> Void)? = nil
+    ) {
+        precondition(viewModel.therapySettings.glucoseUnit != nil)
+        precondition(viewModel.therapySettings.insulinModelSettings != nil)
+        self.init(
+            value: viewModel.therapySettings.insulinModelSettings!,
+            insulinSensitivitySchedule: viewModel.therapySettings.insulinSensitivitySchedule,
+            glucoseUnit: viewModel.therapySettings.glucoseUnit!,
+            supportedModelSettings: viewModel.supportedInsulinModelSettings,
+            onSave: { [weak viewModel] insulinModelSettings in
+                viewModel?.saveInsulinModel(insulinModelSettings: insulinModelSettings)
+                didSave?()
+            },
+            onCancel: cancel,
+            mode: viewModel.mode
+        )
+    }
+    
     let chartManager: ChartsManager = {
         let chartManager = ChartsManager(
             colors: .default,
@@ -82,15 +106,19 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     public var body: some View {
         switch mode {
         case .acceptanceFlow: return AnyView(content)
-        case .settings:       return AnyView(content)
+        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
         case .legacySettings: return AnyView(navigationContent)
         }
     }
     
+    private var cancelButton: some View {
+        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+
     private var navigationContent: some View {
         NavigationView {
             content
-            .navigationBarItems(leading: dismissButton)
+                .navigationBarItems(leading: dismissButton)
         }
     }
     

@@ -17,6 +17,7 @@ public struct CorrectionRangeScheduleEditor: View {
     var unit: HKUnit
     var minValue: HKQuantity?
     var save: (GlucoseRangeSchedule) -> Void
+    let cancel: (() -> Void)?
     let guardrail = Guardrail.correctionRange
     let mode: PresentationMode
     @State private var userDidTap: Bool = false
@@ -26,6 +27,7 @@ public struct CorrectionRangeScheduleEditor: View {
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void,
+        onCancel cancel: (() -> Void)? = nil,
         mode: PresentationMode = .legacySettings
     ) {
         self.initialSchedule = schedule
@@ -33,12 +35,14 @@ public struct CorrectionRangeScheduleEditor: View {
         self.unit = unit
         self.minValue = minValue
         self.save = save
+        self.cancel = cancel
         self.mode = mode
     }
     
     public init(
            viewModel: TherapySettingsViewModel,
-           didSave: (() -> Void)? = nil
+           didSave: (() -> Void)? = nil,
+           onCancel cancel: (() -> Void)? = nil
     ) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         self.init(
@@ -49,11 +53,24 @@ public struct CorrectionRangeScheduleEditor: View {
                 viewModel?.saveCorrectionRange(range: newSchedule)
                 didSave?()
             },
+            onCancel: cancel,
             mode: viewModel.mode
         )
     }
 
     public var body: some View {
+        switch mode {
+        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
+        case .acceptanceFlow: return AnyView(content)
+        case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+    
+    private var content: some View {
         ScheduleEditor(
             title: Text(TherapySetting.glucoseTargetRange.title),
             description: description,

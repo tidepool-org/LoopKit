@@ -18,6 +18,7 @@ public struct BasalRateScheduleEditor: View {
     var maximumScheduleEntryCount: Int
     var syncSchedule: PumpManager.SyncSchedule?
     var save: (BasalRateSchedule) -> Void
+    let cancel: (() -> Void)?
     let mode: PresentationMode
 
     /// - Precondition: `supportedBasalRates` is nonempty and sorted in ascending order.
@@ -28,6 +29,7 @@ public struct BasalRateScheduleEditor: View {
         maximumScheduleEntryCount: Int,
         syncSchedule: PumpManager.SyncSchedule?,
         onSave save: @escaping (BasalRateSchedule) -> Void,
+        onCancel cancel: (() -> Void)? = nil,
         mode: PresentationMode = .legacySettings
     ) {
         self.schedule = schedule.map { schedule in
@@ -48,12 +50,14 @@ public struct BasalRateScheduleEditor: View {
         self.maximumScheduleEntryCount = maximumScheduleEntryCount
         self.syncSchedule = syncSchedule
         self.save = save
+        self.cancel = cancel
         self.mode = mode
     }
     
     public init(
         viewModel: TherapySettingsViewModel,
-        didSave: (() -> Void)? = nil
+        didSave: (() -> Void)? = nil,
+        onCancel cancel: (() -> Void)? = nil
     ) {
         self.init(
             schedule: viewModel.therapySettings.basalRateSchedule,
@@ -65,11 +69,24 @@ public struct BasalRateScheduleEditor: View {
                 viewModel?.saveBasalRates(basalRates: newBasalRates)
                 didSave?()
             },
+            onCancel: cancel,
             mode: viewModel.mode
         )
     }
 
     public var body: some View {
+        switch mode {
+        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
+        case .acceptanceFlow: return AnyView(content)
+        case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+    
+    private var content: some View {
         QuantityScheduleEditor(
             title: Text(TherapySetting.basalRate.title),
             description: description,

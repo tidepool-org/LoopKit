@@ -16,8 +16,9 @@ public struct SuspendThresholdEditor: View {
     var unit: HKUnit
     var maxValue: HKQuantity?
     var save: (_ suspendThreshold: HKQuantity) -> Void
+    let cancel: (() -> Void)?
     let mode: PresentationMode
-
+    
     @State private var userDidTap: Bool = false
     @State var value: HKQuantity
     @State var isEditing = false
@@ -32,6 +33,7 @@ public struct SuspendThresholdEditor: View {
         unit: HKUnit,
         maxValue: HKQuantity?,
         onSave save: @escaping (_ suspendThreshold: HKQuantity) -> Void,
+        onCancel cancel: (() -> Void)? = nil,
         mode: PresentationMode = .legacySettings
     ) {
         self._value = State(initialValue: value ?? Self.defaultValue(for: unit))
@@ -39,12 +41,14 @@ public struct SuspendThresholdEditor: View {
         self.unit = unit
         self.maxValue = maxValue
         self.save = save
+        self.cancel = cancel
         self.mode = mode
     }
     
     public init(
            viewModel: TherapySettingsViewModel,
-           didSave: (() -> Void)? = nil
+           didSave: (() -> Void)? = nil,
+           onCancel cancel: (() -> Void)? = nil
     ) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         let unit = viewModel.therapySettings.glucoseUnit!
@@ -62,6 +66,7 @@ public struct SuspendThresholdEditor: View {
                 viewModel?.saveSuspendThreshold(value: newThreshold)
                 didSave?()
             },
+            onCancel: cancel,
             mode: viewModel.mode
         )
     }
@@ -78,6 +83,18 @@ public struct SuspendThresholdEditor: View {
     }
 
     public var body: some View {
+        switch mode {
+        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
+        case .acceptanceFlow: return AnyView(content)
+        case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+    
+    private var content: some View {
         ConfigurationPage(
             title: Text(TherapySetting.suspendThreshold.title),
             actionButtonTitle: Text(mode.buttonText),

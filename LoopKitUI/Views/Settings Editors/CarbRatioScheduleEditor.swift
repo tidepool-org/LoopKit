@@ -20,11 +20,13 @@ public struct CarbRatioScheduleEditor: View {
     private var schedule: DailyQuantitySchedule<Double>?
     private var mode: PresentationMode
     private var save: (CarbRatioSchedule) -> Void
+    private let cancel: (() -> Void)?
 
     public init(
         schedule: CarbRatioSchedule?,
-        mode: PresentationMode = .legacySettings,
-        onSave save: @escaping (CarbRatioSchedule) -> Void
+        onSave save: @escaping (CarbRatioSchedule) -> Void,
+        onCancel cancel: (() -> Void)? = nil,
+        mode: PresentationMode = .legacySettings
     ) {
         // CarbRatioSchedule stores only the gram unit.
         // For consistency across display & computation, convert to "real" g/U units.
@@ -36,9 +38,38 @@ public struct CarbRatioScheduleEditor: View {
         }
         self.mode = mode
         self.save = save
+        self.cancel = cancel
+    }
+    
+    public init(
+        viewModel: TherapySettingsViewModel,
+        didSave: (() -> Void)? = nil,
+        onCancel cancel: (() -> Void)? = nil
+    ) {
+        self.init(
+            schedule: viewModel.therapySettings.carbRatioSchedule,
+            onSave: { [weak viewModel] in
+                viewModel?.saveCarbRatioSchedule(carbRatioSchedule: $0)
+                didSave?()
+            },
+            onCancel: cancel,
+            mode: viewModel.mode
+        )
     }
 
     public var body: some View {
+        switch mode {
+        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
+        case .acceptanceFlow: return AnyView(content)
+        case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+    
+    private var content: some View {
         QuantityScheduleEditor(
             title: Text(TherapySetting.carbRatio.title),
             description: description,
