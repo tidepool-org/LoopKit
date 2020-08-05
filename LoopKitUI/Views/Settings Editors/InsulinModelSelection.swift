@@ -20,6 +20,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     let supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
     let save: (InsulinModelSettings) -> Void
+    let chartManager: ChartsManager
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
     
@@ -47,6 +48,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         glucoseUnit: HKUnit,
         supportedModelSettings: SupportedInsulinModelSettings,
         mode: PresentationMode,
+        chartColors: ChartColorPalette,
         onSave save: @escaping (InsulinModelSettings) -> Void
     ){
         self._value = State(initialValue: value)
@@ -56,26 +58,25 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         self.glucoseUnit = glucoseUnit
         self.supportedModelSettings = supportedModelSettings
         self.mode = mode
+        self.chartManager = {
+            let chartManager = ChartsManager(
+                colors: chartColors,
+                settings: .default,
+                axisLabelFont: .systemFont(ofSize: 12),
+                charts: [InsulinModelChart()],
+                traitCollection: .current
+            )
+            
+            chartManager.startDate = Calendar.current.nextDate(
+                after: Date(),
+                matching: DateComponents(minute: 0),
+                matchingPolicy: .strict,
+                direction: .backward
+                ) ?? Date()
+            
+            return chartManager
+        }()
     }
-
-    let chartManager: ChartsManager = {
-        let chartManager = ChartsManager(
-            colors: ChartColorPalette.defaultPalette,
-            settings: .default,
-            axisLabelFont: .systemFont(ofSize: 12),
-            charts: [InsulinModelChart()],
-            traitCollection: .current
-        )
-
-        chartManager.startDate = Calendar.current.nextDate(
-            after: Date(),
-            matching: DateComponents(minute: 0),
-            matchingPolicy: .strict,
-            direction: .backward
-        ) ?? Date()
-
-        return chartManager
-    }()
 
     @Environment(\.dismiss) var dismiss
     

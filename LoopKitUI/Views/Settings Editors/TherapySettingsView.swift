@@ -480,6 +480,7 @@ private extension TherapySettingsView {
                                                   glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
                                                   supportedModelSettings: self.viewModel.supportedInsulinModelSettings,
                                                   mode: self.viewModel.mode,
+                                                  chartColors: self.viewModel.chartColors,
                                                   onSave: { insulinModelSettings in
                                                       self.viewModel.saveInsulinModel(insulinModelSettings: insulinModelSettings)
                                                       goBack()
@@ -549,7 +550,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                                  supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                                  pumpSupportedIncrements: PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
                                                                                   bolusVolumes: preview_supportedBolusVolumes,
-                                                                                  maximumBasalScheduleEntryCount: 24))
+                                                                                  maximumBasalScheduleEntryCount: 24), chartColors: ChartColorPalette.default)
     }
 
     public static var previews: some View {
@@ -566,7 +567,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
-            TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .legacySettings, therapySettings: TherapySettings()))
+            TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .legacySettings, therapySettings: TherapySettings(), chartColors: ChartColorPalette.default))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
