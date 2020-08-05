@@ -15,7 +15,7 @@ fileprivate struct UnknownError: Swift.Error { }
 private struct AuthenticationChallengeKey: EnvironmentKey {
     static let defaultValue: AuthenticationChallenge = { authenticationChallengeDescription, completion in
         let context = LAContext()
-        var error:NSError?
+        var error: NSError?
         if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
             context.evaluatePolicy(.deviceOwnerAuthentication,
                                    localizedReason: authenticationChallengeDescription,

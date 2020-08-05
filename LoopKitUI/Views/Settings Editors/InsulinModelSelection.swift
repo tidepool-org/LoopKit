@@ -133,7 +133,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         NavigationView {
             content
                 .navigationBarItems(leading: dismissButton)
-                .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
         }
     }
     
@@ -151,7 +150,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
         }
         .environment(\.horizontalSizeClass, horizontalOverride)
-        .navigationBarTitle("", displayMode: .inline)
+        .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
         .supportedInterfaceOrientations(.portrait)
         .edgesIgnoringSafeArea(.bottom)
     }

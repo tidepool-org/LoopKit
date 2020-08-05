@@ -114,7 +114,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
 
     var body: some View {
         ZStack {
-            setupConfigurationPage
+            configurationPage
             .disabled(isSyncing || isAddingNewItem)
             .zIndex(0)
 
@@ -144,18 +144,20 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         }
     }
     
-    private var setupConfigurationPage: some View {
+    private var configurationPage: some View {
         switch mode {
         case .legacySettings:
-            return AnyView(wrappedPage)
-        case .acceptanceFlow, .settings:
-            return AnyView(contentWithCancel)
+            return AnyView(navigationPage)
+        case .acceptanceFlow:
+            return AnyView(page)
+        case .settings:
+            return AnyView(pageWithCancel)
         }
     }
     
-    private var wrappedPage: some View {
+    private var navigationPage: some View {
         NavigationView {
-            configurationPage
+            page
                 .navigationBarItems(
                     leading: cancelButton, // add in cancel button if modal
                     trailing: trailingNavigationItems
@@ -163,22 +165,22 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         }
     }
     
-    private var contentWithCancel: some View {
+    private var pageWithCancel: some View {
         switch saveButtonState {
         case .disabled, .loading:
-            return AnyView(configurationPage
+            return AnyView(page
                 .navigationBarBackButtonHidden(false)
                 .navigationBarItems(leading: EmptyView(), trailing: trailingNavigationItems)
             )
         case .enabled:
-            return AnyView(configurationPage
+            return AnyView(page
                 .navigationBarBackButtonHidden(true)
                 .navigationBarItems(leading: cancelButton, trailing: trailingNavigationItems)
             )
         }
     }
     
-    private var configurationPage: some View {
+    private var page: some View {
         ConfigurationPage(
             title: title,
             actionButtonTitle: Text(mode.buttonText),
