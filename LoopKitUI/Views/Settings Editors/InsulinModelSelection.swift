@@ -106,8 +106,22 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     public var body: some View {
         switch mode {
         case .acceptanceFlow: return AnyView(content)
-        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
+        case .settings: return AnyView(contentWithCancel)
         case .legacySettings: return AnyView(navigationContent)
+        }
+    }
+    
+    private var contentWithCancel: some View {
+        if value == initialValue {
+            return AnyView(content
+                .navigationBarBackButtonHidden(false)
+                .navigationBarItems(leading: EmptyView())
+            )
+        } else {
+            return AnyView(content
+                .navigationBarBackButtonHidden(true)
+                .navigationBarItems(leading: cancelButton)
+            )
         }
     }
     
@@ -119,6 +133,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         NavigationView {
             content
                 .navigationBarItems(leading: dismissButton)
+                .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
         }
     }
     
@@ -136,7 +151,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
         }
         .environment(\.horizontalSizeClass, horizontalOverride)
-        .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
+        .navigationBarTitle("", displayMode: .inline)
         .supportedInterfaceOrientations(.portrait)
         .edgesIgnoringSafeArea(.bottom)
     }

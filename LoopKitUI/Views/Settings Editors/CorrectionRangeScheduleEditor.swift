@@ -59,18 +59,6 @@ public struct CorrectionRangeScheduleEditor: View {
     }
 
     public var body: some View {
-        switch mode {
-        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
-        case .acceptanceFlow: return AnyView(content)
-        case .legacySettings: return AnyView(content)
-        }
-    }
-    
-    private var cancelButton: some View {
-        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
-    }
-    
-    private var content: some View {
         ScheduleEditor(
             title: Text(TherapySetting.glucoseTargetRange.title),
             description: description,
@@ -107,7 +95,8 @@ public struct CorrectionRangeScheduleEditor: View {
                 self.save(rangeSchedule)
             },
             mode: mode,
-            therapySettingType: .glucoseTargetRange
+            therapySettingType: .glucoseTargetRange,
+            onCancel: cancel
         )
         .onTapGesture {
             self.userDidTap = true

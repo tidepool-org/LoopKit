@@ -57,18 +57,6 @@ public struct InsulinSensitivityScheduleEditor: View {
     }
 
     public var body: some View {
-        switch mode {
-        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
-        case .acceptanceFlow: return AnyView(content)
-        case .legacySettings: return AnyView(content)
-        }
-    }
-    
-    private var cancelButton: some View {
-        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
-    }
-    
-    private var content: some View {
         QuantityScheduleEditor(
             title: Text(TherapySetting.insulinSensitivity.title),
             description: description,
@@ -84,7 +72,8 @@ public struct InsulinSensitivityScheduleEditor: View {
                 self.save(DailyQuantitySchedule(unit: self.glucoseUnit, dailyItems: $0.items)!)
             },
             mode: mode,
-            settingType: .insulinSensitivity
+            settingType: .insulinSensitivity,
+            onCancel: cancel
         )
     }
 

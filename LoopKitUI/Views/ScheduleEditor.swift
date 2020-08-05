@@ -75,6 +75,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     @State private var presentedAlert: PresentedAlert?
 
     @Environment(\.dismiss) var dismiss
+    var cancel: (() -> Void)?
     @Environment(\.authenticate) var authenticate
 
     init(
@@ -91,7 +92,8 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         @ViewBuilder actionAreaContent: () -> ActionAreaContent,
         savingMechanism: SavingMechanism<[RepeatingScheduleValue<Value>]>,
         mode: PresentationMode = .legacySettings,
-        therapySettingType: TherapySetting = .none
+        therapySettingType: TherapySetting = .none,
+        onCancel cancel: (() -> Void)? = nil
     ) {
         self.title = title
         self.description = description
@@ -107,6 +109,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         self.mode = mode
         self.therapySettingType = therapySettingType
         self.authenticationChallengeDescription = authenticationChallengeDescription
+        self.cancel = cancel
     }
 
     var body: some View {
@@ -146,16 +149,31 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         case .legacySettings:
             return AnyView(wrappedPage)
         case .acceptanceFlow, .settings:
-            return AnyView(configurationPage)
+            return AnyView(contentWithCancel)
         }
     }
     
     private var wrappedPage: some View {
         NavigationView {
             configurationPage
-            .navigationBarItems(
-                leading: cancelButton, // add in cancel button if modal
-                trailing: trailingNavigationItems
+                .navigationBarItems(
+                    leading: cancelButton, // add in cancel button if modal
+                    trailing: trailingNavigationItems
+            )
+        }
+    }
+    
+    private var contentWithCancel: some View {
+        switch saveButtonState {
+        case .disabled, .loading:
+            return AnyView(configurationPage
+                .navigationBarBackButtonHidden(false)
+                .navigationBarItems(leading: EmptyView(), trailing: trailingNavigationItems)
+            )
+        case .enabled:
+            return AnyView(configurationPage
+                .navigationBarBackButtonHidden(true)
+                .navigationBarItems(leading: cancelButton, trailing: trailingNavigationItems)
             )
         }
     }
@@ -191,9 +209,6 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
         )
         .alert(item: $presentedAlert, content: alert(for:))
         .navigationBarTitle("", displayMode: .inline)
-        .navigationBarItems(
-            trailing: trailingNavigationItems
-        )
     }
 
     private var saveButtonState: ConfigurationPageActionButtonState {
@@ -308,7 +323,7 @@ struct ScheduleEditor<Value: Equatable, ValueContent: View, ValuePicker: View, A
     }
 
     var cancelButton: some View {
-        return Button(action: dismiss, label: { Text("Cancel") })
+        return Button(action: cancel ?? dismiss, label: { Text("Cancel") })
     }
 
     var editButton: some View {

@@ -75,18 +75,6 @@ public struct BasalRateScheduleEditor: View {
     }
 
     public var body: some View {
-        switch mode {
-        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
-        case .acceptanceFlow: return AnyView(content)
-        case .legacySettings: return AnyView(content)
-        }
-    }
-    
-    private var cancelButton: some View {
-        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
-    }
-    
-    private var content: some View {
         QuantityScheduleEditor(
             title: Text(TherapySetting.basalRate.title),
             description: description,
@@ -106,7 +94,8 @@ public struct BasalRateScheduleEditor: View {
             },
             onSave: savingMechanism,
             mode: mode,
-            settingType: .basalRate
+            settingType: .basalRate,
+            onCancel: cancel
         )
     }
     

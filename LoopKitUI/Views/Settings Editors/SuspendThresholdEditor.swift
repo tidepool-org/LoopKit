@@ -84,9 +84,23 @@ public struct SuspendThresholdEditor: View {
 
     public var body: some View {
         switch mode {
-        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
+        case .settings: return AnyView(contentWithCancel)
         case .acceptanceFlow: return AnyView(content)
         case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var contentWithCancel: some View {
+        if value == initialValue {
+            return AnyView(content
+                .navigationBarBackButtonHidden(false)
+                .navigationBarItems(leading: EmptyView())
+            )
+        } else {
+            return AnyView(content
+                .navigationBarBackButtonHidden(true)
+                .navigationBarItems(leading: cancelButton)
+            )
         }
     }
     

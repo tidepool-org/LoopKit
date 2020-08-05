@@ -57,19 +57,7 @@ public struct CarbRatioScheduleEditor: View {
         )
     }
 
-    public var body: some View {
-        switch mode {
-        case .settings: return AnyView(content.navigationBarBackButtonHidden(true).navigationBarItems(leading: cancelButton))
-        case .acceptanceFlow: return AnyView(content)
-        case .legacySettings: return AnyView(content)
-        }
-    }
-    
-    private var cancelButton: some View {
-        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
-    }
-    
-    private var content: some View {
+    public var body: some View  {
         QuantityScheduleEditor(
             title: Text(TherapySetting.carbRatio.title),
             description: description,
@@ -86,7 +74,8 @@ public struct CarbRatioScheduleEditor: View {
                 self.save(DailyQuantitySchedule(unit: .storedCarbRatioScheduleUnit, dailyItems: $0.items)!)
             },
             mode: mode,
-            settingType: .carbRatio
+            settingType: .carbRatio,
+            onCancel: cancel
         )
     }
 

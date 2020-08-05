@@ -34,6 +34,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     var savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>
     var mode: PresentationMode
     var settingType: TherapySetting
+    var cancel: (() -> Void)?
     
     @State private var userDidTap: Bool = false
 
@@ -84,7 +85,8 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                 DailyQuantitySchedule(unit: self.unit, dailyItems: items)!
             },
             mode: mode,
-            therapySettingType: settingType
+            therapySettingType: settingType,
+            onCancel: cancel
         )
         .onTapGesture {
             self.userDidTap = true
@@ -165,7 +167,8 @@ extension QuantityScheduleEditor {
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave savingMechanism: SavingMechanism<DailyQuantitySchedule<Double>>,
         mode: PresentationMode = .legacySettings,
-        settingType: TherapySetting = .none
+        settingType: TherapySetting = .none,
+        onCancel cancel: (() -> Void)? = nil
     ) {
         self.title = title
         self.description = description
@@ -182,6 +185,7 @@ extension QuantityScheduleEditor {
         self.savingMechanism = savingMechanism
         self.mode = mode
         self.settingType = settingType
+        self.cancel = cancel
     }
 
     init(
@@ -198,7 +202,8 @@ extension QuantityScheduleEditor {
         @ViewBuilder guardrailWarning: @escaping (_ thresholds: [SafetyClassification.Threshold]) -> ActionAreaContent,
         onSave save: @escaping (DailyQuantitySchedule<Double>) -> Void,
         mode: PresentationMode = .legacySettings,
-        settingType: TherapySetting = .none
+        settingType: TherapySetting = .none,
+        onCancel cancel: (() -> Void)? = nil
     ) {
         let selectableValues = guardrail.allValues(stridingBy: selectableValueStride, unit: unit)
         self.init(
@@ -215,7 +220,8 @@ extension QuantityScheduleEditor {
             guardrailWarning: guardrailWarning,
             onSave: .synchronous(save),
             mode: mode,
-            settingType: settingType
+            settingType: settingType,
+            onCancel: cancel
         )
     }
 }
