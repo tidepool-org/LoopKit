@@ -76,7 +76,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNotNil(objects[0].uuid)
                     XCTAssertNotNil(objects[0].syncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
-                    XCTAssertGreaterThan(objects[0].modificationCounter, 0)
+                    XCTAssertGreaterThan(objects[0].anchorKey, 0)
                 default:
                     XCTFail("Unexpected handler invocation")
                 }
@@ -102,7 +102,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
         
         var lastUUID: UUID?
         var lastSyncIdentifier: String?
-        var lastModificationCounter: Int64?
+        var lastAnchorKey: Int64?
         
         carbStoreHasUpdatedCarbDataHandler = { (carbStore) in
             handlerInvocation += 1
@@ -122,10 +122,10 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNotNil(objects[0].uuid)
                     XCTAssertNotNil(objects[0].syncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
-                    XCTAssertGreaterThan(objects[0].modificationCounter, 0)
+                    XCTAssertGreaterThan(objects[0].anchorKey, 0)
                     lastUUID = objects[0].uuid
                     lastSyncIdentifier = objects[0].syncIdentifier
-                    lastModificationCounter = objects[0].modificationCounter
+                    lastAnchorKey = objects[0].anchorKey
                     self.carbStore.replaceCarbEntry(StoredCarbEntry(managedObject: objects[0]), withEntry: replaceCarbEntry) { (result) in
                         replaceCarbEntryCompletion.fulfill()
                     }
@@ -143,7 +143,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNotEqual(objects[0].uuid!, lastUUID!)
                     XCTAssertEqual(objects[0].syncIdentifier, lastSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 2)
-                    XCTAssertGreaterThan(objects[0].modificationCounter, lastModificationCounter!)
+                    XCTAssertEqual(objects[0].anchorKey, lastAnchorKey!)
                 default:
                     XCTFail("Unexpected handler invocation")
                 }
@@ -169,7 +169,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
         
         var lastUUID: UUID?
         var lastSyncIdentifier: String?
-        var lastModificationCounter: Int64?
+        var lastAnchorKey: Int64?
         
         carbStoreHasUpdatedCarbDataHandler = { (carbStore) in
             handlerInvocation += 1
@@ -189,10 +189,10 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNotNil(objects[0].uuid)
                     XCTAssertNotNil(objects[0].syncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
-                    XCTAssertGreaterThan(objects[0].modificationCounter, 0)
+                    XCTAssertGreaterThan(objects[0].anchorKey, 0)
                     lastUUID = objects[0].uuid
                     lastSyncIdentifier = objects[0].syncIdentifier
-                    lastModificationCounter = objects[0].modificationCounter
+                    lastAnchorKey = objects[0].anchorKey
                     self.carbStore.deleteCarbEntry(StoredCarbEntry(managedObject: objects[0])) { (result) in
                         deleteCarbEntryCompletion.fulfill()
                     }
@@ -206,7 +206,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].uuid!, lastUUID!)
                     XCTAssertEqual(objects[0].syncIdentifier, lastSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
-                    XCTAssertGreaterThan(objects[0].modificationCounter, lastModificationCounter!)
+                    XCTAssertGreaterThan(objects[0].modificationCounter, lastAnchorKey!)
                 default:
                     XCTFail("Unexpected handler invocation")
                 }
@@ -235,7 +235,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
         
         var lastUUID: UUID?
         var lastSyncIdentifier: String?
-        var lastModificationCounter: Int64?
+        var lastAnchorKey: Int64?
         
         carbStoreHasUpdatedCarbDataHandler = { (carbStore) in
             handlerInvocation += 1
@@ -255,10 +255,10 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNotNil(objects[0].uuid)
                     XCTAssertNotNil(objects[0].syncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
-                    XCTAssertGreaterThan(objects[0].modificationCounter, 0)
+                    XCTAssertGreaterThan(objects[0].anchorKey, 0)
                     lastUUID = objects[0].uuid
                     lastSyncIdentifier = objects[0].syncIdentifier
-                    lastModificationCounter = objects[0].modificationCounter
+                    lastAnchorKey = objects[0].anchorKey
                     self.carbStore.replaceCarbEntry(StoredCarbEntry(managedObject: objects[0]), withEntry: replaceCarbEntry) { (result) in
                         replaceCarbEntryCompletion.fulfill()
                     }
@@ -276,9 +276,9 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNotEqual(objects[0].uuid!, lastUUID!)
                     XCTAssertEqual(objects[0].syncIdentifier, lastSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 2)
-                    XCTAssertGreaterThan(objects[0].modificationCounter, lastModificationCounter!)
+                    XCTAssertEqual(objects[0].anchorKey, lastAnchorKey!)
                     lastUUID = objects[0].uuid
-                    lastModificationCounter = objects[0].modificationCounter
+                    lastAnchorKey = objects[0].anchorKey
                     self.carbStore.deleteCarbEntry(StoredCarbEntry(managedObject: objects[0])) { (result) in
                         deleteCarbEntryCompletion.fulfill()
                     }
@@ -292,7 +292,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].uuid!, lastUUID!)
                     XCTAssertEqual(objects[0].syncIdentifier, lastSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 2)
-                    XCTAssertGreaterThan(objects[0].modificationCounter, lastModificationCounter!)
+                    XCTAssertGreaterThan(objects[0].modificationCounter, lastAnchorKey!)
                 default:
                     XCTFail("Unexpected handler invocation")
                 }
@@ -317,20 +317,20 @@ class CarbStoreQueryAnchorTests: XCTestCase {
     
     var rawValue: CarbStore.QueryAnchor.RawValue = [
         "deletedModificationCounter": Int64(123),
-        "storedModificationCounter": Int64(456)
+        "anchorKey": Int64(456)
     ]
     
     func testInitializerDefault() {
         let queryAnchor = CarbStore.QueryAnchor()
         XCTAssertEqual(queryAnchor.deletedModificationCounter, 0)
-        XCTAssertEqual(queryAnchor.storedModificationCounter, 0)
+        XCTAssertEqual(queryAnchor.anchorKey, 0)
     }
     
     func testInitializerRawValue() {
         let queryAnchor = CarbStore.QueryAnchor(rawValue: rawValue)
         XCTAssertNotNil(queryAnchor)
         XCTAssertEqual(queryAnchor?.deletedModificationCounter, 123)
-        XCTAssertEqual(queryAnchor?.storedModificationCounter, 456)
+        XCTAssertEqual(queryAnchor?.anchorKey, 456)
     }
     
     func testInitializerRawValueMissingDeletedModificationCounter() {
@@ -338,8 +338,8 @@ class CarbStoreQueryAnchorTests: XCTestCase {
         XCTAssertNil(CarbStore.QueryAnchor(rawValue: rawValue))
     }
     
-    func testInitializerRawValueMissingStoredModificationCounter() {
-        rawValue["storedModificationCounter"] = nil
+    func testInitializerRawValueMissingAnchorKey() {
+        rawValue["anchorKey"] = nil
         XCTAssertNil(CarbStore.QueryAnchor(rawValue: rawValue))
     }
     
@@ -348,8 +348,8 @@ class CarbStoreQueryAnchorTests: XCTestCase {
         XCTAssertNil(CarbStore.QueryAnchor(rawValue: rawValue))
     }
     
-    func testInitializerRawValueInvalidStoredModificationCounter() {
-        rawValue["storedModificationCounter"] = "456"
+    func testInitializerRawValueInvalidAnchorKey() {
+        rawValue["anchorKey"] = "456"
         XCTAssertNil(CarbStore.QueryAnchor(rawValue: rawValue))
     }
     
@@ -357,17 +357,17 @@ class CarbStoreQueryAnchorTests: XCTestCase {
         let rawValue = CarbStore.QueryAnchor().rawValue
         XCTAssertEqual(rawValue.count, 2)
         XCTAssertEqual(rawValue["deletedModificationCounter"] as? Int64, Int64(0))
-        XCTAssertEqual(rawValue["storedModificationCounter"] as? Int64, Int64(0))
+        XCTAssertEqual(rawValue["anchorKey"] as? Int64, Int64(0))
     }
     
     func testRawValueWithNonDefault() {
         var queryAnchor = CarbStore.QueryAnchor()
         queryAnchor.deletedModificationCounter = 123
-        queryAnchor.storedModificationCounter = 456
+        queryAnchor.anchorKey = 456
         let rawValue = queryAnchor.rawValue
         XCTAssertEqual(rawValue.count, 2)
         XCTAssertEqual(rawValue["deletedModificationCounter"] as? Int64, Int64(123))
-        XCTAssertEqual(rawValue["storedModificationCounter"] as? Int64, Int64(456))
+        XCTAssertEqual(rawValue["anchorKey"] as? Int64, Int64(456))
     }
     
 }
@@ -409,7 +409,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 0)
-                XCTAssertEqual(anchor.storedModificationCounter, 0)
+                XCTAssertEqual(anchor.anchorKey, 0)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 0)
             }
@@ -428,7 +428,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 0)
-                XCTAssertEqual(anchor.storedModificationCounter, 0)
+                XCTAssertEqual(anchor.anchorKey, 0)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 0)
             }
@@ -440,7 +440,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
     
     func testEmptyWithNonDefaultQueryAnchor() {
         queryAnchor.deletedModificationCounter = 1
-        queryAnchor.storedModificationCounter = 2
+        queryAnchor.anchorKey = 2
         
         carbStore.executeCarbQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
@@ -448,7 +448,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 1)
-                XCTAssertEqual(anchor.storedModificationCounter, 2)
+                XCTAssertEqual(anchor.anchorKey, 2)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 0)
             }
@@ -469,7 +469,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 3)
-                XCTAssertEqual(anchor.storedModificationCounter, 0)
+                XCTAssertEqual(anchor.anchorKey, 0)
                 XCTAssertEqual(deleted.count, 3)
                 for (index, syncIdentifier) in syncIdentifiers.enumerated() {
                     XCTAssertEqual(deleted[index].syncIdentifier, syncIdentifier)
@@ -496,7 +496,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 3)
-                XCTAssertEqual(anchor.storedModificationCounter, 0)
+                XCTAssertEqual(anchor.anchorKey, 0)
                 XCTAssertEqual(deleted.count, 1)
                 XCTAssertEqual(deleted[0].syncIdentifier, syncIdentifiers[2])
                 XCTAssertEqual(deleted[0].syncVersion, 2)
@@ -521,7 +521,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 3)
-                XCTAssertEqual(anchor.storedModificationCounter, 0)
+                XCTAssertEqual(anchor.anchorKey, 0)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 0)
             }
@@ -542,7 +542,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 0)
-                XCTAssertEqual(anchor.storedModificationCounter, 4)
+                XCTAssertEqual(anchor.anchorKey, 4)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 4)
                 for (index, syncIdentifier) in syncIdentifiers.enumerated() {
@@ -561,7 +561,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
         
         addStored(withSyncIdentifiers: syncIdentifiers)
         
-        queryAnchor.storedModificationCounter = 2
+        queryAnchor.anchorKey = 2
         
         carbStore.executeCarbQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
@@ -569,7 +569,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 0)
-                XCTAssertEqual(anchor.storedModificationCounter, 4)
+                XCTAssertEqual(anchor.anchorKey, 4)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 2)
                 XCTAssertEqual(stored[0].syncIdentifier, syncIdentifiers[2])
@@ -588,7 +588,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
         
         addStored(withSyncIdentifiers: syncIdentifiers)
         
-        queryAnchor.storedModificationCounter = 4
+        queryAnchor.anchorKey = 4
         
         carbStore.executeCarbQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
@@ -596,7 +596,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 0)
-                XCTAssertEqual(anchor.storedModificationCounter, 4)
+                XCTAssertEqual(anchor.anchorKey, 4)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 0)
             }
@@ -619,7 +619,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 3)
-                XCTAssertEqual(anchor.storedModificationCounter, 7)
+                XCTAssertEqual(anchor.anchorKey, 7)
                 XCTAssertEqual(deleted.count, 3)
                 for (index, syncIdentifier) in deletedSyncIdentifiers.enumerated() {
                     XCTAssertEqual(deleted[index].syncIdentifier, syncIdentifier)
@@ -645,7 +645,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
         addStored(withSyncIdentifiers: storedSyncIdentifiers)
         
         queryAnchor.deletedModificationCounter = 2
-        queryAnchor.storedModificationCounter = 5
+        queryAnchor.anchorKey = 5
         
         carbStore.executeCarbQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
@@ -653,7 +653,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 3)
-                XCTAssertEqual(anchor.storedModificationCounter, 7)
+                XCTAssertEqual(anchor.anchorKey, 7)
                 XCTAssertEqual(deleted.count, 1)
                 XCTAssertEqual(deleted[0].syncIdentifier, deletedSyncIdentifiers[2])
                 XCTAssertEqual(deleted[0].syncVersion, 2)
@@ -677,7 +677,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
         addStored(withSyncIdentifiers: storedSyncIdentifiers)
         
         queryAnchor.deletedModificationCounter = 3
-        queryAnchor.storedModificationCounter = 7
+        queryAnchor.anchorKey = 7
         
         carbStore.executeCarbQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
@@ -685,7 +685,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 3)
-                XCTAssertEqual(anchor.storedModificationCounter, 7)
+                XCTAssertEqual(anchor.anchorKey, 7)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 0)
             }
@@ -710,7 +710,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 0)
-                XCTAssertEqual(anchor.storedModificationCounter, 0)
+                XCTAssertEqual(anchor.anchorKey, 0)
                 XCTAssertEqual(deleted.count, 0)
                 XCTAssertEqual(stored.count, 0)
             }
@@ -735,7 +735,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 2)
-                XCTAssertEqual(anchor.storedModificationCounter, 0)
+                XCTAssertEqual(anchor.anchorKey, 0)
                 XCTAssertEqual(deleted.count, 2)
                 XCTAssertEqual(deleted[0].syncIdentifier, deletedSyncIdentifiers[0])
                 XCTAssertEqual(deleted[0].syncVersion, 0)
@@ -764,7 +764,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let deleted, let stored):
                 XCTAssertEqual(anchor.deletedModificationCounter, 3)
-                XCTAssertEqual(anchor.storedModificationCounter, 5)
+                XCTAssertEqual(anchor.anchorKey, 5)
                 XCTAssertEqual(deleted.count, 3)
                 for (index, syncIdentifier) in deletedSyncIdentifiers.enumerated() {
                     XCTAssertEqual(deleted[index].syncIdentifier, syncIdentifier)

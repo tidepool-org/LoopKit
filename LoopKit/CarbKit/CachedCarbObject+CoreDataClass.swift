@@ -39,8 +39,9 @@ class CachedCarbObject: NSManagedObject {
     }
 
     override func willSave() {
-        if isInserted || isUpdated {
-            setPrimitiveValue(managedObjectContext!.modificationCounter ?? 0, forKey: "modificationCounter")
+        // Set permanent anchor key on creation only
+        if isInserted {
+            setPrimitiveValue(managedObjectContext!.anchorKey ?? 0, forKey: "anchorKey")
         }
         super.willSave()
     }

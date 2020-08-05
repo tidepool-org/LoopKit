@@ -995,27 +995,27 @@ extension CarbStore {
         
         internal var deletedModificationCounter: Int64
         
-        internal var storedModificationCounter: Int64
+        internal var anchorKey: Int64
         
         public init() {
             self.deletedModificationCounter = 0
-            self.storedModificationCounter = 0
+            self.anchorKey = 0
         }
         
         public init?(rawValue: RawValue) {
             guard let deletedModificationCounter = rawValue["deletedModificationCounter"] as? Int64,
-                let storedModificationCounter = rawValue["storedModificationCounter"] as? Int64
+                let anchorKey = (rawValue["anchorKey"] ?? rawValue["storedModificationCounter"]) as? Int64     // Backwards compatibility with storedModificationCounter
                 else {
                     return nil
             }
             self.deletedModificationCounter = deletedModificationCounter
-            self.storedModificationCounter = storedModificationCounter
+            self.anchorKey = anchorKey
         }
         
         public var rawValue: RawValue {
             var rawValue: RawValue = [:]
             rawValue["deletedModificationCounter"] = deletedModificationCounter
-            rawValue["storedModificationCounter"] = storedModificationCounter
+            rawValue["anchorKey"] = anchorKey
             return rawValue
         }
     }
@@ -1061,14 +1061,14 @@ extension CarbStore {
                 
                 let storedRequest: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
                 
-                storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.storedModificationCounter)
-                storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+                storedRequest.predicate = NSPredicate(format: "anchorKey > %d", queryAnchor.anchorKey)
+                storedRequest.sortDescriptors = [NSSortDescriptor(key: "anchorKey", ascending: true)]
                 storedRequest.fetchLimit = limit - queryDeletedResult.count
                 
                 do {
                     let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
-                    if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                        queryAnchor.storedModificationCounter = modificationCounter
+                    if let anchorKey = stored.max(by: { $0.anchorKey < $1.anchorKey })?.anchorKey {
+                        queryAnchor.anchorKey = anchorKey
                     }
                     queryStoredResult.append(contentsOf: stored.compactMap { StoredCarbEntry(managedObject: $0) })
                 } catch let error {
