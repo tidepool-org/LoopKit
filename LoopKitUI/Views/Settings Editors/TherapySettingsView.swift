@@ -370,6 +370,7 @@ struct SectionWithTapToEdit<Header, Content, NavigationDestination>: View where 
             }
             content()
         }
+        .contentShape(Rectangle()) // make the whole card tappable
         .highPriorityGesture(
             TapGesture()
                 .onEnded { _ in
