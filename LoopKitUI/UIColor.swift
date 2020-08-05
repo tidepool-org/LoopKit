@@ -15,12 +15,6 @@ private func BundleColor(_ name: String, compatibleWith traitCollection: UITrait
 }
 
 extension UIColor {
-    static let delete = UIColor.systemRed
-    static let invalid = UIColor.systemRed
-    static let warning = UIColor.systemYellow
-}
-
-extension UIColor {
     static func interpolatingBetween(_ first: UIColor, _ second: UIColor, biasTowardSecondColor bias: CGFloat = 0.5) -> UIColor {
         let (r1, g1, b1, a1) = first.components
         let (r2, g2, b2, a2) = second.components

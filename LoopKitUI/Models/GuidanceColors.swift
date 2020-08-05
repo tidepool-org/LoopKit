@@ -13,12 +13,16 @@ public struct GuidanceColors {
     public var warning: Color
     public var critical: Color
     
-    public init(acceptable: Color = .primary,
-                warning: Color = .warning,
-                critical: Color = .critical)
+    public init(acceptable: Color, warning: Color, critical: Color)
     {
         self.acceptable = acceptable
         self.warning = warning
         self.critical = critical
+    }
+    
+    public init() {
+        self.acceptable = .primary
+        self.warning = .yellow
+        self.critical = .red
     }
 }
