@@ -550,7 +550,8 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                                  supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                                  pumpSupportedIncrements: PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
                                                                                   bolusVolumes: preview_supportedBolusVolumes,
-                                                                                  maximumBasalScheduleEntryCount: 24), chartColors: ChartColorPalette.default)
+                                                                                  maximumBasalScheduleEntryCount: 24),
+                                 chartColors: ChartColorPalette.default)
     }
 
     public static var previews: some View {
