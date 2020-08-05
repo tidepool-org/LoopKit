@@ -17,7 +17,6 @@ public struct CorrectionRangeScheduleEditor: View {
     var unit: HKUnit
     var minValue: HKQuantity?
     var save: (GlucoseRangeSchedule) -> Void
-    let cancel: (() -> Void)?
     let guardrail = Guardrail.correctionRange
     let mode: PresentationMode
     @State private var userDidTap: Bool = false
@@ -27,7 +26,6 @@ public struct CorrectionRangeScheduleEditor: View {
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void,
-        onCancel cancel: (() -> Void)? = nil,
         mode: PresentationMode = .legacySettings
     ) {
         self.initialSchedule = schedule
@@ -35,14 +33,12 @@ public struct CorrectionRangeScheduleEditor: View {
         self.unit = unit
         self.minValue = minValue
         self.save = save
-        self.cancel = cancel
         self.mode = mode
     }
     
     public init(
            viewModel: TherapySettingsViewModel,
-           didSave: (() -> Void)? = nil,
-           onCancel cancel: (() -> Void)? = nil
+           didSave: (() -> Void)? = nil
     ) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         self.init(
@@ -53,7 +49,6 @@ public struct CorrectionRangeScheduleEditor: View {
                 viewModel?.saveCorrectionRange(range: newSchedule)
                 didSave?()
             },
-            onCancel: cancel,
             mode: viewModel.mode
         )
     }
@@ -95,8 +90,7 @@ public struct CorrectionRangeScheduleEditor: View {
                 self.save(rangeSchedule)
             },
             mode: mode,
-            therapySettingType: .glucoseTargetRange,
-            onCancel: cancel
+            therapySettingType: .glucoseTargetRange
         )
         .onTapGesture {
             self.userDidTap = true

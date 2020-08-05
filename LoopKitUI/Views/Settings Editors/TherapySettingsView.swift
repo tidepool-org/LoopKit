@@ -387,47 +387,47 @@ private extension TherapySettingsView {
         case .suspendThreshold:
             if viewModel.therapySettings.glucoseUnit != nil {
                 return { goBack in
-                    AnyView(SuspendThresholdEditor(viewModel: self.viewModel, didSave: goBack, onCancel: goBack))
+                    AnyView(SuspendThresholdEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .glucoseTargetRange:
             if viewModel.therapySettings.glucoseUnit != nil {
                 return { goBack in
-                    AnyView(CorrectionRangeScheduleEditor(viewModel: self.viewModel, didSave: goBack, onCancel: goBack))
+                    AnyView(CorrectionRangeScheduleEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .correctionRangeOverrides:
             if self.viewModel.therapySettings.glucoseUnit != nil {
                 return { goBack in
-                   AnyView(CorrectionRangeOverridesEditor(viewModel: self.viewModel, didSave: goBack, onCancel: goBack))
+                   AnyView(CorrectionRangeOverridesEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .basalRate:
             if self.viewModel.pumpSupportedIncrements != nil {
                 return { goBack in
-                    AnyView(BasalRateScheduleEditor(viewModel: self.viewModel, didSave: goBack, onCancel: goBack))
+                    AnyView(BasalRateScheduleEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .deliveryLimits:
             if self.viewModel.pumpSupportedIncrements != nil {
                 return { goBack in
-                    AnyView(DeliveryLimitsEditor(viewModel: self.viewModel, didSave: goBack, onCancel: goBack))
+                    AnyView(DeliveryLimitsEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .insulinModel:
             if self.viewModel.therapySettings.glucoseUnit != nil && self.viewModel.therapySettings.insulinModelSettings != nil {
                 return { goBack in
-                    AnyView(InsulinModelSelection(viewModel: self.viewModel, didSave: goBack, onCancel: goBack))
+                    AnyView(InsulinModelSelection(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .carbRatio:
             return { goBack in
-                AnyView(CarbRatioScheduleEditor(viewModel: self.viewModel, didSave: goBack, onCancel: goBack))
+                AnyView(CarbRatioScheduleEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
             }
         case .insulinSensitivity:
             if self.viewModel.therapySettings.glucoseUnit != nil {
                 return { goBack in
-                    return AnyView(InsulinSensitivityScheduleEditor(viewModel: self.viewModel, didSave: goBack, onCancel: goBack))
+                    return AnyView(InsulinSensitivityScheduleEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .none:

@@ -22,7 +22,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     let supportedModelSettings: SupportedInsulinModelSettings
     let mode: PresentationMode
     let save: (_ insulinModelSettings: InsulinModelSettings) -> Void
-    let cancel: (() -> Void)?
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
     
@@ -50,14 +49,12 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
         glucoseUnit: HKUnit,
         supportedModelSettings: SupportedInsulinModelSettings,
         onSave save: @escaping (_ insulinModelSettings: InsulinModelSettings) -> Void,
-        onCancel cancel: (() -> Void)? = nil,
         mode: PresentationMode
     ){
         self._value = State(initialValue: value)
         self.initialValue = value
         self.insulinSensitivitySchedule = insulinSensitivitySchedule ?? Self.defaultInsulinSensitivitySchedule
         self.save = save
-        self.cancel = cancel
         self.glucoseUnit = glucoseUnit
         self.supportedModelSettings = supportedModelSettings
         self.mode = mode
@@ -65,8 +62,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
 
     public init(
            viewModel: TherapySettingsViewModel,
-           didSave: (() -> Void)? = nil,
-           onCancel cancel: (() -> Void)? = nil
+           didSave: (() -> Void)? = nil
     ) {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         precondition(viewModel.therapySettings.insulinModelSettings != nil)
@@ -79,7 +75,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
                 viewModel?.saveInsulinModel(insulinModelSettings: insulinModelSettings)
                 didSave?()
             },
-            onCancel: cancel,
             mode: viewModel.mode
         )
     }
@@ -126,7 +121,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     }
     
     private var cancelButton: some View {
-        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+        Button(action: { self.dismiss() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
     }
 
     private var navigationContent: some View {

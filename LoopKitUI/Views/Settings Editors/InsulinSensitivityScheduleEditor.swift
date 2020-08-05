@@ -15,15 +15,13 @@ public struct InsulinSensitivityScheduleEditor: View {
     private var schedule: DailyQuantitySchedule<Double>?
     private var glucoseUnit: HKUnit
     private var save: (InsulinSensitivitySchedule) -> Void
-    private let cancel: (() -> Void)?
     private var mode: PresentationMode
 
     public init(
         schedule: InsulinSensitivitySchedule?,
         mode: PresentationMode = .legacySettings,
         glucoseUnit: HKUnit,
-        onSave save: @escaping (InsulinSensitivitySchedule) -> Void,
-        onCancel cancel: (() -> Void)? = nil
+        onSave save: @escaping (InsulinSensitivitySchedule) -> Void
     ) {
         // InsulinSensitivitySchedule stores only the glucose unit.
         // For consistency across display & computation, convert to "real" <glucose unit>/U units.
@@ -35,14 +33,12 @@ public struct InsulinSensitivityScheduleEditor: View {
         }
         self.glucoseUnit = glucoseUnit
         self.save = save
-        self.cancel = cancel
         self.mode = mode
     }
     
     public init(
         viewModel: TherapySettingsViewModel,
-        didSave: (() -> Void)? = nil,
-        onCancel cancel: (() -> Void)? = nil
+        didSave: (() -> Void)? = nil
     ) {
         self.init(
             schedule: viewModel.therapySettings.insulinSensitivitySchedule,
@@ -51,8 +47,7 @@ public struct InsulinSensitivityScheduleEditor: View {
             onSave: { [weak viewModel] in
                 viewModel?.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0)
                 didSave?()
-            },
-            onCancel: cancel
+            }
         )
     }
 
@@ -72,8 +67,7 @@ public struct InsulinSensitivityScheduleEditor: View {
                 self.save(DailyQuantitySchedule(unit: self.glucoseUnit, dailyItems: $0.items)!)
             },
             mode: mode,
-            settingType: .insulinSensitivity,
-            onCancel: cancel
+            settingType: .insulinSensitivity
         )
     }
 

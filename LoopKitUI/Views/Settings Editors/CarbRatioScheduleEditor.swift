@@ -20,12 +20,10 @@ public struct CarbRatioScheduleEditor: View {
     private var schedule: DailyQuantitySchedule<Double>?
     private var mode: PresentationMode
     private var save: (CarbRatioSchedule) -> Void
-    private let cancel: (() -> Void)?
 
     public init(
         schedule: CarbRatioSchedule?,
         onSave save: @escaping (CarbRatioSchedule) -> Void,
-        onCancel cancel: (() -> Void)? = nil,
         mode: PresentationMode = .legacySettings
     ) {
         // CarbRatioSchedule stores only the gram unit.
@@ -38,13 +36,11 @@ public struct CarbRatioScheduleEditor: View {
         }
         self.mode = mode
         self.save = save
-        self.cancel = cancel
     }
     
     public init(
         viewModel: TherapySettingsViewModel,
-        didSave: (() -> Void)? = nil,
-        onCancel cancel: (() -> Void)? = nil
+        didSave: (() -> Void)? = nil
     ) {
         self.init(
             schedule: viewModel.therapySettings.carbRatioSchedule,
@@ -52,7 +48,6 @@ public struct CarbRatioScheduleEditor: View {
                 viewModel?.saveCarbRatioSchedule(carbRatioSchedule: $0)
                 didSave?()
             },
-            onCancel: cancel,
             mode: viewModel.mode
         )
     }
@@ -74,8 +69,7 @@ public struct CarbRatioScheduleEditor: View {
                 self.save(DailyQuantitySchedule(unit: .storedCarbRatioScheduleUnit, dailyItems: $0.items)!)
             },
             mode: mode,
-            settingType: .carbRatio,
-            onCancel: cancel
+            settingType: .carbRatio
         )
     }
 

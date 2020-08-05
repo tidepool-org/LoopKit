@@ -16,7 +16,6 @@ public struct CorrectionRangeOverridesEditor: View {
     var correctionRangeScheduleRange: ClosedRange<HKQuantity>
     var minValue: HKQuantity?
     var save: (_ overrides: CorrectionRangeOverrides) -> Void
-    let cancel: (() -> Void)?
     var sensitivityOverridesEnabled: Bool
     var mode: PresentationMode
 
@@ -42,7 +41,6 @@ public struct CorrectionRangeOverridesEditor: View {
         correctionRangeScheduleRange: ClosedRange<HKQuantity>,
         minValue: HKQuantity?,
         onSave save: @escaping (_ overrides: CorrectionRangeOverrides) -> Void,
-        onCancel cancel: (() -> Void)? = nil,
         sensitivityOverridesEnabled: Bool,
         mode: PresentationMode = .legacySettings
     ) {
@@ -52,15 +50,13 @@ public struct CorrectionRangeOverridesEditor: View {
         self.correctionRangeScheduleRange = correctionRangeScheduleRange
         self.minValue = minValue
         self.save = save
-        self.cancel = cancel
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.mode = mode
     }
     
     public init(
         viewModel: TherapySettingsViewModel,
-        didSave: (() -> Void)? = nil,
-        onCancel cancel: (() -> Void)? = nil
+        didSave: (() -> Void)? = nil
     ) {
         self.init(
             value: CorrectionRangeOverrides(
@@ -75,7 +71,6 @@ public struct CorrectionRangeOverridesEditor: View {
                 viewModel?.saveCorrectionRangeOverrides(overrides: overrides, unit: viewModel?.therapySettings.glucoseUnit ?? .milligramsPerDeciliter)
                 didSave?()
             },
-            onCancel: cancel,
             sensitivityOverridesEnabled: viewModel.sensitivityOverridesEnabled,
             mode: viewModel.mode
         )
@@ -104,7 +99,7 @@ public struct CorrectionRangeOverridesEditor: View {
     }
     
     private var cancelButton: some View {
-        Button(action: { self.cancel?() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+        Button(action: { self.dismiss() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
     }
     
     private var content: some View {

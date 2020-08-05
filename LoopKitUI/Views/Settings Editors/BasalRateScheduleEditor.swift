@@ -18,7 +18,6 @@ public struct BasalRateScheduleEditor: View {
     var maximumScheduleEntryCount: Int
     var syncSchedule: PumpManager.SyncSchedule?
     var save: (BasalRateSchedule) -> Void
-    let cancel: (() -> Void)?
     let mode: PresentationMode
 
     /// - Precondition: `supportedBasalRates` is nonempty and sorted in ascending order.
@@ -29,7 +28,6 @@ public struct BasalRateScheduleEditor: View {
         maximumScheduleEntryCount: Int,
         syncSchedule: PumpManager.SyncSchedule?,
         onSave save: @escaping (BasalRateSchedule) -> Void,
-        onCancel cancel: (() -> Void)? = nil,
         mode: PresentationMode = .legacySettings
     ) {
         self.schedule = schedule.map { schedule in
@@ -50,14 +48,12 @@ public struct BasalRateScheduleEditor: View {
         self.maximumScheduleEntryCount = maximumScheduleEntryCount
         self.syncSchedule = syncSchedule
         self.save = save
-        self.cancel = cancel
         self.mode = mode
     }
     
     public init(
         viewModel: TherapySettingsViewModel,
-        didSave: (() -> Void)? = nil,
-        onCancel cancel: (() -> Void)? = nil
+        didSave: (() -> Void)? = nil
     ) {
         self.init(
             schedule: viewModel.therapySettings.basalRateSchedule,
@@ -69,7 +65,6 @@ public struct BasalRateScheduleEditor: View {
                 viewModel?.saveBasalRates(basalRates: newBasalRates)
                 didSave?()
             },
-            onCancel: cancel,
             mode: viewModel.mode
         )
     }
@@ -94,8 +89,7 @@ public struct BasalRateScheduleEditor: View {
             },
             onSave: savingMechanism,
             mode: mode,
-            settingType: .basalRate,
-            onCancel: cancel
+            settingType: .basalRate
         )
     }
     
