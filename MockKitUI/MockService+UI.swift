@@ -6,17 +6,18 @@
 //  Copyright © 2019 LoopKit Authors. All rights reserved.
 //
 
+import SwiftUI
 import LoopKit
 import LoopKitUI
 import MockKit
 
 extension MockService: ServiceUI {
 
-    public static func setupViewController() -> (UIViewController & ServiceSetupNotifying & CompletionNotifying)? {
+    public static func setupViewController(carbTintColor: Color, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & ServiceSetupNotifying & CompletionNotifying)? {
         return ServiceViewController(rootViewController: MockServiceTableViewController(service: MockService(), for: .create))
     }
 
-    public func settingsViewController(chartColors: ChartColorPalette) -> (UIViewController & ServiceSettingsNotifying & CompletionNotifying) {
+    public func settingsViewController(chartColors: ChartColorPalette, carbTintColor: Color, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & ServiceSettingsNotifying & CompletionNotifying) {
       return ServiceViewController(rootViewController: MockServiceTableViewController(service: self, for: .update))
     }
     

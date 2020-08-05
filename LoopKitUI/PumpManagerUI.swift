@@ -11,12 +11,12 @@ import LoopKit
 
 public protocol PumpManagerUI: DeviceManagerUI, PumpManager, DeliveryLimitSettingsTableViewControllerSyncSource, BasalScheduleTableViewControllerSyncSource {
     
-    static func setupViewController(insulinTintColor: Color, guardrailColors: GuardrailColors) -> (UIViewController & PumpManagerSetupViewController & CompletionNotifying)
+    static func setupViewController(insulinTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & PumpManagerSetupViewController & CompletionNotifying)
 
-    func settingsViewController(insulinTintColor: Color, guardrailColors: GuardrailColors) -> (UIViewController & CompletionNotifying)
+    func settingsViewController(insulinTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying)
     
     // Returns a class that can provide HUD views
-    func hudProvider() -> HUDProvider?
+    func hudProvider(insulinTintColor: Color, guidanceColors: GuidanceColors) -> HUDProvider?
     
     // Instantiates HUD view (typically reservoir volume) from the raw state returned by hudViewRawState
     static func createHUDView(rawValue: HUDProvider.HUDViewRawState) -> LevelHUDView?
