@@ -6,13 +6,14 @@
 //
 
 import UIKit
+import SwiftUI
 import LoopKit
 
 public protocol PumpManagerUI: DeviceManagerUI, PumpManager, DeliveryLimitSettingsTableViewControllerSyncSource, BasalScheduleTableViewControllerSyncSource {
     
-    static func setupViewController() -> (UIViewController & PumpManagerSetupViewController & CompletionNotifying)
+    static func setupViewController(insulinTintColor: Color, guardrailColors: GuardrailColors) -> (UIViewController & PumpManagerSetupViewController & CompletionNotifying)
 
-    func settingsViewController() -> (UIViewController & CompletionNotifying)
+    func settingsViewController(insulinTintColor: Color, guardrailColors: GuardrailColors) -> (UIViewController & CompletionNotifying)
     
     // Returns a class that can provide HUD views
     func hudProvider() -> HUDProvider?
