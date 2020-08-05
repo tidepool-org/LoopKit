@@ -35,7 +35,6 @@ public enum DoseStoreResult<T> {
 
 public protocol DoseStoreTestingProtocol {
     func getGlucoseEffects(start: Date, end: Date?, basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void)
-    
 }
 
 /**

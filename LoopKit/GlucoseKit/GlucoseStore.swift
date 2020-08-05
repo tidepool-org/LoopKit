@@ -27,6 +27,12 @@ public enum GlucoseStoreResult<T> {
     case failure(Error)
 }
 
+public protocol GlucoseStoreTestingProtocol {
+    func getRecentMomentumEffect(_ completion: @escaping (_ effects: [GlucoseEffect]) -> Void)
+    func getCachedGlucoseSamples(start: Date, end: Date?, completion: @escaping (_ samples: [StoredGlucoseSample]) -> Void)
+    func getCounteractionEffects(start: Date, end: Date?, to effects: [GlucoseEffect], _ completion: @escaping (_ effects: [GlucoseEffectVelocity]) -> Void)
+}
+
 /**
  Manages storage, retrieval, and calculation of glucose data.
  
@@ -49,7 +55,7 @@ public enum GlucoseStoreResult<T> {
               |–––––––––--->
 ```
  */
-public final class GlucoseStore: HealthKitSampleStore {
+public final class GlucoseStore: HealthKitSampleStore, GlucoseStoreTestingProtocol {
 
     /// Notification posted when glucose samples were changed, either via add/replace/delete methods or from HealthKit
     public static let glucoseSamplesDidChange = NSNotification.Name(rawValue: "com.loopkit.GlucoseStore.glucoseSamplesDidChange")
