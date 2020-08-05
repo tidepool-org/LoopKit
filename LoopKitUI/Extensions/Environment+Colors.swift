@@ -8,14 +8,14 @@
 
 import SwiftUI
 
-private struct GuardrailColorsKey: EnvironmentKey {
-    static var defaultValue: GuardrailColors = GuardrailColors()
+private struct GuidanceColorsKey: EnvironmentKey {
+    static var defaultValue: GuidanceColors = GuidanceColors()
 }
 
 public extension EnvironmentValues {
-    var guardrailColors: GuardrailColors {
-        get { self[GuardrailColorsKey.self] }
-        set { self[GuardrailColorsKey.self] = newValue }
+    var guidanceColors: GuidanceColors {
+        get { self[GuidanceColorsKey.self] }
+        set { self[GuidanceColorsKey.self] = newValue }
     }
 }
 

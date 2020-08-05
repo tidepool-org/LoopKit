@@ -21,7 +21,7 @@ public struct FractionalQuantityPicker: View {
         case independent
     }
 
-    @Environment(\.guardrailColors) var guardrailColors
+    @Environment(\.guidanceColors) var guidanceColors
     @Binding var whole: Double
     @Binding var fraction: Double
     var unit: HKUnit
@@ -156,7 +156,7 @@ public struct FractionalQuantityPicker: View {
         let fractionIfWholeSelected = Self.matchingFraction(for: fraction, from: fractionalValuesByWhole[whole]!)
         let valueIfWholeSelected = whole + fractionIfWholeSelected
         let quantityIfWholeSelected = HKQuantity(unit: unit, doubleValue: valueIfWholeSelected)
-        return guardrail.color(for: quantityIfWholeSelected, guardrailColors: guardrailColors)
+        return guardrail.color(for: quantityIfWholeSelected, guidanceColors: guidanceColors)
     }
 
     private func colorForFraction(_ fraction: Double) -> Color {
@@ -164,7 +164,7 @@ public struct FractionalQuantityPicker: View {
 
         let valueIfFractionSelected = whole + fraction
         let quantityIfFractionSelected = HKQuantity(unit: unit, doubleValue: valueIfFractionSelected)
-        return guardrail.color(for: quantityIfFractionSelected, guardrailColors: guardrailColors)
+        return guardrail.color(for: quantityIfFractionSelected, guidanceColors: guidanceColors)
     }
 
     private var fractionalFormatter: NumberFormatter {

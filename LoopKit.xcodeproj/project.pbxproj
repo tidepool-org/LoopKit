@@ -680,7 +680,7 @@
 		B42C950E24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C950C24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift */; };
 		B42C951924A508CE00857C73 /* DeviceStatusHighlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */; };
 		B42C951B24A63B8100857C73 /* DeviceStatusHighlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */; };
-		B43DA43F24D49AA400CAFF4E /* GuardrailColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43DA43E24D49AA400CAFF4E /* GuardrailColors.swift */; };
+		B43DA43F24D49AA400CAFF4E /* GuidanceColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43DA43E24D49AA400CAFF4E /* GuidanceColors.swift */; };
 		B43DA44224D9CD8500CAFF4E /* Environment+Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45AF6EF24D4355A00EEAA4D /* Environment+Colors.swift */; };
 		B46B62A723FEFE4D001E69BA /* InstructionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46B62A623FEFE4D001E69BA /* InstructionList.swift */; };
 		B46B62A923FF05F8001E69BA /* LabeledNumberInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46B62A823FF05F8001E69BA /* LabeledNumberInput.swift */; };
@@ -1478,7 +1478,7 @@
 		B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopNotificationUserInfoKey.swift; sourceTree = "<group>"; };
 		B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStatusHighlight.swift; sourceTree = "<group>"; };
 		B42C950C24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeasurementFrequencyTableViewController.swift; sourceTree = "<group>"; };
-		B43DA43E24D49AA400CAFF4E /* GuardrailColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardrailColors.swift; sourceTree = "<group>"; };
+		B43DA43E24D49AA400CAFF4E /* GuidanceColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidanceColors.swift; sourceTree = "<group>"; };
 		B45AF6EF24D4355A00EEAA4D /* Environment+Colors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Environment+Colors.swift"; sourceTree = "<group>"; };
 		B46B62A623FEFE4D001E69BA /* InstructionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionList.swift; sourceTree = "<group>"; };
 		B46B62A823FF05F8001E69BA /* LabeledNumberInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabeledNumberInput.swift; sourceTree = "<group>"; };
@@ -2561,7 +2561,7 @@
 			isa = PBXGroup;
 			children = (
 				E9086B4724B5405E0062F5C8 /* ChartAxisValueDoubleUnit.swift */,
-				B43DA43E24D49AA400CAFF4E /* GuardrailColors.swift */,
+				B43DA43E24D49AA400CAFF4E /* GuidanceColors.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3350,7 +3350,7 @@
 				B46B62AD23FF0A87001E69BA /* LabeledDateView.swift in Sources */,
 				895FE06E22011E9A00FCF18A /* OverrideEmojiDataSource.swift in Sources */,
 				43BA716A201E49220058961E /* CarbEntryTableViewController.swift in Sources */,
-				B43DA43F24D49AA400CAFF4E /* GuardrailColors.swift in Sources */,
+				B43DA43F24D49AA400CAFF4E /* GuidanceColors.swift in Sources */,
 				43BA716B201E49220058961E /* CarbEntryValidationNavigationDelegate.swift in Sources */,
 				89AF78C02447E285002B4FCC /* CardStackBuilder.swift in Sources */,
 				43BA7185201EE7090058961E /* DailyValueScheduleTableViewController.swift in Sources */,

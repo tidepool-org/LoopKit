@@ -19,7 +19,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
         case fractional
     }
 
-    @Environment(\.guardrailColors) var guardrailColors
+    @Environment(\.guidanceColors) var guidanceColors
     
     var title: Text
     var description: Text
@@ -63,7 +63,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                         unit: self.unit,
                         guardrail: self.guardrail,
                         selectableValues: self.selectableValues,
-                        guardrailColors: self.guardrailColors
+                        guidanceColors: self.guidanceColors
                     )
                     .frame(width: availableWidth / 2)
                     // Ensure overlaid unit label is not clipped
