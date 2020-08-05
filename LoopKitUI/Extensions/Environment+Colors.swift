@@ -9,7 +9,7 @@
 import SwiftUI
 
 private struct GuidanceColorsKey: EnvironmentKey {
-    static var defaultValue: GuidanceColors = GuidanceColors()
+    static let defaultValue: GuidanceColors = GuidanceColors()
 }
 
 public extension EnvironmentValues {
@@ -20,7 +20,7 @@ public extension EnvironmentValues {
 }
 
 private struct CarbTintColorKey: EnvironmentKey {
-    static var defaultValue: Color = .green
+    static let defaultValue: Color = .green
 }
 
 public extension EnvironmentValues {
@@ -31,7 +31,7 @@ public extension EnvironmentValues {
 }
 
 private struct GlucoseTintColorKey: EnvironmentKey {
-    static var defaultValue: Color = Color(.systemTeal)
+    static let defaultValue: Color = Color(.systemTeal)
 }
 
 public extension EnvironmentValues {

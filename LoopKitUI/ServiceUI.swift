@@ -19,5 +19,4 @@ public protocol ServiceUI: Service {
     ///
     /// - Returns: A view controller to configure an existing service.
     func settingsViewController(chartColors: ChartColorPalette) -> (UIViewController & ServiceSettingsNotifying & CompletionNotifying)
-
 }

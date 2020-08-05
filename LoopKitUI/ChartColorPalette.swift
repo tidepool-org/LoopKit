@@ -23,8 +23,4 @@ public struct ChartColorPalette {
         self.glucoseTint = glucoseTint
         self.doseTint = doseTint
     }
-    
-    static var `default`: ChartColorPalette {
-        return ChartColorPalette(axisLine: .clear, axisLabel: .secondaryLabel, grid: .systemGray3, glucoseTint: .systemTeal, doseTint: .systemOrange)
-    }
 }
