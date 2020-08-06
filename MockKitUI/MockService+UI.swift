@@ -13,11 +13,11 @@ import MockKit
 
 extension MockService: ServiceUI {
 
-    public static func setupViewController(carbTintColor: Color, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & ServiceSetupNotifying & CompletionNotifying)? {
+    public static func setupViewController() -> (UIViewController & ServiceSetupNotifying & CompletionNotifying)? {
         return ServiceViewController(rootViewController: MockServiceTableViewController(service: MockService(), for: .create))
     }
 
-    public func settingsViewController(chartColors: ChartColorPalette, carbTintColor: Color, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & ServiceSettingsNotifying & CompletionNotifying) {
+    public func settingsViewController(chartColors: ChartColorPalette, carbTintColor: Color, glucoseTintColor: Color, guidanceColors: GuidanceColors, insulinTintColor: Color) -> (UIViewController & ServiceSettingsNotifying & CompletionNotifying) {
       return ServiceViewController(rootViewController: MockServiceTableViewController(service: self, for: .update))
     }
     
