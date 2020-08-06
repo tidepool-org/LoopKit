@@ -753,19 +753,19 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
 
 class DoseStoreEffectTests: PersistenceControllerTestCase {
     var doseStore: DoseStore!
-    
+
     var insulinSensitivitySchedule: InsulinSensitivitySchedule {
         return InsulinSensitivitySchedule(unit: HKUnit.milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue(startTime: 0.0, value: 40.0)], timeZone: .currentFixed)!
     }
-    
+
     let dateFormatter = ISO8601DateFormatter.localTimeDate()
-    
+
     override func setUp() {
         super.setUp()
         let healthStore = HKHealthStoreMock()
         let exponentialInsulinModel: InsulinModel = ExponentialInsulinModel(actionDuration: 21600.0, peakActivityTime: 4500.0)
         let startDate = dateFormatter.date(from: "2015-07-13T12:00:00")!
-        
+
         doseStore = DoseStore(
             healthStore: healthStore,
             observeHealthKitForCurrentAppOnly: false,
@@ -779,6 +779,12 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
         )
     }
     
+    override func tearDown() {
+        doseStore = nil
+        
+        super.tearDown()
+    }
+
     func loadGlucoseEffectFixture(_ resourceName: String) -> [GlucoseEffect] {
         let fixture: [JSONDictionary] = loadFixture(resourceName)
         let dateFormatter = ISO8601DateFormatter.localTimeDate()
@@ -787,7 +793,7 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             return GlucoseEffect(startDate: dateFormatter.date(from: $0["date"] as! String)!, quantity: HKQuantity(unit: HKUnit(from: $0["unit"] as! String), doubleValue:$0["amount"] as! Double))
         }
     }
-    
+
     func loadDoseFixture(_ resourceName: String) -> [DoseEntry] {
         let fixture: [JSONDictionary] = loadFixture(resourceName)
         let dateFormatter = ISO8601DateFormatter.localTimeDate()
@@ -799,7 +805,7 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             else {
                 return nil
             }
-            
+
             var scheduledBasalRate: HKQuantity? = nil
             if let scheduled = $0["scheduled"] as? Double {
                 scheduledBasalRate = HKQuantity(unit: unit.unit, doubleValue: scheduled)
@@ -817,7 +823,7 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             )
         }
     }
-    
+
     func injectDoseEvents(from fixture: String) {
         let events = loadDoseFixture(fixture).map {
             NewPumpEvent(
@@ -829,18 +835,18 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
                 type: $0.type.pumpEventType
             )
         }
-        
+
         doseStore.addPumpEvents(events, lastReconciliation: nil) { error in
             if error != nil {
                 XCTFail("Doses should be added successfully to dose store")
             }
         }
     }
-    
+
     func testGlucoseEffectFromTempBasal() {
         injectDoseEvents(from: "basal_dose")
         let output = loadGlucoseEffectFixture("effect_from_basal_output_exponential")
-        
+
         var insulinEffects: [GlucoseEffect]!
         let startDate = dateFormatter.date(from: "2015-07-13T12:00:00")!
         let updateGroup = DispatchGroup()
@@ -864,11 +870,11 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             XCTAssertEqual(expected.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), calculated.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), accuracy: 1.0, String(describing: expected.startDate))
         }
     }
-    
+
     func testGlucoseEffectFromTempBasalWithOldDoses() {
         injectDoseEvents(from: "basal_dose_with_expired")
         let output = loadGlucoseEffectFixture("effect_from_basal_output_exponential")
-        
+
         var insulinEffects: [GlucoseEffect]!
         let startDate = dateFormatter.date(from: "2015-07-13T12:00:00")!
         let updateGroup = DispatchGroup()
@@ -892,11 +898,11 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             XCTAssertEqual(expected.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), calculated.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), accuracy: 1.0, String(describing: expected.startDate))
         }
     }
-    
+
     func testGlucoseEffectFromHistory() {
         injectDoseEvents(from: "dose_history_with_delivered_units")
         let output = loadGlucoseEffectFixture("effect_from_history_exponential_delivered_units_output")
-        
+
         var insulinEffects: [GlucoseEffect]!
         let startDate = dateFormatter.date(from: "2016-01-30T15:40:49")!
         let updateGroup = DispatchGroup()
