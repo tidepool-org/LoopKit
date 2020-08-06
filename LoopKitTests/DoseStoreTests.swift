@@ -772,21 +772,11 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             cacheStore: cacheStore,
             observationEnabled: false,
             insulinModel: exponentialInsulinModel,
-            basalProfile: loadBasalRateScheduleFixture("basal"),
+            basalProfile: BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0)]),
             insulinSensitivitySchedule: insulinSensitivitySchedule,
             overrideHistory: TemporaryScheduleOverrideHistory(),
             test_currentDate: startDate
         )
-    }
-    
-    func loadBasalRateScheduleFixture(_ resourceName: String) -> BasalRateSchedule {
-        let fixture: [JSONDictionary] = loadFixture(resourceName)
-
-        let items = fixture.map {
-            return RepeatingScheduleValue(startTime: TimeInterval(minutes: $0["minutes"] as! Double), value: $0["rate"] as! Double)
-        }
-
-        return BasalRateSchedule(dailyItems: items, timeZone: .currentFixed)!
     }
     
     func loadGlucoseEffectFixture(_ resourceName: String) -> [GlucoseEffect] {
@@ -847,14 +837,6 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
         }
     }
     
-    func cleanup() {
-        doseStore.deleteAllPumpEvents { error in
-            if error != nil {
-                XCTFail("Doses should be added successfully to dose store")
-            }
-        }
-    }
-    
     func testGlucoseEffectFromTempBasal() {
         injectDoseEvents(from: "basal_dose")
         let output = loadGlucoseEffectFixture("effect_from_basal_output_exponential")
@@ -881,7 +863,33 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             XCTAssertEqual(expected.startDate, calculated.startDate)
             XCTAssertEqual(expected.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), calculated.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), accuracy: 1.0, String(describing: expected.startDate))
         }
+    }
+    
+    func testGlucoseEffectFromTempBasalWithOldDoses() {
+        injectDoseEvents(from: "basal_dose_with_expired")
+        let output = loadGlucoseEffectFixture("effect_from_basal_output_exponential")
         
-        cleanup()
+        var insulinEffects: [GlucoseEffect]!
+        let startDate = dateFormatter.date(from: "2015-07-13T12:00:00")!
+        let updateGroup = DispatchGroup()
+        updateGroup.enter()
+        doseStore.getGlucoseEffects(start: startDate) { (result) -> Void in
+            switch result {
+            case .failure(let error):
+                print(error)
+                XCTFail("Mock should always return success")
+            case .success(let effects):
+                insulinEffects = effects
+            }
+            updateGroup.leave()
+        }
+        _ = updateGroup.wait(timeout: .distantFuture)
+
+        XCTAssertEqual(output.count, insulinEffects.count)
+
+        for (expected, calculated) in zip(output, insulinEffects) {
+            XCTAssertEqual(expected.startDate, calculated.startDate)
+            XCTAssertEqual(expected.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), calculated.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), accuracy: 1.0, String(describing: expected.startDate))
+        }
     }
 }

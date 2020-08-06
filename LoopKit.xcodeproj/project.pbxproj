@@ -746,6 +746,8 @@
 		E93C86B224D080E00073089B /* CarbRatioInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86B124D080E00073089B /* CarbRatioInformationView.swift */; };
 		E93C86B624D08CAD0073089B /* InsulinSensitivityInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86B524D08CAD0073089B /* InsulinSensitivityInformationView.swift */; };
 		E93E865A24DC744300FF40C8 /* effect_from_basal_output_exponential.json in Resources */ = {isa = PBXBuildFile; fileRef = E93E865924DC744300FF40C8 /* effect_from_basal_output_exponential.json */; };
+		E93E865C24DC75EF00FF40C8 /* basal_dose_with_expired.json in Resources */ = {isa = PBXBuildFile; fileRef = E93E865B24DC75EF00FF40C8 /* basal_dose_with_expired.json */; };
+		E93E865E24DC797A00FF40C8 /* basal_dose_with_delivered.json in Resources */ = {isa = PBXBuildFile; fileRef = E93E865D24DC797A00FF40C8 /* basal_dose_with_delivered.json */; };
 		E94141CE24C8F2950096C326 /* ExponentialInsulinModelPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */; };
 		E94141D024C8F31C0096C326 /* DeliveryLimitsEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */; };
 		E949E38924AFC82F00024DA0 /* DeliveryLimitsInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */; };
@@ -1544,6 +1546,8 @@
 		E93C86B124D080E00073089B /* CarbRatioInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarbRatioInformationView.swift; sourceTree = "<group>"; };
 		E93C86B524D08CAD0073089B /* InsulinSensitivityInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinSensitivityInformationView.swift; sourceTree = "<group>"; };
 		E93E865924DC744300FF40C8 /* effect_from_basal_output_exponential.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = effect_from_basal_output_exponential.json; sourceTree = "<group>"; };
+		E93E865B24DC75EF00FF40C8 /* basal_dose_with_expired.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = basal_dose_with_expired.json; sourceTree = "<group>"; };
+		E93E865D24DC797A00FF40C8 /* basal_dose_with_delivered.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = basal_dose_with_delivered.json; sourceTree = "<group>"; };
 		E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsEditor.swift; sourceTree = "<group>"; };
 		E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsInformationView.swift; sourceTree = "<group>"; };
 		E949E38E24B3711E00024DA0 /* InsulinModelInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinModelInformationView.swift; sourceTree = "<group>"; };
@@ -2296,6 +2300,8 @@
 		43D8FECA1C7294670073BE78 /* InsulinKit */ = {
 			isa = PBXGroup;
 			children = (
+				E93E865B24DC75EF00FF40C8 /* basal_dose_with_expired.json */,
+				E93E865D24DC797A00FF40C8 /* basal_dose_with_delivered.json */,
 				43B99B051C74552300D050F5 /* basal_dose.json */,
 				43B99AFB1C744CE300D050F5 /* bolus_dose.json */,
 				4333931E1F32E31C009466DC /* doses_overlay_basal_profile_output.json */,
@@ -3049,11 +3055,13 @@
 				437874C9202FDD2D00A3D8B9 /* normalize_edge_case_doses_output.json in Resources */,
 				43D988A11C87FFA300DA4467 /* glucose_from_effects_no_momentum_output.json in Resources */,
 				43D988A81C87FFA300DA4467 /* glucose_from_effects_momentum_down_input.json in Resources */,
+				E93E865E24DC797A00FF40C8 /* basal_dose_with_delivered.json in Resources */,
 				437874BB202FDD2D00A3D8B9 /* effect_from_bolus_output.json in Resources */,
 				437874CC202FDD2D00A3D8B9 /* reconcile_history_input.json in Resources */,
 				43D988AA1C87FFA300DA4467 /* glucose_from_effects_momentum_blend_momentum_input.json in Resources */,
 				43439521205F2D910056DC37 /* counteraction_effect_falling_glucose_input.json in Resources */,
 				4322B792202FA3CC0002837D /* carb_effect_from_history_input.json in Resources */,
+				E93E865C24DC75EF00FF40C8 /* basal_dose_with_expired.json in Resources */,
 				E9E5E56724D362E900B5DFFE /* dynamic_glucose_effect_partially_observed_output.json in Resources */,
 				43D988A41C87FFA300DA4467 /* glucose_from_effects_momentum_flat_output.json in Resources */,
 				437874C1202FDD2D00A3D8B9 /* iob_from_bolus_312min_output.json in Resources */,
