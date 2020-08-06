@@ -750,3 +750,138 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
     }
     
 }
+
+class DoseStoreEffectTests: PersistenceControllerTestCase {
+    var doseStore: DoseStore!
+    
+    var insulinSensitivitySchedule: InsulinSensitivitySchedule {
+        return InsulinSensitivitySchedule(unit: HKUnit.milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue(startTime: 0.0, value: 40.0)], timeZone: .currentFixed)!
+    }
+    
+    let dateFormatter = ISO8601DateFormatter.localTimeDate()
+    
+    override func setUp() {
+        super.setUp()
+        let healthStore = HKHealthStoreMock()
+        let exponentialInsulinModel: InsulinModel = ExponentialInsulinModel(actionDuration: 21600.0, peakActivityTime: 4500.0)
+        let startDate = dateFormatter.date(from: "2015-07-13T12:00:00")!
+        
+        doseStore = DoseStore(
+            healthStore: healthStore,
+            observeHealthKitForCurrentAppOnly: false,
+            cacheStore: cacheStore,
+            observationEnabled: false,
+            insulinModel: exponentialInsulinModel,
+            basalProfile: loadBasalRateScheduleFixture("basal"),
+            insulinSensitivitySchedule: insulinSensitivitySchedule,
+            overrideHistory: TemporaryScheduleOverrideHistory(),
+            test_currentDate: startDate
+        )
+    }
+    
+    func loadBasalRateScheduleFixture(_ resourceName: String) -> BasalRateSchedule {
+        let fixture: [JSONDictionary] = loadFixture(resourceName)
+
+        let items = fixture.map {
+            return RepeatingScheduleValue(startTime: TimeInterval(minutes: $0["minutes"] as! Double), value: $0["rate"] as! Double)
+        }
+
+        return BasalRateSchedule(dailyItems: items, timeZone: .currentFixed)!
+    }
+    
+    func loadGlucoseEffectFixture(_ resourceName: String) -> [GlucoseEffect] {
+        let fixture: [JSONDictionary] = loadFixture(resourceName)
+        let dateFormatter = ISO8601DateFormatter.localTimeDate()
+
+        return fixture.map {
+            return GlucoseEffect(startDate: dateFormatter.date(from: $0["date"] as! String)!, quantity: HKQuantity(unit: HKUnit(from: $0["unit"] as! String), doubleValue:$0["amount"] as! Double))
+        }
+    }
+    
+    func loadDoseFixture(_ resourceName: String) -> [DoseEntry] {
+        let fixture: [JSONDictionary] = loadFixture(resourceName)
+        let dateFormatter = ISO8601DateFormatter.localTimeDate()
+
+        return fixture.compactMap {
+            guard let unit = DoseUnit(rawValue: $0["unit"] as! String),
+                  let pumpType = PumpEventType(rawValue: $0["type"] as! String),
+                  let type = DoseType(pumpEventType: pumpType)
+            else {
+                return nil
+            }
+            
+            var scheduledBasalRate: HKQuantity? = nil
+            if let scheduled = $0["scheduled"] as? Double {
+                scheduledBasalRate = HKQuantity(unit: unit.unit, doubleValue: scheduled)
+            }
+
+            return DoseEntry(
+                type: type,
+                startDate: dateFormatter.date(from: $0["start_at"] as! String)!,
+                endDate: dateFormatter.date(from: $0["end_at"] as! String)!,
+                value: $0["amount"] as! Double,
+                unit: unit,
+                description: $0["description"] as? String,
+                syncIdentifier: $0["raw"] as? String,
+                scheduledBasalRate: scheduledBasalRate
+            )
+        }
+    }
+    
+    func injectDoseEvents(from fixture: String) {
+        let events = loadDoseFixture(fixture).map {
+            NewPumpEvent(
+                date: $0.startDate,
+                dose: $0,
+                isMutable: false,
+                raw: Data(UUID().uuidString.utf8),
+                title: "",
+                type: $0.type.pumpEventType
+            )
+        }
+        
+        doseStore.addPumpEvents(events, lastReconciliation: nil) { error in
+            if error != nil {
+                XCTFail("Doses should be added successfully to dose store")
+            }
+        }
+    }
+    
+    func cleanup() {
+        doseStore.deleteAllPumpEvents { error in
+            if error != nil {
+                XCTFail("Doses should be added successfully to dose store")
+            }
+        }
+    }
+    
+    func testGlucoseEffectFromTempBasal() {
+        injectDoseEvents(from: "basal_dose")
+        let output = loadGlucoseEffectFixture("effect_from_basal_output_exponential")
+        
+        var insulinEffects: [GlucoseEffect]!
+        let startDate = dateFormatter.date(from: "2015-07-13T12:00:00")!
+        let updateGroup = DispatchGroup()
+        updateGroup.enter()
+        doseStore.getGlucoseEffects(start: startDate) { (result) -> Void in
+            switch result {
+            case .failure(let error):
+                print(error)
+                XCTFail("Mock should always return success")
+            case .success(let effects):
+                insulinEffects = effects
+            }
+            updateGroup.leave()
+        }
+        _ = updateGroup.wait(timeout: .distantFuture)
+
+        XCTAssertEqual(output.count, insulinEffects.count)
+
+        for (expected, calculated) in zip(output, insulinEffects) {
+            XCTAssertEqual(expected.startDate, calculated.startDate)
+            XCTAssertEqual(expected.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), calculated.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), accuracy: 1.0, String(describing: expected.startDate))
+        }
+        
+        cleanup()
+    }
+}

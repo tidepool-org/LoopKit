@@ -745,6 +745,7 @@
 		E93C86B024CF7C470073089B /* TherapySettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86AF24CF7C470073089B /* TherapySettingsTests.swift */; };
 		E93C86B224D080E00073089B /* CarbRatioInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86B124D080E00073089B /* CarbRatioInformationView.swift */; };
 		E93C86B624D08CAD0073089B /* InsulinSensitivityInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93C86B524D08CAD0073089B /* InsulinSensitivityInformationView.swift */; };
+		E93E865A24DC744300FF40C8 /* effect_from_basal_output_exponential.json in Resources */ = {isa = PBXBuildFile; fileRef = E93E865924DC744300FF40C8 /* effect_from_basal_output_exponential.json */; };
 		E94141CE24C8F2950096C326 /* ExponentialInsulinModelPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D096C0024C24C220078B6B5 /* ExponentialInsulinModelPreset.swift */; };
 		E94141D024C8F31C0096C326 /* DeliveryLimitsEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */; };
 		E949E38924AFC82F00024DA0 /* DeliveryLimitsInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */; };
@@ -1542,6 +1543,7 @@
 		E93C86AF24CF7C470073089B /* TherapySettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySettingsTests.swift; sourceTree = "<group>"; };
 		E93C86B124D080E00073089B /* CarbRatioInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarbRatioInformationView.swift; sourceTree = "<group>"; };
 		E93C86B524D08CAD0073089B /* InsulinSensitivityInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinSensitivityInformationView.swift; sourceTree = "<group>"; };
+		E93E865924DC744300FF40C8 /* effect_from_basal_output_exponential.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = effect_from_basal_output_exponential.json; sourceTree = "<group>"; };
 		E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsEditor.swift; sourceTree = "<group>"; };
 		E949E38824AFC82F00024DA0 /* DeliveryLimitsInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryLimitsInformationView.swift; sourceTree = "<group>"; };
 		E949E38E24B3711E00024DA0 /* InsulinModelInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinModelInformationView.swift; sourceTree = "<group>"; };
@@ -2297,6 +2299,7 @@
 				43B99B051C74552300D050F5 /* basal_dose.json */,
 				43B99AFB1C744CE300D050F5 /* bolus_dose.json */,
 				4333931E1F32E31C009466DC /* doses_overlay_basal_profile_output.json */,
+				E93E865924DC744300FF40C8 /* effect_from_basal_output_exponential.json */,
 				43B99B071C74553900D050F5 /* effect_from_basal_output.json */,
 				43B99AFD1C744E5F00D050F5 /* effect_from_bolus_output.json */,
 				43B99AFF1C7450EE00D050F5 /* effect_from_history_output.json */,
@@ -2573,7 +2576,6 @@
 				1DC64C7B24BF6BFD004A63A1 /* CorrectionRangeOverridesExtension.swift */,
 				898B4E7A246DC6A70053C484 /* CorrectionRangeScheduleEditor.swift */,
 				E94141CF24C8F31C0096C326 /* DeliveryLimitsEditor.swift */,
-				1D1FCE2C24BEA669000300A8 /* Guardrail+Settings.swift */,
 				89FC688A245A2D670075CF59 /* InsulinSensitivityScheduleEditor.swift */,
 				E93C86A724C8F7F60073089B /* InsulinModelChartView.swift */,
 				1D6EAB9024C12C090081249D /* PumpSupportedIncrements.swift */,
@@ -3015,6 +3017,7 @@
 				435D2928205F3C760026F401 /* counteraction_effect_falling_glucose_double_entries._input.json in Resources */,
 				437874B9202FDD2D00A3D8B9 /* doses_overlay_basal_profile_output.json in Resources */,
 				4322B79C202FA3CC0002837D /* ice_35_min_input.json in Resources */,
+				E93E865A24DC744300FF40C8 /* effect_from_basal_output_exponential.json in Resources */,
 				43D988AC1C87FFA300DA4467 /* glucose_from_effects_momentum_blend_glucose_input.json in Resources */,
 				43DC87BC1C8AD0ED005BC30D /* glucose_from_effects_non_zero_carb_input.json in Resources */,
 				4322B79A202FA3CC0002837D /* ice_1_hour_input.json in Resources */,
