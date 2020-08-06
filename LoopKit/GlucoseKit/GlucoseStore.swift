@@ -29,8 +29,6 @@ public enum GlucoseStoreResult<T> {
 
 public protocol GlucoseStoreTestingProtocol {
     func getRecentMomentumEffect(_ completion: @escaping (_ effects: [GlucoseEffect]) -> Void)
-    // ANNA TODO
-//    func getCachedGlucoseSamples(start: Date, end: Date?, completion: @escaping (_ samples: [StoredGlucoseSample]) -> Void)
     func getCounteractionEffects(start: Date, end: Date?, to effects: [GlucoseEffect], _ completion: @escaping (_ effects: [GlucoseEffectVelocity]) -> Void)
 }
 
