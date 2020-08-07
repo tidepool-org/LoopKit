@@ -10,7 +10,7 @@ import Foundation
 @testable import LoopKit
 
 
-class HKHealthStoreMock: HKHealthStore {
+public class HKHealthStoreMock: HKHealthStore {
     var saveError: Error?
     var deleteError: Error?
     var queryResults: (samples: [HKSample]?, error: Error?)?
@@ -20,20 +20,20 @@ class HKHealthStoreMock: HKHealthStore {
 
     let queue = DispatchQueue(label: "HKHealthStoreMock")
 
-    override func save(_ objects: [HKObject], withCompletion completion: @escaping (Bool, Error?) -> Void) {
+    public override func save(_ objects: [HKObject], withCompletion completion: @escaping (Bool, Error?) -> Void) {
         queue.async {
             completion(self.saveError == nil, self.saveError)
             self.saveHandler?(objects, self.saveError == nil, self.saveError)
         }
     }
 
-    override func delete(_ objects: [HKObject], withCompletion completion: @escaping (Bool, Error?) -> Void) {
+    public override func delete(_ objects: [HKObject], withCompletion completion: @escaping (Bool, Error?) -> Void) {
         queue.async {
             completion(self.deleteError == nil, self.deleteError)
         }
     }
 
-    override func deleteObjects(of objectType: HKObjectType, predicate: NSPredicate, withCompletion completion: @escaping (Bool, Int, Error?) -> Void) {
+    public override func deleteObjects(of objectType: HKObjectType, predicate: NSPredicate, withCompletion completion: @escaping (Bool, Int, Error?) -> Void) {
         queue.async {
             completion(self.deleteError == nil, 0, self.deleteError)
         }
@@ -48,13 +48,13 @@ class HKHealthStoreMock: HKHealthStore {
 
 extension HKHealthStoreMock {
 
-    override func execute(_ query: HKQuery) {
+    public override func execute(_ query: HKQuery) {
         self.lastQuery = query
     }
 }
 
 extension HKHealthStoreMock: HKSampleQueryTestable {
-    func executeSampleQuery(
+    public func executeSampleQuery(
         for type: HKSampleType,
         matching predicate: NSPredicate,
         limit: Int,

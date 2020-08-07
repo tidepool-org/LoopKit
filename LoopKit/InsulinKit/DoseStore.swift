@@ -76,6 +76,10 @@ public protocol DoseStoreProtocol {
     
     func getNormalizedDoseEntries(start: Date, end: Date?, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void)
     
+    func executePumpEventQuery(fromQueryAnchor queryAnchor: DoseStore.QueryAnchor?, limit: Int, completion: @escaping (DoseStore.PumpEventQueryResult) -> Void)
+    
+    func executeDoseQuery(fromQueryAnchor queryAnchor: DoseStore.QueryAnchor?, limit: Int, completion: @escaping (DoseStore.DoseQueryResult) -> Void)
+    
     func getTotalUnitsDelivered(since startDate: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
     
     func generateDiagnosticReport(_ completion: @escaping (_ report: String) -> Void)
