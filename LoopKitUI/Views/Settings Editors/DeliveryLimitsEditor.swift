@@ -26,6 +26,7 @@ public struct DeliveryLimitsEditor: View {
 
     @State var showingConfirmationAlert = false
     @Environment(\.dismiss) var dismiss
+    @Environment(\.authenticate) var authenticate
 
     public init(
         value: DeliveryLimits,
@@ -71,6 +72,32 @@ public struct DeliveryLimitsEditor: View {
     }
 
     public var body: some View {
+        switch mode {
+        case .settings: return AnyView(contentWithCancel)
+        case .acceptanceFlow: return AnyView(content)
+        case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var contentWithCancel: some View {
+        if value == initialValue {
+            return AnyView(content
+                .navigationBarBackButtonHidden(false)
+                .navigationBarItems(leading: EmptyView())
+            )
+        } else {
+            return AnyView(content
+                .navigationBarBackButtonHidden(true)
+                .navigationBarItems(leading: cancelButton)
+            )
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button(action: { self.dismiss() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+    
+    private var content: some View {
         ConfigurationPage(
             title: Text(TherapySetting.deliveryLimits.title),
             actionButtonTitle: Text(mode.buttonText),
@@ -85,7 +112,7 @@ public struct DeliveryLimitsEditor: View {
             },
             action: {
                 if self.crossedThresholds.isEmpty {
-                    self.saveAndDismiss()
+                    self.startSaving()
                 } else {
                     self.showingConfirmationAlert = true
                 }
@@ -220,7 +247,7 @@ public struct DeliveryLimitsEditor: View {
     private var instructionalContent: some View {
         HStack { // to align with guardrail warning, if present
             Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-            .foregroundColor(.instructionalContent)
+            .foregroundColor(.secondary)
             .font(.subheadline)
             Spacer()
         }
@@ -262,15 +289,28 @@ public struct DeliveryLimitsEditor: View {
             primaryButton: .cancel(Text("Go Back")),
             secondaryButton: .default(
                 Text("Continue"),
-                action: saveAndDismiss
+                action: startSaving
             )
         )
     }
 
-    private func saveAndDismiss() {
-        save(value)
-        if mode == .legacySettings {
-            dismiss()
+    private func startSaving() {
+        guard mode == .settings || mode == .legacySettings else {
+            self.continueSaving()
+            return
+        }
+        authenticate(TherapySetting.deliveryLimits.authenticationChallengeDescription) {
+            switch $0 {
+            case .success: self.continueSaving()
+            case .failure: break
+            }
+        }
+    }
+    
+    private func continueSaving() {
+        self.save(self.value)
+        if self.mode == .legacySettings {
+            self.dismiss()
         }
     }
 }
