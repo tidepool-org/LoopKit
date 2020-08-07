@@ -43,7 +43,58 @@ public protocol CarbStoreDelegate: class {
 }
 
 public protocol CarbStoreProtocol {
+    
+    var sampleType: HKSampleType { get }
+    
+    var preferredUnit: HKUnit! { get }
+    
+    var delegate: CarbStoreDelegate? { get set }
+    
+    /// MARK: settings
+    var carbRatioSchedule: CarbRatioSchedule? { get set }
+    
+    var insulinSensitivitySchedule: InsulinSensitivitySchedule? { get set }
+    
+    var insulinSensitivityScheduleApplyingOverrideHistory: InsulinSensitivitySchedule? { get }
+    
+    var carbRatioScheduleApplyingOverrideHistory: CarbRatioSchedule? { get }
+    
+    var maximumAbsorptionTimeInterval: TimeInterval { get }
+    
+    var delta: TimeInterval { get }
+    
+    var defaultAbsorptionTimes: CarbStore.DefaultAbsorptionTimes { get }
+    
+    /// MARK: HealthKit
+    var authorizationRequired: Bool { get }
+    
+    var sharingDenied: Bool { get }
+    
+    var healthStore: HKHealthStore { get }
+    
+    func authorize(toShare: Bool, _ completion: @escaping (_ result: HealthKitSampleStoreResult<Bool>) -> Void)
+    
+    /// MARK: data management
+    func replaceCarbEntry(_ oldEntry: StoredCarbEntry, withEntry newEntry: NewCarbEntry, completion: @escaping (_ result: CarbStoreResult<StoredCarbEntry>) -> Void)
+    
+    func addCarbEntry(_ entry: NewCarbEntry, completion: @escaping (_ result: CarbStoreResult<StoredCarbEntry>) -> Void)
+    
+    func getCarbStatus(start: Date, end: Date?, effectVelocities: [GlucoseEffectVelocity]?, completion: @escaping (_ result: CarbStoreResult<[CarbStatus<StoredCarbEntry>]>) -> Void)
+    
+    func generateDiagnosticReport(_ completion: @escaping (_ report: String) -> Void)
+    
+    /// MARK: COB & effect generation
     func getGlucoseEffects(start: Date, end: Date?, effectVelocities: [GlucoseEffectVelocity]?, completion: @escaping(_ result: CarbStoreResult<(samples: [StoredCarbEntry], effects: [GlucoseEffect])>) -> Void)
+    
+    func glucoseEffects<Sample: CarbEntry>(of samples: [Sample], startingAt start: Date, endingAt end: Date?, effectVelocities: [GlucoseEffectVelocity]?) throws -> [GlucoseEffect]
+    
+    func getCarbsOnBoardValues(start: Date, end: Date?, effectVelocities: [GlucoseEffectVelocity]?, completion: @escaping (_ values: [CarbValue]) -> Void)
+    
+    func carbsOnBoard(at date: Date, effectVelocities: [GlucoseEffectVelocity]?, completion: @escaping (_ result: CarbStoreResult<CarbValue>) -> Void)
+    
+    func getTotalCarbs(since start: Date, completion: @escaping (_ result: CarbStoreResult<CarbValue>) -> Void)
+    
+    func deleteCarbEntry(_ entry: StoredCarbEntry, completion: @escaping (_ result: CarbStoreResult<Bool>) -> Void)
 }
 
 /**
