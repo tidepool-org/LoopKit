@@ -34,23 +34,26 @@ public enum DoseStoreResult<T> {
 }
 
 public protocol DoseStoreProtocol {
+    /// MARK: settings
     var basalProfile: LoopKit.BasalRateSchedule? { get set }
     
     var insulinModel: LoopKit.InsulinModel? { get set }
     
     var insulinSensitivitySchedule: LoopKit.InsulinSensitivitySchedule? { get set }
     
-    var sampleType: HKSampleType? { get }
+    var basalProfileApplyingOverrideHistory: BasalRateSchedule? { get }
     
+    /// MARK: authorization
     var authorizationRequired: Bool { get }
     
     var sharingDenied: Bool { get }
     
+    /// MARK: store information
     var lastReservoirValue: LoopKit.ReservoirValue? { get }
     
     var lastAddedPumpData: Date { get }
     
-    var basalProfileApplyingOverrideHistory: BasalRateSchedule? { get }
+    var sampleType: HKSampleType? { get }
     
     var insulinDeliveryStore: InsulinDeliveryStore { get }
     
@@ -62,17 +65,12 @@ public protocol DoseStoreProtocol {
     
     var pumpEventQueryAfterDate: Date { get } // ANNA TODO: check this is correct
     
+    /// MARK: dose management
     func resetPumpData(completion: ((_ error: DoseStore.DoseStoreError?) -> Void)?)
     
     func addPumpEvents(_ events: [NewPumpEvent], lastReconciliation: Date?, completion: @escaping (_ error: DoseStore.DoseStoreError?) -> Void)
     
     func addReservoirValue(_ unitVolume: Double, at date: Date, completion: @escaping (_ value: ReservoirValue?, _ previousValue: ReservoirValue?, _ areStoredValuesContinuous: Bool, _ error: DoseStore.DoseStoreError?) -> Void)
-    
-    func insulinOnBoard(at date: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
-    
-    func getGlucoseEffects(start: Date, end: Date?, basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void)
-    
-    func getInsulinOnBoardValues(start: Date, end: Date? , basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[InsulinValue]>) -> Void)
     
     func getNormalizedDoseEntries(start: Date, end: Date?, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void)
     
@@ -80,9 +78,16 @@ public protocol DoseStoreProtocol {
     
     func executeDoseQuery(fromQueryAnchor queryAnchor: DoseStore.QueryAnchor?, limit: Int, completion: @escaping (DoseStore.DoseQueryResult) -> Void)
     
-    func getTotalUnitsDelivered(since startDate: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
-    
     func generateDiagnosticReport(_ completion: @escaping (_ report: String) -> Void)
+    
+    /// MARK: IOB and insulin effect
+    func insulinOnBoard(at date: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
+    
+    func getGlucoseEffects(start: Date, end: Date?, basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void)
+    
+    func getInsulinOnBoardValues(start: Date, end: Date? , basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[InsulinValue]>) -> Void)
+    
+    func getTotalUnitsDelivered(since startDate: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
     
 }
 
