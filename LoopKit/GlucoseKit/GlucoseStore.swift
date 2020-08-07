@@ -27,7 +27,7 @@ public enum GlucoseStoreResult<T> {
     case failure(Error)
 }
 
-public protocol GlucoseStoreTestingProtocol {
+public protocol GlucoseStoreProtocol {
     func getRecentMomentumEffect(_ completion: @escaping (_ effects: [GlucoseEffect]) -> Void)
     func getCounteractionEffects(start: Date, end: Date?, to effects: [GlucoseEffect], _ completion: @escaping (_ effects: [GlucoseEffectVelocity]) -> Void)
 }
@@ -54,7 +54,7 @@ public protocol GlucoseStoreTestingProtocol {
               |–––––––––--->
 ```
  */
-public final class GlucoseStore: HealthKitSampleStore, GlucoseStoreTestingProtocol {
+public final class GlucoseStore: HealthKitSampleStore, GlucoseStoreProtocol {
 
     /// Notification posted when glucose samples were changed, either via add/replace/delete methods or from HealthKit
     public static let glucoseSamplesDidChange = NSNotification.Name(rawValue: "com.loopkit.GlucoseStore.glucoseSamplesDidChange")

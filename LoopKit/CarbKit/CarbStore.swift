@@ -42,7 +42,7 @@ public protocol CarbStoreDelegate: class {
 
 }
 
-public protocol CarbStoreTestingProtocol {
+public protocol CarbStoreProtocol {
     func getGlucoseEffects(start: Date, end: Date?, effectVelocities: [GlucoseEffectVelocity]?, completion: @escaping(_ result: CarbStoreResult<(samples: [StoredCarbEntry], effects: [GlucoseEffect])>) -> Void)
 }
 
@@ -63,7 +63,7 @@ public protocol CarbStoreTestingProtocol {
  |––––––––––––––––––--->
  ```
  */
-public final class CarbStore: HealthKitSampleStore, CarbStoreTestingProtocol {
+public final class CarbStore: HealthKitSampleStore, CarbStoreProtocol {
     
     /// Notification posted when carb entries were changed, either via add/replace/delete methods or from HealthKit
     public static let carbEntriesDidUpdate = NSNotification.Name(rawValue: "com.loudnate.CarbKit.carbEntriesDidUpdate")
