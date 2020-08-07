@@ -33,6 +33,7 @@ public struct CorrectionRangeOverridesEditor: View {
 
     @State var showingConfirmationAlert = false
     @Environment(\.dismiss) var dismiss
+    @Environment(\.authenticate) var authenticate
 
     public init(
         value: CorrectionRangeOverrides,
@@ -52,8 +53,56 @@ public struct CorrectionRangeOverridesEditor: View {
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.mode = mode
     }
+    
+    public init(
+        viewModel: TherapySettingsViewModel,
+        didSave: (() -> Void)? = nil
+    ) {
+        self.init(
+            value: CorrectionRangeOverrides(
+                preMeal: viewModel.therapySettings.preMealTargetRange,
+                workout: viewModel.therapySettings.workoutTargetRange,
+                unit: viewModel.therapySettings.glucoseUnit!
+            ),
+            unit: viewModel.therapySettings.glucoseUnit!,
+            correctionRangeScheduleRange: viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange(),
+            minValue: viewModel.therapySettings.suspendThreshold?.quantity,
+            onSave: { [weak viewModel] overrides in
+                viewModel?.saveCorrectionRangeOverrides(overrides: overrides, unit: viewModel?.therapySettings.glucoseUnit ?? .milligramsPerDeciliter)
+                didSave?()
+            },
+            sensitivityOverridesEnabled: viewModel.sensitivityOverridesEnabled,
+            mode: viewModel.mode
+        )
+    }
 
     public var body: some View {
+        switch mode {
+        case .settings: return AnyView(contentWithCancel)
+        case .acceptanceFlow: return AnyView(content)
+        case .legacySettings: return AnyView(content)
+        }
+    }
+    
+    private var contentWithCancel: some View {
+        if value == initialValue {
+            return AnyView(content
+                .navigationBarBackButtonHidden(false)
+                .navigationBarItems(leading: EmptyView())
+            )
+        } else {
+            return AnyView(content
+                .navigationBarBackButtonHidden(true)
+                .navigationBarItems(leading: cancelButton)
+            )
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button(action: { self.dismiss() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+    }
+    
+    private var content: some View {
         ConfigurationPage(
             title: Text(TherapySetting.correctionRangeOverrides.smallTitle),
             actionButtonTitle: Text(mode.buttonText),
@@ -70,7 +119,7 @@ public struct CorrectionRangeOverridesEditor: View {
             },
             action: {
                 if self.crossedThresholds.isEmpty {
-                    self.saveAndDismiss()
+                    self.startSaving()
                 } else {
                     self.showingConfirmationAlert = true
                 }
@@ -142,7 +191,7 @@ public struct CorrectionRangeOverridesEditor: View {
     private var instructionalContent: some View {
         HStack { // to align with guardrail warning, if present
             Text(LocalizedString("You can edit a setting by tapping into any line item.", comment: "Description of how to edit setting"))
-            .foregroundColor(.instructionalContent)
+            .foregroundColor(.secondary)
             .font(.subheadline)
             Spacer()
         }
@@ -202,15 +251,28 @@ public struct CorrectionRangeOverridesEditor: View {
             primaryButton: .cancel(Text("Go Back")),
             secondaryButton: .default(
                 Text("Continue"),
-                action: saveAndDismiss
+                action: startSaving
             )
         )
     }
-
-    private func saveAndDismiss() {
-        save(value)
-        if mode == .legacySettings {
-            dismiss()
+    
+    private func startSaving() {
+        guard mode == .settings || mode == .legacySettings else {
+            self.continueSaving()
+            return
+        }
+        authenticate(TherapySetting.correctionRangeOverrides.authenticationChallengeDescription) {
+            switch $0 {
+            case .success: self.continueSaving()
+            case .failure: break
+            }
+        }
+    }
+    
+    private func continueSaving() {
+        self.save(self.value)
+        if self.mode == .legacySettings {
+            self.dismiss()
         }
     }
 
@@ -268,22 +330,5 @@ private struct CorrectionRangeOverridesGuardrailWarning: View {
         return crossedPreMealThresholds.allSatisfy { $0 == .aboveRecommended || $0 == .maximum }
             ? Text("The value you have entered for this range is higher than your usual correction range. Tidepool typically recommends your pre-meal range be lower than your usual correction range.", comment: "Warning text for high pre-meal target value")
             : nil
-    }
-}
-
-extension Guardrail where Value == HKQuantity {
-    static func correctionRangeOverridePreset(_ preset: CorrectionRangeOverrides.Preset, correctionRangeScheduleRange: ClosedRange<HKQuantity>) -> Guardrail {
-        switch preset {
-        case .preMeal:
-            return Guardrail(
-                absoluteBounds: Guardrail.correctionRange.absoluteBounds,
-                recommendedBounds: Guardrail.correctionRange.recommendedBounds.lowerBound...max(correctionRangeScheduleRange.lowerBound, Guardrail.correctionRange.recommendedBounds.lowerBound)
-            )
-        case .workout:
-            return Guardrail(
-                absoluteBounds: Guardrail.correctionRange.absoluteBounds,
-                recommendedBounds: max(Guardrail.correctionRange.recommendedBounds.lowerBound, correctionRangeScheduleRange.lowerBound)...Guardrail.correctionRange.absoluteBounds.upperBound
-            )
-        }
     }
 }

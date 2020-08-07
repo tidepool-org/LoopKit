@@ -11,14 +11,6 @@ import HealthKit
 import LoopKit
 
 
-extension Guardrail where Value == HKQuantity {
-    static let insulinSensitivity = Guardrail(
-        absoluteBounds: 10...500,
-        recommendedBounds: 16...399,
-        unit: HKUnit.milligramsPerDeciliter.unitDivided(by: .internationalUnit())
-    )
-}
-
 public struct InsulinSensitivityScheduleEditor: View {
     private var schedule: DailyQuantitySchedule<Double>?
     private var glucoseUnit: HKUnit
@@ -42,6 +34,21 @@ public struct InsulinSensitivityScheduleEditor: View {
         self.glucoseUnit = glucoseUnit
         self.save = save
         self.mode = mode
+    }
+    
+    public init(
+        viewModel: TherapySettingsViewModel,
+        didSave: (() -> Void)? = nil
+    ) {
+        self.init(
+            schedule: viewModel.therapySettings.insulinSensitivitySchedule,
+            mode: viewModel.mode,
+            glucoseUnit: viewModel.therapySettings.glucoseUnit!,
+            onSave: { [weak viewModel] in
+                viewModel?.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0)
+                didSave?()
+            }
+        )
     }
 
     public var body: some View {

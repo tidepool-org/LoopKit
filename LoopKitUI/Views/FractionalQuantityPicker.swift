@@ -21,6 +21,7 @@ public struct FractionalQuantityPicker: View {
         case independent
     }
 
+    @Environment(\.guidanceColors) var guidanceColors
     @Binding var whole: Double
     @Binding var fraction: Double
     var unit: HKUnit
@@ -90,11 +91,7 @@ public struct FractionalQuantityPicker: View {
         for currentFraction: Double,
         from supportedFractionValues: [Double]
     ) -> Double {
-        // If the whole value supports the same fractional value, keep it; otherwise, truncate.
-        let nearestSupportedFraction = currentFraction.roundedToNearest(of: supportedFractionValues)
-        return abs(nearestSupportedFraction - currentFraction) <= pow(10.0, Double(-Self.maximumSupportedPrecision))
-            ? nearestSupportedFraction
-            : currentFraction.truncating(toOneOf: supportedFractionValues)
+        currentFraction.matchingOrTruncatedValue(from: supportedFractionValues, withinDecimalPlaces: Self.maximumSupportedPrecision)
     }
 
     public var body: some View {
@@ -159,7 +156,7 @@ public struct FractionalQuantityPicker: View {
         let fractionIfWholeSelected = Self.matchingFraction(for: fraction, from: fractionalValuesByWhole[whole]!)
         let valueIfWholeSelected = whole + fractionIfWholeSelected
         let quantityIfWholeSelected = HKQuantity(unit: unit, doubleValue: valueIfWholeSelected)
-        return guardrail.color(for: quantityIfWholeSelected)
+        return guardrail.color(for: quantityIfWholeSelected, guidanceColors: guidanceColors)
     }
 
     private func colorForFraction(_ fraction: Double) -> Color {
@@ -167,7 +164,7 @@ public struct FractionalQuantityPicker: View {
 
         let valueIfFractionSelected = whole + fraction
         let quantityIfFractionSelected = HKQuantity(unit: unit, doubleValue: valueIfFractionSelected)
-        return guardrail.color(for: quantityIfFractionSelected)
+        return guardrail.color(for: quantityIfFractionSelected, guidanceColors: guidanceColors)
     }
 
     private var fractionalFormatter: NumberFormatter {
@@ -205,36 +202,6 @@ public struct FractionalQuantityPicker: View {
 fileprivate extension FloatingPoint {
     var whole: Self { modf(self).0 }
     var fraction: Self { modf(self).1 }
-
-    /// Precondition: - `supportedValues` is sorted in ascending order.
-    func roundedToNearest(of supportedValues: [Self]) -> Self {
-        guard !supportedValues.isEmpty else {
-            return self
-        }
-
-        let splitPoint = supportedValues.partitioningIndex(where: { $0 > self })
-        switch splitPoint {
-        case supportedValues.startIndex:
-            return supportedValues.first!
-        case supportedValues.endIndex:
-            return supportedValues.last!
-        default:
-            let (lesser, greater) = (supportedValues[splitPoint - 1], supportedValues[splitPoint])
-            return (self - lesser) <= (greater - self) ? lesser : greater
-        }
-    }
-
-    /// Precondition: - `supportedValues` is sorted in ascending order.
-    func truncating(toOneOf supportedValues: [Self]) -> Self {
-        guard !supportedValues.isEmpty else {
-            return self
-        }
-
-        let splitPoint = supportedValues.partitioningIndex(where: { $0 > self })
-        return splitPoint == supportedValues.startIndex
-            ? supportedValues.first!
-            : supportedValues[splitPoint - 1]
-    }
 }
 
 fileprivate extension Decimal {

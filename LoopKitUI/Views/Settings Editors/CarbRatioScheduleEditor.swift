@@ -16,14 +16,6 @@ fileprivate extension HKUnit {
     static let realCarbRatioScheduleUnit = HKUnit.gramsPerUnit
 }
 
-extension Guardrail where Value == HKQuantity {
-    static let carbRatio = Guardrail(
-        absoluteBounds: 1...150,
-        recommendedBounds: 3.0.nextUp...28.0.nextDown,
-        unit: .realCarbRatioScheduleUnit
-    )
-}
-
 public struct CarbRatioScheduleEditor: View {
     private var schedule: DailyQuantitySchedule<Double>?
     private var mode: PresentationMode
@@ -31,8 +23,8 @@ public struct CarbRatioScheduleEditor: View {
 
     public init(
         schedule: CarbRatioSchedule?,
-        mode: PresentationMode = .legacySettings,
-        onSave save: @escaping (CarbRatioSchedule) -> Void
+        onSave save: @escaping (CarbRatioSchedule) -> Void,
+        mode: PresentationMode = .legacySettings
     ) {
         // CarbRatioSchedule stores only the gram unit.
         // For consistency across display & computation, convert to "real" g/U units.
@@ -45,8 +37,22 @@ public struct CarbRatioScheduleEditor: View {
         self.mode = mode
         self.save = save
     }
+    
+    public init(
+        viewModel: TherapySettingsViewModel,
+        didSave: (() -> Void)? = nil
+    ) {
+        self.init(
+            schedule: viewModel.therapySettings.carbRatioSchedule,
+            onSave: { [weak viewModel] in
+                viewModel?.saveCarbRatioSchedule(carbRatioSchedule: $0)
+                didSave?()
+            },
+            mode: viewModel.mode
+        )
+    }
 
-    public var body: some View {
+    public var body: some View  {
         QuantityScheduleEditor(
             title: Text(TherapySetting.carbRatio.title),
             description: description,

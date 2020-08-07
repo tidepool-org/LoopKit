@@ -24,19 +24,20 @@ public class TherapySettingsViewModel: ObservableObject {
     let pumpSupportedIncrements: PumpSupportedIncrements?
     let syncPumpSchedule: PumpManager.SyncSchedule?
     let sensitivityOverridesEnabled: Bool
-    let prescription: Prescription?
-    let appName: String
+    public var prescription: Prescription?
 
     lazy private var cancellables = Set<AnyCancellable>()
+    
+    public let chartColors: ChartColorPalette
 
     public init(mode: PresentationMode,
                 therapySettings: TherapySettings,
-                appName: String,
                 supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                 pumpSupportedIncrements: PumpSupportedIncrements? = nil,
                 syncPumpSchedule: PumpManager.SyncSchedule? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
+                chartColors: ChartColorPalette,
                 didSave: SaveCompletion? = nil) {
         self.mode = mode
         self.therapySettings = therapySettings
@@ -46,24 +47,8 @@ public class TherapySettingsViewModel: ObservableObject {
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.prescription = prescription
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
-        self.appName = appName
+        self.chartColors = chartColors
         self.didSave = didSave
-    }
-    
-    var insulinModelSelectionViewModel: InsulinModelSelectionViewModel? {
-        guard let insulinModelSettings = therapySettings.insulinModelSettings,
-            let insulinSensitivitySchedule = therapySettings.insulinSensitivitySchedule else {
-            return nil
-        }
-        let result = InsulinModelSelectionViewModel(
-            insulinModelSettings: insulinModelSettings,
-            insulinSensitivitySchedule: insulinSensitivitySchedule)
-        result.$insulinModelSettings
-            .dropFirst() // This is needed to avoid reading the initial value, which starts off an infinite loop
-            .sink {
-            [weak self] in self?.saveInsulinModel(insulinModelSettings: $0)
-        }.store(in: &cancellables)
-        return result
     }
     
     var deliveryLimits: DeliveryLimits {

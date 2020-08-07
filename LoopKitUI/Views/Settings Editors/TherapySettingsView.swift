@@ -62,7 +62,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         .onAppear() {
             UITableView.appearance().separatorStyle = .singleLine // Add lines between rows
         }
-        .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")))
+        .navigationBarTitle(Text(LocalizedString("Therapy Settings", comment: "Therapy Settings screen title")), displayMode: .large)
         .environment(\.horizontalSizeClass, horizontalOverride)
     }
     
@@ -213,12 +213,15 @@ extension TherapySettingsView {
     private var insulinModelSection: some View {
         section(for: .insulinModel) {
             if self.viewModel.therapySettings.insulinModelSettings != nil {
+                // Spacing and paddings here is my best guess based on the design...
                 VStack(alignment: .leading, spacing: 4) {
                     Text(self.viewModel.therapySettings.insulinModelSettings!.title)
                         .font(.body)
+                        .padding(.top, 5)
                     Text(self.viewModel.therapySettings.insulinModelSettings!.subtitle)
                         .font(.footnote)
                         .foregroundColor(.secondary)
+                        .padding(.bottom, 8)
                 }
             }
         }
@@ -367,6 +370,7 @@ struct SectionWithTapToEdit<Header, Content, NavigationDestination>: View where 
             }
             content()
         }
+        .contentShape(Rectangle()) // make the whole card tappable
         .highPriorityGesture(
             TapGesture()
                 .onEnded { _ in
@@ -381,128 +385,50 @@ private extension TherapySettingsView {
     
     func screen(for setting: TherapySetting) -> (_ goBack: @escaping () -> Void) -> AnyView {
         switch setting {
+        case .suspendThreshold:
+            if viewModel.therapySettings.glucoseUnit != nil {
+                return { goBack in
+                    AnyView(SuspendThresholdEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
+                }
+            }
         case .glucoseTargetRange:
             if viewModel.therapySettings.glucoseUnit != nil {
                 return { goBack in
-                    AnyView(CorrectionRangeScheduleEditor(
-                        schedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
-                        unit: self.viewModel.therapySettings.glucoseUnit!,
-                        minValue: self.viewModel.therapySettings.suspendThreshold?.quantity,
-                        onSave: { newSchedule in
-                            self.viewModel.saveCorrectionRange(range: newSchedule)
-                            goBack()
-                        },
-                        mode: self.viewModel.mode))
+                    AnyView(CorrectionRangeScheduleEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .correctionRangeOverrides:
             if self.viewModel.therapySettings.glucoseUnit != nil {
                 return { goBack in
-                    AnyView(CorrectionRangeScheduleEditor(
-                        schedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
-                        unit: self.viewModel.therapySettings.glucoseUnit!,
-                        minValue: self.viewModel.therapySettings.suspendThreshold?.quantity,
-                        onSave: { newSchedule in
-                            self.viewModel.saveCorrectionRange(range: newSchedule)
-                            goBack()
-                    },
-                        mode: self.viewModel.mode
-                    ))
-                }
-            }
-        case .suspendThreshold:
-            if viewModel.therapySettings.glucoseUnit != nil {
-                return { goBack in
-                    AnyView(SuspendThresholdEditor(
-                        value: self.viewModel.therapySettings.suspendThreshold?.quantity,
-                        unit: self.viewModel.therapySettings.glucoseUnit!,
-                        maxValue: Guardrail.maxSuspendThresholdValue(
-                            correctionRangeSchedule: self.viewModel.therapySettings.glucoseTargetRangeSchedule,
-                            preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange,
-                            workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange,
-                            unit: self.viewModel.therapySettings.glucoseUnit!
-                        ),
-                        onSave: { newValue in
-                            self.viewModel.saveSuspendThreshold(value: GlucoseThreshold(unit: self.viewModel.therapySettings.glucoseUnit!, value: newValue.doubleValue(for: self.viewModel.therapySettings.glucoseUnit!)))
-                            goBack()
-                        },
-                        mode: self.viewModel.mode
-                    ))
+                   AnyView(CorrectionRangeOverridesEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .basalRate:
             if self.viewModel.pumpSupportedIncrements != nil {
                 return { goBack in
-                    AnyView(BasalRateScheduleEditor(
-                        schedule: self.viewModel.therapySettings.basalRateSchedule,
-                        supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates ,
-                        maximumBasalRate: self.viewModel.therapySettings.maximumBasalRatePerHour,
-                        maximumScheduleEntryCount: self.viewModel.pumpSupportedIncrements!.maximumBasalScheduleEntryCount,
-                        syncSchedule: self.viewModel.syncPumpSchedule,
-                        onSave: { newRates in
-                            self.viewModel.saveBasalRates(basalRates: newRates)
-                            goBack()
-                    },
-                        mode: self.viewModel.mode
-                    ))
+                    AnyView(BasalRateScheduleEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .deliveryLimits:
             if self.viewModel.pumpSupportedIncrements != nil {
                 return { goBack in
-                    AnyView(DeliveryLimitsEditor(
-                        value: self.viewModel.deliveryLimits,
-                        supportedBasalRates: self.viewModel.pumpSupportedIncrements!.basalRates,
-                        scheduledBasalRange: self.viewModel.therapySettings.basalRateSchedule?.valueRange(),
-                        supportedBolusVolumes: self.viewModel.pumpSupportedIncrements!.bolusVolumes,
-                        onSave: { limits in
-                            self.viewModel.saveDeliveryLimits(limits: limits)
-                            goBack()
-                    },
-                        mode: self.viewModel.mode
-                    ))
+                    AnyView(DeliveryLimitsEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .insulinModel:
-            if self.viewModel.therapySettings.glucoseUnit != nil && self.viewModel.insulinModelSelectionViewModel != nil {
+            if self.viewModel.therapySettings.glucoseUnit != nil && self.viewModel.therapySettings.insulinModelSettings != nil {
                 return { goBack in
-                    AnyView(InsulinModelSelection(viewModel: self.viewModel.insulinModelSelectionViewModel!,
-                                                  glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
-                                                  supportedModelSettings: self.viewModel.supportedInsulinModelSettings,
-                                                  appName: self.viewModel.appName,
-                                                  mode: self.viewModel.mode,
-                                                  onSave: { _ in
-                                                    // Note: TherapySettingsViewModel takes care of calling saveInsulinModel.
-                                                    // This is different than the others because it had to construct an
-                                                    // InsulinModelSelectionViewModel on its own and "listen" to changes
-                                                    goBack()
-                                                  }
-                    ))
+                    AnyView(InsulinModelSelection(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .carbRatio:
             return { goBack in
-                AnyView(CarbRatioScheduleEditor(
-                    schedule: self.viewModel.therapySettings.carbRatioSchedule,
-                    mode: self.viewModel.mode,
-                    onSave: {
-                        self.viewModel.saveCarbRatioSchedule(carbRatioSchedule: $0)
-                        goBack()
-                    }
-                ))
+                AnyView(CarbRatioScheduleEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
             }
         case .insulinSensitivity:
             if self.viewModel.therapySettings.glucoseUnit != nil {
                 return { goBack in
-                    return AnyView(InsulinSensitivityScheduleEditor(
-                        schedule: self.viewModel.therapySettings.insulinSensitivitySchedule,
-                        mode: self.viewModel.mode,
-                        glucoseUnit: self.viewModel.therapySettings.glucoseUnit!,
-                        onSave: {
-                            self.viewModel.saveInsulinSensitivitySchedule(insulinSensitivitySchedule: $0)
-                            goBack()
-                        }
-                    ))
+                    return AnyView(InsulinSensitivityScheduleEditor(viewModel: self.viewModel, didSave: goBack).environment(\.dismiss, goBack))
                 }
             }
         case .none:
@@ -539,11 +465,11 @@ public struct TherapySettingsView_Previews: PreviewProvider {
     static func preview_viewModel(mode: PresentationMode) -> TherapySettingsViewModel {
         TherapySettingsViewModel(mode: mode,
                                  therapySettings: preview_therapySettings,
-                                 appName: "Loop",
                                  supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                                  pumpSupportedIncrements: PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
                                                                                   bolusVolumes: preview_supportedBolusVolumes,
-                                                                                  maximumBasalScheduleEntryCount: 24))
+                                                                                  maximumBasalScheduleEntryCount: 24),
+                                 chartColors: ChartColorPalette(axisLine: .clear, axisLabel: .secondaryLabel, grid: .systemGray3, glucoseTint: .systemTeal, doseTint: .systemOrange))
     }
 
     public static var previews: some View {
@@ -560,7 +486,13 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
-            TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .legacySettings, therapySettings: TherapySettings(), appName: "Loop"))
+            TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .legacySettings,
+                                                                    therapySettings: TherapySettings(),
+                                                                    chartColors: ChartColorPalette(axisLine: .clear,
+                                                                                                   axisLabel: .secondaryLabel,
+                                                                                                   grid: .systemGray3,
+                                                                                                   glucoseTint: .systemTeal,
+                                                                                                   doseTint: .systemOrange)))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
