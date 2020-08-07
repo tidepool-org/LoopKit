@@ -52,7 +52,17 @@ public protocol DoseStoreProtocol {
     
     var basalProfileApplyingOverrideHistory: BasalRateSchedule? { get }
     
-    let insulinDeliveryStore: InsulinDeliveryStore { get }
+    var insulinDeliveryStore: InsulinDeliveryStore { get }
+    
+    var delegate: DoseStoreDelegate? { get set }
+    
+    var device: HKDevice? { get set }
+    
+    var pumpRecordsBasalProfileStartEvents: Bool { get }
+    
+    var pumpEventQueryAfterDate: Date { get } // ANNA TODO: check this is correct
+    
+    func resetPumpData(completion: ((_ error: DoseStore.DoseStoreError?) -> Void)?)
     
     func addPumpEvents(_ events: [NewPumpEvent], lastReconciliation: Date?, completion: @escaping (_ error: DoseStore.DoseStoreError?) -> Void)
     
