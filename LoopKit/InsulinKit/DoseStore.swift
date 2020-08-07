@@ -58,7 +58,7 @@ public protocol DoseStoreProtocol {
     
     var device: HKDevice? { get set }
     
-    var pumpRecordsBasalProfileStartEvents: Bool { get }
+    var pumpRecordsBasalProfileStartEvents: Bool { get set }
     
     var pumpEventQueryAfterDate: Date { get } // ANNA TODO: check this is correct
     
@@ -71,6 +71,12 @@ public protocol DoseStoreProtocol {
     func insulinOnBoard(at date: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
     
     func getGlucoseEffects(start: Date, end: Date?, basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void)
+    
+    func getInsulinOnBoardValues(start: Date, end: Date? , basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[InsulinValue]>) -> Void)
+    
+    func getNormalizedDoseEntries(start: Date, end: Date?, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void)
+    
+    func getTotalUnitsDelivered(since startDate: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
     
     func generateDiagnosticReport(_ completion: @escaping (_ report: String) -> Void)
     
