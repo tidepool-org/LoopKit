@@ -63,7 +63,7 @@ public protocol DoseStoreProtocol {
     
     var pumpRecordsBasalProfileStartEvents: Bool { get set }
     
-    var pumpEventQueryAfterDate: Date { get } // ANNA TODO: check this is correct
+    var pumpEventQueryAfterDate: Date { get }
     
     /// MARK: dose management
     func resetPumpData(completion: ((_ error: DoseStore.DoseStoreError?) -> Void)?)
