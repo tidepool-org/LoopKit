@@ -50,7 +50,7 @@ public protocol CarbStoreProtocol {
     
     var delegate: CarbStoreDelegate? { get set }
     
-    /// MARK: settings
+    // MARK: Settings
     var carbRatioSchedule: CarbRatioSchedule? { get set }
     
     var insulinSensitivitySchedule: InsulinSensitivitySchedule? { get set }
@@ -65,7 +65,7 @@ public protocol CarbStoreProtocol {
     
     var defaultAbsorptionTimes: CarbStore.DefaultAbsorptionTimes { get }
     
-    /// MARK: HealthKit
+    // MARK: HealthKit
     var authorizationRequired: Bool { get }
     
     var sharingDenied: Bool { get }
@@ -74,7 +74,7 @@ public protocol CarbStoreProtocol {
     
     func authorize(toShare: Bool, _ completion: @escaping (_ result: HealthKitSampleStoreResult<Bool>) -> Void)
     
-    /// MARK: data management
+    // MARK: Data Management
     func replaceCarbEntry(_ oldEntry: StoredCarbEntry, withEntry newEntry: NewCarbEntry, completion: @escaping (_ result: CarbStoreResult<StoredCarbEntry>) -> Void)
     
     func addCarbEntry(_ entry: NewCarbEntry, completion: @escaping (_ result: CarbStoreResult<StoredCarbEntry>) -> Void)
@@ -83,7 +83,7 @@ public protocol CarbStoreProtocol {
     
     func generateDiagnosticReport(_ completion: @escaping (_ report: String) -> Void)
     
-    /// MARK: COB & effect generation
+    // MARK: COB & Effect Generation
     func getGlucoseEffects(start: Date, end: Date?, effectVelocities: [GlucoseEffectVelocity]?, completion: @escaping(_ result: CarbStoreResult<(samples: [StoredCarbEntry], effects: [GlucoseEffect])>) -> Void)
     
     func glucoseEffects<Sample: CarbEntry>(of samples: [Sample], startingAt start: Date, endingAt end: Date?, effectVelocities: [GlucoseEffectVelocity]?) throws -> [GlucoseEffect]

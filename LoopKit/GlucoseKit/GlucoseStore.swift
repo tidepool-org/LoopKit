@@ -39,7 +39,7 @@ public protocol GlucoseStoreProtocol {
     
     var managedDataInterval: TimeInterval? { get set }
     
-    /// MARK: HealthKit
+    // MARK: HealthKit
     var authorizationRequired: Bool { get }
     
     var sharingDenied: Bool { get }
@@ -48,7 +48,7 @@ public protocol GlucoseStoreProtocol {
     
     func authorize(toShare: Bool, _ completion: @escaping (_ result: HealthKitSampleStoreResult<Bool>) -> Void)
     
-    /// MARK: sample management
+    // MARK: Sample Management
     func addGlucose(_ glucose: NewGlucoseSample, completion: @escaping (_ result: GlucoseStoreResult<GlucoseValue>) -> Void)
     
     func addGlucose(_ values: [NewGlucoseSample], completion: @escaping (_ result: GlucoseStoreResult<[GlucoseValue]>) -> Void)
@@ -61,7 +61,7 @@ public protocol GlucoseStoreProtocol {
     
     func executeGlucoseQuery(fromQueryAnchor queryAnchor: GlucoseStore.QueryAnchor?, limit: Int, completion: @escaping (GlucoseStore.GlucoseQueryResult) -> Void)
     
-    /// MARK: effect calculation
+    // MARK: Effect Calculation
     func getRecentMomentumEffect(_ completion: @escaping (_ effects: [GlucoseEffect]) -> Void)
     
     func getCounteractionEffects(start: Date, end: Date?, to effects: [GlucoseEffect], _ completion: @escaping (_ effects: [GlucoseEffectVelocity]) -> Void)

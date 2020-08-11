@@ -34,7 +34,7 @@ public enum DoseStoreResult<T> {
 }
 
 public protocol DoseStoreProtocol {
-    /// MARK: settings
+    // MARK: settings
     var basalProfile: LoopKit.BasalRateSchedule? { get set }
     
     var insulinModel: LoopKit.InsulinModel? { get set }
@@ -43,12 +43,12 @@ public protocol DoseStoreProtocol {
     
     var basalProfileApplyingOverrideHistory: BasalRateSchedule? { get }
     
-    /// MARK: authorization
+    // MARK: authorization
     var authorizationRequired: Bool { get }
     
     var sharingDenied: Bool { get }
     
-    /// MARK: store information
+    // MARK: store information
     var lastReservoirValue: LoopKit.ReservoirValue? { get }
     
     var lastAddedPumpData: Date { get }
@@ -65,7 +65,7 @@ public protocol DoseStoreProtocol {
     
     var pumpEventQueryAfterDate: Date { get }
     
-    /// MARK: dose management
+    // MARK: dose management
     func resetPumpData(completion: ((_ error: DoseStore.DoseStoreError?) -> Void)?)
     
     func addPumpEvents(_ events: [NewPumpEvent], lastReconciliation: Date?, completion: @escaping (_ error: DoseStore.DoseStoreError?) -> Void)
@@ -80,7 +80,7 @@ public protocol DoseStoreProtocol {
     
     func generateDiagnosticReport(_ completion: @escaping (_ report: String) -> Void)
     
-    /// MARK: IOB and insulin effect
+    // MARK: IOB and insulin effect
     func insulinOnBoard(at date: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
     
     func getGlucoseEffects(start: Date, end: Date?, basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void)
