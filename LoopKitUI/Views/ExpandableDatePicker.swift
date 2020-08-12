@@ -36,7 +36,7 @@ public struct ExpandableDatePicker: View {
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MM-dd-yyyy"
+        formatter.dateFormat = "MM/dd/yyyy"
         formatter.timeZone = TimeZone.current
         return formatter
     }
