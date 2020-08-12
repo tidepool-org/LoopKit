@@ -20,12 +20,12 @@ public struct ExpandableDatePicker: View {
     
     public var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack (alignment: .center) {
                 Text(label)
                 Spacer()
                 Text("10/15/2001")
             }
-            .padding(.horizontal)
+            .padding()
             .frame(minWidth: 0, maxWidth: .infinity).onTapGesture {
                 self.dateShouldExpand.toggle()
             }
@@ -34,7 +34,6 @@ public struct ExpandableDatePicker: View {
                 DatePicker("", selection: $date, displayedComponents: [.date])
                 .labelsHidden()
             }
-            Spacer()
         }
     }
     
