@@ -65,11 +65,15 @@ public class TherapySettingsViewModel: ObservableObject {
         therapySettings.glucoseTargetRangeSchedule = range
         didSave?(TherapySetting.glucoseTargetRange, therapySettings)
     }
+        
+    public func saveCorrectionRangeOverride(preMeal: DoubleRange?) {
+        therapySettings.preMealTargetRange = preMeal
+        didSave?(TherapySetting.preMealCorrectionRangeOverride, therapySettings)
+    }
     
-    public func saveCorrectionRangeOverrides(overrides: CorrectionRangeOverrides, unit: HKUnit) {
-        therapySettings.preMealTargetRange = overrides.preMeal?.doubleRange(for: unit)
-        therapySettings.workoutTargetRange = overrides.workout?.doubleRange(for: unit)
-        didSave?(TherapySetting.correctionRangeOverrides, therapySettings)
+    public func saveCorrectionRangeOverride(workout: DoubleRange?) {
+        therapySettings.workoutTargetRange = workout
+        didSave?(TherapySetting.workoutCorrectionRangeOverride, therapySettings)
     }
     
     public func saveSuspendThreshold(value: GlucoseThreshold) {

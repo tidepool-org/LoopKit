@@ -11,8 +11,9 @@ import HealthKit
 import LoopKit
 
 public struct CorrectionRangeOverridesEditor: View {
-    var initialValue: CorrectionRangeOverrides
-    var unit: HKUnit
+    let initialValue: CorrectionRangeOverrides
+    let preset: CorrectionRangeOverrides.Preset
+    let unit: HKUnit
     var correctionRangeScheduleRange: ClosedRange<HKQuantity>
     var minValue: HKQuantity?
     var save: (_ overrides: CorrectionRangeOverrides) -> Void
@@ -37,6 +38,7 @@ public struct CorrectionRangeOverridesEditor: View {
 
     public init(
         value: CorrectionRangeOverrides,
+        preset: CorrectionRangeOverrides.Preset,
         unit: HKUnit,
         correctionRangeScheduleRange: ClosedRange<HKQuantity>,
         minValue: HKQuantity?,
@@ -46,6 +48,7 @@ public struct CorrectionRangeOverridesEditor: View {
     ) {
         self._value = State(initialValue: value)
         self.initialValue = value
+        self.preset = preset
         self.unit = unit
         self.correctionRangeScheduleRange = correctionRangeScheduleRange
         self.minValue = minValue
@@ -56,6 +59,7 @@ public struct CorrectionRangeOverridesEditor: View {
     
     public init(
         viewModel: TherapySettingsViewModel,
+        preset: CorrectionRangeOverrides.Preset,
         didSave: (() -> Void)? = nil
     ) {
         self.init(
@@ -64,11 +68,18 @@ public struct CorrectionRangeOverridesEditor: View {
                 workout: viewModel.therapySettings.workoutTargetRange,
                 unit: viewModel.therapySettings.glucoseUnit!
             ),
+            preset: preset,
             unit: viewModel.therapySettings.glucoseUnit!,
             correctionRangeScheduleRange: viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange(),
             minValue: viewModel.therapySettings.suspendThreshold?.quantity,
             onSave: { [weak viewModel] overrides in
-                viewModel?.saveCorrectionRangeOverrides(overrides: overrides, unit: viewModel?.therapySettings.glucoseUnit ?? .milligramsPerDeciliter)
+                let glucoseUnit = viewModel?.therapySettings.glucoseUnit ?? .milligramsPerDeciliter
+                switch preset {
+                case .preMeal:
+                    viewModel?.saveCorrectionRangeOverride(preMeal: overrides.preMeal?.doubleRange(for: glucoseUnit))
+                case .workout:
+                    viewModel?.saveCorrectionRangeOverride(workout: overrides.workout?.doubleRange(for: glucoseUnit))
+                }
                 didSave?()
             },
             sensitivityOverridesEnabled: viewModel.sensitivityOverridesEnabled,
@@ -104,14 +115,12 @@ public struct CorrectionRangeOverridesEditor: View {
     
     private var content: some View {
         ConfigurationPage(
-            title: Text(TherapySetting.correctionRangeOverrides.smallTitle),
+            title: Text(preset.therapySetting.title),
             actionButtonTitle: Text(mode.buttonText),
             actionButtonState: value != initialValue || mode == .acceptanceFlow ? .enabled : .disabled,
             cards: {
-                card(for: .preMeal)
-                if !sensitivityOverridesEnabled {
-                    card(for: .workout)
-                }
+                // TODO: Figure out why I need to explicitly return a CardStack with 1 card here
+                CardStack(cards: [card(for: preset)])
             },
             actionAreaContent: {
                 instructionalContentIfNecessary
@@ -134,7 +143,7 @@ public struct CorrectionRangeOverridesEditor: View {
 
     private func card(for preset: CorrectionRangeOverrides.Preset) -> Card {
         Card {
-            SettingDescription(text: description(of: preset), informationalContent: {TherapySetting.correctionRangeOverrides.helpScreen()})
+            SettingDescription(text: description(of: preset), informationalContent: { preset.therapySetting.helpScreen() })
             CorrectionRangeOverridesExpandableSetting(
                 isEditing: Binding(
                     get: { self.presetBeingEdited == preset },
@@ -261,7 +270,7 @@ public struct CorrectionRangeOverridesEditor: View {
             self.continueSaving()
             return
         }
-        authenticate(TherapySetting.correctionRangeOverrides.authenticationChallengeDescription) {
+        authenticate(preset.therapySetting.authenticationChallengeDescription) {
             switch $0 {
             case .success: self.continueSaving()
             case .failure: break
