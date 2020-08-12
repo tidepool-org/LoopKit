@@ -32,7 +32,7 @@ public struct ExpandableDatePicker: View {
             }
             
             if dateShouldExpand {
-                DatePicker("", selection: $date, in: pickerRange, displayedComponents: [.date])
+                DatePicker("", selection: $date, in: pickerRange, displayedComponents: .date)
                 .labelsHidden()
             }
         }
