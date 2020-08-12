@@ -11,9 +11,13 @@ import SwiftUI
 public struct ExpandableDatePicker: View {
     @State var dateShouldExpand = false
     @Binding var date: Date
+    let pickerRange: ClosedRange<Date>
     
-    public init (with date: Binding<Date>) {
+    public init (with date: Binding<Date>, pickerRange: ClosedRange<Date>? = nil) {
         _date = date
+        
+        let today = Date()
+        self.pickerRange = pickerRange ?? today.addingTimeInterval(-.hours(24))...today
     }
     
     public var body: some View {
@@ -28,7 +32,7 @@ public struct ExpandableDatePicker: View {
             }
             
             if dateShouldExpand {
-                DatePicker("", selection: $date, displayedComponents: [.date])
+                DatePicker("", selection: $date, in: pickerRange, displayedComponents: [.date])
                 .labelsHidden()
             }
         }
