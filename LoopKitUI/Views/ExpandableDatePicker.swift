@@ -11,19 +11,16 @@ import SwiftUI
 public struct ExpandableDatePicker: View {
     @State var dateShouldExpand = false
     @Binding var date: Date
-    let label: String
     
-    public init (for date: Binding<Date>, label: String = "") {
+    public init (with date: Binding<Date>) {
         _date = date
-        self.label = label
     }
     
     public var body: some View {
         VStack(spacing: 0) {
-            HStack (alignment: .center) {
-                Text(label)
+            HStack {
+                Text(dateFormatter.string(from: date))
                 Spacer()
-                Text("10/15/2001")
             }
             .padding()
             .frame(minWidth: 0, maxWidth: .infinity).onTapGesture {
@@ -37,5 +34,10 @@ public struct ExpandableDatePicker: View {
         }
     }
     
-    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd-yyyy"
+        formatter.timeZone = TimeZone.current
+        return formatter
+    }
 }
