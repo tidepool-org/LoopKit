@@ -9,7 +9,6 @@
 import HealthKit
 import Foundation
 
-// TODO: Now that these are split, can we get rid of this struct?
 public struct CorrectionRangeOverrides: Equatable {
     public enum Preset: Hashable, CaseIterable {
         case preMeal
