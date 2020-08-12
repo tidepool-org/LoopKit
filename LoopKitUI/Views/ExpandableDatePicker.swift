@@ -18,25 +18,20 @@ public struct ExpandableDatePicker: View {
         self.label = label
     }
     
-    // This is a more-flexible expandable date picker than what is avaliable
-    // in SwiftUI in iOS 13 (which only works in Forms)
     public var body: some View {
         VStack(spacing: 0) {
             HStack {
                 Text(label)
                 Spacer()
-                Text("10/15/2001 TODO")
+                Text("10/15/2001")
             }
             .padding(.horizontal)
-            .frame(minWidth: 0, maxWidth: .infinity)
-            .onTapGesture {
-                withAnimation {
-                    self.dateShouldExpand.toggle()
-                }
+            .frame(minWidth: 0, maxWidth: .infinity).onTapGesture {
+                self.dateShouldExpand.toggle()
             }
             
             if dateShouldExpand {
-                DatePicker("", selection: $date, displayedComponents: .date)
+                DatePicker("", selection: $date, displayedComponents: [.date])
                 .labelsHidden()
             }
             Spacer()
