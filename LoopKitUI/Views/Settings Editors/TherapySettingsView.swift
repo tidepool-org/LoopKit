@@ -112,7 +112,7 @@ extension TherapySettingsView {
         Section(header: Spacer()) {
             VStack(alignment: .leading) {
                 Spacer()
-                Text(LocalizedString("Review and Save Your Settings", comment: "title for summary description section"))
+                Text(LocalizedString("Review and Save Settings", comment: "title for summary description section"))
                     .bold()
                     .foregroundColor(.white)
                 Spacer()
@@ -127,11 +127,11 @@ extension TherapySettingsView {
     }
     
     private var summaryHeaderReviewText: String {
-        String(format: LocalizedString("Please review your therapy settings summary below and tap the Save button at the bottom to proceed.", comment: "Description of how to interact with summary screen"))
+        String(format: LocalizedString("Review your therapy settings below. If you’d like to edit any of these settings, tap Back to go back to that screen.", comment: "Description of how to interact with summary screen"))
     }
     
     private var summaryHeaderEditText: String {
-        String(format: LocalizedString("If you’d like to make any edits, use the back button to navigate to the setting you would like to change.", comment: "Description of how to interact with summary screen"))
+        String(format: LocalizedString("If these settings look good to you, tap Save Settings to continue.", comment: "Description of how to interact with summary screen"))
     }
     
     private var prescriptionDescriptiveText: String {
