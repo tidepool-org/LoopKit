@@ -66,13 +66,13 @@ public class TherapySettingsViewModel: ObservableObject {
         didSave?(TherapySetting.glucoseTargetRange, therapySettings)
     }
         
-    public func saveCorrectionRangeOverride(preMeal: DoubleRange?) {
-        therapySettings.preMealTargetRange = preMeal
+    public func saveCorrectionRangeOverride(preMeal: ClosedRange<HKQuantity>?, unit: HKUnit) {
+        therapySettings.preMealTargetRange = preMeal?.doubleRange(for: unit)
         didSave?(TherapySetting.preMealCorrectionRangeOverride, therapySettings)
     }
     
-    public func saveCorrectionRangeOverride(workout: DoubleRange?) {
-        therapySettings.workoutTargetRange = workout
+    public func saveCorrectionRangeOverride(workout: ClosedRange<HKQuantity>?, unit: HKUnit) {
+        therapySettings.workoutTargetRange = workout?.doubleRange(for: unit)
         didSave?(TherapySetting.workoutCorrectionRangeOverride, therapySettings)
     }
     

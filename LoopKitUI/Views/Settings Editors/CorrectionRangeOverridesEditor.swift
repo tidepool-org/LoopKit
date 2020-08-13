@@ -76,9 +76,9 @@ public struct CorrectionRangeOverridesEditor: View {
                 let glucoseUnit = viewModel?.therapySettings.glucoseUnit ?? .milligramsPerDeciliter
                 switch preset {
                 case .preMeal:
-                    viewModel?.saveCorrectionRangeOverride(preMeal: overrides.preMeal?.doubleRange(for: glucoseUnit))
+                    viewModel?.saveCorrectionRangeOverride(preMeal: overrides.preMeal, unit: glucoseUnit)
                 case .workout:
-                    viewModel?.saveCorrectionRangeOverride(workout: overrides.workout?.doubleRange(for: glucoseUnit))
+                    viewModel?.saveCorrectionRangeOverride(workout: overrides.workout, unit: glucoseUnit)
                 }
                 didSave?()
             },
