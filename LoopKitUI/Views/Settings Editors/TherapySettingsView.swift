@@ -50,7 +50,9 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
                 suspendThresholdSection
                 correctionRangeSection
                 preMealCorrectionRangeSection
-                workoutCorrectionRangeSection
+                if !viewModel.sensitivityOverridesEnabled {
+                    workoutCorrectionRangeSection
+                }
                 basalRatesSection
                 deliveryLimitsSection
                 insulinModelSection
