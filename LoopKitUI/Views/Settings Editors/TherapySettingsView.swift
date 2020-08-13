@@ -127,13 +127,11 @@ extension TherapySettingsView {
     }
     
     private var summaryHeaderReviewText: String {
-        String(format: LocalizedString("Please review your therapy settings summary below and tap the Save button at the bottom to proceed.", comment: "Description of how to interact with summary screen"),
-               "Anna Quinlan")
+        String(format: LocalizedString("Please review your therapy settings summary below and tap the Save button at the bottom to proceed.", comment: "Description of how to interact with summary screen"))
     }
     
     private var summaryHeaderEditText: String {
-        String(format: LocalizedString("If you’d like to make any edits, use the back button to navigate to the setting you would like to change.", comment: "Description of how to interact with summary screen"),
-               "Anna Quinlan")
+        String(format: LocalizedString("If you’d like to make any edits, use the back button to navigate to the setting you would like to change.", comment: "Description of how to interact with summary screen"))
     }
     
     private var prescriptionDescriptiveText: String {
