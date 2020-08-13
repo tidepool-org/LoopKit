@@ -34,6 +34,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     }
         
     public var body: some View {
+        // TODO: simplify this once 'legacy settings' are factored out
         switch viewModel.mode {
         case .acceptanceFlow: return AnyView(content)
         case .settings: return AnyView(content)
@@ -45,7 +46,12 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         List {
             Group {
                 if viewModel.mode == .acceptanceFlow && viewModel.prescription != nil {
+                    // At start of acceptance flow
+                    summaryHeaderSection
                     prescriptionSection
+                } else if viewModel.mode == .acceptanceFlow && viewModel.prescription == nil {
+                    // At end of acceptance flow
+                    summaryHeaderSection
                 }
                 suspendThresholdSection
                 correctionRangeSection
@@ -101,6 +107,32 @@ extension TherapySettingsView {
                 Spacer()
             }
         }
+    }
+    
+    private var summaryHeaderSection: some View {
+        Section(header: Spacer()) {
+            VStack(alignment: .leading) {
+                Spacer()
+                Text(LocalizedString("Review and Save Your Settings", comment: "title for summary description section"))
+                    .bold()
+                    .foregroundColor(.white)
+                Spacer()
+                DescriptiveText(label: summaryHeaderReviewText, color: .white)
+                DescriptiveText(label: summaryHeaderEditText, color: .white)
+                Spacer()
+            }
+        }
+        .listRowBackground(Color.accentColor)
+    }
+    
+    private var summaryHeaderReviewText: String {
+        String(format: LocalizedString("Please review your therapy settings summary below and tap the Save button at the bottom to proceed.", comment: "Description of how to interact with summary screen"),
+               "Anna Quinlan")
+    }
+    
+    private var summaryHeaderEditText: String {
+        String(format: LocalizedString("If you’d like to make any edits, use the back button to navigate to the setting you would like to change.", comment: "Description of how to interact with summary screen"),
+               "Anna Quinlan")
     }
     
     private var prescriptionDescriptiveText: String {
