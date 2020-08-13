@@ -186,7 +186,7 @@ public struct CorrectionRangeOverridesEditor: View {
     }
     
     private func guardrail(for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity> {
-        return Guardrail.correctionRangeOverridePreset(preset, correctionRangeScheduleRange: correctionRangeScheduleRange)
+        return Guardrail.correctionRangeOverride(for: preset, correctionRangeScheduleRange: correctionRangeScheduleRange)
     }
     
     private var instructionalContentIfNecessary: some View {
@@ -251,6 +251,7 @@ public struct CorrectionRangeOverridesEditor: View {
 
                 return thresholds.isEmpty ? nil : thresholds
             }
+            .filter { $0.key == preset }
     }
 
     private func confirmationAlert() -> SwiftUI.Alert {
