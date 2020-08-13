@@ -47,7 +47,6 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
             Group {
                 if viewModel.mode == .acceptanceFlow && viewModel.prescription != nil {
                     // At start of acceptance flow
-                    summaryHeaderSection
                     prescriptionSection
                 } else if viewModel.mode == .acceptanceFlow && viewModel.prescription == nil {
                     // At end of acceptance flow
