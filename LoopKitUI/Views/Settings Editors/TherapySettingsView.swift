@@ -117,8 +117,10 @@ extension TherapySettingsView {
                     .bold()
                     .foregroundColor(.white)
                 Spacer()
-                DescriptiveText(label: summaryHeaderReviewText, color: .white)
-                DescriptiveText(label: summaryHeaderEditText, color: .white)
+                VStack (alignment: .leading, spacing: 10) {
+                    DescriptiveText(label: summaryHeaderReviewText, color: .white)
+                    DescriptiveText(label: summaryHeaderEditText, color: .white)
+                }
                 Spacer()
             }
         }
