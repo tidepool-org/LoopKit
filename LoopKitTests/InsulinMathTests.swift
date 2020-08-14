@@ -105,7 +105,7 @@ class InsulinMathTests: XCTestCase {
                 return nil
             }
             
-            let deliveredUnits: Double? = $0["delivered"] as? Double
+            let deliveredUnits = $0["delivered"] as? Double
 
             var dose = DoseEntry(
                 type: type,
