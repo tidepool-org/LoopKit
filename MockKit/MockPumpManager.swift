@@ -362,32 +362,31 @@ public final class MockPumpManager: TestingPumpManager {
         }
     }
 
-    public func enactBolus(units: Double, at startDate: Date, willRequest: @escaping (DoseEntry) -> Void, completion: @escaping (PumpManagerResult<DoseEntry>) -> Void) {
+    public func enactBolus(units: Double, at startDate: Date, completion: @escaping (PumpManagerResult<DoseEntry>) -> Void) {
 
         logDeviceComms(.send, message: "Bolus \(units) U")
 
         if state.bolusEnactmentShouldError {
             let error = PumpManagerError.communication(MockPumpManagerError.communicationFailure)
             logDeviceComms(.error, message: "Bolus failed with error \(error)")
-            completion(.failure(SetBolusError.certain(error)))
+            completion(.failure(error))
         } else {
 
             state.finalizeFinishedDoses()
 
             if let _ = state.unfinalizedBolus {
-                completion(.failure(SetBolusError.certain(PumpManagerError.deviceState(MockPumpManagerError.bolusInProgress))))
+                completion(.failure(PumpManagerError.deviceState(MockPumpManagerError.bolusInProgress)))
                 return
             }
 
             if case .suspended = status.basalDeliveryState {
-                completion(.failure(SetBolusError.certain(PumpManagerError.deviceState(MockPumpManagerError.pumpSuspended))))
+                completion(.failure(PumpManagerError.deviceState(MockPumpManagerError.pumpSuspended)))
                 return
             }
             
             
             let bolus = UnfinalizedDose(bolusAmount: units, startTime: Date(), duration: .minutes(units / type(of: self).deliveryUnitsPerMinute))
             let dose = DoseEntry(bolus)
-            willRequest(dose)
             state.unfinalizedBolus = bolus
             
             logDeviceComms(.receive, message: "Bolus accepted")
