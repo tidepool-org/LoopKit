@@ -72,7 +72,7 @@ class CarbMathTests: XCTestCase {
         }
     }
 
-    private func loadEffectOutputFixture(_ name: String = "carb_effect_from_history_output") -> [GlucoseEffect] {
+    private func loadEffectOutputFixture(_ name: String) -> [GlucoseEffect] {
         let fixture: [JSONDictionary] = loadFixture(name)
         let dateFormatter = ISO8601DateFormatter.localTimeDate()
 
@@ -141,7 +141,7 @@ class CarbMathTests: XCTestCase {
 
     func testCarbEffectFromHistory() {
         let input = loadHistoryFixture("carb_effect_from_history_input")
-        let output = loadEffectOutputFixture()
+        let output = loadEffectOutputFixture("carb_effect_from_history_output")
         let (carbRatios, insulinSensitivities) = loadSchedules()
         
         let effects = input.glucoseEffects(carbRatios: carbRatios, insulinSensitivities: insulinSensitivities, defaultAbsorptionTime: TimeInterval(minutes: 180), absorptionModel: ParabolicAbsorption())
