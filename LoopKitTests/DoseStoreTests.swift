@@ -78,7 +78,11 @@ class DoseStoreTests: PersistenceControllerTestCase {
             // Set the current date
             test_currentDate: f("2018-12-12 18:07:14 +0000")
         )
-
+        
+        guard let insulinDeliveryStore = doseStore.insulinDeliveryStore as? InsulinDeliveryStore else {
+            XCTFail()
+            return
+        }
 
         // 2. Add a temp basal which has already ended. It should be saved to Health
         let pumpEvents1 = [
@@ -86,7 +90,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             NewPumpEvent(date: f("2018-12-12 17:35:58 +0000"), dose: DoseEntry(type: .tempBasal, startDate: f("2018-12-12 17:35:58 +0000"), endDate: f("2018-12-12 18:05:58 +0000"), value: 2.125, unit: .unitsPerHour), isMutable: false, raw: Data(hexadecimalString: "1601fa23094c12")!, title: "TempBasalDurationPumpEvent(length: 7, rawData: 7 bytes, duration: 30, timestamp: calendar: gregorian (fixed) year: 2018 month: 12 day: 12 hour: 9 minute: 35 second: 58 isLeapMonth: false )", type: .tempBasal)
         ]
 
-        doseStore.insulinDeliveryStore.test_lastBasalEndDate = f("2018-12-12 17:35:58 +0000")
+        insulinDeliveryStore.test_lastBasalEndDate = f("2018-12-12 17:35:58 +0000")
 
         let addPumpEvents1 = expectation(description: "add pumpEvents1")
         addPumpEvents1.expectedFulfillmentCount = 3
@@ -97,7 +101,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents1.fulfill()
         })
-        doseStore.insulinDeliveryStore.test_lastBasalEndDateDidSet = {
+        insulinDeliveryStore.test_lastBasalEndDateDidSet = {
             addPumpEvents1.fulfill()
         }
         doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date()) { (error) in
@@ -106,12 +110,12 @@ class DoseStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 3)
 
-        XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastBasalEndDate)
+        XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), insulinDeliveryStore.test_lastBasalEndDate)
 
 
         // 3. Add a bolus a little later, which started before the last temp basal ends, but wasn't written to pump history until it completed (x22 pump behavior)
         // Even though it is before lastBasalEndDate, it should be saved to HealthKit.
-        doseStore.insulinDeliveryStore.test_currentDate = f("2018-12-12 18:16:23 +0000")
+        insulinDeliveryStore.test_currentDate = f("2018-12-12 18:16:23 +0000")
 
         let pumpEvents2 = [
             NewPumpEvent(date: f("2018-12-12 18:05:14 +0000"), dose: DoseEntry(type: .bolus, startDate: f("2018-12-12 18:05:14 +0000"), endDate: f("2018-12-12 18:05:14 +0000"), value: 5.0, unit: .units), isMutable: false, raw: Data(hexadecimalString: "01323200ce052a0c12")!, title: "BolusNormalPumpEvent(length: 9, rawData: 9 bytes, timestamp: calendar: gregorian (fixed) year: 2018 month: 12 day: 12 hour: 10 minute: 5 second: 14 isLeapMonth: false , unabsorbedInsulinRecord: nil, amount: 5.0, programmed: 5.0, unabsorbedInsulinTotal: 0.0, type: MinimedKit.BolusNormalPumpEvent.BolusType.normal, duration: 0.0, deliveryUnitsPerMinute: 1.5)", type: .bolus)
@@ -128,7 +132,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents2.fulfill()
         })
-        doseStore.insulinDeliveryStore.test_lastBasalEndDateDidSet = {
+        insulinDeliveryStore.test_lastBasalEndDateDidSet = {
             addPumpEvents2.fulfill()
         }
         doseStore.addPumpEvents(pumpEvents2, lastReconciliation: Date()) { (error) in
@@ -137,11 +141,11 @@ class DoseStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 3)
 
-        XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastBasalEndDate)
+        XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), insulinDeliveryStore.test_lastBasalEndDate)
 
 
         // Add the next set of pump events, which haven't completed and shouldn't be saved to HealthKit
-        doseStore.insulinDeliveryStore.test_currentDate = f("2018-12-12 18:21:22 +0000")
+        insulinDeliveryStore.test_currentDate = f("2018-12-12 18:21:22 +0000")
 
         let pumpEvents3 = [
             NewPumpEvent(date: f("2018-12-12 18:16:31 +0000"), dose: nil, isMutable: false, raw: UUID().data, title: "TempBasalPumpEvent(length: 8, rawData: 8 bytes, rateType: MinimedKit.TempBasalPumpEvent.RateType.Absolute, rate: 0.0, timestamp: calendar: gregorian (fixed) year: 2018 month: 12 day: 12 hour: 10 minute: 16 second: 31 isLeapMonth: false )", type: nil),
@@ -153,7 +157,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTFail()
         })
-        doseStore.insulinDeliveryStore.test_lastBasalEndDateDidSet = {
+        insulinDeliveryStore.test_lastBasalEndDateDidSet = {
             XCTFail()
         }
         doseStore.addPumpEvents(pumpEvents3, lastReconciliation: Date()) { (error) in
@@ -162,7 +166,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 3)
 
-        XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastBasalEndDate)
+        XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), insulinDeliveryStore.test_lastBasalEndDate)
     }
 
     /// https://github.com/LoopKit/Loop/issues/852
@@ -189,8 +193,12 @@ class DoseStoreTests: PersistenceControllerTestCase {
             test_currentDate: f("2018-11-29 11:04:27 +0000")
         )
         doseStore.pumpRecordsBasalProfileStartEvents = false
+        guard let insulinDeliveryStore = doseStore.insulinDeliveryStore as? InsulinDeliveryStore else {
+            XCTFail()
+            return
+        }
 
-        doseStore.insulinDeliveryStore.test_lastBasalEndDate = f("2018-11-29 10:54:28 +0000")
+        insulinDeliveryStore.test_lastBasalEndDate = f("2018-11-29 10:54:28 +0000")
 
         // Add a temp basal. It hasn't finished yet, and should not be saved to Health
         let pumpEvents1 = [
@@ -203,7 +211,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTFail()
         })
-        doseStore.insulinDeliveryStore.test_lastBasalEndDateDidSet = {
+        insulinDeliveryStore.test_lastBasalEndDateDidSet = {
             XCTFail()
         }
         doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date()) { (error) in
@@ -212,18 +220,18 @@ class DoseStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 3)
 
-        XCTAssertEqual(f("2018-11-29 10:54:28 +0000"), doseStore.insulinDeliveryStore.test_lastBasalEndDate)
+        XCTAssertEqual(f("2018-11-29 10:54:28 +0000"), insulinDeliveryStore.test_lastBasalEndDate)
         XCTAssertEqual(f("2018-11-29 10:59:28 +0000"), doseStore.pumpEventQueryAfterDate)
 
         // Add the next query of the same pump events (no new data) 5 minutes later. Expect the same result
-        doseStore.insulinDeliveryStore.test_currentDate = f("2018-11-29 11:09:27 +0000")
+        insulinDeliveryStore.test_currentDate = f("2018-11-29 11:09:27 +0000")
 
         let addPumpEvents2 = expectation(description: "add pumpEvents2")
         addPumpEvents2.expectedFulfillmentCount = 1
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTFail()
         })
-        doseStore.insulinDeliveryStore.test_lastBasalEndDateDidSet = {
+        insulinDeliveryStore.test_lastBasalEndDateDidSet = {
             XCTFail()
         }
         doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date()) { (error) in
@@ -232,12 +240,12 @@ class DoseStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 3)
 
-        XCTAssertEqual(f("2018-11-29 10:54:28 +0000"), doseStore.insulinDeliveryStore.test_lastBasalEndDate)
+        XCTAssertEqual(f("2018-11-29 10:54:28 +0000"), insulinDeliveryStore.test_lastBasalEndDate)
         XCTAssertEqual(f("2018-11-29 10:59:28 +0000"), doseStore.pumpEventQueryAfterDate)
 
         // Add the next set of pump events, including the last temp basal change.
         // The previous, completed basal entries should be saved to Health
-        doseStore.insulinDeliveryStore.test_currentDate = f("2018-11-29 11:14:28 +0000")
+        insulinDeliveryStore.test_currentDate = f("2018-11-29 11:14:28 +0000")
 
         let pumpEvents3 = [
             NewPumpEvent(date: f("2018-11-29 11:09:27 +0000"), dose: nil, isMutable: false, raw: UUID().data, title: "TempBasalPumpEvent(length: 8, rawData: 8 bytes, rateType: MinimedKit.TempBasalPumpEvent.RateType.Absolute, rate: 0.325, timestamp: calendar: gregorian (fixed) year: 2018 month: 11 day: 29 hour: 3 minute: 9 second: 27 isLeapMonth: false )", type: nil),
@@ -268,7 +276,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents3.fulfill()
         })
-        doseStore.insulinDeliveryStore.test_lastBasalEndDateDidSet = {
+        insulinDeliveryStore.test_lastBasalEndDateDidSet = {
             addPumpEvents3.fulfill()
         }
         doseStore.addPumpEvents(pumpEvents3, lastReconciliation: Date()) { (error) in
@@ -277,11 +285,11 @@ class DoseStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 3)
 
-        XCTAssertEqual(f("2018-11-29 11:09:27 +0000"), doseStore.insulinDeliveryStore.test_lastBasalEndDate)
+        XCTAssertEqual(f("2018-11-29 11:09:27 +0000"), insulinDeliveryStore.test_lastBasalEndDate)
         XCTAssertEqual(f("2018-11-29 11:09:27 +0000"), doseStore.pumpEventQueryAfterDate)
 
         // Add the next set of pump events, including the last temp basal cancel
-        doseStore.insulinDeliveryStore.test_currentDate = f("2018-11-29 11:19:28 +0000")
+        insulinDeliveryStore.test_currentDate = f("2018-11-29 11:19:28 +0000")
 
         let pumpEvents4 = [
             NewPumpEvent(date: f("2018-11-29 11:14:28 +0000"), dose: nil, isMutable: false, raw: UUID().data, title: "TempBasalPumpEvent(length: 8, rawData: 8 bytes, rateType: MinimedKit.TempBasalPumpEvent.RateType.Absolute, rate: 0, timestamp: calendar: gregorian (fixed) year: 2018 month: 11 day: 29 hour: 3 minute: 14 second: 28 isLeapMonth: false )", type: nil),
@@ -301,7 +309,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents4.fulfill()
         })
-        doseStore.insulinDeliveryStore.test_lastBasalEndDateDidSet = {
+        insulinDeliveryStore.test_lastBasalEndDateDidSet = {
             addPumpEvents4.fulfill()
         }
         doseStore.addPumpEvents(pumpEvents4, lastReconciliation: Date()) { (error) in
@@ -311,7 +319,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
         waitForExpectations(timeout: 3)
 
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.pumpEventQueryAfterDate)
-        XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.insulinDeliveryStore.test_lastBasalEndDate)
+        XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), insulinDeliveryStore.test_lastBasalEndDate)
     }
 }
 
