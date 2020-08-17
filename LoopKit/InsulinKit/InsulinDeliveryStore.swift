@@ -9,7 +9,7 @@ import HealthKit
 import CoreData
 import os.log
 
-enum InsulinDeliveryStoreResult<T> {
+public enum InsulinDeliveryStoreResult<T> {
     case success(T)
     case failure(Error)
 }
@@ -22,7 +22,7 @@ enum InsulinDeliveryStoreResult<T> {
 ///
 /// HealthKit data isn't a substitute for an insulin pump's diagnostic event history, but doses fetched
 /// from HealthKit can reduce the amount of repeated communication with an insulin pump.
-public class InsulinDeliveryStore: HealthKitSampleStore {
+public class InsulinDeliveryStore: HealthKitSampleStore, InsulinDeliveryStoreProtocol {
     
     /// Notification posted when cached data was modifed.
     static let cacheDidChange = NSNotification.Name(rawValue: "com.loopkit.InsulinDeliveryStore.cacheDidChange")
