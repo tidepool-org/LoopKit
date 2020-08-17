@@ -773,7 +773,7 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
 
         doseStore = DoseStore(
             healthStore: healthStore,
-            observeHealthKitForCurrentAppOnly: false,
+            observeHealthKitSamplesFromOtherApps: false,
             cacheStore: cacheStore,
             observationEnabled: false,
             insulinModel: exponentialInsulinModel,
