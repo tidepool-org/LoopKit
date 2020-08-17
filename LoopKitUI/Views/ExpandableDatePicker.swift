@@ -13,20 +13,18 @@ public struct ExpandableDatePicker: View {
     @Binding var date: Date
     let placeholderText: String
     let pickerRange: ClosedRange<Date>
-    @Binding var userDidTap: Bool
+    @State var userDidTap: Bool = false
     
     public init (
         with date: Binding<Date>,
         pickerRange: ClosedRange<Date>? = nil,
-        placeholderText: String = "",
-        userDidTap: Binding<Bool> = Binding.constant(false)
+        placeholderText: String = ""
     ) {
         _date = date
         self.placeholderText = placeholderText
         
         let today = Date()
         self.pickerRange = pickerRange ?? today.addingTimeInterval(-.hours(24))...today
-        _userDidTap = userDidTap
     }
     
     public var body: some View {
