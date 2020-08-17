@@ -33,64 +33,6 @@ public enum DoseStoreResult<T> {
     case failure(DoseStore.DoseStoreError)
 }
 
-public protocol DoseStoreProtocol {
-    // MARK: settings
-    var basalProfile: LoopKit.BasalRateSchedule? { get set }
-    
-    var insulinModel: LoopKit.InsulinModel? { get set }
-    
-    var insulinSensitivitySchedule: LoopKit.InsulinSensitivitySchedule? { get set }
-    
-    var basalProfileApplyingOverrideHistory: BasalRateSchedule? { get }
-    
-    // MARK: authorization
-    var authorizationRequired: Bool { get }
-    
-    var sharingDenied: Bool { get }
-    
-    // MARK: store information
-    var lastReservoirValue: LoopKit.ReservoirValue? { get }
-    
-    var lastAddedPumpData: Date { get }
-    
-    var sampleType: HKSampleType? { get }
-    
-    var insulinDeliveryStore: InsulinDeliveryStore { get }
-    
-    var delegate: DoseStoreDelegate? { get set }
-    
-    var device: HKDevice? { get set }
-    
-    var pumpRecordsBasalProfileStartEvents: Bool { get set }
-    
-    var pumpEventQueryAfterDate: Date { get }
-    
-    // MARK: dose management
-    func resetPumpData(completion: ((_ error: DoseStore.DoseStoreError?) -> Void)?)
-    
-    func addPumpEvents(_ events: [NewPumpEvent], lastReconciliation: Date?, completion: @escaping (_ error: DoseStore.DoseStoreError?) -> Void)
-    
-    func addReservoirValue(_ unitVolume: Double, at date: Date, completion: @escaping (_ value: ReservoirValue?, _ previousValue: ReservoirValue?, _ areStoredValuesContinuous: Bool, _ error: DoseStore.DoseStoreError?) -> Void)
-    
-    func getNormalizedDoseEntries(start: Date, end: Date?, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void)
-    
-    func executePumpEventQuery(fromQueryAnchor queryAnchor: DoseStore.QueryAnchor?, limit: Int, completion: @escaping (DoseStore.PumpEventQueryResult) -> Void)
-    
-    func executeDoseQuery(fromQueryAnchor queryAnchor: DoseStore.QueryAnchor?, limit: Int, completion: @escaping (DoseStore.DoseQueryResult) -> Void)
-    
-    func generateDiagnosticReport(_ completion: @escaping (_ report: String) -> Void)
-    
-    // MARK: IOB and insulin effect
-    func insulinOnBoard(at date: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
-    
-    func getGlucoseEffects(start: Date, end: Date?, basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void)
-    
-    func getInsulinOnBoardValues(start: Date, end: Date? , basalDosingEnd: Date?, completion: @escaping (_ result: DoseStoreResult<[InsulinValue]>) -> Void)
-    
-    func getTotalUnitsDelivered(since startDate: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void)
-    
-}
-
 /**
  Manages storage, retrieval, and calculation of insulin pump delivery data.
  
@@ -114,7 +56,7 @@ public protocol DoseStoreProtocol {
 
  Private members should be assumed to not be thread-safe, and access should be contained to within blocks submitted to `persistenceStore.managedObjectContext`, which executes them on a private, serial queue.
  */
-public final class DoseStore: DoseStoreProtocol {
+public final class DoseStore {
     
     /// Notification posted when data was modifed.
     public static let valuesDidChange = NSNotification.Name(rawValue: "com.loopkit.DoseStore.valuesDidChange")
