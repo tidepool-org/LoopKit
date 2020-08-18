@@ -36,6 +36,8 @@ public struct ExpandableDatePicker: View {
             .padding()
             .frame(minWidth: 0, maxWidth: .infinity).onTapGesture {
                 self.userDidTap = true
+                // Hack to refresh binding
+                self.date = Date(timeInterval: 0, since: self.date)
                 self.dateShouldExpand.toggle()
             }
             if dateShouldExpand {
