@@ -77,11 +77,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
             // Set the current date
             test_currentDate: f("2018-12-12 18:07:14 +0000")
         )
-        
-        guard let insulinDeliveryStore = doseStore.insulinDeliveryStore as? InsulinDeliveryStore else {
-            XCTFail()
-            return
-        }
 
         // 2. Add a temp basal which has already ended. It should be saved to Health
         let pumpEvents1 = [
@@ -89,6 +84,8 @@ class DoseStoreTests: PersistenceControllerTestCase {
             NewPumpEvent(date: f("2018-12-12 17:35:58 +0000"), dose: DoseEntry(type: .tempBasal, startDate: f("2018-12-12 17:35:58 +0000"), endDate: f("2018-12-12 18:05:58 +0000"), value: 2.125, unit: .unitsPerHour), isMutable: false, raw: Data(hexadecimalString: "1601fa23094c12")!, title: "TempBasalDurationPumpEvent(length: 7, rawData: 7 bytes, duration: 30, timestamp: calendar: gregorian (fixed) year: 2018 month: 12 day: 12 hour: 9 minute: 35 second: 58 isLeapMonth: false )", type: .tempBasal)
         ]
 
+        let insulinDeliveryStore = doseStore.insulinDeliveryStore
+        
         insulinDeliveryStore.test_lastBasalEndDate = f("2018-12-12 17:35:58 +0000")
 
         let addPumpEvents1 = expectation(description: "add pumpEvents1")
@@ -191,10 +188,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             test_currentDate: f("2018-11-29 11:04:27 +0000")
         )
         doseStore.pumpRecordsBasalProfileStartEvents = false
-        guard let insulinDeliveryStore = doseStore.insulinDeliveryStore as? InsulinDeliveryStore else {
-            XCTFail()
-            return
-        }
+        let insulinDeliveryStore = doseStore.insulinDeliveryStore
 
         insulinDeliveryStore.test_lastBasalEndDate = f("2018-11-29 10:54:28 +0000")
 

@@ -22,7 +22,7 @@ public enum InsulinDeliveryStoreResult<T> {
 ///
 /// HealthKit data isn't a substitute for an insulin pump's diagnostic event history, but doses fetched
 /// from HealthKit can reduce the amount of repeated communication with an insulin pump.
-public class InsulinDeliveryStore: HealthKitSampleStore, InsulinDeliveryStoreProtocol {
+public class InsulinDeliveryStore: HealthKitSampleStore {
     
     /// Notification posted when cached data was modifed.
     static let cacheDidChange = NSNotification.Name(rawValue: "com.loopkit.InsulinDeliveryStore.cacheDidChange")

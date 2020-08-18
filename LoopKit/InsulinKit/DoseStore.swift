@@ -33,21 +33,6 @@ public enum DoseStoreResult<T> {
     case failure(DoseStore.DoseStoreError)
 }
 
-public protocol InsulinDeliveryStoreProtocol: AnyObject {
-    var sampleType: HKSampleType { get }
-    
-    // MARK: Authorization
-    var authorizationRequired: Bool { get }
-    
-    var sharingDenied: Bool { get }
-    
-    func authorize(toShare: Bool, _ completion: @escaping (_ result: HealthKitSampleStoreResult<Bool>) -> Void)
-    
-    // MARK: State
-    func generateDiagnosticReport(_ completion: @escaping (_ report: String) -> Void)
-    
-}
-
 /**
  Manages storage, retrieval, and calculation of insulin pump delivery data.
  
@@ -108,7 +93,7 @@ public final class DoseStore {
                 self.validateReservoirContinuity()
             }
 
-            if let effectDuration = insulinModel?.effectDuration, let insulinDeliveryStore = insulinDeliveryStore as? InsulinDeliveryStore {
+            if let effectDuration = insulinModel?.effectDuration {
                 insulinDeliveryStore.observationStart = Date(timeIntervalSinceNow: -effectDuration)
             }
         }
@@ -168,7 +153,7 @@ public final class DoseStore {
         return .egpSchedule(basalSchedule: basalProfile, insulinSensitivitySchedule: insulinSensitivitySchedule)
     }
 
-    public let insulinDeliveryStore: InsulinDeliveryStoreProtocol
+    public let insulinDeliveryStore: InsulinDeliveryStore
 
     /// The HealthKit sample type managed by this store
     public var sampleType: HKSampleType? {
@@ -306,12 +291,8 @@ public final class DoseStore {
         return Calendar.current.date(byAdding: .day, value: -1, to: currentDate())!
     }
 
-    // ANNA TODO: check this works
     internal func currentDate(timeIntervalSinceNow: TimeInterval = 0) -> Date {
-        if let insulinDeliveryStore = insulinDeliveryStore as? InsulinDeliveryStore {
-            return insulinDeliveryStore.currentDate(timeIntervalSinceNow: timeIntervalSinceNow)
-        }
-        return Date()
+        return insulinDeliveryStore.currentDate(timeIntervalSinceNow: timeIntervalSinceNow)
     }
 
     // MARK: - Reservoir Data
@@ -851,11 +832,6 @@ extension DoseStore {
 
     /// Attempts to store doses from pump events to Health
     private func syncPumpEventsToHealthStore(completion: @escaping (_ error: Error?) -> Void) {
-        guard let insulinDeliveryStore = insulinDeliveryStore as? InsulinDeliveryStore else {
-            completion(nil) // don't throw an error ANNA TODO
-            return
-        }
-        
         insulinDeliveryStore.getLastBasalEndDate { (result) in
             switch result {
             case .success(let date):
@@ -879,8 +855,8 @@ extension DoseStore {
         getPumpEventDoseEntriesForSavingToHealthStore(startingAt: start) { (result) in
             switch result {
             case .success(let doses):
-                guard doses.count > 0, let insulinDeliveryStore = self.insulinDeliveryStore as? InsulinDeliveryStore else {
-                    completion(nil) // ANNA TODO
+                guard doses.count > 0 else {
+                    completion(nil)
                     return
                 }
 
@@ -888,7 +864,7 @@ extension DoseStore {
                     self.log.debug("Adding dose to HealthKit: %@", String(describing: dose))
                 }
 
-                insulinDeliveryStore.addReconciledDoses(doses, from: self.device, syncVersion: self.syncVersion) { (result) in
+                self.insulinDeliveryStore.addReconciledDoses(doses, from: self.device, syncVersion: self.syncVersion) { (result) in
                     switch result {
                     case .success:
                         completion(nil)
@@ -1142,11 +1118,6 @@ extension DoseStore {
     ///   - completion: A closure called once the entries have been retrieved
     ///   - result: An array of dose entries, in chronological order by startDate
     public func getNormalizedDoseEntries(start: Date, end: Date? = nil, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void) {
-        guard let insulinDeliveryStore = insulinDeliveryStore as? InsulinDeliveryStore else {
-            completion(.success([])) // ANNA TODO
-            return
-        }
-        
         insulinDeliveryStore.getCachedDoses(start: start, end: end, isChronological: true) { (insulinDeliveryDoses) in
             let filteredStart = max(insulinDeliveryDoses.lastBasalEndDate ?? start, start)
 
