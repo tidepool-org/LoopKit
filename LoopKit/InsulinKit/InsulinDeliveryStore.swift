@@ -9,7 +9,7 @@ import HealthKit
 import CoreData
 import os.log
 
-public enum InsulinDeliveryStoreResult<T> {
+enum InsulinDeliveryStoreResult<T> {
     case success(T)
     case failure(Error)
 }
