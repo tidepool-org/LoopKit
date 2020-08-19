@@ -858,7 +858,7 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             }
             updateGroup.leave()
         }
-        _ = updateGroup.wait(timeout: .distantFuture)
+        updateGroup.wait()
 
         XCTAssertEqual(output.count, insulinEffects.count)
 
@@ -886,7 +886,7 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             }
             updateGroup.leave()
         }
-        _ = updateGroup.wait(timeout: .distantFuture)
+        updateGroup.wait()
 
         XCTAssertEqual(output.count, insulinEffects.count)
 
@@ -914,7 +914,7 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             }
             updateGroup.leave()
         }
-        _ = updateGroup.wait(timeout: .distantFuture)
+        updateGroup.wait()
 
         XCTAssertEqual(output.count, insulinEffects.count)
 
