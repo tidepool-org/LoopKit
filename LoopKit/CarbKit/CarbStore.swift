@@ -700,6 +700,63 @@ extension CarbStore {
     }
 }
 
+// MARK: - Watch Synchronization
+
+extension CarbStore {
+
+    /// Get carb objects in main app to deliver to Watch extension
+    public func getSyncCarbObjects(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: CarbStoreResult<[SyncCarbObject]>) -> Void) {
+        queue.async {
+            var objects: [SyncCarbObject] = []
+            var error: CarbStoreError?
+
+            self.cacheStore.managedObjectContext.performAndWait {
+                do {
+                    objects = try self.getActiveCachedCarbObjects(start: start, end: end).map { SyncCarbObject(managedObject: $0) }
+                } catch let coreDataError {
+                    error = .coreDataError(coreDataError)
+                }
+            }
+
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            completion(.success(objects))
+        }
+    }
+
+    /// Store carb objects in Watch extension
+    public func setSyncCarbObjects(_ objects: [SyncCarbObject], completion: @escaping (CarbStoreError?) -> Void) {
+        queue.async {
+            if let error = self.purgeAllCarbObjectsUnconditionally() {
+                completion(error)
+                return
+            }
+
+
+            var error: CarbStoreError?
+
+            self.cacheStore.managedObjectContext.performAndWait {
+                guard !objects.isEmpty else {
+                    return
+                }
+
+                objects.forEach {
+                    let object = CachedCarbObject(context: self.cacheStore.managedObjectContext)
+                    object.update(from: $0)
+                }
+
+                error = CarbStoreError(error: self.cacheStore.save())
+            }
+
+            completion(error)
+
+            self.notifyUpdatedCarbData(updateSource: .changedInApp)
+        }
+    }
+}
 
 // MARK: - Cache management
 extension CarbStore {
