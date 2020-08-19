@@ -2,23 +2,22 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19G73" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CachedCarbObject" representedClassName=".CachedCarbObject" syncable="YES">
         <attribute name="absorptionTime" optional="YES" attributeType="Double" usesScalarValueType="NO"/>
+        <attribute name="addedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="anchorKey" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" elementID="modificationCounter"/>
         <attribute name="createdByCurrentApp" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="externalID" optional="YES" attributeType="String"/>
         <attribute name="foodType" optional="YES" attributeType="String"/>
         <attribute name="grams" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="operation" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="provenanceIdentifier" optional="YES" attributeType="String"/>
+        <attribute name="removedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="syncIdentifier" optional="YES" attributeType="String"/>
-        <attribute name="syncVersion" attributeType="Integer 32" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="syncVersion" optional="YES" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="userCreatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="userDeletedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="userUpdatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="uuid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="uuid"/>
-            </uniquenessConstraint>
-            <uniquenessConstraint>
-                <constraint value="syncIdentifier"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
     </entity>
     <entity name="CachedGlucoseObject" representedClassName=".CachedGlucoseObject" syncable="YES">
         <attribute name="isDisplayOnly" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -149,7 +148,7 @@
         <attribute name="modificationCounter" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="CachedCarbObject" positionX="-63" positionY="72" width="128" height="193"/>
+        <element name="CachedCarbObject" positionX="-63" positionY="72" width="128" height="298"/>
         <element name="CachedGlucoseObject" positionX="-63" positionY="99" width="128" height="208"/>
         <element name="CachedInsulinDeliveryObject" positionX="-63" positionY="108" width="128" height="208"/>
         <element name="DeletedCarbObject" positionX="-63" positionY="90" width="128" height="133"/>
