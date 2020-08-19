@@ -116,7 +116,12 @@ public final class MockPumpManager: TestingPumpManager {
     }
     
     private func pumpStatusHighlight(for state: MockPumpManagerState) -> PumpManagerStatus.PumpStatusHighlight? {
-        if state.reservoirUnitsRemaining == 0 {
+        if state.deliveryIsUncertain {
+            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Comms Issue", comment: "Status highlight that delivery is uncertain."),
+                                                         imageName: "exclamationmark.circle.fill",
+                                                         state: .critical)
+        }
+        else if state.reservoirUnitsRemaining == 0 {
             return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("No Insulin", comment: "Status highlight that a pump is out of insulin."),
                                                          imageName: "exclamationmark.circle.fill",
                                                          state: .critical)

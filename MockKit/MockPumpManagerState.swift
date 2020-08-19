@@ -117,7 +117,7 @@ extension MockPumpManagerState: RawRepresentable {
         self.pumpBatteryChargeRemaining = rawValue["pumpBatteryChargeRemaining"] as? Double ?? nil
         self.occlusionDetected = rawValue["occlusionDetected"] as? Bool ?? false
         self.pumpErrorDetected = rawValue["pumpErrorDetected"] as? Bool ?? false
-        self.deliveryIsUncertain = false // rawValue["deliveryIsUncertain"] as? Bool ?? false
+        self.deliveryIsUncertain = rawValue["deliveryIsUncertain"] as? Bool ?? false
 
         self.progressPercentComplete = rawValue["progressPercentComplete"] as? Double
         self.progressWarningThresholdPercentValue = rawValue["progressWarningThresholdPercentValue"] as? Double

@@ -112,6 +112,7 @@ extension PumpManagerStatus: Codable {
         try container.encode(bolusState, forKey: .bolusState)
         try container.encode(pumpStatusHighlight, forKey: .pumpStatusHighlight)
         try container.encode(pumpLifecycleProgress, forKey: .pumpLifecycleProgress)
+        try container.encode(deliveryIsUncertain, forKey: .deliveryIsUncertain)
     }
 
     private struct CodableDevice: Codable {
