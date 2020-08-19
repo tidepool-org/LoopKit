@@ -85,6 +85,7 @@ public extension TherapySetting {
 public extension TherapySetting {
     var guardrailCaptionForLowValue: String {
         switch self {
+        // For schedules & ranges where it's possible for more than 1 to be outside of guardrails
         case .glucoseTargetRange:
             return LocalizedString("A value you have entered is lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning for schedule interface")
         default:
@@ -94,6 +95,7 @@ public extension TherapySetting {
     
     var guardrailCaptionForHighValue: String {
         switch self {
+        // For schedules & ranges where it's possible for more than 1 to be outside of guardrails
         case .glucoseTargetRange:
             return LocalizedString("A value you have entered is higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
         default:
@@ -103,19 +105,19 @@ public extension TherapySetting {
     
     var guardrailCaptionForLowValues: String {
         switch self {
-        case .glucoseTargetRange:
-            return LocalizedString("Some of the values you have entered are lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning for schedule interface")
-        default:
+        case .deliveryLimits:
             return LocalizedString("The values you have entered are lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning")
+        default:
+            return LocalizedString("Some of the values you have entered are lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning for schedule interface")
         }
     }
     
     var guardrailCaptionForHighValues: String {
         switch self {
-        case .glucoseTargetRange:
-            return LocalizedString("Some of the values you have entered are higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
-        default:
+        case .deliveryLimits:
             return LocalizedString("The values you have entered are higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
+        default:
+            return LocalizedString("Some of the values you have entered are higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
         }
     }
     
