@@ -714,6 +714,7 @@
 		C1A174EC23DEAD670034DF11 /* DeviceLogEntry+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8403723DB84B700673141 /* DeviceLogEntry+CoreDataClass.swift */; };
 		C1A174ED23DEAD6A0034DF11 /* DeviceLogEntry+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8403823DB84B700673141 /* DeviceLogEntry+CoreDataProperties.swift */; };
 		C1A3F5BE24AA6EE200329152 /* NSTimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FDF21C7290350073BE78 /* NSTimeInterval.swift */; };
+		C1E0EEF624EB26D800086510 /* DeliveryUncertaintyRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E0EEF524EB26D800086510 /* DeliveryUncertaintyRecoveryView.swift */; };
 		C1E4B305242E98E900E70CCB /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4B303242E98E900E70CCB /* ProgressView.swift */; };
 		C1E4B306242E98E900E70CCB /* ProgressIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4B304242E98E900E70CCB /* ProgressIndicatorView.swift */; };
 		C1E4B308242E995200E70CCB /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4B307242E995200E70CCB /* ActivityIndicator.swift */; };
@@ -1513,6 +1514,7 @@
 		C1DB55B21F2E964400C483A2 /* ExponentialInsulinModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExponentialInsulinModel.swift; sourceTree = "<group>"; };
 		C1DB55B41F2EA6EA00C483A2 /* iob_from_doses_exponential_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = iob_from_doses_exponential_output.json; sourceTree = "<group>"; };
 		C1DB55B61F2EACD500C483A2 /* iob_from_bolus_exponential_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = iob_from_bolus_exponential_output.json; sourceTree = "<group>"; };
+		C1E0EEF524EB26D800086510 /* DeliveryUncertaintyRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryUncertaintyRecoveryView.swift; sourceTree = "<group>"; };
 		C1E4B303242E98E900E70CCB /* ProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
 		C1E4B304242E98E900E70CCB /* ProgressIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorView.swift; sourceTree = "<group>"; };
 		C1E4B307242E995200E70CCB /* ActivityIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
@@ -1936,6 +1938,7 @@
 			isa = PBXGroup;
 			children = (
 				439706E822D2E94800C81566 /* BoundSwitchTableViewCell.swift */,
+				C1E0EEF524EB26D800086510 /* DeliveryUncertaintyRecoveryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3640,6 +3643,7 @@
 				892A5D28222EF567008961AB /* (null) in Sources */,
 				89D204C221CC8008001238CC /* IdentifiableClass.swift in Sources */,
 				89D204CB21CC8228001238CC /* NumberFormatter.swift in Sources */,
+				C1E0EEF624EB26D800086510 /* DeliveryUncertaintyRecoveryView.swift in Sources */,
 				89D204BB21CC7F34001238CC /* MockCGMManagerSettingsViewController.swift in Sources */,
 				89D204C521CC815E001238CC /* NSTimeInterval.swift in Sources */,
 				89D204CC21CC8236001238CC /* LocalizedString.swift in Sources */,

@@ -167,7 +167,8 @@ public final class MockPumpManager: TestingPumpManager {
             basalDeliveryState: basalDeliveryState(for: state),
             bolusState: bolusState(for: state),
             pumpStatusHighlight: pumpStatusHighlight(for: state),
-            pumpLifecycleProgress: pumpLifecycleProgress(for: state)
+            pumpLifecycleProgress: pumpLifecycleProgress(for: state),
+            deliveryIsUncertain: state.deliveryIsUncertain
         )
     }
 
@@ -209,6 +210,8 @@ public final class MockPumpManager: TestingPumpManager {
                     }
                 }
                 delegate?.pumpManagerDidUpdateState(self)
+                
+                delegate?.pumpManager(self, didUpdate: newStatus, oldStatus: oldStatus)
             }
         }
     }
@@ -245,6 +248,7 @@ public final class MockPumpManager: TestingPumpManager {
             bolusCancelShouldError: false,
             deliverySuspensionShouldError: false,
             deliveryResumptionShouldError: false,
+            deliveryCommandsShouldTriggerUncertainDelivery: false,
             maximumBolus: 25.0,
             maximumBasalRatePerHour: 5.0,
             suspendState: .resumed(Date()),
@@ -331,6 +335,10 @@ public final class MockPumpManager: TestingPumpManager {
             let error = PumpManagerError.communication(MockPumpManagerError.communicationFailure)
             logDeviceComms(.error, message: "Temp Basal failed with error \(error)")
             completion(.failure(error))
+        } else if state.deliveryCommandsShouldTriggerUncertainDelivery {
+            state.deliveryIsUncertain = true
+            logDeviceComms(.error, message: "Uncertain delivery for temp basal")
+            completion(.failure(PumpManagerError.uncertainDelivery))
         } else {
             let now = Date()
             if let temp = state.unfinalizedTempBasal, temp.finishTime.compare(now) == .orderedDescending {
@@ -370,8 +378,11 @@ public final class MockPumpManager: TestingPumpManager {
             let error = PumpManagerError.communication(MockPumpManagerError.communicationFailure)
             logDeviceComms(.error, message: "Bolus failed with error \(error)")
             completion(.failure(error))
+        } else if state.deliveryCommandsShouldTriggerUncertainDelivery {
+            state.deliveryIsUncertain = true
+            logDeviceComms(.error, message: "Uncertain delivery for bolus")
+            completion(.failure(PumpManagerError.uncertainDelivery))
         } else {
-
             state.finalizeFinishedDoses()
 
             if let _ = state.unfinalizedBolus {
