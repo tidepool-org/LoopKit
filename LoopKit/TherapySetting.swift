@@ -85,6 +85,8 @@ public extension TherapySetting {
 public extension TherapySetting {
     var guardrailCaptionForLowValue: String {
         switch self {
+        case .glucoseTargetRange:
+            return LocalizedString("A value you have entered is lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning for schedule interface")
         default:
             return LocalizedString("The value you have entered is lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning")
         }
@@ -92,6 +94,8 @@ public extension TherapySetting {
     
     var guardrailCaptionForHighValue: String {
         switch self {
+        case .glucoseTargetRange:
+            return LocalizedString("A value you have entered is higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
         default:
             return LocalizedString("The value you have entered is higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
         }
@@ -99,6 +103,8 @@ public extension TherapySetting {
     
     var guardrailCaptionForLowValues: String {
         switch self {
+        case .glucoseTargetRange:
+            return LocalizedString("Some of the values you have entered are lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning for schedule interface")
         default:
             return LocalizedString("The values you have entered are lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning")
         }
@@ -106,6 +112,8 @@ public extension TherapySetting {
     
     var guardrailCaptionForHighValues: String {
         switch self {
+        case .glucoseTargetRange:
+            return LocalizedString("Some of the values you have entered are higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
         default:
             return LocalizedString("The values you have entered are higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
         }
