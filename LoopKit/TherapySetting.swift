@@ -80,3 +80,41 @@ public extension TherapySetting {
         }
     }
 }
+
+// MARK: Guardrails
+public extension TherapySetting {
+    var guardrailCaptionForLowValue: String {
+        switch self {
+        default:
+            return LocalizedString("The value you have entered is lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning")
+        }
+    }
+    
+    var guardrailCaptionForHighValue: String {
+        switch self {
+        default:
+            return LocalizedString("The value you have entered is higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
+        }
+    }
+    
+    var guardrailCaptionForLowValues: String {
+        switch self {
+        default:
+            return LocalizedString("The values you have entered are lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning")
+        }
+    }
+    
+    var guardrailCaptionForHighValues: String {
+        switch self {
+        default:
+            return LocalizedString("The values you have entered are higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
+        }
+    }
+    
+    var guardrailSaveWarningCaption: String {
+        switch self {
+        default:
+            return LocalizedString("One or more of the values you have entered is outside of what Tidepool typically recommends for most people.", comment: "Descriptive text for saving settings outside the recommended range")
+        }
+    }
+}
