@@ -103,21 +103,12 @@ public extension TherapySetting {
         }
     }
     
-    var guardrailCaptionForLowValues: String {
+    var guardrailCaptionForOutsideValues: String {
         switch self {
         case .deliveryLimits:
-            return LocalizedString("The values you have entered are lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning")
+            return LocalizedString("The values you have entered are outside of what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
         default:
-            return LocalizedString("Some of the values you have entered are lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning for schedule interface")
-        }
-    }
-    
-    var guardrailCaptionForHighValues: String {
-        switch self {
-        case .deliveryLimits:
-            return LocalizedString("The values you have entered are higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
-        default:
-            return LocalizedString("Some of the values you have entered are higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
+            return LocalizedString("Some of the values you have entered are outside of what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
         }
     }
     

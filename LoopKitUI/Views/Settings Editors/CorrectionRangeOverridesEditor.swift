@@ -333,13 +333,12 @@ private struct CorrectionRangeOverridesGuardrailWarning: View {
     var caption: Text? {
         guard
             crossedThresholds.count == 1,
-            let crossedPreMealThresholds = crossedThresholds[.preMeal]
+            let crossedPreMealThresholds = crossedThresholds[.preMeal],
+            crossedPreMealThresholds.allSatisfy({ $0 == .aboveRecommended || $0 == .maximum })
         else {
             return nil
         }
-
-        return crossedPreMealThresholds.allSatisfy { $0 == .aboveRecommended || $0 == .maximum }
-            ? Text(TherapySetting.preMealCorrectionRangeOverride.guardrailCaptionForHighValue)
-            : nil
+        
+        return Text(crossedPreMealThresholds.count > 1 ? TherapySetting.preMealCorrectionRangeOverride.guardrailCaptionForOutsideValues : TherapySetting.preMealCorrectionRangeOverride.guardrailCaptionForHighValue)
     }
 }

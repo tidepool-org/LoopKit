@@ -353,7 +353,7 @@ struct DeliveryLimitsGuardrailWarning: View {
             return GuardrailWarning(
                 title: Text("Delivery Limits"),
                 thresholds: Array(crossedThresholds.values),
-                caption: Text(TherapySetting.deliveryLimits.guardrailCaptionForHighValues)
+                caption: Text(TherapySetting.deliveryLimits.guardrailCaptionForOutsideValues)
             )
         default:
             preconditionFailure("Unreachable: only two delivery limit settings exist")
