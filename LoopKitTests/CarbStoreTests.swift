@@ -24,7 +24,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
             cacheStore: cacheStore,
             cacheLength: .hours(24),
             defaultAbsorptionTimes: (fast: .minutes(30), medium: .hours(3), slow: .hours(5)),
-            observationInterval: .hours(24))
+            observationInterval: 0)
         carbStore.testQueryStore = healthStore
         carbStore.delegate = self
     }
@@ -655,7 +655,7 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
             cacheStore: cacheStore,
             cacheLength: .hours(24),
             defaultAbsorptionTimes: (fast: .minutes(30), medium: .hours(3), slow: .hours(5)),
-            observationInterval: .hours(24))
+            observationInterval: 0)
         completion = expectation(description: "Completion")
         queryAnchor = CarbStore.QueryAnchor()
         limit = Int.max

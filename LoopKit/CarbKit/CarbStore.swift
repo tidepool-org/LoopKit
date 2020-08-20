@@ -187,7 +187,6 @@ public final class CarbStore: HealthKitSampleStore {
      */
     public init(
         healthStore: HKHealthStore,
-        observeHealthKitSamplesFromCurrentApp: Bool = false,
         observeHealthKitSamplesFromOtherApps: Bool = true,
         cacheStore: PersistenceController,
         cacheLength: TimeInterval,
@@ -218,7 +217,7 @@ public final class CarbStore: HealthKitSampleStore {
         let observationEnabled = observationInterval > 0
 
         super.init(healthStore: healthStore,
-                   observeHealthKitSamplesFromCurrentApp: observeHealthKitSamplesFromCurrentApp,
+                   observeHealthKitSamplesFromCurrentApp: false,
                    observeHealthKitSamplesFromOtherApps: observeHealthKitSamplesFromOtherApps,
                    type: carbType,
                    observationStart: Date(timeIntervalSinceNow: -self.observationInterval),
@@ -258,11 +257,9 @@ public final class CarbStore: HealthKitSampleStore {
                 changed = true
             }
 
-            for externalID in UserDefaults.standard.deletedCarbEntryIds ?? [] {
-                let object = DeletedCarbObject(context: self.cacheStore.managedObjectContext)
-                object.externalID = externalID
-                changed = true
-            }
+            // Note: We no longer migrate UserDefaults.standard.deletedCarbEntryIds since we don't have a startDate (only
+            // external ID) and CachedCarbObject requires a starDate. This only prevents a deleted carb entry that was previously
+            // uploaded to Nightscout, but not yet deleted from Nightscout, from being deleted in Nightscout.
 
             if changed {
                 self.cacheStore.save()
@@ -778,9 +775,9 @@ extension CarbStore {
         return nil
     }
 
-    public func purgeAllCarbObjects(completion: @escaping (CarbStoreError?) -> Void) {
+    public func purgeCarbObjectsUnconditionally(before date: Date, completion: @escaping (CarbStoreError?) -> Void) {
         queue.async {
-            if let error = self.purgeAllCarbObjects() {
+            if let error = self.purgeCarbObjectsUnconditionally(before: date) {
                 completion(error)
                 return
             }
@@ -790,7 +787,7 @@ extension CarbStore {
         }
     }
 
-    private func purgeAllCarbObjects() -> CarbStoreError? {
+    private func purgeCarbObjectsUnconditionally(before date: Date? = nil) -> CarbStoreError? {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var error: CarbStoreError?
@@ -798,6 +795,9 @@ extension CarbStore {
         cacheStore.managedObjectContext.performAndWait {
             do {
                 let request: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
+                if let date = date {
+                    request.predicate = NSPredicate(format: "startDate < %@", date as NSDate)
+                }
                 let count = try self.cacheStore.managedObjectContext.deleteObjects(matching: request)
                 self.log.info("Purged all %d CachedCarbObjects", count)
             } catch let coreDataError {
@@ -807,6 +807,22 @@ extension CarbStore {
         }
 
         return error
+    }
+
+    public func purgeAllCarbObjectsUnconditionally(completion: @escaping (CarbStoreError?) -> Void) {
+        queue.async {
+            if let error = self.purgeAllCarbObjectsUnconditionally() {
+                completion(error)
+                return
+            }
+
+            self.delegate?.carbStoreHasUpdatedCarbData(self)
+            completion(nil)
+        }
+    }
+
+    private func purgeAllCarbObjectsUnconditionally() -> CarbStoreError? {
+        return purgeCarbObjectsUnconditionally()
     }
 
     private func notifyUpdatedCarbData(updateSource: UpdateSource) {
