@@ -51,13 +51,9 @@ class CachedCarbObject: NSManagedObject {
         }
     }
 
-    override func willSave() {
-        if isInserted {
-            if !changedValues().keys.contains("anchorKey") {
-                setPrimitiveValue(managedObjectContext!.anchorKey ?? 0, forKey: "anchorKey")
-            }
-        }
-        super.willSave()
+    override func awakeFromInsert() {
+        super.awakeFromInsert()
+        setPrimitiveValue(managedObjectContext!.anchorKey!, forKey: "anchorKey")
     }
 }
 
