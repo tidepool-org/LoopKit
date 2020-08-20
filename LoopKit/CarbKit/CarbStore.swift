@@ -447,6 +447,8 @@ extension CarbStore {
                         return
                     }
 
+                    self.saveObjectToHealthKit(newObject)
+
                     storedEntry = StoredCarbEntry(managedObject: newObject)
                 } catch let coreDataError {
                     error = .coreDataError(coreDataError)
@@ -494,6 +496,8 @@ extension CarbStore {
                         return
                     }
 
+                    self.saveObjectToHealthKit(newObject)
+
                     storedEntry = StoredCarbEntry(managedObject: newObject)
                 } catch let coreDataError {
                     error = .coreDataError(coreDataError)
@@ -508,6 +512,33 @@ extension CarbStore {
             completion(.success(storedEntry!))
 
             self.notifyUpdatedCarbData(updateSource: .changedInApp)
+        }
+    }
+
+    private func saveObjectToHealthKit(_ object: CachedCarbObject) {
+        dispatchPrecondition(condition: .onQueue(queue))
+
+        let sample = object.createSample()
+        var error: Error?
+
+        // Save object to HealthKit, log any errors, but do not fail
+        let dispatchGroup = DispatchGroup()
+        dispatchGroup.enter()
+        self.healthStore.save(sample) { (_, healthKitError) in
+            error = healthKitError
+            dispatchGroup.leave()
+        }
+        dispatchGroup.wait()
+
+        if let error = error {
+            self.log.error("Error saving HealthKit object: %@", String(describing: error))
+            return
+        }
+
+        // Update Core Data with the change, log any errors, but do not fail
+        object.uuid = sample.uuid
+        if let error = self.cacheStore.save() {
+            self.log.error("Error updating CachedCarbObject after saving HealthKit object: %@", String(describing: error))
         }
     }
 
@@ -535,7 +566,12 @@ extension CarbStore {
                     let newObject = CachedCarbObject(context: self.cacheStore.managedObjectContext)
                     newObject.delete(from: oldObject, on: date)
 
-                    error = CarbStoreError(error: self.cacheStore.save())
+                    if let saveError = CarbStoreError(error: self.cacheStore.save()) {
+                        error = saveError
+                        return
+                    }
+
+                    self.deleteObjectFromHealthKit(newObject)
                 } catch let coreDataError {
                     error = .coreDataError(coreDataError)
                 }
@@ -549,6 +585,37 @@ extension CarbStore {
             completion(.success(true))
 
             self.notifyUpdatedCarbData(updateSource: .changedInApp)
+        }
+    }
+
+    private func deleteObjectFromHealthKit(_ object: CachedCarbObject) {
+        dispatchPrecondition(condition: .onQueue(queue))
+
+        // If the object does not have a UUID, then it was never saved to HealthKit, so no need to delete
+        guard object.uuid != nil else {
+            return
+        }
+
+        var error: Error?
+
+        // Delete object from HealthKit, log any errors, but do not fail
+        let dispatchGroup = DispatchGroup()
+        dispatchGroup.enter()
+        self.healthStore.deleteObjects(of: self.carbType, predicate: HKQuery.predicateForObject(with: object.uuid!)) { (_, _, healthKitError) in
+            error = healthKitError
+            dispatchGroup.leave()
+        }
+        dispatchGroup.wait()
+
+        if let error = error {
+            self.log.error("Error deleting HealthKit object: %@", String(describing: error))
+            return
+        }
+
+        // Update Core Data with the change, log any errors, but do not fail
+        object.uuid = nil
+        if let error = self.cacheStore.save() {
+            self.log.error("Error updating CachedCarbObject after deleting HealthKit object: %@", String(describing: error))
         }
     }
 

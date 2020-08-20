@@ -222,7 +222,7 @@ extension CachedCarbObject {
 // MARK: - HealthKit Synchronization
 
 extension CachedCarbObject {
-    func createSample() -> HKQuantitySample? {
+    func createSample() -> HKQuantitySample {
         var metadata = [String: Any]()
 
         metadata[HKMetadataKeyFoodType] = foodType
