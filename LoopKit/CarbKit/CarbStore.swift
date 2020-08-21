@@ -730,7 +730,7 @@ extension CarbStore {
     /// Store carb objects in Watch extension
     public func setSyncCarbObjects(_ objects: [SyncCarbObject], completion: @escaping (CarbStoreError?) -> Void) {
         queue.async {
-            if let error = self.purgeAllCarbObjectsUnconditionally() {
+            if let error = self.purgeCarbObjectsUnconditionally() {
                 completion(error)
                 return
             }
@@ -770,18 +770,6 @@ extension CarbStore {
 
     private func purgeExpiredCarbObjects() {
         purgeCarbObjects(before: earliestCacheDate)
-    }
-
-    public func purgeCarbObjects(before date: Date, completion: @escaping (CarbStoreError?) -> Void) {
-        queue.async {
-            if let error = self.purgeCarbObjects(before: date) {
-                completion(error)
-                return
-            }
-
-            self.delegate?.carbStoreHasUpdatedCarbData(self)
-            completion(nil)
-        }
     }
 
     @discardableResult
@@ -858,22 +846,6 @@ extension CarbStore {
         }
 
         return error
-    }
-
-    public func purgeAllCarbObjectsUnconditionally(completion: @escaping (CarbStoreError?) -> Void) {
-        queue.async {
-            if let error = self.purgeAllCarbObjectsUnconditionally() {
-                completion(error)
-                return
-            }
-
-            self.delegate?.carbStoreHasUpdatedCarbData(self)
-            completion(nil)
-        }
-    }
-
-    private func purgeAllCarbObjectsUnconditionally() -> CarbStoreError? {
-        return purgeCarbObjectsUnconditionally()
     }
 
     private func notifyUpdatedCarbData(updateSource: UpdateSource) {

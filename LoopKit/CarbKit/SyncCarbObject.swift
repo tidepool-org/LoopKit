@@ -15,7 +15,7 @@ public enum Operation: Int, CaseIterable, Codable {
     case delete
 }
 
-public struct SyncCarbObject: Codable {
+public struct SyncCarbObject: Codable, Equatable {
     public let absorptionTime: TimeInterval?
     public let createdByCurrentApp: Bool
     public let foodType: String?
