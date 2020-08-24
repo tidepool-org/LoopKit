@@ -386,11 +386,10 @@ extension CarbEntryEditViewController: EmojiInputControllerDelegate {
             return
         }
 
-        let lastAbsorptionTime = self.absorptionTime
         self.absorptionTime = orderedAbsorptionTimes[section]
 
         if let cell = tableView.cellForRow(at: IndexPath(row: Row.absorptionTime.rawValue, section: 0)) as? DateAndDurationTableViewCell {
-            cell.duration = max(lastAbsorptionTime ?? 0, orderedAbsorptionTimes[section])
+            cell.duration = orderedAbsorptionTimes[section]
         }
     }
 }
