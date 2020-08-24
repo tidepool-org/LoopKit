@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import LoopKit
 
 
 public class EmojiInputController: UIInputViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, IdentifiableClass {
@@ -69,6 +70,10 @@ public class EmojiInputController: UIInputViewController, UICollectionViewDataSo
     @IBAction func deleteBackward(_ sender: Any) {
         inputView?.playInputClick​()
         textDocumentProxy.deleteBackward()
+        if let newContents = textDocumentProxy.documentContextBeforeInput {
+            let newAbsorptionSection = determineSectionAfterDelete(newContents)
+            delegate?.emojiInputControllerDidSelectItemInSection(newAbsorptionSection)
+        }
     }
 
     @IBAction func indexTouched(_ sender: UIGestureRecognizer) {
@@ -77,6 +82,14 @@ public class EmojiInputController: UIInputViewController, UICollectionViewDataSo
         let section = min(items - 1, Int(xLocation * CGFloat(items)))
 
         collectionView.scrollToItem(at: IndexPath(item: 0, section: section), at: .left, animated: false)
+    }
+    
+    private func determineSectionAfterDelete(_ newFieldContents: String) -> Int {
+        if let emoji = newFieldContents.last {
+            return FoodEmojiDataSource.sectionForEmoji(str: String(emoji))
+        }
+            
+        return 1 // default to medium absorption
     }
 
     // MARK: - UICollectionViewDataSource

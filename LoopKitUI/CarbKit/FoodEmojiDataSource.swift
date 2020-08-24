@@ -10,7 +10,7 @@ public func CarbAbsorptionInputController() -> EmojiInputController {
 }
 
 
-private class FoodEmojiDataSource: EmojiDataSource {
+class FoodEmojiDataSource: EmojiDataSource {
     private static let fast: [String] = {
         var fast = [
             "🍭", "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍",
@@ -55,6 +55,19 @@ private class FoodEmojiDataSource: EmojiDataSource {
 
         return other
     }()
+    
+    public static func sectionForEmoji(str: String) -> Int {
+        guard str.count == 1 else {
+            fatalError("Can only look up emoji section when string is length of 1")
+        }
+        
+        if fast.contains(str) { return 0 }
+        if medium.contains(str) { return 1 }
+        if slow.contains(str) { return 2 }
+        if other.contains(str) { return 3 }
+        
+        return -1
+    }
 
     let sections: [EmojiSection]
 
