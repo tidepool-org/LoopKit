@@ -30,10 +30,6 @@ public struct StoredCarbEntry: CarbEntry, Equatable {
     public let absorptionTime: TimeInterval?
     public let createdByCurrentApp: Bool
 
-    // MARK: - DEPRECATED - Sync state
-
-    public let externalID: String?
-
     // MARK: - User dates
 
     public let userCreatedDate: Date?
@@ -49,7 +45,6 @@ public struct StoredCarbEntry: CarbEntry, Equatable {
         foodType: String?,
         absorptionTime: TimeInterval?,
         createdByCurrentApp: Bool,
-        externalID: String?,
         userCreatedDate: Date?,
         userUpdatedDate: Date?
     ) {
@@ -62,7 +57,6 @@ public struct StoredCarbEntry: CarbEntry, Equatable {
         self.foodType = foodType
         self.absorptionTime = absorptionTime
         self.createdByCurrentApp = createdByCurrentApp
-        self.externalID = externalID
         self.userCreatedDate = userCreatedDate
         self.userUpdatedDate = userUpdatedDate
     }
@@ -80,7 +74,6 @@ extension StoredCarbEntry {
             foodType: managedObject.foodType,
             absorptionTime: managedObject.absorptionTime,
             createdByCurrentApp: managedObject.createdByCurrentApp,
-            externalID: managedObject.externalID,
             userCreatedDate: managedObject.userCreatedDate,
             userUpdatedDate: managedObject.userUpdatedDate
         )
@@ -104,17 +97,29 @@ extension StoredCarbEntry {
             return nil
         }
 
+        var provenanceIdentifier: String?
+        var syncIdentifier: String?
+        var syncVersion: Int?
+
+        if createdByCurrentApp {
+            provenanceIdentifier = HKSource.default().bundleIdentifier
+        }
+
+        if let externalID = rawValue["externalId"] as? String {
+            syncIdentifier = externalID
+            syncVersion = 1
+        }
+
         self.init(
             uuid: uuid,
-            provenanceIdentifier: nil,
-            syncIdentifier: nil,
-            syncVersion: nil,
+            provenanceIdentifier: provenanceIdentifier,
+            syncIdentifier: syncIdentifier,
+            syncVersion: syncVersion,
             startDate: startDate,
             quantity: HKQuantity(unit: HKUnit(from: unitString), doubleValue: value),
             foodType: rawValue["foodType"] as? String,
             absorptionTime: rawValue["absorptionTime"] as? TimeInterval,
             createdByCurrentApp: createdByCurrentApp,
-            externalID: rawValue["externalId"] as? String,
             userCreatedDate: nil,
             userUpdatedDate: nil
         )

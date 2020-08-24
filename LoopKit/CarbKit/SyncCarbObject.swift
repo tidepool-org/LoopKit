@@ -18,7 +18,6 @@ public enum Operation: Int, CaseIterable, Codable {
 public struct SyncCarbObject: Codable {
     public let absorptionTime: TimeInterval?
     public let createdByCurrentApp: Bool
-    public let externalID: String?
     public let foodType: String?
     public let grams: Double
     public let startDate: Date
@@ -31,11 +30,10 @@ public struct SyncCarbObject: Codable {
     public let userDeletedDate: Date?
     public let operation: Operation
     public let addedDate: Date?
-    public let removedDate: Date?
+    public let supercededDate: Date?
 
     public init(absorptionTime: TimeInterval?,
                 createdByCurrentApp: Bool,
-                externalID: String?,
                 foodType: String?,
                 grams: Double,
                 startDate: Date,
@@ -48,10 +46,9 @@ public struct SyncCarbObject: Codable {
                 userDeletedDate: Date?,
                 operation: Operation,
                 addedDate: Date?,
-                removedDate: Date?) {
+                supercededDate: Date?) {
         self.absorptionTime = absorptionTime
         self.createdByCurrentApp = createdByCurrentApp
-        self.externalID = externalID
         self.foodType = foodType
         self.grams = grams
         self.startDate = startDate
@@ -64,7 +61,7 @@ public struct SyncCarbObject: Codable {
         self.userDeletedDate = userDeletedDate
         self.operation = operation
         self.addedDate = addedDate
-        self.removedDate = removedDate
+        self.supercededDate = supercededDate
     }
 
     public var quantity: HKQuantity { HKQuantity(unit: .gram(), doubleValue: grams) }
@@ -74,7 +71,6 @@ extension SyncCarbObject {
     init(managedObject: CachedCarbObject) {
         self.init(absorptionTime: managedObject.absorptionTime,
                   createdByCurrentApp: managedObject.createdByCurrentApp,
-                  externalID: managedObject.externalID,
                   foodType: managedObject.foodType,
                   grams: managedObject.grams,
                   startDate: managedObject.startDate,
@@ -87,6 +83,6 @@ extension SyncCarbObject {
                   userDeletedDate: managedObject.userDeletedDate,
                   operation: managedObject.operation,
                   addedDate: managedObject.addedDate,
-                  removedDate: managedObject.removedDate)
+                  supercededDate: managedObject.supercededDate)
     }
 }

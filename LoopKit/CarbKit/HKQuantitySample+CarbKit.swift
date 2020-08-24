@@ -29,10 +29,6 @@ extension HKQuantitySample {
         return sourceRevision.source == HKSource.default()
     }
 
-    public var externalID: String? {
-        return metadata?[HKMetadataKeyExternalUUID] as? String
-    }
-
     public var userCreatedDate: Date? {
         return metadata?[MetadataKeyUserCreatedDate] as? Date
     }

@@ -226,7 +226,7 @@ public final class CarbStore: HealthKitSampleStore {
         cacheStore.onReady { (error) in
             guard error == nil else { return }
 
-            self.migrateLegacy()
+            self.migrateLegacyCarbEntryKeys()
 
             // Carb model settings based on the selected absorption model
             switch self.carbAbsorptionModel {
@@ -238,12 +238,6 @@ public final class CarbStore: HealthKitSampleStore {
                 self.settings = CarbModelSettings(absorptionModel: PiecewiseLinearAbsorption(), initialAbsorptionTimeOverrun: 1.0, adaptiveAbsorptionRateEnabled: true, adaptiveRateStandbyIntervalFraction: 0.2)
             }
         }
-    }
-
-    private func migrateLegacy() {
-        migrateLegacyCarbEntryKeys()
-        migrateLegacyDeletedCarbObjects()
-        migrateLegacyCachedCarbObjects()
     }
 
     // Migrate modifiedCarbEntries and deletedCarbEntryIDs
@@ -269,76 +263,6 @@ public final class CarbStore: HealthKitSampleStore {
         UserDefaults.standard.purgeLegacyCarbEntryKeys()
     }
 
-    // Migrate all deprecated DeletedCarbObjects to CachedCarbObjects
-    // Note: While this could be done exactly once with a custom migration using the NSMigrationManager, there is
-    // no harm in double-checking that all data has been migrated.
-    private func migrateLegacyDeletedCarbObjects() {
-        cacheStore.managedObjectContext.performAndWait {
-            do {
-                var changed = false
-
-                let request: NSFetchRequest<DeletedCarbObject> = DeletedCarbObject.fetchRequest()
-                let objects = try self.cacheStore.managedObjectContext.fetch(request)
-                for object in objects {
-                    if object.startDate != nil {
-                        let newObject = CachedCarbObject(context: self.cacheStore.managedObjectContext)
-                        newObject.delete(from: object)
-                    }
-
-                    self.cacheStore.managedObjectContext.delete(object)
-                    changed = true
-                }
-
-                if changed {
-                    self.cacheStore.save()
-                }
-            } catch let coreDataError {
-                self.log.error("Unable to migrate legacy deleted carb objects to cached carb objects: %{public}@", String(describing: coreDataError))
-            }
-        }
-    }
-
-    // Cleanup all CachedCarbObjects
-    // Note: While this could be done exactly oncee with a custom migration using the NSMigrationManager, there is
-    // no harm in double-checking that all data is still valid.
-    private func migrateLegacyCachedCarbObjects() {
-        cacheStore.managedObjectContext.performAndWait {
-            do {
-                var changed = false
-
-                let request: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
-                let objects = try self.cacheStore.managedObjectContext.fetch(request)
-                for object in objects {
-
-                    // Only for Loop-specific data
-                    if object.createdByCurrentApp {
-
-                        // Since this is known Loop data, migrate to use correct provenance identifier
-                        if object.provenanceIdentifier == nil {
-                            object.provenanceIdentifier = HKSource.default().bundleIdentifier
-                            changed = true
-                        }
-
-                        // Since this is known Loop data, migrate any known update operations when sync version > 1
-                        // Note: Default operation upon migration (according to data model) is create
-                        if object.syncIdentifier != nil, let syncVersion = object.syncVersion {
-                            if object.operation == .create, syncVersion > 1 {
-                                object.operation = .update
-                                changed = true
-                            }
-                        }
-                    }
-                }
-
-                if changed {
-                    self.cacheStore.save()
-                }
-            } catch let coreDataError {
-                self.log.error("Unable to migrate legacy cached carb objects: %{public}@", String(describing: coreDataError))
-            }
-        }
-    }
-
     // MARK: - HealthKitSampleStore
 
     public override func processResults(from query: HKAnchoredObjectQuery, added: [HKSample], deleted: [HKDeletedObject], error: Error?) {
@@ -355,7 +279,7 @@ public final class CarbStore: HealthKitSampleStore {
                 do {
                     let date = Date()
 
-                    // Append the new samples
+                    // Add new samples
                     if let samples = added as? [HKQuantitySample] {
                         for sample in samples {
                             if try self.addCarbEntry(for: sample, on: date) {
@@ -365,7 +289,7 @@ public final class CarbStore: HealthKitSampleStore {
                         }
                     }
 
-                    // Remove deleted samples
+                    // Delete deleted samples
                     for sample in deleted {
                         if try self.deleteCarbEntry(for: sample.uuid, on: date) {
                             self.log.debug("Deleted sample %@ from cache from HKAnchoredObjectQuery", sample.uuid.uuidString)
@@ -437,7 +361,7 @@ extension CarbStore {
         return .success(entries)
     }
 
-    /// Retrieves active (not removed, non-delete operation) cached carb objects within the specified date range
+    /// Retrieves active (not superceded, non-delete operation) cached carb objects within the specified date range
     ///
     /// - Parameters:
     ///   - start: The earliest date of values to retrieve
@@ -447,7 +371,7 @@ extension CarbStore {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var predicates = [NSPredicate(format: "operation != %d", Operation.delete.rawValue),
-                          NSPredicate(format: "removedDate == NIL")]
+                          NSPredicate(format: "supercededDate == NIL")]
         if let start = start {
             predicates.append(NSPredicate(format: "startDate >= %@", start as NSDate))
         }
@@ -557,10 +481,10 @@ extension CarbStore {
                         return
                     }
 
-                    // Use same date for removing old object and adding new object
+                    // Use same date for superceding old object and adding new object
                     let date = Date()
 
-                    oldObject.removedDate = date
+                    oldObject.supercededDate = date
 
                     let newObject = CachedCarbObject(context: self.cacheStore.managedObjectContext)
                     newObject.update(from: newEntry, replacing: oldObject, on: date)
@@ -603,10 +527,10 @@ extension CarbStore {
                         return
                     }
 
-                    // Use same date for removing old object and adding new object; also used for userDeletedDate
+                    // Use same date for superceding old object and adding new object; also used for userDeletedDate
                     let date = Date()
 
-                    oldObject.removedDate = date
+                    oldObject.supercededDate = date
 
                     let newObject = CachedCarbObject(context: self.cacheStore.managedObjectContext)
                     newObject.delete(from: oldObject, on: date)
@@ -644,8 +568,8 @@ extension CarbStore {
         // Find all objects being replaced
         let replacedObjects = try fetchRelatedCarbObjects(for: sample)
 
-        // Mark all objects as removed, as necessary
-        replacedObjects.filter({ $0.removedDate == nil }).forEach({ $0.removedDate = date })
+        // Mark all objects as superceded, as necessary
+        replacedObjects.filter({ $0.supercededDate == nil }).forEach({ $0.supercededDate = date })
 
         // Add an object (create or update) for this UUID
         let object = CachedCarbObject(context: cacheStore.managedObjectContext)
@@ -671,19 +595,19 @@ extension CarbStore {
             return false
         }
 
-        // Find all unremoved create/update objects, if none found, then nothing to delete
-        let removedObjects = objects.filter { $0.operation != .delete && $0.removedDate == nil }
-        guard !removedObjects.isEmpty else {
+        // Find all unsuperceded create/update objects, if none found, then nothing to delete
+        let supercededObjects = objects.filter { $0.operation != .delete && $0.supercededDate == nil }
+        guard !supercededObjects.isEmpty else {
             return false
         }
 
-        // Mark as removed
-        removedObjects.forEach { $0.removedDate = date }
+        // Mark as superceded
+        supercededObjects.forEach { $0.supercededDate = date }
 
         // If we don't yet have a delete object, then add one
-        if !objects.contains(where: { $0.operation == .delete }), let removedObject = removedObjects.last {
+        if !objects.contains(where: { $0.operation == .delete }), let supercededObject = supercededObjects.last {
             let object = CachedCarbObject(context: cacheStore.managedObjectContext)
-            object.delete(from: removedObject, on: date)
+            object.delete(from: supercededObject, on: date)
         }
 
         return true
@@ -1145,7 +1069,7 @@ extension CarbStore {
                 report.append("Error: \(error)")
             case .success(let entries):
                 report.append("[")
-                report.append("\tStoredCarbEntry(uuid, provenanceIdentifier, syncIdentifier, syncVersion, startDate, quantity, foodType, absorptionTime, createdByCurrentApp, externalID, userCreatedDate, userUpdatedDate)")
+                report.append("\tStoredCarbEntry(uuid, provenanceIdentifier, syncIdentifier, syncVersion, startDate, quantity, foodType, absorptionTime, createdByCurrentApp, userCreatedDate, userUpdatedDate)")
                 report.append(entries.map({ (entry) -> String in
                     return [
                         "\t",
@@ -1158,7 +1082,6 @@ extension CarbStore {
                         entry.foodType ?? "",
                         String(describing: entry.absorptionTime ?? self.defaultAbsorptionTimes.medium),
                         String(describing: entry.createdByCurrentApp),
-                        entry.externalID ?? "",
                         entry.userCreatedDate != nil ? String(describing: entry.userCreatedDate) : "",
                         entry.userUpdatedDate != nil ? String(describing: entry.userUpdatedDate) : "",
                         ].joined(separator: ", ")
@@ -1323,7 +1246,7 @@ fileprivate extension NSManagedObjectContext {
             NSPredicate(format: "syncIdentifier == %@", syncIdentifier),
             NSPredicate(format: "syncVersion == %d", syncVersion),
             NSPredicate(format: "operation != %d", Operation.delete.rawValue),
-            NSPredicate(format: "removedDate == NIL")
+            NSPredicate(format: "supercededDate == NIL")
         ])
         request.fetchLimit = 1
 
@@ -1345,7 +1268,7 @@ fileprivate extension NSManagedObjectContext {
             NSPredicate(format: "createdByCurrentApp == YES"),
             NSPredicate(format: "uuid == %@", uuid as NSUUID),
             NSPredicate(format: "operation != %d", Operation.delete.rawValue),
-            NSPredicate(format: "removedDate == NIL")
+            NSPredicate(format: "supercededDate == NIL")
         ])
         request.fetchLimit = 1
 

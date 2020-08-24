@@ -18,7 +18,6 @@ extension CachedCarbObject {
 
     @NSManaged public var primitiveAbsorptionTime: NSNumber?
     @NSManaged public var createdByCurrentApp: Bool
-    @NSManaged public var externalID: String?
     @NSManaged public var foodType: String?
     @NSManaged public var grams: Double
     @NSManaged public var startDate: Date
@@ -31,7 +30,7 @@ extension CachedCarbObject {
     @NSManaged public var userDeletedDate: Date?
     @NSManaged public var primitiveOperation: NSNumber
     @NSManaged public var addedDate: Date?
-    @NSManaged public var removedDate: Date?
+    @NSManaged public var supercededDate: Date?
     @NSManaged public var anchorKey: Int64
 
 }

@@ -75,7 +75,6 @@ extension CachedCarbObject {
     func create(from entry: NewCarbEntry, on date: Date = Date(), provenanceIdentifier: String, syncIdentifier: String, syncVersion: Int = 1) {
         self.absorptionTime = entry.absorptionTime
         self.createdByCurrentApp = true
-        self.externalID = nil
         self.foodType = entry.foodType
         self.grams = entry.quantity.doubleValue(for: .gram())
         self.startDate = entry.startDate
@@ -91,7 +90,7 @@ extension CachedCarbObject {
 
         self.operation = .create
         self.addedDate = date
-        self.removedDate = nil
+        self.supercededDate = nil
     }
 
     // HealthKit
@@ -100,7 +99,6 @@ extension CachedCarbObject {
 
         self.absorptionTime = sample.absorptionTime
         self.createdByCurrentApp = sample.createdByCurrentApp
-        self.externalID = sample.externalID
         self.foodType = sample.foodType
         self.grams = sample.quantity.doubleValue(for: .gram())
         self.startDate = sample.startDate
@@ -116,7 +114,7 @@ extension CachedCarbObject {
 
         self.operation = .create
         self.addedDate = date
-        self.removedDate = nil
+        self.supercededDate = nil
     }
 
     // Loop
@@ -127,7 +125,6 @@ extension CachedCarbObject {
 
         self.absorptionTime = entry.absorptionTime
         self.createdByCurrentApp = object.createdByCurrentApp
-        self.externalID = object.externalID
         self.foodType = entry.foodType
         self.grams = entry.quantity.doubleValue(for: .gram())
         self.startDate = entry.startDate
@@ -143,7 +140,7 @@ extension CachedCarbObject {
 
         self.operation = .update
         self.addedDate = date
-        self.removedDate = nil
+        self.supercededDate = nil
     }
 
     // HealthKit
@@ -156,7 +153,6 @@ extension CachedCarbObject {
 
         self.absorptionTime = sample.absorptionTime
         self.createdByCurrentApp = sample.createdByCurrentApp
-        self.externalID = sample.externalID ?? object.externalID
         self.foodType = sample.foodType
         self.grams = sample.quantity.doubleValue(for: .gram())
         self.startDate = sample.startDate
@@ -172,14 +168,13 @@ extension CachedCarbObject {
 
         self.operation = .update
         self.addedDate = date
-        self.removedDate = nil
+        self.supercededDate = nil
     }
 
     // Either
     func delete(from object: CachedCarbObject, on date: Date = Date()) {
         self.absorptionTime = object.absorptionTime
         self.createdByCurrentApp = object.createdByCurrentApp
-        self.externalID = object.externalID
         self.foodType = object.foodType
         self.grams = object.grams
         self.startDate = object.startDate
@@ -195,7 +190,7 @@ extension CachedCarbObject {
 
         self.operation = .delete
         self.addedDate = date
-        self.removedDate = nil
+        self.supercededDate = nil
     }
 }
 
@@ -205,7 +200,6 @@ extension CachedCarbObject {
     func update(from object: SyncCarbObject) {
         self.absorptionTime = object.absorptionTime
         self.createdByCurrentApp = object.createdByCurrentApp
-        self.externalID = object.externalID
         self.foodType = object.foodType
         self.grams = object.grams
         self.startDate = object.startDate
@@ -221,7 +215,7 @@ extension CachedCarbObject {
 
         self.operation = object.operation
         self.addedDate = object.addedDate
-        self.removedDate = object.removedDate
+        self.supercededDate = object.supercededDate
     }
 }
 
@@ -236,8 +230,6 @@ extension CachedCarbObject {
 
         metadata[HKMetadataKeySyncIdentifier] = syncIdentifier
         metadata[HKMetadataKeySyncVersion] = syncVersion
-
-        metadata[HKMetadataKeyExternalUUID] = externalID
 
         metadata[MetadataKeyUserCreatedDate] = userCreatedDate
         metadata[MetadataKeyUserUpdatedDate] = userUpdatedDate
@@ -258,7 +250,6 @@ extension CachedCarbObject {
     func create(from entry: StoredCarbEntry) {
         self.absorptionTime = entry.absorptionTime
         self.createdByCurrentApp = entry.createdByCurrentApp
-        self.externalID = entry.externalID
         self.foodType = entry.foodType
         self.grams = entry.quantity.doubleValue(for: .gram())
         self.startDate = entry.startDate
@@ -270,26 +261,6 @@ extension CachedCarbObject {
 
         self.operation = .create
         self.addedDate = nil
-        self.removedDate = nil
-    }
-
-    func delete(from managedObject: DeletedCarbObject) {
-        self.absorptionTime = nil
-        self.createdByCurrentApp = false                    // Since we don't know from DeletedCarbObject, it is safest to assume not
-        self.externalID = managedObject.externalID
-        self.foodType = nil
-        self.grams = 0
-        self.startDate = managedObject.startDate!
-        self.uuid = managedObject.uuid
-
-        self.provenanceIdentifier = nil
-        self.syncIdentifier = managedObject.syncIdentifier
-        self.syncVersion = Int(managedObject.syncVersion)
-
-        self.operation = .delete
-        self.addedDate = nil
-        self.removedDate = nil
-
-        self.anchorKey = managedObject.modificationCounter  // Manually retain modification counter in anchor key
+        self.supercededDate = nil
     }
 }

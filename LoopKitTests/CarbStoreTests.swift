@@ -78,7 +78,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNil(objects[0].userDeletedDate)
                     XCTAssertEqual(objects[0].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[0].createdByCurrentApp, true)
-                    XCTAssertNil(objects[0].externalID)
                     XCTAssertEqual(objects[0].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
@@ -88,7 +87,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].operation, .create)
                     XCTAssertNotNil(objects[0].addedDate)
-                    XCTAssertNil(objects[0].removedDate)
+                    XCTAssertNil(objects[0].supercededDate)
                     XCTAssertGreaterThan(objects[0].anchorKey, 0)
 
                     firstSyncIdentifier = objects[0].syncIdentifier
@@ -115,7 +114,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                                 XCTAssertEqual(samples[0].foodType, addCarbEntry.foodType)
                                 XCTAssertEqual(samples[0].absorptionTime, addCarbEntry.absorptionTime)
                                 XCTAssertEqual(samples[0].createdByCurrentApp, true)
-                                XCTAssertNil(samples[0].externalID)
                             }
                         }
                     }
@@ -164,7 +162,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNil(objects[0].userDeletedDate)
                     XCTAssertEqual(objects[0].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[0].createdByCurrentApp, true)
-                    XCTAssertNil(objects[0].externalID)
                     XCTAssertEqual(objects[0].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
@@ -174,7 +171,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].operation, .create)
                     XCTAssertNotNil(objects[0].addedDate)
-                    XCTAssertNil(objects[0].removedDate)
+                    XCTAssertNil(objects[0].supercededDate)
                     XCTAssertGreaterThan(objects[0].anchorKey, 0)
 
                     firstSyncIdentifier = objects[0].syncIdentifier
@@ -189,13 +186,12 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     let objects: [CachedCarbObject] = self.cacheStore.managedObjectContext.all().sorted { $0.syncVersion! < $1.syncVersion! }
                     XCTAssertEqual(objects.count, 2)
 
-                    // Added object, removed
+                    // Added object, superceded
                     XCTAssertEqual(objects[0].userCreatedDate, firstUserCreatedDate)
                     XCTAssertNil(objects[0].userUpdatedDate)
                     XCTAssertNil(objects[0].userDeletedDate)
                     XCTAssertEqual(objects[0].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[0].createdByCurrentApp, true)
-                    XCTAssertNil(objects[0].externalID)
                     XCTAssertEqual(objects[0].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
@@ -205,7 +201,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].operation, .create)
                     XCTAssertNotNil(objects[0].addedDate)
-                    XCTAssertNotNil(objects[0].removedDate)
+                    XCTAssertNotNil(objects[0].supercededDate)
                     XCTAssertEqual(objects[0].anchorKey, firstAnchorKey)
 
                     // Updated object
@@ -214,7 +210,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNil(objects[1].userDeletedDate)
                     XCTAssertEqual(objects[1].absorptionTime, replaceCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[1].createdByCurrentApp, true)
-                    XCTAssertNil(objects[1].externalID)
                     XCTAssertEqual(objects[1].foodType, replaceCarbEntry.foodType)
                     XCTAssertEqual(objects[1].grams, replaceCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[1].startDate, replaceCarbEntry.startDate)
@@ -224,7 +219,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[1].syncVersion, 2)
                     XCTAssertEqual(objects[1].operation, .update)
                     XCTAssertNotNil(objects[1].addedDate)
-                    XCTAssertNil(objects[1].removedDate)
+                    XCTAssertNil(objects[1].supercededDate)
                     XCTAssertGreaterThan(objects[1].anchorKey, firstAnchorKey!)
 
                     secondUserUpdatedDate = objects[1].userUpdatedDate
@@ -250,7 +245,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                                 XCTAssertEqual(samples[0].foodType, replaceCarbEntry.foodType)
                                 XCTAssertEqual(samples[0].absorptionTime, replaceCarbEntry.absorptionTime)
                                 XCTAssertEqual(samples[0].createdByCurrentApp, true)
-                                XCTAssertNil(samples[0].externalID)
                             }
                         }
                     }
@@ -297,7 +291,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNil(objects[0].userDeletedDate)
                     XCTAssertEqual(objects[0].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[0].createdByCurrentApp, true)
-                    XCTAssertNil(objects[0].externalID)
                     XCTAssertEqual(objects[0].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
@@ -307,7 +300,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].operation, .create)
                     XCTAssertNotNil(objects[0].addedDate)
-                    XCTAssertNil(objects[0].removedDate)
+                    XCTAssertNil(objects[0].supercededDate)
                     XCTAssertGreaterThan(objects[0].anchorKey, 0)
 
                     firstSyncIdentifier = objects[0].syncIdentifier
@@ -322,13 +315,12 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     let objects: [CachedCarbObject] = self.cacheStore.managedObjectContext.all()
                     XCTAssertEqual(objects.count, 2)
 
-                    // Added object, removed
+                    // Added object, superceded
                     XCTAssertEqual(objects[0].userCreatedDate, firstUserCreatedDate)
                     XCTAssertNil(objects[0].userUpdatedDate)
                     XCTAssertNil(objects[0].userDeletedDate)
                     XCTAssertEqual(objects[0].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[0].createdByCurrentApp, true)
-                    XCTAssertNil(objects[0].externalID)
                     XCTAssertEqual(objects[0].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
@@ -338,7 +330,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].operation, .create)
                     XCTAssertNotNil(objects[0].addedDate)
-                    XCTAssertNotNil(objects[0].removedDate)
+                    XCTAssertNotNil(objects[0].supercededDate)
                     XCTAssertEqual(objects[0].anchorKey, firstAnchorKey)
 
                     // Deleted object
@@ -347,7 +339,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNotNil(objects[1].userDeletedDate)
                     XCTAssertEqual(objects[1].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[1].createdByCurrentApp, true)
-                    XCTAssertNil(objects[1].externalID)
                     XCTAssertEqual(objects[1].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[1].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[1].startDate, addCarbEntry.startDate)
@@ -357,7 +348,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[1].syncVersion, 1)
                     XCTAssertEqual(objects[1].operation, .delete)
                     XCTAssertNotNil(objects[1].addedDate)
-                    XCTAssertNil(objects[1].removedDate)
+                    XCTAssertNil(objects[1].supercededDate)
                     XCTAssertGreaterThan(objects[1].anchorKey, firstAnchorKey!)
 
                     DispatchQueue.main.async {
@@ -420,7 +411,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNil(objects[0].userDeletedDate)
                     XCTAssertEqual(objects[0].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[0].createdByCurrentApp, true)
-                    XCTAssertNil(objects[0].externalID)
                     XCTAssertEqual(objects[0].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
@@ -430,7 +420,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].operation, .create)
                     XCTAssertNotNil(objects[0].addedDate)
-                    XCTAssertNil(objects[0].removedDate)
+                    XCTAssertNil(objects[0].supercededDate)
                     XCTAssertGreaterThan(objects[0].anchorKey, 0)
 
                     firstSyncIdentifier = objects[0].syncIdentifier
@@ -445,13 +435,12 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     let objects: [CachedCarbObject] = self.cacheStore.managedObjectContext.all().sorted { $0.syncVersion! < $1.syncVersion! }
                     XCTAssertEqual(objects.count, 2)
 
-                    // Added object, removed
+                    // Added object, superceded
                     XCTAssertEqual(objects[0].userCreatedDate, firstUserCreatedDate)
                     XCTAssertNil(objects[0].userUpdatedDate)
                     XCTAssertNil(objects[0].userDeletedDate)
                     XCTAssertEqual(objects[0].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[0].createdByCurrentApp, true)
-                    XCTAssertNil(objects[0].externalID)
                     XCTAssertEqual(objects[0].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
@@ -461,7 +450,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].operation, .create)
                     XCTAssertNotNil(objects[0].addedDate)
-                    XCTAssertNotNil(objects[0].removedDate)
+                    XCTAssertNotNil(objects[0].supercededDate)
                     XCTAssertEqual(objects[0].anchorKey, firstAnchorKey)
 
                     // Updated object
@@ -470,7 +459,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNil(objects[1].userDeletedDate)
                     XCTAssertEqual(objects[1].absorptionTime, replaceCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[1].createdByCurrentApp, true)
-                    XCTAssertNil(objects[1].externalID)
                     XCTAssertEqual(objects[1].foodType, replaceCarbEntry.foodType)
                     XCTAssertEqual(objects[1].grams, replaceCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[1].startDate, replaceCarbEntry.startDate)
@@ -480,7 +468,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[1].syncVersion, 2)
                     XCTAssertEqual(objects[1].operation, .update)
                     XCTAssertNotNil(objects[1].addedDate)
-                    XCTAssertNil(objects[1].removedDate)
+                    XCTAssertNil(objects[1].supercededDate)
                     XCTAssertGreaterThan(objects[1].anchorKey, firstAnchorKey!)
 
                     secondUserUpdatedDate = objects[1].userUpdatedDate
@@ -494,13 +482,12 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     let objects: [CachedCarbObject] = self.cacheStore.managedObjectContext.all().sorted { $0.syncVersion! < $1.syncVersion! }
                     XCTAssertEqual(objects.count, 3)
 
-                    // Added object, removed
+                    // Added object, superceded
                     XCTAssertEqual(objects[0].userCreatedDate, firstUserCreatedDate)
                     XCTAssertNil(objects[0].userUpdatedDate)
                     XCTAssertNil(objects[0].userDeletedDate)
                     XCTAssertEqual(objects[0].absorptionTime, addCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[0].createdByCurrentApp, true)
-                    XCTAssertNil(objects[0].externalID)
                     XCTAssertEqual(objects[0].foodType, addCarbEntry.foodType)
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
@@ -510,16 +497,15 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].operation, .create)
                     XCTAssertNotNil(objects[0].addedDate)
-                    XCTAssertNotNil(objects[0].removedDate)
+                    XCTAssertNotNil(objects[0].supercededDate)
                     XCTAssertEqual(objects[0].anchorKey, firstAnchorKey)
 
-                    // Updated object, removed
+                    // Updated object, superceded
                     XCTAssertEqual(objects[1].userCreatedDate, firstUserCreatedDate)
                     XCTAssertEqual(objects[1].userUpdatedDate, secondUserUpdatedDate)
                     XCTAssertNil(objects[1].userDeletedDate)
                     XCTAssertEqual(objects[1].absorptionTime, replaceCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[1].createdByCurrentApp, true)
-                    XCTAssertNil(objects[1].externalID)
                     XCTAssertEqual(objects[1].foodType, replaceCarbEntry.foodType)
                     XCTAssertEqual(objects[1].grams, replaceCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[1].startDate, replaceCarbEntry.startDate)
@@ -529,7 +515,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[1].syncVersion, 2)
                     XCTAssertEqual(objects[1].operation, .update)
                     XCTAssertNotNil(objects[1].addedDate)
-                    XCTAssertNotNil(objects[1].removedDate)
+                    XCTAssertNotNil(objects[1].supercededDate)
                     XCTAssertEqual(objects[1].anchorKey, secondAnchorKey)
 
                     // Deleted object
@@ -538,7 +524,6 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertNotNil(objects[2].userDeletedDate)
                     XCTAssertEqual(objects[2].absorptionTime, replaceCarbEntry.absorptionTime)
                     XCTAssertEqual(objects[2].createdByCurrentApp, true)
-                    XCTAssertNil(objects[2].externalID)
                     XCTAssertEqual(objects[2].foodType, replaceCarbEntry.foodType)
                     XCTAssertEqual(objects[2].grams, replaceCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[2].startDate, replaceCarbEntry.startDate)
@@ -548,7 +533,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[2].syncVersion, 2)
                     XCTAssertEqual(objects[2].operation, .delete)
                     XCTAssertNotNil(objects[2].addedDate)
-                    XCTAssertNil(objects[2].removedDate)
+                    XCTAssertNil(objects[2].supercededDate)
                     XCTAssertGreaterThan(objects[2].anchorKey, secondAnchorKey!)
 
                     DispatchQueue.main.async {
