@@ -1294,6 +1294,86 @@ extension CarbStore {
     }
 }
 
+// MARK: - Critical Event Log Export
+
+extension CarbStore: CriticalEventLog {
+    private var exportEstimatedDurationPerObject: TimeInterval { 0.0009 }   // Estimated during development on iPhone 8, absolute duration is less important than relative to other critical event logs
+    private var exportFetchLimit: Int { Int(criticalEventLogExportMinimumProgressDuration / exportEstimatedDurationPerObject) }
+
+    public var exportName: String { "Carbs.json" }
+
+    public func exportEstimatedDuration(startDate: Date, endDate: Date? = nil) -> Result<TimeInterval, Error> {
+        var result: Result<TimeInterval, Error>?
+
+        self.cacheStore.managedObjectContext.performAndWait {
+            do {
+                let request: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
+                request.predicate = self.exportDatePredicate(startDate: startDate, endDate: endDate)
+
+                let objectCount = try self.cacheStore.managedObjectContext.count(for: request)
+                result = .success(Double(objectCount) * exportEstimatedDurationPerObject)
+            } catch let error {
+                result = .failure(error)
+            }
+        }
+
+        return result!
+    }
+
+    public func export(startDate: Date, endDate: Date, to stream: OutputStream, progressor: EstimatedDurationProgressor) -> Error? {
+        let encoder = JSONStreamEncoder(stream: stream)
+        var anchorKey: Int64 = 0
+        var fetching = true
+        var error: Error?
+
+        while fetching && error == nil {
+            self.cacheStore.managedObjectContext.performAndWait {
+                do {
+                    guard !progressor.isCancelled else {
+                        throw CriticalEventLogError.cancelled
+                    }
+
+                    let request: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
+                    request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [NSPredicate(format: "anchorKey > %d", anchorKey),
+                                                                                            self.exportDatePredicate(startDate: startDate, endDate: endDate)])
+                    request.sortDescriptors = [NSSortDescriptor(key: "anchorKey", ascending: true)]
+                    request.fetchLimit = self.exportFetchLimit
+
+                    let objects = try self.cacheStore.managedObjectContext.fetch(request)
+                    if objects.isEmpty {
+                        fetching = false
+                        return
+                    }
+
+                    try encoder.encode(objects)
+
+                    anchorKey = objects.last!.anchorKey
+
+                    progressor.didProgress(for: Double(objects.count) * exportEstimatedDurationPerObject)
+                } catch let fetchError {
+                    error = fetchError
+                }
+            }
+        }
+
+        if let closeError = encoder.close(), error == nil {
+            error = closeError
+        }
+
+        return error
+    }
+
+    private func exportDatePredicate(startDate: Date, endDate: Date? = nil) -> NSPredicate {
+        var addedDatePredicate = NSPredicate(format: "addedDate >= %@", startDate as NSDate)
+        var supercededDatePredicate = NSPredicate(format: "supercededDate >= %@", startDate as NSDate)
+        if let endDate = endDate {
+            addedDatePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [addedDatePredicate, NSPredicate(format: "addedDate < %@", endDate as NSDate)])
+            supercededDatePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [supercededDatePredicate, NSPredicate(format: "supercededDate < %@", endDate as NSDate)])
+        }
+        return NSCompoundPredicate(orPredicateWithSubpredicates: [addedDatePredicate, supercededDatePredicate])
+    }
+}
+
 // MARK: - Core Data (Bulk) - TEST ONLY
 
 extension CarbStore {

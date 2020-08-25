@@ -747,6 +747,100 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
     
 }
 
+class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
+    let insulinModel = WalshInsulinModel(actionDuration: .hours(4))
+    let basalProfile = BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 68400.0]]])
+    let insulinSensitivitySchedule = InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]])
+
+    var doseStore: DoseStore!
+    var outputStream: MockOutputStream!
+    var progressor: MockEstimatedDurationProgressor!
+
+    override func setUp() {
+        super.setUp()
+
+        let persistedDate = dateFormatter.date(from: "2100-01-02T03:000:00Z")!
+        let url = URL(string: "http://a.b.com")!
+        let events = [PersistedPumpEvent(date: dateFormatter.date(from: "2100-01-02T03:08:00Z")!, persistedDate: persistedDate, dose: nil, isUploaded: false, objectIDURL: url, raw: nil, title: nil, type: nil, isMutable: false),
+                      PersistedPumpEvent(date: dateFormatter.date(from: "2100-01-02T03:10:00Z")!, persistedDate: persistedDate, dose: nil, isUploaded: false, objectIDURL: url, raw: nil, title: nil, type: nil, isMutable: false),
+                      PersistedPumpEvent(date: dateFormatter.date(from: "2100-01-02T03:04:00Z")!, persistedDate: persistedDate, dose: nil, isUploaded: false, objectIDURL: url, raw: nil, title: nil, type: nil, isMutable: false),
+                      PersistedPumpEvent(date: dateFormatter.date(from: "2100-01-02T03:06:00Z")!, persistedDate: persistedDate, dose: nil, isUploaded: false, objectIDURL: url, raw: nil, title: nil, type: nil, isMutable: false),
+                      PersistedPumpEvent(date: dateFormatter.date(from: "2100-01-02T03:02:00Z")!, persistedDate: persistedDate, dose: nil, isUploaded: false, objectIDURL: url, raw: nil, title: nil, type: nil, isMutable: false)]
+
+        doseStore = DoseStore(healthStore: HKHealthStoreMock(),
+                              cacheStore: cacheStore,
+                              observationEnabled: false,
+                              insulinModel: insulinModel,
+                              basalProfile: basalProfile,
+                              insulinSensitivitySchedule: insulinSensitivitySchedule)
+        XCTAssertNil(doseStore.addPumpEvents(events: events))
+
+        outputStream = MockOutputStream()
+        progressor = MockEstimatedDurationProgressor()
+    }
+
+    override func tearDown() {
+        doseStore = nil
+
+        super.tearDown()
+    }
+
+    func testExportEstimatedDuration() {
+        switch doseStore.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
+                                                 endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
+        case .failure(let error):
+            XCTFail("Unexpected failure: \(error)")
+        case .success(let estimatedDuration):
+            XCTAssertEqual(estimatedDuration, 3 * 0.0005, accuracy: 0.0001)
+        }
+    }
+
+    func testExportEstimatedDurationEmpty() {
+        switch doseStore.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
+                                                 endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
+        case .failure(let error):
+            XCTFail("Unexpected failure: \(error)")
+        case .success(let estimatedDuration):
+            XCTAssertEqual(estimatedDuration, 0)
+        }
+    }
+
+    func testExport() {
+        XCTAssertNil(doseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
+                                      endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
+                                      to: outputStream,
+                                      progressor: progressor))
+        XCTAssertEqual(outputStream.string, """
+[
+{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:08:00.000Z","duration":0,"modificationCounter":1,"mutable":false,"uploaded":false},
+{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:04:00.000Z","duration":0,"modificationCounter":3,"mutable":false,"uploaded":false},
+{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:06:00.000Z","duration":0,"modificationCounter":4,"mutable":false,"uploaded":false}
+]
+"""
+        )
+        XCTAssertEqual(progressor.estimatedDuration, 3 * 0.0005, accuracy: 0.0001)
+    }
+    
+    func testExportEmpty() {
+        XCTAssertNil(doseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
+                                      endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!,
+                                      to: outputStream,
+                                      progressor: progressor))
+        XCTAssertEqual(outputStream.string, "[]")
+        XCTAssertEqual(progressor.estimatedDuration, 0)
+    }
+
+    func testExportCancelled() {
+        progressor.isCancelled = true
+        XCTAssertEqual(doseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
+                                        endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
+                                        to: outputStream,
+                                        progressor: progressor) as? CriticalEventLogError, CriticalEventLogError.cancelled)
+    }
+
+    private let dateFormatter = ISO8601DateFormatter()
+}
+
 class DoseStoreEffectTests: PersistenceControllerTestCase {
     var doseStore: DoseStore!
 

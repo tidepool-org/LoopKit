@@ -168,7 +168,7 @@ public struct StoredDosingDecision {
     public let recommendedTempBasal: TempBasalRecommendationWithDate?
     public let recommendedBolus: BolusRecommendationWithDate?
     public let pumpManagerStatus: PumpManagerStatus?
-    public let notificationSettings: UNNotificationSettings?
+    public let notificationSettings: NotificationSettings?
     public let deviceSettings: DeviceSettings?
     public let errors: [Error]?
     public let syncIdentifier: String
@@ -185,7 +185,7 @@ public struct StoredDosingDecision {
                 recommendedTempBasal: TempBasalRecommendationWithDate? = nil,
                 recommendedBolus: BolusRecommendationWithDate? = nil,
                 pumpManagerStatus: PumpManagerStatus? = nil,
-                notificationSettings: UNNotificationSettings? = nil,
+                notificationSettings: NotificationSettings? = nil,
                 deviceSettings: DeviceSettings? = nil,
                 errors: [Error]? = nil,
                 syncIdentifier: String = UUID().uuidString) {
@@ -237,6 +237,130 @@ public struct StoredDosingDecision {
         }
     }
 
+    public struct NotificationSettings: Codable, Equatable {
+        public enum AuthorizationStatus: String, Codable {
+            case notDetermined
+            case denied
+            case authorized
+            case provisional
+            case unknown
+
+            public init(_ authorizationStatus: UNAuthorizationStatus) {
+                switch authorizationStatus {
+                case .notDetermined:
+                    self = .notDetermined
+                case .denied:
+                    self = .denied
+                case .authorized:
+                    self = .authorized
+                case .provisional:
+                    self = .provisional
+                @unknown default:
+                    self = .unknown
+                }
+            }
+        }
+
+        public enum NotificationSetting: String, Codable {
+            case notSupported
+            case disabled
+            case enabled
+            case unknown
+
+            public init(_ notificationSetting: UNNotificationSetting) {
+                switch notificationSetting {
+                case .notSupported:
+                    self = .notSupported
+                case .disabled:
+                    self = .disabled
+                case .enabled:
+                    self = .enabled
+                @unknown default:
+                    self = .unknown
+                }
+            }
+        }
+
+        public enum AlertStyle: String, Codable {
+            case none
+            case banner
+            case alert
+            case unknown
+
+            public init(_ alertStyle: UNAlertStyle) {
+                switch alertStyle {
+                case .none:
+                    self = .none
+                case .banner:
+                    self = .banner
+                case .alert:
+                    self = .alert
+                @unknown default:
+                    self = .unknown
+                }
+            }
+        }
+
+        public enum ShowPreviewsSetting: String, Codable {
+            case always
+            case whenAuthenticated
+            case never
+            case unknown
+
+            public init(_ showPreviewsSetting: UNShowPreviewsSetting) {
+                switch showPreviewsSetting {
+                case .always:
+                    self = .always
+                case .whenAuthenticated:
+                    self = .whenAuthenticated
+                case .never:
+                    self = .never
+                @unknown default:
+                    self = .unknown
+                }
+            }
+        }
+
+        public let authorizationStatus: AuthorizationStatus
+        public let soundSetting: NotificationSetting
+        public let badgeSetting: NotificationSetting
+        public let alertSetting: NotificationSetting
+        public let notificationCenterSetting: NotificationSetting
+        public let lockScreenSetting: NotificationSetting
+        public let carPlaySetting: NotificationSetting
+        public let alertStyle: AlertStyle
+        public let showPreviewsSetting: ShowPreviewsSetting
+        public let criticalAlertSetting: NotificationSetting
+        public let providesAppNotificationSettings: Bool
+        public let announcementSetting: NotificationSetting
+
+        public init(authorizationStatus: AuthorizationStatus,
+                    soundSetting: NotificationSetting,
+                    badgeSetting: NotificationSetting,
+                    alertSetting: NotificationSetting,
+                    notificationCenterSetting: NotificationSetting,
+                    lockScreenSetting: NotificationSetting,
+                    carPlaySetting: NotificationSetting,
+                    alertStyle: AlertStyle,
+                    showPreviewsSetting: ShowPreviewsSetting,
+                    criticalAlertSetting: NotificationSetting,
+                    providesAppNotificationSettings: Bool,
+                    announcementSetting: NotificationSetting) {
+            self.authorizationStatus = authorizationStatus
+            self.soundSetting = soundSetting
+            self.badgeSetting = badgeSetting
+            self.alertSetting = alertSetting
+            self.notificationCenterSetting = notificationCenterSetting
+            self.lockScreenSetting = lockScreenSetting
+            self.carPlaySetting = carPlaySetting
+            self.alertStyle = alertStyle
+            self.showPreviewsSetting = showPreviewsSetting
+            self.criticalAlertSetting = criticalAlertSetting
+            self.providesAppNotificationSettings = providesAppNotificationSettings
+            self.announcementSetting = announcementSetting
+        }
+    }
+
     public struct DeviceSettings: Codable, Equatable {
         let name: String
         let systemName: String
@@ -262,6 +386,77 @@ public struct StoredDosingDecision {
             case charging
             case full
         }
+    }
+}
+
+// MARK: - Critical Event Log Export
+
+extension DosingDecisionStore {
+    private var exportEstimatedDurationPerObject: TimeInterval { 0.0333 }   // Estimated during development on iPhone 8, absolute duration is less important than relative to other critical event logs
+    private var exportFetchLimit: Int { Int(criticalEventLogExportMinimumProgressDuration / exportEstimatedDurationPerObject) }
+
+    public func exportEstimatedDuration(startDate: Date, endDate: Date? = nil) -> Result<TimeInterval, Error> {
+        var result: Result<TimeInterval, Error>?
+
+        self.store.managedObjectContext.performAndWait {
+            do {
+                let request: NSFetchRequest<DosingDecisionObject> = DosingDecisionObject.fetchRequest()
+                request.predicate = self.exportDatePredicate(startDate: startDate, endDate: endDate)
+
+                let objectCount = try self.store.managedObjectContext.count(for: request)
+                result = .success(Double(objectCount) * exportEstimatedDurationPerObject)
+            } catch let error {
+                result = .failure(error)
+            }
+        }
+
+        return result!
+    }
+
+    public func export(startDate: Date, endDate: Date, using encoder: @escaping ([DosingDecisionObject]) throws -> Void, progressor: EstimatedDurationProgressor) -> Error? {
+        var modificationCounter: Int64 = 0
+        var fetching = true
+        var error: Error?
+
+        while fetching && error == nil {
+            self.store.managedObjectContext.performAndWait {
+                do {
+                    guard !progressor.isCancelled else {
+                        throw CriticalEventLogError.cancelled
+                    }
+
+                    let request: NSFetchRequest<DosingDecisionObject> = DosingDecisionObject.fetchRequest()
+                    request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [NSPredicate(format: "modificationCounter > %d", modificationCounter),
+                                                                                            self.exportDatePredicate(startDate: startDate, endDate: endDate)])
+                    request.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+                    request.fetchLimit = self.exportFetchLimit
+
+                    let objects = try self.store.managedObjectContext.fetch(request)
+                    if objects.isEmpty {
+                        fetching = false
+                        return
+                    }
+
+                    try encoder(objects)
+
+                    modificationCounter = objects.last!.modificationCounter
+
+                    progressor.didProgress(for: Double(objects.count) * exportEstimatedDurationPerObject)
+                } catch let fetchError {
+                    error = fetchError
+                }
+            }
+        }
+
+        return error
+    }
+
+    private func exportDatePredicate(startDate: Date, endDate: Date? = nil) -> NSPredicate {
+        var predicate = NSPredicate(format: "date >= %@", startDate as NSDate)
+        if let endDate = endDate {
+            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, NSPredicate(format: "date < %@", endDate as NSDate)])
+        }
+        return predicate
     }
 }
 
