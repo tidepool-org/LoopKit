@@ -824,7 +824,7 @@ extension CarbStore {
     ///   - effectVelocities: A timeline of glucose effect velocities, ordered by start date
     ///   - completion: A closure called once the values have been retrieved
     ///   - values: A timeline of carb values, in chronological order
-    public func getCarbsOnBoardValues(start: Date, end: Date? = nil, effectVelocities: [GlucoseEffectVelocity]? = nil, completion: @escaping (_ values: CarbStoreResult<[CarbValue]>) -> Void) {
+    public func getCarbsOnBoardValues(start: Date, end: Date? = nil, effectVelocities: [GlucoseEffectVelocity]? = nil, completion: @escaping (_ result: CarbStoreResult<[CarbValue]>) -> Void) {
         // To know COB at the requested start date, we need to fetch samples that might still be absorbing
         let foodStart = start.addingTimeInterval(-maximumAbsorptionTimeInterval)
         getCarbEntries(start: foodStart, end: end) { (result) in

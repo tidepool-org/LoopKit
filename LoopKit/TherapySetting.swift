@@ -60,9 +60,9 @@ public extension TherapySetting {
         case .glucoseTargetRange:
             return LocalizedString("Correction range is the glucose value (or range of values) that you want Tidepool Loop to aim for in adjusting your basal insulin.", comment: "Descriptive text for glucose target range")
         case .preMealCorrectionRangeOverride:
-            return CorrectionRangeOverrides.Preset.preMeal.descriptiveText
+            return LocalizedString("Temporarily lower your glucose target before a meal to impact post-meal glucose spikes.", comment: "Descriptive text for pre-meal correction range override")
         case .workoutCorrectionRangeOverride:
-            return CorrectionRangeOverrides.Preset.workout.descriptiveText
+            return LocalizedString("Temporarily raise your glucose target before, during, or after physical activity to reduce the risk of low glucose events.", comment: "Descriptive text for workout correction range override")
         case .suspendThreshold:
             return LocalizedString("When your glucose is predicted to go below this value, the app will recommend a basal rate of 0 U/hr and will not recommend a bolus.", comment: "Descriptive text for suspend threshold")
         case .basalRate:
@@ -77,6 +77,45 @@ public extension TherapySetting {
             return LocalizedString("Your insulin sensitivities refer to the drop in glucose expected from one unit of insulin.", comment: "Descriptive text for insulin sensitivity")
         case .none:
             return ""
+        }
+    }
+}
+
+// MARK: Guardrails
+public extension TherapySetting {
+    var guardrailCaptionForLowValue: String {
+        switch self {
+        // For schedules & ranges where it's possible for more than 1 to be outside of guardrails
+        case .glucoseTargetRange:
+            return LocalizedString("A value you have entered is lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning for schedule interface")
+        default:
+            return LocalizedString("The value you have entered is lower than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail low value warning")
+        }
+    }
+    
+    var guardrailCaptionForHighValue: String {
+        switch self {
+        // For schedules & ranges where it's possible for more than 1 to be outside of guardrails
+        case .glucoseTargetRange:
+            return LocalizedString("A value you have entered is higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
+        default:
+            return LocalizedString("The value you have entered is higher than what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
+        }
+    }
+    
+    var guardrailCaptionForOutsideValues: String {
+        switch self {
+        case .deliveryLimits:
+            return LocalizedString("The values you have entered are outside of what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning")
+        default:
+            return LocalizedString("Some of the values you have entered are outside of what Tidepool typically recommends for most people.", comment: "Descriptive text for guardrail high value warning for schedule interface")
+        }
+    }
+    
+    var guardrailSaveWarningCaption: String {
+        switch self {
+        default:
+            return LocalizedString("One or more of the values you have entered is outside of what Tidepool typically recommends for most people.", comment: "Descriptive text for saving settings outside the recommended range")
         }
     }
 }
