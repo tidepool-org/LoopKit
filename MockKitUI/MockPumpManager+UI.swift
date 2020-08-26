@@ -18,8 +18,8 @@ extension MockPumpManager: PumpManagerUI {
         return Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as! String
     }
     
-    public var smallImage: UIImage? { return UIImage(named: "Simulator Small", in: Bundle(for: MockPumpManagerSettingsViewController.self), compatibleWith: nil) }
-
+    public var smallImage: UIImage? { return UIImage(named: "Pump Simulator", in: Bundle(for: MockPumpManagerSettingsViewController.self), compatibleWith: nil) }
+    
     public static func setupViewController(insulinTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying & PumpManagerSetupViewController) {
         return MockPumpManagerSetupViewController.instantiateFromStoryboard()
     }
