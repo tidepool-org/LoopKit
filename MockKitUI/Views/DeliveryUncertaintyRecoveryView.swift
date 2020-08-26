@@ -54,3 +54,31 @@ struct DeliveryUncertaintyRecoveryView_Previews: PreviewProvider {
         }
     }
 }
+
+
+// Wrapper to provide a CompletionNotifying ViewController
+class DeliveryUncertaintyRecoveryViewController: UIHostingController<AnyView>, CompletionNotifying {
+    
+    var completionDelegate: CompletionDelegate?
+    
+    init(appName: String, uncertaintyStartedAt: Date, recoverCommsTapped: @escaping () -> Void) {
+        
+        var dismiss = {}
+        
+        let view = DeliveryUncertaintyRecoveryView(appName: appName, uncertaintyStartedAt: uncertaintyStartedAt) {
+            recoverCommsTapped()
+            dismiss()
+        }
+        .environment(\.dismiss, { dismiss() })
+        
+        super.init(rootView: AnyView(view))
+        
+        dismiss = {
+            self.completionDelegate?.completionNotifyingDidComplete(self)
+        }
+    }
+    
+    @objc required dynamic init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}

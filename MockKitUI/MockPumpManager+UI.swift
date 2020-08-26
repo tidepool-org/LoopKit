@@ -30,11 +30,11 @@ extension MockPumpManager: PumpManagerUI {
         return nav
     }
     
-    public func deliveryUncertaintyRecoveryView() -> AnyView {
-        return AnyView(DeliveryUncertaintyRecoveryView(appName: appName, uncertaintyStartedAt: Date()) {
+    public func deliveryUncertaintyRecoveryViewController(insulinTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying) {
+        return DeliveryUncertaintyRecoveryViewController(appName: appName, uncertaintyStartedAt: Date()) {
             self.state.deliveryCommandsShouldTriggerUncertainDelivery = false
             self.state.deliveryIsUncertain = false
-        })
+        }
     }
 
     public func hudProvider(insulinTintColor: Color, guidanceColors: GuidanceColors) -> HUDProvider? {

@@ -18,7 +18,7 @@ public protocol PumpManagerUI: DeviceManagerUI, PumpManager, DeliveryLimitSettin
     func settingsViewController(insulinTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying)
 
     // View for recovering from delivery uncertainty
-    func deliveryUncertaintyRecoveryView() -> AnyView
+    func deliveryUncertaintyRecoveryViewController(insulinTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying)
 
     // Returns a class that can provide HUD views
     func hudProvider(insulinTintColor: Color, guidanceColors: GuidanceColors) -> HUDProvider?
