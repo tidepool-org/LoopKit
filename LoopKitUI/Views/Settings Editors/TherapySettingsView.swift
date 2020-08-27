@@ -38,7 +38,6 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
         switch viewModel.mode {
         case .acceptanceFlow: return AnyView(content)
         case .settings: return AnyView(navigationViewWrappedContent)
-        case .legacySettings: return AnyView(navigationViewWrappedContent)
         }
     }
     
@@ -557,7 +556,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
-            TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .legacySettings,
+            TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .settings,
                                                                     therapySettings: TherapySettings(),
                                                                     chartColors: ChartColorPalette(axisLine: .clear,
                                                                                                    axisLabel: .secondaryLabel,
