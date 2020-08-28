@@ -20,7 +20,7 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
     init(pumpManager: MockPumpManager) {
         self.pumpManager = pumpManager
         super.init(style: .grouped)
-        title = "Pump Settings"
+        title = NSLocalizedString("Pump Settings", comment: "Title for Pump simulator settings")
     }
 
     required init?(coder aDecoder: NSCoder) {

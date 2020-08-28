@@ -21,7 +21,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
         self.cgmManager = cgmManager
         self.glucoseUnit = glucoseUnit
         super.init(style: .grouped)
-        title = "CGM Settings"
+        title = NSLocalizedString("CGM Settings", comment: "Title for CGM simulator settings")
     }
 
     required init?(coder aDecoder: NSCoder) {
