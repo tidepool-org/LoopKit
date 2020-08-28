@@ -34,7 +34,6 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     }
         
     public var body: some View {
-        // TODO: simplify this once 'legacy settings' are factored out
         switch viewModel.mode {
         case .acceptanceFlow: return AnyView(content)
         case .settings: return AnyView(navigationViewWrappedContent)
