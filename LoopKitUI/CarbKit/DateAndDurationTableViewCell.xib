@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14854.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14806.4"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -28,7 +28,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AQf-Rb-UwO">
                                 <rect key="frame" x="303" y="0.0" width="42" height="28"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                <color key="textColor" systemColor="secondaryLabelColor" red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" systemColor="secondaryLabelColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -71,5 +71,107 @@
             </connections>
             <point key="canvasLocation" x="138" y="141"/>
         </tableViewCell>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="244" id="zuT-CD-d0R" customClass="DateAndDurationTableViewCell" customModule="LoopKitUI" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="244"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="zuT-CD-d0R" id="xxG-Zt-mVF">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="244"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jtv-qz-2fw">
+                        <rect key="frame" x="15" y="11" width="345" height="36.5"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hLR-g5-b2e">
+                                <rect key="frame" x="0.0" y="0.0" width="36" height="36.5"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="tZF-Ri-cya">
+                                <rect key="frame" x="93" y="0.0" width="252" height="36.5"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cPv-g7-mjP">
+                                        <rect key="frame" x="0.0" y="9" width="20" height="19"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                        <color key="tintColor" red="0.36470588235294116" green="0.47499999403953552" blue="1" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <state key="normal" image="minus.circle.fill" catalog="system">
+                                            <color key="titleColor" name="accent"/>
+                                        </state>
+                                    </button>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8v0-QK-v7X">
+                                        <rect key="frame" x="36" y="0.0" width="180" height="36.5"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2020/01/01 12:30 AM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HZi-Of-5BU">
+                                                <rect key="frame" x="8" y="8" width="164" height="20.5"/>
+                                                <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemGray6Color" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstItem="HZi-Of-5BU" firstAttribute="leading" secondItem="8v0-QK-v7X" secondAttribute="leading" constant="8" id="0Zd-kO-J0b"/>
+                                            <constraint firstAttribute="bottom" secondItem="HZi-Of-5BU" secondAttribute="bottom" constant="8" id="27E-e6-PhF"/>
+                                            <constraint firstAttribute="trailing" secondItem="HZi-Of-5BU" secondAttribute="trailing" constant="8" id="BXQ-lZ-hCn"/>
+                                            <constraint firstItem="HZi-Of-5BU" firstAttribute="top" secondItem="8v0-QK-v7X" secondAttribute="top" constant="8" id="YqO-hD-Qfc"/>
+                                        </constraints>
+                                    </view>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mew-3F-T60">
+                                        <rect key="frame" x="232" y="9" width="20" height="19"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                        <color key="tintColor" red="0.36470588240000001" green="0.47499999399999998" blue="1" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <state key="normal" image="plus.circle.fill" catalog="system">
+                                            <color key="titleColor" name="accent"/>
+                                        </state>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="hLR-g5-b2e" firstAttribute="top" secondItem="Jtv-qz-2fw" secondAttribute="top" id="END-be-niZ"/>
+                            <constraint firstItem="hLR-g5-b2e" firstAttribute="leading" secondItem="Jtv-qz-2fw" secondAttribute="leading" id="Fvo-nH-b2k"/>
+                            <constraint firstAttribute="trailing" secondItem="tZF-Ri-cya" secondAttribute="trailing" id="HLz-vv-ovD"/>
+                            <constraint firstItem="tZF-Ri-cya" firstAttribute="top" secondItem="Jtv-qz-2fw" secondAttribute="top" id="R1Y-Bw-oO0"/>
+                            <constraint firstAttribute="bottom" secondItem="hLR-g5-b2e" secondAttribute="bottom" id="Uow-8C-9NQ"/>
+                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="28" id="WsH-eE-BmC"/>
+                            <constraint firstAttribute="bottom" secondItem="tZF-Ri-cya" secondAttribute="bottom" id="eec-Ld-xwt"/>
+                            <constraint firstItem="tZF-Ri-cya" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="hLR-g5-b2e" secondAttribute="trailing" constant="8" symbolic="YES" id="gSo-tk-bmH"/>
+                        </constraints>
+                    </view>
+                    <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="Fvb-z6-yZm">
+                        <rect key="frame" x="0.0" y="55.5" width="375" height="185.5"/>
+                        <constraints>
+                            <constraint firstAttribute="height" priority="750" constant="200" id="CkL-WW-gpA"/>
+                        </constraints>
+                        <connections>
+                            <action selector="dateChanged:" destination="zuT-CD-d0R" eventType="valueChanged" id="fEM-Hr-2Iw"/>
+                        </connections>
+                    </datePicker>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Jtv-qz-2fw" firstAttribute="top" secondItem="xxG-Zt-mVF" secondAttribute="topMargin" id="5Ce-fQ-4Db"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="Fvb-z6-yZm" secondAttribute="bottom" priority="750" constant="-8" id="9QZ-jW-DcL"/>
+                    <constraint firstItem="Fvb-z6-yZm" firstAttribute="top" secondItem="Jtv-qz-2fw" secondAttribute="bottom" constant="8" id="Dau-0p-GsN"/>
+                    <constraint firstItem="Fvb-z6-yZm" firstAttribute="leading" secondItem="xxG-Zt-mVF" secondAttribute="leading" id="Opu-tT-ZvZ"/>
+                    <constraint firstAttribute="trailing" secondItem="Fvb-z6-yZm" secondAttribute="trailing" id="wl9-qN-KUZ"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="Jtv-qz-2fw" secondAttribute="trailing" id="y40-XV-WUm"/>
+                    <constraint firstItem="Jtv-qz-2fw" firstAttribute="leading" secondItem="xxG-Zt-mVF" secondAttribute="leadingMargin" id="zos-Rc-zWG"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="datePicker" destination="Fvb-z6-yZm" id="RNe-Wb-WxW"/>
+                <outlet property="datePickerHeightConstraint" destination="CkL-WW-gpA" id="saA-8F-ExD"/>
+                <outlet property="titleLabel" destination="hLR-g5-b2e" id="sU5-cK-ste"/>
+            </connections>
+            <point key="canvasLocation" x="138" y="141"/>
+        </tableViewCell>
     </objects>
+    <resources>
+        <image name="minus.circle.fill" catalog="system" width="128" height="121"/>
+        <image name="plus.circle.fill" catalog="system" width="128" height="121"/>
+        <namedColor name="accent">
+            <color red="0.36500000953674316" green="0.47499999403953552" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
 </document>
