@@ -38,6 +38,7 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
         tableView.sectionHeaderHeight = UITableView.automaticDimension
         tableView.estimatedSectionHeaderHeight = 55
 
+        tableView.register(DateAndDurationTableViewCell.nib(), forCellReuseIdentifier: DateAndDurationTableViewCell.className)
         tableView.register(SegmentedControlTableViewCell.self, forCellReuseIdentifier: SegmentedControlTableViewCell.className)
         tableView.register(SettingsTableViewCell.self, forCellReuseIdentifier: SettingsTableViewCell.className)
         tableView.register(BoundSwitchTableViewCell.self, forCellReuseIdentifier: BoundSwitchTableViewCell.className)
@@ -87,6 +88,7 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
         case bolusCancelErrorToggle
         case suspendErrorToggle
         case resumeErrorToggle
+        case lastReconciliationDate
     }
     
     private enum StatusProgressRow: Int, CaseIterable {
@@ -199,6 +201,16 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
                 return switchTableViewCell(for: indexPath, titled: "Error on Suspend", boundTo: \.deliverySuspensionShouldError)
             case .resumeErrorToggle:
                 return switchTableViewCell(for: indexPath, titled: "Error on Resume", boundTo: \.deliveryResumptionShouldError)
+            case .lastReconciliationDate:
+                let cell = tableView.dequeueReusableCell(withIdentifier: DateAndDurationTableViewCell.className, for: indexPath) as! DateAndDurationTableViewCell
+                cell.titleLabel.text = "Last Reconciliation Date"
+                cell.date = pumpManager.lastReconciliation ?? Date()
+                cell.datePicker.maximumDate = Date()
+                cell.datePicker.minimumDate = Date() - .hours(48)
+                cell.datePicker.datePickerMode = .dateAndTime
+                cell.datePicker.isEnabled = true
+                cell.delegate = self
+                return cell
             }
         case .statusProgress:
             let cell = tableView.dequeueReusableCell(withIdentifier: SettingsTableViewCell.className, for: indexPath)
@@ -287,6 +299,11 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
                 show(vc, sender: sender)
             case .tempBasalErrorToggle, .bolusErrorToggle, .bolusCancelErrorToggle, .suspendErrorToggle, .resumeErrorToggle:
                 break
+            case .lastReconciliationDate:
+                tableView.deselectRow(at: indexPath, animated: true)
+                tableView.beginUpdates()
+                tableView.endUpdates()
+                break
             }
         case .statusProgress:
             let vc = PercentageTextFieldTableViewController()
@@ -336,6 +353,19 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
                     }
                 }
             }
+        }
+    }
+}
+
+extension MockPumpManagerSettingsViewController: DatePickerTableViewCellDelegate {
+    func datePickerTableViewCellDidUpdateDate(_ cell: DatePickerTableViewCell) {
+        guard let row = tableView.indexPath(for: cell)?.row else { return }
+
+        switch SettingsRow(rawValue: row) {
+        case .lastReconciliationDate?:
+            pumpManager.testLastReconciliation = cell.date
+        default:
+            break
         }
     }
 }
