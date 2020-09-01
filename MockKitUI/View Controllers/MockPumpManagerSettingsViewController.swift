@@ -303,7 +303,6 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
                 tableView.deselectRow(at: indexPath, animated: true)
                 tableView.beginUpdates()
                 tableView.endUpdates()
-                break
             }
         case .statusProgress:
             let vc = PercentageTextFieldTableViewController()
@@ -355,6 +354,28 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
             }
         }
     }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        switch Section(rawValue: indexPath.section)! {
+        case .settings:
+            switch SettingsRow(rawValue: indexPath.row)! {
+            case .lastReconciliationDate:
+                
+                let resetAction = UIContextualAction(style: .normal, title:  "Reset") {[weak self] _,_,_ in
+                    self?.pumpManager.testLastReconciliation = nil
+                    tableView.reloadRows(at: [indexPath], with: .automatic)
+                }
+                resetAction.backgroundColor = .systemRed
+                return UISwipeActionsConfiguration(actions: [resetAction])
+            default:
+                break
+            }
+        default:
+            break
+        }
+        return nil
+    }
+    
 }
 
 extension MockPumpManagerSettingsViewController: DatePickerTableViewCellDelegate {
