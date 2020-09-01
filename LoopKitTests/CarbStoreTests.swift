@@ -24,7 +24,8 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
             cacheStore: cacheStore,
             cacheLength: .hours(24),
             defaultAbsorptionTimes: (fast: .minutes(30), medium: .hours(3), slow: .hours(5)),
-            observationInterval: 0)
+            observationInterval: 0,
+            provenanceIdentifier: Bundle.main.bundleIdentifier!)
         carbStore.testQueryStore = healthStore
         carbStore.delegate = self
     }
@@ -100,7 +101,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
                     XCTAssertEqual(objects[0].uuid, addUUID)
-                    XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[0].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].userCreatedDate, addCarbEntry.date)
@@ -122,7 +123,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
 
                                 // Added sample
                                 XCTAssertEqual(entries[0].uuid, addUUID)
-                                XCTAssertEqual(entries[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                                XCTAssertEqual(entries[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                                 XCTAssertEqual(entries[0].syncIdentifier, addSyncIdentifier)
                                 XCTAssertEqual(entries[0].syncVersion, 1)
                                 XCTAssertEqual(entries[0].startDate, addCarbEntry.startDate)
@@ -203,7 +204,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
                     XCTAssertEqual(objects[0].uuid, addUUID)
-                    XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[0].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].userCreatedDate, addCarbEntry.date)
@@ -251,7 +252,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
                     XCTAssertEqual(objects[0].uuid, addUUID)
-                    XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[0].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].userCreatedDate, addCarbEntry.date)
@@ -269,7 +270,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[1].grams, replaceCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[1].startDate, replaceCarbEntry.startDate)
                     XCTAssertEqual(objects[1].uuid, updateUUID)
-                    XCTAssertEqual(objects[1].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[1].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[1].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[1].syncVersion, 2)
                     XCTAssertEqual(objects[1].userCreatedDate, addCarbEntry.date)
@@ -291,7 +292,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
 
                                 // Updated sample
                                 XCTAssertEqual(entries[0].uuid, updateUUID)
-                                XCTAssertEqual(entries[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                                XCTAssertEqual(entries[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                                 XCTAssertEqual(entries[0].syncIdentifier, addSyncIdentifier)
                                 XCTAssertEqual(entries[0].syncVersion, 2)
                                 XCTAssertEqual(entries[0].startDate, replaceCarbEntry.startDate)
@@ -370,7 +371,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
                     XCTAssertEqual(objects[0].uuid, addUUID)
-                    XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[0].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].userCreatedDate, addCarbEntry.date)
@@ -407,7 +408,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
                     XCTAssertEqual(objects[0].uuid, addUUID)
-                    XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[0].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].userCreatedDate, addCarbEntry.date)
@@ -425,7 +426,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[1].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[1].startDate, addCarbEntry.startDate)
                     XCTAssertNil(objects[1].uuid)
-                    XCTAssertEqual(objects[1].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[1].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[1].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[1].syncVersion, 1)
                     XCTAssertEqual(objects[1].userCreatedDate, addCarbEntry.date)
@@ -520,7 +521,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
                     XCTAssertEqual(objects[0].uuid, addUUID)
-                    XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[0].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].userCreatedDate, addCarbEntry.date)
@@ -568,7 +569,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
                     XCTAssertEqual(objects[0].uuid, addUUID)
-                    XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[0].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].userCreatedDate, addCarbEntry.date)
@@ -586,7 +587,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[1].grams, replaceCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[1].startDate, replaceCarbEntry.startDate)
                     XCTAssertEqual(objects[1].uuid, updateUUID)
-                    XCTAssertEqual(objects[1].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[1].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[1].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[1].syncVersion, 2)
                     XCTAssertEqual(objects[1].userCreatedDate, addCarbEntry.date)
@@ -621,7 +622,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[0].grams, addCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[0].startDate, addCarbEntry.startDate)
                     XCTAssertEqual(objects[0].uuid, addUUID)
-                    XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[0].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[0].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[0].syncVersion, 1)
                     XCTAssertEqual(objects[0].userCreatedDate, addCarbEntry.date)
@@ -639,7 +640,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[1].grams, replaceCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[1].startDate, replaceCarbEntry.startDate)
                     XCTAssertEqual(objects[1].uuid, updateUUID)
-                    XCTAssertEqual(objects[1].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[1].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[1].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[1].syncVersion, 2)
                     XCTAssertEqual(objects[1].userCreatedDate, addCarbEntry.date)
@@ -657,7 +658,7 @@ class CarbStorePersistenceTests: PersistenceControllerTestCase, CarbStoreDelegat
                     XCTAssertEqual(objects[2].grams, replaceCarbEntry.quantity.doubleValue(for: .gram()))
                     XCTAssertEqual(objects[2].startDate, replaceCarbEntry.startDate)
                     XCTAssertNil(objects[2].uuid)
-                    XCTAssertEqual(objects[2].provenanceIdentifier, HKSource.default().bundleIdentifier)
+                    XCTAssertEqual(objects[2].provenanceIdentifier, Bundle.main.bundleIdentifier!)
                     XCTAssertEqual(objects[2].syncIdentifier, addSyncIdentifier)
                     XCTAssertEqual(objects[2].syncVersion, 2)
                     XCTAssertEqual(objects[2].userCreatedDate, addCarbEntry.date)
@@ -772,7 +773,8 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
             cacheStore: cacheStore,
             cacheLength: .hours(24),
             defaultAbsorptionTimes: (fast: .minutes(30), medium: .hours(3), slow: .hours(5)),
-            observationInterval: 0)
+            observationInterval: 0,
+            provenanceIdentifier: Bundle.main.bundleIdentifier!)
         completion = expectation(description: "Completion")
         queryAnchor = CarbStore.QueryAnchor()
         limit = Int.max

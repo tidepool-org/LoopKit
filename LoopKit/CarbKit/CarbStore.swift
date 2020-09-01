@@ -179,6 +179,7 @@ public final class CarbStore: HealthKitSampleStore {
     
     var settings = CarbModelSettings(absorptionModel: PiecewiseLinearAbsorption(), initialAbsorptionTimeOverrun: 1.5, adaptiveAbsorptionRateEnabled: false)
 
+    private let provenanceIdentifier: String
 
     /**
      Initializes a new instance of the store.
@@ -199,7 +200,8 @@ public final class CarbStore: HealthKitSampleStore {
         absorptionTimeOverrun: Double = 1.5,
         calculationDelta: TimeInterval = 5 /* minutes */ * 60,
         effectDelay: TimeInterval = 10 /* minutes */ * 60,
-        carbAbsorptionModel: CarbAbsorptionModel = .nonlinear
+        carbAbsorptionModel: CarbAbsorptionModel = .nonlinear,
+        provenanceIdentifier: String
     ) {
         self.cacheStore = cacheStore
         self.defaultAbsorptionTimes = defaultAbsorptionTimes
@@ -213,6 +215,7 @@ public final class CarbStore: HealthKitSampleStore {
         self.cacheLength = cacheLength
         self.observationInterval = observationInterval
         self.carbAbsorptionModel = carbAbsorptionModel
+        self.provenanceIdentifier = provenanceIdentifier
         
         let observationEnabled = observationInterval > 0
 
@@ -438,7 +441,7 @@ extension CarbStore {
 
                     let newObject = CachedCarbObject(context: self.cacheStore.managedObjectContext)
                     newObject.create(from: newEntry,
-                                     provenanceIdentifier: HKSource.default().bundleIdentifier,
+                                     provenanceIdentifier: self.provenanceIdentifier,
                                      syncIdentifier: syncIdentifier,
                                      syncVersion: self.syncVersion)
 
@@ -1264,7 +1267,7 @@ extension CarbStore {
                         let object = CachedCarbObject(context: self.cacheStore.managedObjectContext)
                         object.create(from: entry,
                                       on: date,
-                                      provenanceIdentifier: HKSource.default().bundleIdentifier,
+                                      provenanceIdentifier: self.provenanceIdentifier,
                                       syncIdentifier: syncIdentifier)
                     }
                     error = self.cacheStore.save()
