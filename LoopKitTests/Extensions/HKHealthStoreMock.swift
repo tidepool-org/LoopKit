@@ -23,15 +23,15 @@ class HKHealthStoreMock: HKHealthStore {
 
     override func save(_ object: HKObject, withCompletion completion: @escaping (Bool, Error?) -> Void) {
         queue.async {
-            completion(self.saveError == nil, self.saveError)
             self.saveHandler?([object], self.saveError == nil, self.saveError)
+            completion(self.saveError == nil, self.saveError)
         }
     }
 
     override func save(_ objects: [HKObject], withCompletion completion: @escaping (Bool, Error?) -> Void) {
         queue.async {
-            completion(self.saveError == nil, self.saveError)
             self.saveHandler?(objects, self.saveError == nil, self.saveError)
+            completion(self.saveError == nil, self.saveError)
         }
     }
 
@@ -43,8 +43,8 @@ class HKHealthStoreMock: HKHealthStore {
 
     override func deleteObjects(of objectType: HKObjectType, predicate: NSPredicate, withCompletion completion: @escaping (Bool, Int, Error?) -> Void) {
         queue.async {
-            completion(self.deleteError == nil, 0, self.deleteError)
             self.deleteObjectsHandler?(objectType, predicate, self.deleteError == nil, 0, self.deleteError)
+            completion(self.deleteError == nil, 0, self.deleteError)
         }
     }
 
