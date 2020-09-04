@@ -163,7 +163,7 @@ public struct CorrectionRangeOverridesEditor: View {
                                 withAnimation {
                                     self.value.ranges[preset] = newValue
                                 }
-                        }
+                            }
                         ),
                         unit: self.unit,
                         minValue: self.selectableBounds(for: preset).lowerBound,

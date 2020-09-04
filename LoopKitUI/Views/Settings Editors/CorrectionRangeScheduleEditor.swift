@@ -18,11 +18,13 @@ public struct CorrectionRangeScheduleEditor: View {
     var minValue: HKQuantity?
     var save: (GlucoseRangeSchedule) -> Void
     let guardrail = Guardrail.correctionRange
+    let preMealTargetRangeConstraint: DoubleRange?
     let mode: PresentationMode
     @State private var userDidTap: Bool = false
     
     public init(
         schedule: GlucoseRangeSchedule?,
+        preMealTargetRangeConstraint: DoubleRange?,
         unit: HKUnit,
         minValue: HKQuantity?,
         onSave save: @escaping (GlucoseRangeSchedule) -> Void,
@@ -34,6 +36,7 @@ public struct CorrectionRangeScheduleEditor: View {
         self.minValue = minValue
         self.save = save
         self.mode = mode
+        self.preMealTargetRangeConstraint = preMealTargetRangeConstraint
     }
     
     public init(
@@ -43,6 +46,7 @@ public struct CorrectionRangeScheduleEditor: View {
         precondition(viewModel.therapySettings.glucoseUnit != nil)
         self.init(
             schedule: viewModel.therapySettings.glucoseTargetRangeSchedule,
+            preMealTargetRangeConstraint: viewModel.therapySettings.preMealTargetRange,
             unit: viewModel.therapySettings.glucoseUnit!,
             minValue: viewModel.therapySettings.suspendThreshold?.quantity,
             onSave: { [weak viewModel] newSchedule in
@@ -75,7 +79,7 @@ public struct CorrectionRangeScheduleEditor: View {
                         }
                     ),
                     unit: self.unit,
-                    minValue: self.minValue,
+                    minValue: self.validMinValue,
                     guardrail: self.guardrail,
                     usageContext: .component(availableWidth: availableWidth)
                 )
@@ -165,6 +169,14 @@ public struct CorrectionRangeScheduleEditor: View {
             title: Text("Save Correction Range(s)?", comment: "Alert title for confirming correction ranges outside the recommended range"),
             message: Text(TherapySetting.glucoseTargetRange.guardrailSaveWarningCaption)
         )
+    }
+    
+    private var validMinValue: HKQuantity? {
+        if let minValue = minValue, let preMealMinValue = preMealTargetRangeConstraint?.minValue {
+            return max(minValue, HKQuantity(unit: unit, doubleValue: preMealMinValue))
+        } else {
+            return self.minValue
+        }
     }
 }
 
