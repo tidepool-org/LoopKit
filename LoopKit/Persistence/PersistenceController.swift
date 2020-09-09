@@ -144,12 +144,10 @@ public final class PersistenceController {
 
             self.managedObjectContext.persistentStoreCoordinator = coordinator
 
-            if !FileManager.default.fileExists(atPath: directoryURL.absoluteString) {
-                do {
-                    try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: [FileAttributeKey.protectionKey: FileProtectionType.none])
-                } catch {
-                    // Ignore errors here, let Core Data explain the problem
-                }
+            do {
+                try FileManager.default.ensureDirectoryExists(at: directoryURL, with: FileProtectionType.completeUntilFirstUserAuthentication)
+            } catch {
+                // Ignore errors here, let Core Data explain the problem
             }
 
             let storeURL = directoryURL.appendingPathComponent("Model.sqlite")
@@ -161,8 +159,7 @@ public final class PersistenceController {
                     options: [
                         NSMigratePersistentStoresAutomaticallyOption: true,
                         NSInferMappingModelAutomaticallyOption: true,
-                        // Data should be available on reboot before first unlock
-                        NSPersistentStoreFileProtectionKey: FileProtectionType.none
+                        NSPersistentStoreFileProtectionKey: FileProtectionType.completeUntilFirstUserAuthentication
                     ]
                 )
             } catch let storeError as NSError {
