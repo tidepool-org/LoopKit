@@ -195,3 +195,28 @@ extension PersistenceController: CustomDebugStringConvertible {
         ].joined(separator: "\n")
     }
 }
+
+fileprivate extension FileManager {
+    
+    func directoryExists(at url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        let exists = fileExists(atPath: url.path, isDirectory: &isDirectory)
+        return exists && isDirectory.boolValue
+    }
+    
+    func ensureDirectoryExists(at url: URL, with protectionType: FileProtectionType? = nil) throws {
+        if !directoryExists(at: url) {
+            try createDirectory(at: url, withIntermediateDirectories: true, attributes: protectionType.map { [FileAttributeKey.protectionKey: $0 ] })
+        }
+        guard let protectionType = protectionType else {
+            return
+        }
+        // double check protection type
+        var attrs = try attributesOfItem(atPath: url.path)
+        if attrs[FileAttributeKey.protectionKey] as? FileProtectionType != protectionType {
+            attrs[FileAttributeKey.protectionKey] = protectionType
+            try setAttributes(attrs, ofItemAtPath: url.path)
+        }
+    }
+ 
+}
