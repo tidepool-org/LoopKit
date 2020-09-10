@@ -20,4 +20,12 @@ public extension HorizontalSizeClassOverride {
             return .regular
         }
     }
+        
+    var isDisplayNarrow: Bool {
+        if UIScreen.main.bounds.width < 375 {
+            return true
+        } else {
+            return false
+        }
+    }
 }
