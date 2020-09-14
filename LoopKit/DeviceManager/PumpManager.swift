@@ -203,11 +203,5 @@ public extension PumpManager {
             completion()
         }
     }
-    
-    /// Convenience wrapper for fetching current pump data without a completion
-    ///
-    func fetchCurrentPumpData() {
-        fetchCurrentPumpData(completion: nil)
-    }
 
 }
