@@ -113,9 +113,9 @@ public protocol PumpManager: DeviceManager {
     func removeStatusObserver(_ observer: PumpManagerStatusObserver)
     
     /// Fetch the pump data (reservoir/events) if it is out of date.
-    /// After a successful fetch, the PumpManager should trigger a loop by calling the delegate method `pumpManagerRecommendsLoop(_:)`
-    func assertCurrentPumpData()
-
+    /// After a successful fetch, the PumpManager should call the completion block, and trigger a loop by calling the delegate method `pumpManagerRecommendsLoop(_:)`
+    func fetchCurrentPumpData(completion: (() -> Void)?)
+    
     /// Loop calls this method when the current environment requires the pump to provide its own periodic
     /// scheduling via BLE.
     /// The manager may choose to still enable its own heartbeat even if `mustProvideBLEHeartbeat` is false
@@ -203,4 +203,11 @@ public extension PumpManager {
             completion()
         }
     }
+    
+    /// Convenience wrapper for fetching current pump data without a completion
+    ///
+    func fetchCurrentPumpData() {
+        fetchCurrentPumpData(completion: nil)
+    }
+
 }
