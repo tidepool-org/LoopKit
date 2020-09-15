@@ -7,6 +7,8 @@
 
 import CoreData
 import os.log
+import HealthKit
+
 
 
 public protocol PersistenceControllerDelegate: class {
@@ -85,7 +87,7 @@ public final class PersistenceController {
 
         self.directoryURL = directoryURL
         self.isReadOnly = isReadOnly
-
+        
         initializeStack(inDirectory: directoryURL, model: model)
     }
 
@@ -113,27 +115,56 @@ public final class PersistenceController {
         var error: PersistenceControllerError?
 
         self.managedObjectContext.performAndWait {
-            guard !self.isReadOnly && self.managedObjectContext.hasChanges else {
+            guard self.managedObjectContext.hasChanges else {
                 completion?(nil)
                 return
             }
 
-            do {
-                delegate?.persistenceControllerWillSave(self)
-                try self.managedObjectContext.save()
-                delegate?.persistenceControllerDidSave(self, error: nil)
-                completion?(nil)
-            } catch let saveError as NSError {
-                self.log.error("Error while saving context: %{public}@", saveError)
-                error = .coreDataError(saveError)
-                delegate?.persistenceControllerDidSave(self, error: error)
-                completion?(error)
-            }
+            error = self.saveInternal()
+            completion?(error)
         }
-
+        
         return error
     }
+    
+    // Should only be called from managedObjectContext thread
+    internal func saveInternal() -> PersistenceControllerError? {
+        guard !self.isReadOnly else {
+            return nil
+        }
 
+        do {
+            delegate?.persistenceControllerWillSave(self)
+            try self.managedObjectContext.save()
+            delegate?.persistenceControllerDidSave(self, error: nil)
+            return nil
+        } catch let saveError as NSError {
+            self.log.error("Error while saving context: %{public}@", saveError)
+            delegate?.persistenceControllerDidSave(self, error: .coreDataError(saveError))
+            return .coreDataError(saveError)
+        }
+    }
+
+
+    // Should only be called on managedObjectContext thread
+    func updateMetadata(key: String, value: Any?) {
+        if let coordinator = self.managedObjectContext.persistentStoreCoordinator, let store = coordinator.persistentStores.first {
+            var metadata = coordinator.metadata(for: store)
+            metadata[key] = value
+            coordinator.setMetadata(metadata, for: store)
+        }
+    }
+    
+    // Should only be called on managedObjectContext thread
+    func fetchMetadata(key: String) -> Any? {
+        if let coordinator = self.managedObjectContext.persistentStoreCoordinator, let store = coordinator.persistentStores.first {
+            let metadata = coordinator.metadata(for: store)
+            return metadata[key]
+        } else {
+            return nil
+        }
+    }
+    
     // MARK: - 
 
     private func initializeStack(inDirectory directoryURL: URL, model: NSManagedObjectModel) {
@@ -144,12 +175,10 @@ public final class PersistenceController {
 
             self.managedObjectContext.persistentStoreCoordinator = coordinator
 
-            if !FileManager.default.fileExists(atPath: directoryURL.absoluteString) {
-                do {
-                    try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: [FileAttributeKey.protectionKey: FileProtectionType.none])
-                } catch {
-                    // Ignore errors here, let Core Data explain the problem
-                }
+            do {
+                try FileManager.default.ensureDirectoryExists(at: directoryURL, with: FileProtectionType.completeUntilFirstUserAuthentication)
+            } catch {
+                // Ignore errors here, let Core Data explain the problem
             }
 
             let storeURL = directoryURL.appendingPathComponent("Model.sqlite")
@@ -161,8 +190,7 @@ public final class PersistenceController {
                     options: [
                         NSMigratePersistentStoresAutomaticallyOption: true,
                         NSInferMappingModelAutomaticallyOption: true,
-                        // Data should be available on reboot before first unlock
-                        NSPersistentStoreFileProtectionKey: FileProtectionType.none
+                        NSPersistentStoreFileProtectionKey: FileProtectionType.completeUntilFirstUserAuthentication
                     ]
                 )
             } catch let storeError as NSError {
@@ -197,4 +225,57 @@ extension PersistenceController: CustomDebugStringConvertible {
             "* persistenceStoreCoordinator: \(String(describing: managedObjectContext.persistentStoreCoordinator))",
         ].joined(separator: "\n")
     }
+}
+
+
+// MARK: - Anchor store/fetch helpers
+
+extension PersistenceController {
+    func storeAnchor(_ anchor: HKQueryAnchor?, key: String) {
+        managedObjectContext.perform {
+            let encoded: Data?
+            if let anchor = anchor {
+                encoded = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true)
+                if encoded == nil {
+                    self.log.error("Encoding anchor %{public} failed.", String(describing: anchor))
+                }
+            } else {
+                encoded = nil
+            }
+            self.updateMetadata(key: key, value: encoded)
+            let _ = self.saveInternal()
+        }
+    }
+    
+    func fetchAnchor(key: String, completion: @escaping (HKQueryAnchor?) -> Void) {
+        managedObjectContext.perform {
+            let value = self.fetchMetadata(key: key)
+            if let encoded = value as? Data {
+                let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: HKQueryAnchor.self, from: encoded)
+                if anchor == nil {
+                    self.log.error("Decoding anchor from %{public} failed.", String(describing: encoded))
+                }
+                completion(anchor)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+}
+
+fileprivate extension FileManager {
+    
+    func ensureDirectoryExists(at url: URL, with protectionType: FileProtectionType? = nil) throws {
+        try createDirectory(at: url, withIntermediateDirectories: true, attributes: protectionType.map { [FileAttributeKey.protectionKey: $0 ] })
+        guard let protectionType = protectionType else {
+            return
+        }
+        // double check protection type
+        var attrs = try attributesOfItem(atPath: url.path)
+        if attrs[FileAttributeKey.protectionKey] as? FileProtectionType != protectionType {
+            attrs[FileAttributeKey.protectionKey] = protectionType
+            try setAttributes(attrs, ofItemAtPath: url.path)
+        }
+    }
+ 
 }
