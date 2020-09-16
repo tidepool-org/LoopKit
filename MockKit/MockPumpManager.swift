@@ -313,7 +313,7 @@ public final class MockPumpManager: TestingPumpManager {
         statusObservers.removeElement(observer)
     }
 
-    public func fetchCurrentPumpData(completion: (() -> Void)? = nil) {
+    public func ensureCurrentPumpData(completion: (() -> Void)? = nil) {
         // Change this to artificially increase the delay fetching the current pump data
         let fetchDelay = 0
         DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(fetchDelay)) {

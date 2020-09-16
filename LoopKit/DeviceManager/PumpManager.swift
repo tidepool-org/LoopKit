@@ -112,9 +112,11 @@ public protocol PumpManager: DeviceManager {
     /// - Parameter observer: The observing object
     func removeStatusObserver(_ observer: PumpManagerStatusObserver)
     
-    /// Fetch the pump data (reservoir/events) if it is out of date.
-    /// After a successful fetch, the PumpManager should call the completion block, and trigger a loop by calling the delegate method `pumpManagerRecommendsLoop(_:)`
-    func fetchCurrentPumpData(completion: (() -> Void)?)
+    /// Ensure that the pump's data (reservoir/events) is up to date.  If not, fetch it.
+    /// After a successful fetch, the PumpManager should call the completion block.
+    /// Then, it must call the delegate method `pumpManagerRecommendsLoop(_:)` if it has an accurate and up to date understanding of insulin delivery
+    /// and has reported it via the appropriate status observer and delegate calls.
+    func ensureCurrentPumpData(completion: (() -> Void)?)
     
     /// Loop calls this method when the current environment requires the pump to provide its own periodic
     /// scheduling via BLE.
