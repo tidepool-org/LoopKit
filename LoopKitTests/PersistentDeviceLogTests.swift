@@ -12,8 +12,8 @@ import LoopKit
 class PersistentDeviceLogCriticalEventLogTests: XCTestCase {
     var persistentDeviceLog: PersistentDeviceLog!
     var outputStream: MockOutputStream!
-    var progressor: MockEstimatedDurationProgressor!
-
+    var progress: Progress!
+    
     override func setUp() {
         super.setUp()
 
@@ -27,7 +27,7 @@ class PersistentDeviceLogCriticalEventLogTests: XCTestCase {
         XCTAssertNil(persistentDeviceLog.addStoredDeviceLogEntries(entries: entries))
 
         outputStream = MockOutputStream()
-        progressor = MockEstimatedDurationProgressor()
+        progress = Progress()
     }
 
     override func tearDown() {
@@ -35,32 +35,32 @@ class PersistentDeviceLogCriticalEventLogTests: XCTestCase {
 
         super.tearDown()
     }
-
-    func testExportEstimatedDuration() {
-        switch persistentDeviceLog.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
-                                                     endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
+    
+    func testExportProgressTotalUnitCount() {
+        switch persistentDeviceLog.exportProgressTotalUnitCount(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
+                                                                endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
         case .failure(let error):
             XCTFail("Unexpected failure: \(error)")
-        case .success(let estimatedDuration):
-            XCTAssertEqual(estimatedDuration, 3 * 0.0006, accuracy: 0.0001)
+        case .success(let progressTotalUnitCount):
+            XCTAssertEqual(progressTotalUnitCount, 3 * 1)
         }
     }
-
-    func testExportEstimatedDurationEmpty() {
-        switch persistentDeviceLog.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
-                                                     endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
+    
+    func testExportProgressTotalUnitCountEmpty() {
+        switch persistentDeviceLog.exportProgressTotalUnitCount(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
+                                                                endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
         case .failure(let error):
             XCTFail("Unexpected failure: \(error)")
-        case .success(let estimatedDuration):
-            XCTAssertEqual(estimatedDuration, 0)
+        case .success(let progressTotalUnitCount):
+            XCTAssertEqual(progressTotalUnitCount, 0)
         }
     }
 
     func testExport() {
         XCTAssertNil(persistentDeviceLog.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
-                                          endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
-                                          to: outputStream,
-                                          progressor: progressor))
+                                                endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
+                                                to: outputStream,
+                                                progress: progress))
         XCTAssertEqual(outputStream.string, """
 [
 {"deviceIdentifier":"d1","managerIdentifier":"m1","message":"Message 1","modificationCounter":1,"timestamp":"2100-01-02T03:08:00.000Z","type":"delegateResponse"},
@@ -69,24 +69,24 @@ class PersistentDeviceLogCriticalEventLogTests: XCTestCase {
 ]
 """
         )
-        XCTAssertEqual(progressor.estimatedDuration, 3 * 0.0006, accuracy: 0.0001)
+        XCTAssertEqual(progress.completedUnitCount, 3 * 1)
     }
 
     func testExportEmpty() {
         XCTAssertNil(persistentDeviceLog.export(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
-                                          endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!,
-                                          to: outputStream,
-                                          progressor: progressor))
+                                                endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!,
+                                                to: outputStream,
+                                                progress: progress))
         XCTAssertEqual(outputStream.string, "[]")
-        XCTAssertEqual(progressor.estimatedDuration, 0)
+        XCTAssertEqual(progress.completedUnitCount, 0)
     }
 
     func testExportCancelled() {
-        progressor.isCancelled = true
+        progress.cancel()
         XCTAssertEqual(persistentDeviceLog.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
-                                            endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
-                                            to: outputStream,
-                                            progressor: progressor) as? CriticalEventLogError, CriticalEventLogError.cancelled)
+                                                  endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
+                                                  to: outputStream,
+                                                  progress: progress) as? CriticalEventLogError, CriticalEventLogError.cancelled)
     }
 
     private let dateFormatter = ISO8601DateFormatter()

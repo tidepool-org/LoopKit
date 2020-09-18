@@ -369,8 +369,8 @@ class GlucoseStoreQueryTests: PersistenceControllerTestCase {
 class GlucoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
     var glucoseStore: GlucoseStore!
     var outputStream: MockOutputStream!
-    var progressor: MockEstimatedDurationProgressor!
-
+    var progress: Progress!
+    
     override func setUp() {
         super.setUp()
 
@@ -391,7 +391,7 @@ class GlucoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
         dispatchGroup.wait()
 
         outputStream = MockOutputStream()
-        progressor = MockEstimatedDurationProgressor()
+        progress = Progress()
     }
 
     override func tearDown() {
@@ -399,24 +399,24 @@ class GlucoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
 
         super.tearDown()
     }
-
-    func testExportEstimatedDuration() {
-        switch glucoseStore.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
-                                                    endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
+    
+    func testExportProgressTotalUnitCount() {
+        switch glucoseStore.exportProgressTotalUnitCount(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
+                                                         endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
         case .failure(let error):
             XCTFail("Unexpected failure: \(error)")
-        case .success(let estimatedDuration):
-            XCTAssertEqual(estimatedDuration, 3 * 0.0004, accuracy: 0.0001)
+        case .success(let progressTotalUnitCount):
+            XCTAssertEqual(progressTotalUnitCount, 3 * 1)
         }
     }
-
-    func testExportEstimatedDurationEmpty() {
-        switch glucoseStore.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
-                                                    endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
+    
+    func testExportProgressTotalUnitCountEmpty() {
+        switch glucoseStore.exportProgressTotalUnitCount(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
+                                                         endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
         case .failure(let error):
             XCTFail("Unexpected failure: \(error)")
-        case .success(let estimatedDuration):
-            XCTAssertEqual(estimatedDuration, 0)
+        case .success(let progressTotalUnitCount):
+            XCTAssertEqual(progressTotalUnitCount, 0)
         }
     }
 
@@ -424,7 +424,7 @@ class GlucoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
         XCTAssertNil(glucoseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
                                          endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
                                          to: outputStream,
-                                         progressor: progressor))
+                                         progress: progress))
         XCTAssertEqual(outputStream.string, """
 [
 {"isDisplayOnly":false,"modificationCounter":1,"provenanceIdentifier":"org.loopkit.Test.1","startDate":"2100-01-02T03:08:00.000Z","syncIdentifier":"18CF3948-0B3D-4B12-8BFE-14986B0E6784","syncVersion":1,"unitString":"mg/dL","uploadState":0,"uuid":"28CF3948-0B3D-4B12-8BFE-14986B0E6784","value":111,"wasUserEntered":false},
@@ -433,24 +433,24 @@ class GlucoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
 ]
 """
         )
-        XCTAssertEqual(progressor.estimatedDuration, 3 * 0.0004, accuracy: 0.0001)
+        XCTAssertEqual(progress.completedUnitCount, 3 * 1)
     }
 
     func testExportEmpty() {
         XCTAssertNil(glucoseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
                                          endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!,
                                          to: outputStream,
-                                         progressor: progressor))
+                                         progress: progress))
         XCTAssertEqual(outputStream.string, "[]")
-        XCTAssertEqual(progressor.estimatedDuration, 0)
+        XCTAssertEqual(progress.completedUnitCount, 0)
     }
 
     func testExportCancelled() {
-        progressor.isCancelled = true
+        progress.cancel()
         XCTAssertEqual(glucoseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
                                            endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
                                            to: outputStream,
-                                           progressor: progressor) as? CriticalEventLogError, CriticalEventLogError.cancelled)
+                                           progress: progress) as? CriticalEventLogError, CriticalEventLogError.cancelled)
     }
 
     private let dateFormatter = ISO8601DateFormatter()

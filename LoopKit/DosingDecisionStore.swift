@@ -267,11 +267,11 @@ public struct StoredDosingDecision {
 // MARK: - Critical Event Log Export
 
 extension DosingDecisionStore {
-    private var exportEstimatedDurationPerObject: TimeInterval { 0.0333 }   // Estimated during development on iPhone 8, absolute duration is less important than relative to other critical event logs
-    private var exportFetchLimit: Int { Int(criticalEventLogExportMinimumProgressDuration / exportEstimatedDurationPerObject) }
+    private var exportProgressUnitCountPerObject: Int64 { 33 }
+    private var exportFetchLimit: Int { Int(criticalEventLogExportProgressUnitCountPerFetch / exportProgressUnitCountPerObject) }
 
-    public func exportEstimatedDuration(startDate: Date, endDate: Date? = nil) -> Result<TimeInterval, Error> {
-        var result: Result<TimeInterval, Error>?
+    public func exportProgressTotalUnitCount(startDate: Date, endDate: Date? = nil) -> Result<Int64, Error> {
+        var result: Result<Int64, Error>?
 
         self.store.managedObjectContext.performAndWait {
             do {
@@ -279,7 +279,7 @@ extension DosingDecisionStore {
                 request.predicate = self.exportDatePredicate(startDate: startDate, endDate: endDate)
 
                 let objectCount = try self.store.managedObjectContext.count(for: request)
-                result = .success(Double(objectCount) * exportEstimatedDurationPerObject)
+                result = .success(Int64(objectCount) * exportProgressUnitCountPerObject)
             } catch let error {
                 result = .failure(error)
             }
@@ -288,7 +288,7 @@ extension DosingDecisionStore {
         return result!
     }
 
-    public func export(startDate: Date, endDate: Date, using encoder: @escaping ([DosingDecisionObject]) throws -> Void, progressor: EstimatedDurationProgressor) -> Error? {
+    public func export(startDate: Date, endDate: Date, using encoder: @escaping ([DosingDecisionObject]) throws -> Void, progress: Progress) -> Error? {
         var modificationCounter: Int64 = 0
         var fetching = true
         var error: Error?
@@ -296,7 +296,7 @@ extension DosingDecisionStore {
         while fetching && error == nil {
             self.store.managedObjectContext.performAndWait {
                 do {
-                    guard !progressor.isCancelled else {
+                    guard !progress.isCancelled else {
                         throw CriticalEventLogError.cancelled
                     }
 
@@ -316,7 +316,7 @@ extension DosingDecisionStore {
 
                     modificationCounter = objects.last!.modificationCounter
 
-                    progressor.didProgress(for: Double(objects.count) * exportEstimatedDurationPerObject)
+                    progress.completedUnitCount += Int64(objects.count) * exportProgressUnitCountPerObject
                 } catch let fetchError {
                     error = fetchError
                 }

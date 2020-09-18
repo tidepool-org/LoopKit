@@ -8,28 +8,18 @@
 
 import Foundation
 
-public protocol EstimatedDurationProgressor {
-
-    /// Has the operation been cancelled?
-    var isCancelled: Bool { get }
-
-    /// Some progress was made toward the estimated duration of the operation.
-    /// - Parameter: estimatedDuration: The estimated duration completed since the last invocation.
-    func didProgress(for estimatedDuration: TimeInterval)
-}
-
 public protocol CriticalEventLog {
 
     /// The name for the critical event log export.
     var exportName: String { get }
 
-    /// Calculate the estimated duration for the critical event log export for the specified date range.
+    /// Calculate the progress total unit count for the critical event log export for the specified date range.
     ///
     /// - Parameters:
     ///   - startDate: The start date for the critical events to export.
     ///   - endDate: The end date for the critical events to export. Optional. If not specified, default to now.
-    /// - Returns: An estimated duration, as TimeInterval, or an error.
-    func exportEstimatedDuration(startDate: Date, endDate: Date?) -> Result<TimeInterval, Error>
+    /// - Returns: An progress total unit count, or an error.
+    func exportProgressTotalUnitCount(startDate: Date, endDate: Date?) -> Result<Int64, Error>
 
     /// Export the critical event log for the specified date range.
     ///
@@ -39,7 +29,7 @@ public protocol CriticalEventLog {
     ///   - stream: The output stream to write the critical event log to. Typically writes JSON UTF-8 text.
     ///   - progressor: The estimated duration progress to use to check if cancelled and report progress.
     /// - Returns: Any error that occurs during the export, or nil if successful.
-    func export(startDate: Date, endDate: Date, to stream: OutputStream, progressor: EstimatedDurationProgressor) -> Error?
+    func export(startDate: Date, endDate: Date, to stream: OutputStream, progress: Progress) -> Error?
 }
 
 public enum CriticalEventLogError: Error {
@@ -48,4 +38,4 @@ public enum CriticalEventLogError: Error {
     case cancelled
 }
 
-public let criticalEventLogExportMinimumProgressDuration = TimeInterval(0.25)
+public let criticalEventLogExportProgressUnitCountPerFetch: Int64 = 250

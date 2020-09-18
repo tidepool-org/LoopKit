@@ -754,8 +754,8 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
 
     var doseStore: DoseStore!
     var outputStream: MockOutputStream!
-    var progressor: MockEstimatedDurationProgressor!
-
+    var progress: Progress!
+    
     override func setUp() {
         super.setUp()
 
@@ -776,7 +776,7 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
         XCTAssertNil(doseStore.addPumpEvents(events: events))
 
         outputStream = MockOutputStream()
-        progressor = MockEstimatedDurationProgressor()
+        progress = Progress()
     }
 
     override func tearDown() {
@@ -784,24 +784,24 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
 
         super.tearDown()
     }
-
-    func testExportEstimatedDuration() {
-        switch doseStore.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
-                                                 endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
+    
+    func testExportProgressTotalUnitCount() {
+        switch doseStore.exportProgressTotalUnitCount(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
+                                                      endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
         case .failure(let error):
             XCTFail("Unexpected failure: \(error)")
-        case .success(let estimatedDuration):
-            XCTAssertEqual(estimatedDuration, 3 * 0.0005, accuracy: 0.0001)
+        case .success(let progressTotalUnitCount):
+            XCTAssertEqual(progressTotalUnitCount, 3 * 1)
         }
     }
-
-    func testExportEstimatedDurationEmpty() {
-        switch doseStore.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
-                                                 endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
+    
+    func testExportProgressTotalUnitCountEmpty() {
+        switch doseStore.exportProgressTotalUnitCount(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
+                                                      endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
         case .failure(let error):
             XCTFail("Unexpected failure: \(error)")
-        case .success(let estimatedDuration):
-            XCTAssertEqual(estimatedDuration, 0)
+        case .success(let progressTotalUnitCount):
+            XCTAssertEqual(progressTotalUnitCount, 0)
         }
     }
 
@@ -809,7 +809,7 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
         XCTAssertNil(doseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
                                       endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
                                       to: outputStream,
-                                      progressor: progressor))
+                                      progress: progress))
         XCTAssertEqual(outputStream.string, """
 [
 {"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:08:00.000Z","duration":0,"modificationCounter":1,"mutable":false,"uploaded":false},
@@ -818,24 +818,24 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
 ]
 """
         )
-        XCTAssertEqual(progressor.estimatedDuration, 3 * 0.0005, accuracy: 0.0001)
+        XCTAssertEqual(progress.completedUnitCount, 3 * 1)
     }
     
     func testExportEmpty() {
         XCTAssertNil(doseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
                                       endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!,
                                       to: outputStream,
-                                      progressor: progressor))
+                                      progress: progress))
         XCTAssertEqual(outputStream.string, "[]")
-        XCTAssertEqual(progressor.estimatedDuration, 0)
+        XCTAssertEqual(progress.completedUnitCount, 0)
     }
 
     func testExportCancelled() {
-        progressor.isCancelled = true
+        progress.cancel()
         XCTAssertEqual(doseStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
                                         endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
                                         to: outputStream,
-                                        progressor: progressor) as? CriticalEventLogError, CriticalEventLogError.cancelled)
+                                        progress: progress) as? CriticalEventLogError, CriticalEventLogError.cancelled)
     }
 
     private let dateFormatter = ISO8601DateFormatter()
@@ -890,10 +890,10 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
 
         return fixture.compactMap {
             guard let unit = DoseUnit(rawValue: $0["unit"] as! String),
-                  let pumpType = PumpEventType(rawValue: $0["type"] as! String),
-                  let type = DoseType(pumpEventType: pumpType)
-            else {
-                return nil
+                let pumpType = PumpEventType(rawValue: $0["type"] as! String),
+                let type = DoseType(pumpEventType: pumpType)
+                else {
+                    return nil
             }
 
             var scheduledBasalRate: HKQuantity? = nil

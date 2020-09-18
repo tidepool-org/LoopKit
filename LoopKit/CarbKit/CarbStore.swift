@@ -1297,13 +1297,13 @@ extension CarbStore {
 // MARK: - Critical Event Log Export
 
 extension CarbStore: CriticalEventLog {
-    private var exportEstimatedDurationPerObject: TimeInterval { 0.0009 }   // Estimated during development on iPhone 8, absolute duration is less important than relative to other critical event logs
-    private var exportFetchLimit: Int { Int(criticalEventLogExportMinimumProgressDuration / exportEstimatedDurationPerObject) }
+    private var exportProgressUnitCountPerObject: Int64 { 1 }
+    private var exportFetchLimit: Int { Int(criticalEventLogExportProgressUnitCountPerFetch / exportProgressUnitCountPerObject) }
 
     public var exportName: String { "Carbs.json" }
 
-    public func exportEstimatedDuration(startDate: Date, endDate: Date? = nil) -> Result<TimeInterval, Error> {
-        var result: Result<TimeInterval, Error>?
+    public func exportProgressTotalUnitCount(startDate: Date, endDate: Date? = nil) -> Result<Int64, Error> {
+        var result: Result<Int64, Error>?
 
         self.cacheStore.managedObjectContext.performAndWait {
             do {
@@ -1311,7 +1311,7 @@ extension CarbStore: CriticalEventLog {
                 request.predicate = self.exportDatePredicate(startDate: startDate, endDate: endDate)
 
                 let objectCount = try self.cacheStore.managedObjectContext.count(for: request)
-                result = .success(Double(objectCount) * exportEstimatedDurationPerObject)
+                result = .success(Int64(objectCount) * exportProgressUnitCountPerObject)
             } catch let error {
                 result = .failure(error)
             }
@@ -1320,7 +1320,7 @@ extension CarbStore: CriticalEventLog {
         return result!
     }
 
-    public func export(startDate: Date, endDate: Date, to stream: OutputStream, progressor: EstimatedDurationProgressor) -> Error? {
+    public func export(startDate: Date, endDate: Date, to stream: OutputStream, progress: Progress) -> Error? {
         let encoder = JSONStreamEncoder(stream: stream)
         var anchorKey: Int64 = 0
         var fetching = true
@@ -1329,7 +1329,7 @@ extension CarbStore: CriticalEventLog {
         while fetching && error == nil {
             self.cacheStore.managedObjectContext.performAndWait {
                 do {
-                    guard !progressor.isCancelled else {
+                    guard !progress.isCancelled else {
                         throw CriticalEventLogError.cancelled
                     }
 
@@ -1349,7 +1349,7 @@ extension CarbStore: CriticalEventLog {
 
                     anchorKey = objects.last!.anchorKey
 
-                    progressor.didProgress(for: Double(objects.count) * exportEstimatedDurationPerObject)
+                    progress.completedUnitCount += Int64(objects.count) * exportProgressUnitCountPerObject
                 } catch let fetchError {
                     error = fetchError
                 }
@@ -1386,8 +1386,6 @@ extension CarbStore {
         queue.async {
             var error: Error?
 
-            let date = Date()
-
             self.cacheStore.managedObjectContext.performAndWait {
                 do {
                     for entry in entries {
@@ -1395,7 +1393,7 @@ extension CarbStore {
 
                         let object = CachedCarbObject(context: self.cacheStore.managedObjectContext)
                         object.create(from: entry,
-                                      on: date,
+                                      on: entry.date,
                                       provenanceIdentifier: self.provenanceIdentifier,
                                       syncIdentifier: syncIdentifier)
                     }

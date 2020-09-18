@@ -548,7 +548,6 @@
 		A971C8A023C69E0F0099BEFC /* NSData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434FB64B1D712449007B9C70 /* NSData.swift */; };
 		A971C8A223C6B17D0099BEFC /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A971C8A123C6B17D0099BEFC /* SettingsStoreTests.swift */; };
 		A971C8A423C6B1890099BEFC /* DosingDecisionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A971C8A323C6B1890099BEFC /* DosingDecisionStoreTests.swift */; };
-		A975BE8E24FEEE5700FE7B35 /* CarbStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437AFF192039F149008C4892 /* CarbStoreTests.swift */; };
 		A985464B251442010099C1A6 /* OutputStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A985464A251442010099C1A6 /* OutputStreamTests.swift */; };
 		A985464F251449FE0099C1A6 /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A985464E251449FE0099C1A6 /* NotificationSettings.swift */; };
 		A985465125144ABA0099C1A6 /* NotificationSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A985465025144ABA0099C1A6 /* NotificationSettingsTests.swift */; };
@@ -3585,7 +3584,6 @@
 				A9DF02C924F724D900B7C988 /* CriticalEventLogTests.swift in Sources */,
 				8974AFC022120D7A0043F01B /* TemporaryScheduleOverrideTests.swift in Sources */,
 				437AFF1D203A45DB008C4892 /* CacheStore.swift in Sources */,
-				A975BE8E24FEEE5700FE7B35 /* CarbStoreTests.swift in Sources */,
 				891A3FD12249948A00378B27 /* TemporaryScheduleOverrideHistoryTests.swift in Sources */,
 				A9BFA03E245CCCB9001E4AE3 /* DailyQuantityScheduleTests.swift in Sources */,
 				A99C73772339A67A00C80963 /* GlucoseThresholdTests.swift in Sources */,

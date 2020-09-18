@@ -1238,8 +1238,8 @@ class CarbStoreQueryTests: PersistenceControllerTestCase {
 class CarbStoreCriticalEventLogTests: PersistenceControllerTestCase {
     var carbStore: CarbStore!
     var outputStream: MockOutputStream!
-    var progressor: MockEstimatedDurationProgressor!
-
+    var progress: Progress!
+    
     override func setUp() {
         super.setUp()
 
@@ -1266,7 +1266,7 @@ class CarbStoreCriticalEventLogTests: PersistenceControllerTestCase {
         dispatchGroup.wait()
 
         outputStream = MockOutputStream()
-        progressor = MockEstimatedDurationProgressor()
+        progress = Progress()
     }
 
     override func tearDown() {
@@ -1274,24 +1274,24 @@ class CarbStoreCriticalEventLogTests: PersistenceControllerTestCase {
 
         super.tearDown()
     }
-
-    func testExportEstimatedDuration() {
-        switch carbStore.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
-                                                 endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
+    
+    func testExportProgressTotalUnitCount() {
+        switch carbStore.exportProgressTotalUnitCount(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
+                                                      endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!) {
         case .failure(let error):
             XCTFail("Unexpected failure: \(error)")
-        case .success(let estimatedDuration):
-            XCTAssertEqual(estimatedDuration, 3 * 0.0009, accuracy: 0.0001)
+        case .success(let progressTotalUnitCount):
+            XCTAssertEqual(progressTotalUnitCount, 3 * 1)
         }
     }
-
-    func testExportEstimatedDurationEmpty() {
-        switch carbStore.exportEstimatedDuration(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
-                                                 endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
+    
+    func testExportProgressTotalUnitCountEmpty() {
+        switch carbStore.exportProgressTotalUnitCount(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
+                                                      endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!) {
         case .failure(let error):
             XCTFail("Unexpected failure: \(error)")
-        case .success(let estimatedDuration):
-            XCTAssertEqual(estimatedDuration, 0)
+        case .success(let progressTotalUnitCount):
+            XCTAssertEqual(progressTotalUnitCount, 0)
         }
     }
 
@@ -1299,7 +1299,7 @@ class CarbStoreCriticalEventLogTests: PersistenceControllerTestCase {
         XCTAssertNil(carbStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
                                       endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
                                       to: outputStream,
-                                      progressor: progressor))
+                                      progress: progress))
         XCTAssertEqual(outputStream.string, """
 [
 {"addedDate":"2100-01-02T03:08:00.000Z","anchorKey":1,"createdByCurrentApp":true,"grams":11,"operation":0,"startDate":"2100-01-02T03:08:00.000Z"},
@@ -1308,24 +1308,24 @@ class CarbStoreCriticalEventLogTests: PersistenceControllerTestCase {
 ]
 """
         )
-        XCTAssertEqual(progressor.estimatedDuration, 3 * 0.0009, accuracy: 0.0001)
+        XCTAssertEqual(progress.completedUnitCount, 3 * 1)
     }
 
     func testExportEmpty() {
         XCTAssertNil(carbStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:00:00Z")!,
                                       endDate: dateFormatter.date(from: "2100-01-02T03:01:00Z")!,
                                       to: outputStream,
-                                      progressor: progressor))
+                                      progress: progress))
         XCTAssertEqual(outputStream.string, "[]")
-        XCTAssertEqual(progressor.estimatedDuration, 0)
+        XCTAssertEqual(progress.completedUnitCount, 0)
     }
 
     func testExportCancelled() {
-        progressor.isCancelled = true
+        progress.cancel()
         XCTAssertEqual(carbStore.export(startDate: dateFormatter.date(from: "2100-01-02T03:03:00Z")!,
                                         endDate: dateFormatter.date(from: "2100-01-02T03:09:00Z")!,
                                         to: outputStream,
-                                        progressor: progressor) as? CriticalEventLogError, CriticalEventLogError.cancelled)
+                                        progress: progress) as? CriticalEventLogError, CriticalEventLogError.cancelled)
     }
 
     private let dateFormatter = ISO8601DateFormatter()
