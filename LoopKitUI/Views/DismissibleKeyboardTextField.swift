@@ -72,7 +72,7 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
 
         if shouldBecomeFirstResponder && !context.coordinator.didBecomeFirstResponder {
             // See https://developer.apple.com/documentation/uikit/uiresponder/1621113-becomefirstresponder for why
-            // we check the window property here
+            // we check the window property here (otherwise it might crash)
             if textField.window != nil && textField.becomeFirstResponder() {
                 context.coordinator.didBecomeFirstResponder = true
             }
