@@ -71,7 +71,9 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         textField.autocorrectionType = autocorrectionType
 
         if shouldBecomeFirstResponder && !context.coordinator.didBecomeFirstResponder {
-            if textField.canBecomeFirstResponder && textField.becomeFirstResponder() {
+            // See https://developer.apple.com/documentation/uikit/uiresponder/1621113-becomefirstresponder for why
+            // we check the window property here
+            if textField.window != nil && textField.becomeFirstResponder() {
                 context.coordinator.didBecomeFirstResponder = true
             }
         } else if !shouldBecomeFirstResponder && context.coordinator.didBecomeFirstResponder {
