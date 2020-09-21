@@ -23,14 +23,13 @@ public protocol CGMManagerUI: CGMManager, DeviceManagerUI {
     /// the completed percent of the progress bar to display in the status bar
     var cgmLifecycleProgress: DeviceLifecycleProgress? { get }
     
-    /// gets the type of a glucose sample using the CGM manager managed glucose thresholds
-    func glucoseValueType(for glucose: GlucoseSampleValue) -> GlucoseValueType?
+    /// gets the range category of a glucose sample using the CGM manager managed glucose thresholds
+    func glucoseRangeCategory(for glucose: GlucoseSampleValue) -> GlucoseRangeCategory?
 }
 
 public protocol CGMManagerSetupViewController {
     var setupDelegate: CGMManagerSetupViewControllerDelegate? { get set }
 }
-
 
 public protocol CGMManagerSetupViewControllerDelegate: class {
     func cgmManagerSetupViewController(_ cgmManagerSetupViewController: CGMManagerSetupViewController, didSetUpCGMManager cgmManager: CGMManagerUI)
