@@ -25,10 +25,10 @@ public final class MockService: Service {
     
     public let maxHistoryItems = 1000
     
-    private var _history = Locked<[String]>([])
+    private var lockedHistory = Locked<[String]>([])
     
     public var history: [String] {
-        _history.value
+        lockedHistory.value
     }
     
     private var dateFormatter = ISO8601DateFormatter()
@@ -62,12 +62,12 @@ public final class MockService: Service {
     public func completeDelete() {}
     
     public func clearHistory() {
-        _history.value = []
+        lockedHistory.value = []
     }
     
     private func record(_ message: String) {
         let timestamp = self.dateFormatter.string(from: Date())
-        _history.mutate { history in
+        lockedHistory.mutate { history in
             history.append("\(timestamp): \(message)")
             if history.count > self.maxHistoryItems {
                 history.removeFirst(history.count - self.maxHistoryItems)
