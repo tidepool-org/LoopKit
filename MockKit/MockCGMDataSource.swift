@@ -203,8 +203,10 @@ extension MockCGMDataSource.Model: RawRepresentable {
             return .constant
         case .sineCurve:
             return .sineCurve
-        case .noData, .signalLoss:
+        case .noData:
             return .noData
+        case .signalLoss:
+            return .signalLoss
         }
     }
 }
