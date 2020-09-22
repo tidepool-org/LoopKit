@@ -512,6 +512,14 @@ extension MockCGMManager {
     
     public func setStatusHighlight(_ statusHighlight: MockCGMStatusHighlight?) {
         mockSensorState.cgmStatusHighlight = statusHighlight
+        
+        if statusHighlight == nil,
+            case .signalLoss = dataSource.model
+        {
+            // restore signal loss status highlight
+            issueSignalLossAlert()
+        }
+
         // trigger display of the status highlight
         sendCGMResult(.noData)
     }
