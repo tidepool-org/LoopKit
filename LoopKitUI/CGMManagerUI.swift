@@ -27,6 +27,12 @@ public protocol CGMManagerUI: CGMManager, DeviceManagerUI {
     func glucoseRangeCategory(for glucose: GlucoseSampleValue) -> GlucoseRangeCategory?
 }
 
+extension CGMManagerUI {
+    public func glucoseRangeCategory(for glucose: GlucoseSampleValue) -> GlucoseRangeCategory? {
+        return nil
+    }
+}
+
 public protocol CGMManagerSetupViewController {
     var setupDelegate: CGMManagerSetupViewControllerDelegate? { get set }
 }
