@@ -23,7 +23,10 @@ public final class MockService: Service {
     
     public var analytics: Bool
     
+    public let maxHistoryItems = 1000
+    
     public var history: [String]
+    private let historyQueue = DispatchQueue(label: "MockService_historyQueue")
     
     private var dateFormatter = ISO8601DateFormatter()
     
@@ -60,8 +63,14 @@ public final class MockService: Service {
     public func completeDelete() {}
     
     private func record(_ message: String) {
-        let timestamp = dateFormatter.string(from: Date())
-        history.append("\(timestamp): \(message)")
+        historyQueue.async { [weak self] in
+            guard let self = self else { return }
+            let timestamp = self.dateFormatter.string(from: Date())
+            self.history.append("\(timestamp): \(message)")
+            if self.history.count > self.maxHistoryItems {
+                self.history.removeFirst(self.history.count - self.maxHistoryItems)
+            }
+        }
     }
     
 }
