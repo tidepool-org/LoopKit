@@ -29,9 +29,9 @@ open class ChartsTableViewController: UITableViewController, UIGestureRecognizer
         NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { [weak self] _ in
             guard let self = self else { return }
             
-            if self.view?.window != nil {
+            if self.visible {
                 DispatchQueue.main.async {
-                    self.visible = true
+                    self.reloadData()
                 }
             }
         }
