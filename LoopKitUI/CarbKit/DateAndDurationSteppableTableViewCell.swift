@@ -15,24 +15,13 @@ public class DateAndDurationSteppableTableViewCell: DatePickerTableViewCell {
 
     @IBOutlet public weak var dateLabel: UILabel! {
         didSet {
-            // Setting this color in code because the nib isn't being applied correctly
-            if #available(iOSApplicationExtension 13.0, *) {
-                dateLabel.textColor = .secondaryLabel
-            }
+            dateLabel.textColor = .secondaryLabel
         }
     }
     
-    @IBOutlet weak var incrementButton: UIButton! {
-        didSet {
-            incrementButton.layer.cornerRadius = 0.5 * incrementButton.bounds.size.width
-        }
-    }
-    
-    @IBOutlet weak var decrementButton: UIButton! {
-        didSet {
-            decrementButton.layer.cornerRadius = 0.5 * decrementButton.bounds.size.width
-        }
-    }
+    @IBOutlet weak var incrementButton: UIButton!
+
+    @IBOutlet weak var decrementButton: UIButton! 
     
     public var timeStepSize: TimeInterval = .minutes(15)
     
