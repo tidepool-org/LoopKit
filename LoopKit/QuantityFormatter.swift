@@ -105,10 +105,8 @@ open class QuantityFormatter {
 
         if let foundationUnit = unit.foundationUnit, unit.usesMeasurementFormatterForMeasurement {
             var valueString = measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
-            if !includeUnit,
-                let unitString = unit.localizedUnitString(in: unitStyle)
-            {
-                valueString = valueString.replacingOccurrences(of: unitString, with: "")
+            if !includeUnit {
+                valueString = valueString.replacingOccurrences(of: measurementFormatter.string(from: foundationUnit), with: "")
             }
             return valueString
         }
