@@ -103,17 +103,13 @@ open class QuantityFormatter {
     open func string(from quantity: HKQuantity, for unit: HKUnit, includeUnit: Bool = true) -> String? {
         let value = quantity.doubleValue(for: unit)
 
-        if let foundationUnit = unit.foundationUnit, unit.usesMeasurementFormatterForMeasurement {
-            var valueString = measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
-            if !includeUnit {
-                valueString = valueString.replacingOccurrences(of: measurementFormatter.string(from: foundationUnit), with: "")
-            }
-            return valueString
-        }
-        
         if !includeUnit {
             return numberFormatter.string(from: value)
         }
+
+        if let foundationUnit = unit.foundationUnit, unit.usesMeasurementFormatterForMeasurement {
+            return measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
+        }        
         
         return numberFormatter.string(from: value, unit: string(from: unit, forValue: value), style: unitStyle)
     }
