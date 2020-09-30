@@ -15,24 +15,12 @@ extension NumberFormatter {
         return string(from: NSNumber(value: number))
     }
 
-    func string(from number: Double, unit: String?, style: Formatter.UnitStyle = .medium) -> String? {
+    func string(from number: Double, unit: String, style: Formatter.UnitStyle = .medium) -> String? {
         guard let stringValue = string(from: number) else {
             return nil
         }
 
         let format: String
-        guard let unit = unit else {
-            format = LocalizedString(
-                "quantity-no-unit",
-                value: "%1$@",
-                comment: "Format string for localized numeric value without any unit. (1: numeric value)"
-            )
-            return String(
-                format: format,
-                stringValue
-            )
-        }
-        
         switch style {
         case .long, .medium:
             format = LocalizedString(

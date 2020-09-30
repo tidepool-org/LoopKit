@@ -111,7 +111,11 @@ open class QuantityFormatter {
             return valueString
         }
         
-        return numberFormatter.string(from: value, unit: includeUnit ? string(from: unit, forValue: value) : nil, style: unitStyle)
+        if !includeUnit {
+            return numberFormatter.string(from: value)
+        }
+        
+        return numberFormatter.string(from: value, unit: string(from: unit, forValue: value), style: unitStyle)
     }
 
     /// Formats a unit as a localized string
