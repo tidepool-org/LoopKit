@@ -2,7 +2,7 @@
 //  DateAndDurationSteppableTableViewCell.swift
 //  LoopKitUI
 //
-//  Copyright © 2018 LoopKit Authors. All rights reserved.
+//  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
 import UIKit
@@ -57,11 +57,7 @@ public class DateAndDurationSteppableTableViewCell: DatePickerTableViewCell {
         switch datePicker.datePickerMode {
         case .countDownTimer:
             dateLabel.text = durationFormatter.string(from: duration)
-        case .date:
-            dateLabel.text = dateFormatter.string(from: date)
-        case .dateAndTime:
-            dateLabel.text = dateFormatter.string(from: date)
-        case .time:
+        case .date, .dateAndTime, .time:
             dateLabel.text = dateFormatter.string(from: date)
         @unknown default:
             break // Do nothing
