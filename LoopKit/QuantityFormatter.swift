@@ -104,7 +104,13 @@ open class QuantityFormatter {
         let value = quantity.doubleValue(for: unit)
 
         if let foundationUnit = unit.foundationUnit, unit.usesMeasurementFormatterForMeasurement {
-            return measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
+            var valueString = measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
+            if !includeUnit,
+                let unitString = unit.localizedUnitString(in: unitStyle)
+            {
+                valueString = valueString.replacingOccurrences(of: unitString, with: "")
+            }
+            return valueString
         }
         
         return numberFormatter.string(from: value, unit: includeUnit ? string(from: unit, forValue: value) : nil, style: unitStyle)
