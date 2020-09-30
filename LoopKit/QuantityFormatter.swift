@@ -97,16 +97,26 @@ open class QuantityFormatter {
     ///
     /// - Parameters:
     ///   - quantity: The quantity
-    ///   - unit: The value. An exception is thrown if `quantity` is not compatible with the unit.
+    ///   - unit: The unit. An exception is thrown if `quantity` is not compatible with the unit.
+    ///   - includeUnits: Whether or not to include the units in the returned string
     /// - Returns: A localized string, or nil if `numberFormatter` is unable to format the quantity value
-    open func string(from quantity: HKQuantity, for unit: HKUnit) -> String? {
+    open func string(from quantity: HKQuantity, for unit: HKUnit, includeUnits: Bool = true) -> String? {
         let value = quantity.doubleValue(for: unit)
 
+        var valueString: String?
         if let foundationUnit = unit.foundationUnit, unit.usesMeasurementFormatterForMeasurement {
-            return measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
+            valueString = measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
+        } else {
+            valueString = numberFormatter.string(from: value, unit: string(from: unit, forValue: value), style: unitStyle)
         }
 
-        return numberFormatter.string(from: value, unit: string(from: unit, forValue: value), style: unitStyle)
+        if !includeUnits,
+            let unitString = unit.localizedUnitString(in: unitStyle)
+        {
+            valueString = valueString?.replacingOccurrences(of: " \(unitString)", with: "")
+        }
+        
+        return valueString
     }
 
     /// Formats a unit as a localized string
