@@ -230,7 +230,7 @@ public struct CorrectionRangeOverridesEditor: View {
         let crossedThresholds = self.crossedThresholds
         return Group {
             if !crossedThresholds.isEmpty && (userDidTap || mode == .settings) {
-                CorrectionRangeOverridesGuardrailWarning(crossedThresholds: crossedThresholds)
+                CorrectionRangeOverridesGuardrailWarning(crossedThresholds: crossedThresholds, preset: preset)
             }
         }
     }
@@ -303,7 +303,8 @@ public struct CorrectionRangeOverridesEditor: View {
 
 private struct CorrectionRangeOverridesGuardrailWarning: View {
     var crossedThresholds: [CorrectionRangeOverrides.Preset: [SafetyClassification.Threshold]]
-
+    var preset: CorrectionRangeOverrides.Preset
+    
     var body: some View {
         assert(!crossedThresholds.isEmpty)
         return GuardrailWarning(
@@ -324,24 +325,27 @@ private struct CorrectionRangeOverridesGuardrailWarning: View {
     private func singularWarningTitle(for threshold: SafetyClassification.Threshold) -> Text {
         switch threshold {
         case .minimum, .belowRecommended:
-            if crossedThresholds.keys.contains(.preMeal) {
+            switch preset {
+            case .preMeal:
                 return Text("Low Pre-meal Value", comment: "Title text for the low pre-meal value warning")
-            } else {
+            case .workout:
                 return Text("Low Workout Value", comment: "Title text for the low workout value warning")
             }
         case .aboveRecommended, .maximum:
-            if crossedThresholds.keys.contains(.preMeal) {
+            switch preset {
+            case .preMeal:
                 return Text("High Pre-Meal Value", comment: "Title text for the low pre-meal value warning")
-            } else {
+            case .workout:
                 return Text("High Workout Value", comment: "Title text for the high workout value warning")
             }
         }
     }
 
     private var multipleWarningTitle: Text {
-        if crossedThresholds.keys.contains(.preMeal) {
+        switch preset {
+        case .preMeal:
             return Text("Pre-Meal Values", comment: "Title text for multi-value pre-meal value warning")
-        } else {
+        case .workout:
             return Text("Workout Values", comment: "Title text for multi-value workout value warning")
         }
     }
