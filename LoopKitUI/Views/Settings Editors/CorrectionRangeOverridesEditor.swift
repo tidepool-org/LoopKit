@@ -235,22 +235,20 @@ public struct CorrectionRangeOverridesEditor: View {
         }
     }
 
-    private var crossedThresholds: [CorrectionRangeOverrides.Preset: [SafetyClassification.Threshold]] {
-        value.ranges
-            .compactMapValuesWithKeys { preset, range in
-                let guardrail = self.guardrail(for: preset)
-                let thresholds: [SafetyClassification.Threshold] = [range.lowerBound, range.upperBound].compactMap { bound in
-                    switch guardrail.classification(for: bound) {
-                    case .withinRecommendedRange:
-                        return nil
-                    case .outsideRecommendedRange(let threshold):
-                        return threshold
-                    }
-                }
-
-                return thresholds.isEmpty ? nil : thresholds
+    private var crossedThresholds: [SafetyClassification.Threshold] {
+        guard let range = value.ranges[preset] else { return [] }
+        
+        let guardrail = self.guardrail(for: preset)
+        let thresholds: [SafetyClassification.Threshold] = [range.lowerBound, range.upperBound].compactMap { bound in
+            switch guardrail.classification(for: bound) {
+            case .withinRecommendedRange:
+                return nil
+            case .outsideRecommendedRange(let threshold):
+                return threshold
             }
-            .filter { $0.key == preset }
+        }
+        
+        return thresholds
     }
 
     private func confirmationAlert() -> SwiftUI.Alert {
@@ -302,21 +300,21 @@ public struct CorrectionRangeOverridesEditor: View {
 }
 
 private struct CorrectionRangeOverridesGuardrailWarning: View {
-    var crossedThresholds: [CorrectionRangeOverrides.Preset: [SafetyClassification.Threshold]]
+    var crossedThresholds: [SafetyClassification.Threshold]
     var preset: CorrectionRangeOverrides.Preset
     
     var body: some View {
         assert(!crossedThresholds.isEmpty)
         return GuardrailWarning(
             title: title,
-            thresholds: Array(crossedThresholds.values.flatMap { $0 }),
+            thresholds: crossedThresholds,
             caption: caption
         )
     }
 
     private var title: Text {
-        if crossedThresholds.count == 1, crossedThresholds.values.first!.count == 1 {
-            return singularWarningTitle(for: crossedThresholds.values.first!.first!)
+        if crossedThresholds.count == 1 {
+            return singularWarningTitle(for: crossedThresholds.first!)
         } else {
             return multipleWarningTitle
         }
@@ -352,13 +350,12 @@ private struct CorrectionRangeOverridesGuardrailWarning: View {
 
     var caption: Text? {
         guard
-            crossedThresholds.count == 1,
-            let crossedPreMealThresholds = crossedThresholds[.preMeal],
-            crossedPreMealThresholds.allSatisfy({ $0 == .aboveRecommended || $0 == .maximum })
+            preset == .preMeal,
+            crossedThresholds.allSatisfy({ $0 == .aboveRecommended || $0 == .maximum })
         else {
             return nil
         }
         
-        return Text(crossedPreMealThresholds.count > 1 ? TherapySetting.preMealCorrectionRangeOverride.guardrailCaptionForOutsideValues : TherapySetting.preMealCorrectionRangeOverride.guardrailCaptionForHighValue)
+        return Text(crossedThresholds.count > 1 ? TherapySetting.preMealCorrectionRangeOverride.guardrailCaptionForOutsideValues : TherapySetting.preMealCorrectionRangeOverride.guardrailCaptionForHighValue)
     }
 }
