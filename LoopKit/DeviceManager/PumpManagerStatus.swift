@@ -63,7 +63,7 @@ public struct PumpManagerStatus: Equatable {
     public let timeZone: TimeZone
     public let device: HKDevice
     public var pumpBatteryChargeRemaining: Double?
-    public var basalDeliveryState: BasalDeliveryState
+    public var basalDeliveryState: BasalDeliveryState?
     public var bolusState: BolusState
     public var pumpStatusHighlight: PumpStatusHighlight?
     public var pumpLifecycleProgress: PumpLifecycleProgress?
@@ -73,7 +73,7 @@ public struct PumpManagerStatus: Equatable {
         timeZone: TimeZone,
         device: HKDevice,
         pumpBatteryChargeRemaining: Double?,
-        basalDeliveryState: BasalDeliveryState,
+        basalDeliveryState: BasalDeliveryState?,
         bolusState: BolusState,
         pumpStatusHighlight: PumpStatusHighlight? = nil,
         pumpLifecycleProgress: PumpLifecycleProgress? = nil,
@@ -96,7 +96,7 @@ extension PumpManagerStatus: Codable {
         self.timeZone = try container.decode(TimeZone.self, forKey: .timeZone)
         self.device = (try container.decode(CodableDevice.self, forKey: .device)).device
         self.pumpBatteryChargeRemaining = try container.decodeIfPresent(Double.self, forKey: .pumpBatteryChargeRemaining)
-        self.basalDeliveryState = try container.decode(BasalDeliveryState.self, forKey: .basalDeliveryState)
+        self.basalDeliveryState = try container.decodeIfPresent(BasalDeliveryState.self, forKey: .basalDeliveryState)
         self.bolusState = try container.decode(BolusState.self, forKey: .bolusState)
         self.pumpStatusHighlight = try container.decodeIfPresent(PumpStatusHighlight.self, forKey: .pumpStatusHighlight)
         self.pumpLifecycleProgress = try container.decodeIfPresent(PumpLifecycleProgress.self, forKey: .pumpLifecycleProgress)
@@ -108,7 +108,7 @@ extension PumpManagerStatus: Codable {
         try container.encode(timeZone, forKey: .timeZone)
         try container.encode(CodableDevice(device), forKey: .device)
         try container.encodeIfPresent(pumpBatteryChargeRemaining, forKey: .pumpBatteryChargeRemaining)
-        try container.encode(basalDeliveryState, forKey: .basalDeliveryState)
+        try container.encodeIfPresent(basalDeliveryState, forKey: .basalDeliveryState)
         try container.encode(bolusState, forKey: .bolusState)
         try container.encodeIfPresent(pumpStatusHighlight, forKey: .pumpStatusHighlight)
         try container.encodeIfPresent(pumpLifecycleProgress, forKey: .pumpLifecycleProgress)
@@ -301,7 +301,7 @@ extension PumpManagerStatus: CustomDebugStringConvertible {
         * timeZone: \(timeZone)
         * device: \(device)
         * pumpBatteryChargeRemaining: \(pumpBatteryChargeRemaining as Any)
-        * basalDeliveryState: \(basalDeliveryState)
+        * basalDeliveryState: \(basalDeliveryState as Any)
         * bolusState: \(bolusState)
         * pumpStatusHighlight: \(pumpStatusHighlight as Any)
         * pumpLifecycleProgress: \(pumpLifecycleProgress as Any)
