@@ -325,7 +325,7 @@ private struct CorrectionRangeOverridesGuardrailWarning: View {
         case .minimum, .belowRecommended:
             switch preset {
             case .preMeal:
-                return Text("Low Pre-meal Value", comment: "Title text for the low pre-meal value warning")
+                return Text("Low Pre-Meal Value", comment: "Title text for the low pre-meal value warning")
             case .workout:
                 return Text("Low Workout Value", comment: "Title text for the low workout value warning")
             }
