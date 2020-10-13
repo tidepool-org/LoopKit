@@ -30,7 +30,7 @@ class PumpManagerStatusCodableTests: XCTestCase {
                                                              device: device,
                                                              pumpBatteryChargeRemaining: 0.75,
                                                              basalDeliveryState: .active(dateFormatter.date(from: "2020-05-14T15:56:09Z")!),
-                                                             bolusState: .none,
+                                                             bolusState: PumpManagerStatus.BolusState.none,
                                                              pumpStatusHighlight: pumpStatusHighlight,
                                                              pumpLifecycleProgress: pumpLifecycleProgress,
                                                              deliveryIsUncertain: true),
