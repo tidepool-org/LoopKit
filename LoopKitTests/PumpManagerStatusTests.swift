@@ -30,7 +30,7 @@ class PumpManagerStatusCodableTests: XCTestCase {
                                                              device: device,
                                                              pumpBatteryChargeRemaining: 0.75,
                                                              basalDeliveryState: .active(dateFormatter.date(from: "2020-05-14T15:56:09Z")!),
-                                                             bolusState: PumpManagerStatus.BolusState.none,
+                                                             bolusState: .inactive,
                                                              pumpStatusHighlight: pumpStatusHighlight,
                                                              pumpLifecycleProgress: pumpLifecycleProgress,
                                                              deliveryIsUncertain: true),
@@ -41,7 +41,7 @@ class PumpManagerStatusCodableTests: XCTestCase {
       "at" : "2020-05-14T15:56:09Z"
     }
   },
-  "bolusState" : "none",
+  "bolusState" : "inactive",
   "deliveryIsUncertain" : true,
   "device" : {
     "firmwareVersion" : "1.2.3",
@@ -219,9 +219,9 @@ class PumpManagerStatusBasalDeliveryStateCodableTests: XCTestCase {
 
 class PumpManagerStatusBolusStateCodableTests: XCTestCase {
     func testCodableNone() throws {
-        try assertPumpManagerStatusBolusStateCodable(.none, encodesJSON: """
+        try assertPumpManagerStatusBolusStateCodable(.inactive, encodesJSON: """
 {
-  "bolusState" : "none"
+  "bolusState" : "inactive"
 }
 """
         )

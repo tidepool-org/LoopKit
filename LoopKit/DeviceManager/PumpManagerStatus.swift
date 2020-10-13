@@ -54,7 +54,7 @@ public struct PumpManagerStatus: Equatable {
     }
 
     public enum BolusState: Equatable {
-        case none
+        case inactive
         case initiating
         case inProgress(_ dose: DoseEntry)
         case canceling
@@ -242,8 +242,8 @@ extension PumpManagerStatus.BolusState: Codable {
     public init(from decoder: Decoder) throws {
         if let string = try? decoder.singleValueContainer().decode(String.self) {
             switch string {
-            case CodableKeys.none.rawValue:
-                self = .none
+            case CodableKeys.inactive.rawValue, "none": // included for backward compatibility. BolusState.none -> BolusState.inactive
+                self = .inactive
             case CodableKeys.initiating.rawValue:
                 self = .initiating
             case CodableKeys.canceling.rawValue:
@@ -263,9 +263,9 @@ extension PumpManagerStatus.BolusState: Codable {
 
     public func encode(to encoder: Encoder) throws {
         switch self {
-        case .none:
+        case .inactive:
             var container = encoder.singleValueContainer()
-            try container.encode(CodableKeys.none.rawValue)
+            try container.encode(CodableKeys.inactive.rawValue)
         case .initiating:
             var container = encoder.singleValueContainer()
             try container.encode(CodableKeys.initiating.rawValue)
@@ -283,7 +283,7 @@ extension PumpManagerStatus.BolusState: Codable {
     }
 
     private enum CodableKeys: String, CodingKey {
-        case none
+        case inactive
         case initiating
         case inProgress
         case canceling
