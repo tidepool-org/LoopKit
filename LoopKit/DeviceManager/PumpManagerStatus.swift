@@ -64,7 +64,7 @@ public struct PumpManagerStatus: Equatable {
     public let device: HKDevice
     public var pumpBatteryChargeRemaining: Double?
     public var basalDeliveryState: BasalDeliveryState?
-    public var bolusState: BolusState
+    public var bolusState: BolusState?
     public var pumpStatusHighlight: PumpStatusHighlight?
     public var pumpLifecycleProgress: PumpLifecycleProgress?
     public var deliveryIsUncertain: Bool
@@ -74,7 +74,7 @@ public struct PumpManagerStatus: Equatable {
         device: HKDevice,
         pumpBatteryChargeRemaining: Double?,
         basalDeliveryState: BasalDeliveryState?,
-        bolusState: BolusState,
+        bolusState: BolusState?,
         pumpStatusHighlight: PumpStatusHighlight? = nil,
         pumpLifecycleProgress: PumpLifecycleProgress? = nil,
         deliveryIsUncertain: Bool = false
@@ -97,7 +97,7 @@ extension PumpManagerStatus: Codable {
         self.device = (try container.decode(CodableDevice.self, forKey: .device)).device
         self.pumpBatteryChargeRemaining = try container.decodeIfPresent(Double.self, forKey: .pumpBatteryChargeRemaining)
         self.basalDeliveryState = try container.decodeIfPresent(BasalDeliveryState.self, forKey: .basalDeliveryState)
-        self.bolusState = try container.decode(BolusState.self, forKey: .bolusState)
+        self.bolusState = try container.decodeIfPresent(BolusState.self, forKey: .bolusState)
         self.pumpStatusHighlight = try container.decodeIfPresent(PumpStatusHighlight.self, forKey: .pumpStatusHighlight)
         self.pumpLifecycleProgress = try container.decodeIfPresent(PumpLifecycleProgress.self, forKey: .pumpLifecycleProgress)
         self.deliveryIsUncertain = try container.decode(Bool.self, forKey: .deliveryIsUncertain)
@@ -109,7 +109,7 @@ extension PumpManagerStatus: Codable {
         try container.encode(CodableDevice(device), forKey: .device)
         try container.encodeIfPresent(pumpBatteryChargeRemaining, forKey: .pumpBatteryChargeRemaining)
         try container.encodeIfPresent(basalDeliveryState, forKey: .basalDeliveryState)
-        try container.encode(bolusState, forKey: .bolusState)
+        try container.encodeIfPresent(bolusState, forKey: .bolusState)
         try container.encodeIfPresent(pumpStatusHighlight, forKey: .pumpStatusHighlight)
         try container.encodeIfPresent(pumpLifecycleProgress, forKey: .pumpLifecycleProgress)
         try container.encode(deliveryIsUncertain, forKey: .deliveryIsUncertain)
@@ -302,7 +302,7 @@ extension PumpManagerStatus: CustomDebugStringConvertible {
         * device: \(device)
         * pumpBatteryChargeRemaining: \(pumpBatteryChargeRemaining as Any)
         * basalDeliveryState: \(basalDeliveryState as Any)
-        * bolusState: \(bolusState)
+        * bolusState: \(bolusState as Any)
         * pumpStatusHighlight: \(pumpStatusHighlight as Any)
         * pumpLifecycleProgress: \(pumpLifecycleProgress as Any)
         * deliveryIsUncertain: \(deliveryIsUncertain)
