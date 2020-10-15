@@ -302,7 +302,7 @@ extension PumpManagerStatus: CustomDebugStringConvertible {
         * device: \(device)
         * pumpBatteryChargeRemaining: \(pumpBatteryChargeRemaining as Any)
         * basalDeliveryState: \(basalDeliveryState as Any)
-        * bolusState: \(bolusState as Any)
+        * bolusState: \(bolusState)
         * pumpStatusHighlight: \(pumpStatusHighlight as Any)
         * pumpLifecycleProgress: \(pumpLifecycleProgress as Any)
         * deliveryIsUncertain: \(deliveryIsUncertain)
