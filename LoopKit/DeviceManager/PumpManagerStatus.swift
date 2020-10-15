@@ -54,7 +54,7 @@ public struct PumpManagerStatus: Equatable {
     }
 
     public enum BolusState: Equatable {
-        case inactive
+        case noBolus
         case initiating
         case inProgress(_ dose: DoseEntry)
         case canceling
@@ -64,7 +64,7 @@ public struct PumpManagerStatus: Equatable {
     public let device: HKDevice
     public var pumpBatteryChargeRemaining: Double?
     public var basalDeliveryState: BasalDeliveryState?
-    public var bolusState: BolusState?
+    public var bolusState: BolusState
     public var pumpStatusHighlight: PumpStatusHighlight?
     public var pumpLifecycleProgress: PumpLifecycleProgress?
     public var deliveryIsUncertain: Bool
@@ -74,7 +74,7 @@ public struct PumpManagerStatus: Equatable {
         device: HKDevice,
         pumpBatteryChargeRemaining: Double?,
         basalDeliveryState: BasalDeliveryState?,
-        bolusState: BolusState?,
+        bolusState: BolusState,
         pumpStatusHighlight: PumpStatusHighlight? = nil,
         pumpLifecycleProgress: PumpLifecycleProgress? = nil,
         deliveryIsUncertain: Bool = false
@@ -97,7 +97,7 @@ extension PumpManagerStatus: Codable {
         self.device = (try container.decode(CodableDevice.self, forKey: .device)).device
         self.pumpBatteryChargeRemaining = try container.decodeIfPresent(Double.self, forKey: .pumpBatteryChargeRemaining)
         self.basalDeliveryState = try container.decodeIfPresent(BasalDeliveryState.self, forKey: .basalDeliveryState)
-        self.bolusState = try container.decodeIfPresent(BolusState.self, forKey: .bolusState)
+        self.bolusState = try container.decode(BolusState.self, forKey: .bolusState)
         self.pumpStatusHighlight = try container.decodeIfPresent(PumpStatusHighlight.self, forKey: .pumpStatusHighlight)
         self.pumpLifecycleProgress = try container.decodeIfPresent(PumpLifecycleProgress.self, forKey: .pumpLifecycleProgress)
         self.deliveryIsUncertain = try container.decode(Bool.self, forKey: .deliveryIsUncertain)
@@ -109,7 +109,7 @@ extension PumpManagerStatus: Codable {
         try container.encode(CodableDevice(device), forKey: .device)
         try container.encodeIfPresent(pumpBatteryChargeRemaining, forKey: .pumpBatteryChargeRemaining)
         try container.encodeIfPresent(basalDeliveryState, forKey: .basalDeliveryState)
-        try container.encodeIfPresent(bolusState, forKey: .bolusState)
+        try container.encode(bolusState, forKey: .bolusState)
         try container.encodeIfPresent(pumpStatusHighlight, forKey: .pumpStatusHighlight)
         try container.encodeIfPresent(pumpLifecycleProgress, forKey: .pumpLifecycleProgress)
         try container.encode(deliveryIsUncertain, forKey: .deliveryIsUncertain)
@@ -242,8 +242,8 @@ extension PumpManagerStatus.BolusState: Codable {
     public init(from decoder: Decoder) throws {
         if let string = try? decoder.singleValueContainer().decode(String.self) {
             switch string {
-            case CodableKeys.inactive.rawValue, "none": // included for backward compatibility. BolusState.none -> BolusState.inactive
-                self = .inactive
+            case CodableKeys.noBolus.rawValue, "none": // included for backward compatibility. BolusState.none -> BolusState.noBolus
+                self = .noBolus
             case CodableKeys.initiating.rawValue:
                 self = .initiating
             case CodableKeys.canceling.rawValue:
@@ -263,9 +263,9 @@ extension PumpManagerStatus.BolusState: Codable {
 
     public func encode(to encoder: Encoder) throws {
         switch self {
-        case .inactive:
+        case .noBolus:
             var container = encoder.singleValueContainer()
-            try container.encode(CodableKeys.inactive.rawValue)
+            try container.encode(CodableKeys.noBolus.rawValue)
         case .initiating:
             var container = encoder.singleValueContainer()
             try container.encode(CodableKeys.initiating.rawValue)
@@ -283,7 +283,7 @@ extension PumpManagerStatus.BolusState: Codable {
     }
 
     private enum CodableKeys: String, CodingKey {
-        case inactive
+        case noBolus
         case initiating
         case inProgress
         case canceling
