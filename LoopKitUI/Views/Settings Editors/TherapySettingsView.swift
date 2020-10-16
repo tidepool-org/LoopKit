@@ -533,7 +533,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
 
     static func preview_viewModel(mode: PresentationMode) -> TherapySettingsViewModel {
         TherapySettingsViewModel(mode: mode,
-                                 therapySettings: preview_therapySettings,
+                                 therapySettings: { preview_therapySettings },
                                  supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                                  pumpSupportedIncrements: { PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
                                                                                   bolusVolumes: preview_supportedBolusVolumes,
@@ -556,7 +556,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
             TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .settings,
-                                                                    therapySettings: TherapySettings(),
+                                                                    therapySettings: { TherapySettings() },
                                                                     chartColors: ChartColorPalette(axisLine: .clear,
                                                                                                    axisLabel: .secondaryLabel,
                                                                                                    grid: .systemGray3,
