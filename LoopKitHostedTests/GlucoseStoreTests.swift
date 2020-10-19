@@ -232,12 +232,12 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         }
         wait(for: [getGlucoseSamples2Completion], timeout: 10)
 
-        let purgeGlucoseObjectsCompletion = expectation(description: "purgeGlucoseObjects")
-        glucoseStore.purgeGlucoseObjects() { error in
+        let purgeCachedGlucoseObjectsCompletion = expectation(description: "purgeCachedGlucoseObjects")
+        glucoseStore.purgeCachedGlucoseObjects() { error in
             XCTAssertNil(error)
-            purgeGlucoseObjectsCompletion.fulfill()
+            purgeCachedGlucoseObjectsCompletion.fulfill()
         }
-        wait(for: [purgeGlucoseObjectsCompletion], timeout: 10)
+        wait(for: [purgeCachedGlucoseObjectsCompletion], timeout: 10)
 
         let getGlucoseSamples3Completion = expectation(description: "getGlucoseSamples3")
         glucoseStore.getGlucoseSamples() { result in
@@ -275,12 +275,12 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         XCTAssertEqual(glucoseStore.latestGlucose?.isDisplayOnly, sample2.isDisplayOnly)
         XCTAssertEqual(glucoseStore.latestGlucose?.wasUserEntered, sample2.wasUserEntered)
 
-        let purgeGlucoseObjectsCompletion = expectation(description: "purgeGlucoseObjects")
-        glucoseStore.purgeGlucoseObjects() { error in
+        let purgeCachedGlucoseObjectsCompletion = expectation(description: "purgeCachedGlucoseObjects")
+        glucoseStore.purgeCachedGlucoseObjects() { error in
             XCTAssertNil(error)
-            purgeGlucoseObjectsCompletion.fulfill()
+            purgeCachedGlucoseObjectsCompletion.fulfill()
         }
-        wait(for: [purgeGlucoseObjectsCompletion], timeout: 10)
+        wait(for: [purgeCachedGlucoseObjectsCompletion], timeout: 10)
 
         XCTAssertNil(glucoseStore.latestGlucose)
     }
@@ -526,12 +526,12 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         }
         wait(for: [getSyncGlucoseObjects2Completion], timeout: 10)
 
-        let purgeGlucoseObjectsCompletion = expectation(description: "purgeGlucoseObjects")
-        glucoseStore.purgeGlucoseObjects() { error in
+        let purgeCachedGlucoseObjectsCompletion = expectation(description: "purgeCachedGlucoseObjects")
+        glucoseStore.purgeCachedGlucoseObjects() { error in
             XCTAssertNil(error)
-            purgeGlucoseObjectsCompletion.fulfill()
+            purgeCachedGlucoseObjectsCompletion.fulfill()
         }
-        wait(for: [purgeGlucoseObjectsCompletion], timeout: 10)
+        wait(for: [purgeCachedGlucoseObjectsCompletion], timeout: 10)
 
         let getSyncGlucoseObjects3Completion = expectation(description: "getSyncGlucoseObjects3")
         glucoseStore.getSyncGlucoseObjects() { result in
@@ -678,7 +678,7 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         wait(for: [getGlucoseSamplesCompletion], timeout: 10)
     }
 
-    func testPurgeGlucoseObjects() {
+    func testPurgeCachedGlucoseObjects() {
         let addGlucoseSamplesCompletion = expectation(description: "addGlucoseSamples")
         glucoseStore.addGlucoseSamples([sample1, sample2, sample3]) { result in
             switch result {
@@ -703,13 +703,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         }
         wait(for: [getGlucoseSamples1Completion], timeout: 10)
 
-        let purgeGlucoseObjects1Completion = expectation(description: "purgeGlucoseObjects1")
-        glucoseStore.purgeGlucoseObjects(before: Date(timeIntervalSinceNow: -.minutes(5))) { error in
+        let purgeCachedGlucoseObjects1Completion = expectation(description: "purgeCachedGlucoseObjects1")
+        glucoseStore.purgeCachedGlucoseObjects(before: Date(timeIntervalSinceNow: -.minutes(5))) { error in
             XCTAssertNil(error)
-            purgeGlucoseObjects1Completion.fulfill()
+            purgeCachedGlucoseObjects1Completion.fulfill()
 
         }
-        wait(for: [purgeGlucoseObjects1Completion], timeout: 10)
+        wait(for: [purgeCachedGlucoseObjects1Completion], timeout: 10)
 
         let getGlucoseSamples2Completion = expectation(description: "getGlucoseSamples2")
         glucoseStore.getGlucoseSamples() { result in
@@ -723,13 +723,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         }
         wait(for: [getGlucoseSamples2Completion], timeout: 10)
 
-        let purgeGlucoseObjects2Completion = expectation(description: "purgeGlucoseObjects2")
-        glucoseStore.purgeGlucoseObjects() { error in
+        let purgeCachedGlucoseObjects2Completion = expectation(description: "purgeCachedGlucoseObjects2")
+        glucoseStore.purgeCachedGlucoseObjects() { error in
             XCTAssertNil(error)
-            purgeGlucoseObjects2Completion.fulfill()
+            purgeCachedGlucoseObjects2Completion.fulfill()
 
         }
-        wait(for: [purgeGlucoseObjects2Completion], timeout: 10)
+        wait(for: [purgeCachedGlucoseObjects2Completion], timeout: 10)
 
         let getGlucoseSamples3Completion = expectation(description: "getGlucoseSamples3")
         glucoseStore.getGlucoseSamples() { result in
@@ -744,7 +744,7 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         wait(for: [getGlucoseSamples3Completion], timeout: 10)
     }
 
-    func testPurgeGlucoseObjectsNotification() {
+    func testPurgeCachedGlucoseObjectsNotification() {
         let addGlucoseSamplesCompletion = expectation(description: "addGlucoseSamples")
         glucoseStore.addGlucoseSamples([sample1, sample2, sample3]) { result in
             switch result {
@@ -765,13 +765,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
             glucoseSamplesDidChangeCompletion.fulfill()
         }
 
-        let purgeGlucoseObjectsCompletion = expectation(description: "purgeGlucoseObjects")
-        glucoseStore.purgeGlucoseObjects() { error in
+        let purgeCachedGlucoseObjectsCompletion = expectation(description: "purgeCachedGlucoseObjects")
+        glucoseStore.purgeCachedGlucoseObjects() { error in
             XCTAssertNil(error)
-            purgeGlucoseObjectsCompletion.fulfill()
+            purgeCachedGlucoseObjectsCompletion.fulfill()
 
         }
-        wait(for: [glucoseSamplesDidChangeCompletion, delegateCompletion!, purgeGlucoseObjectsCompletion], timeout: 10, enforceOrder: true)
+        wait(for: [glucoseSamplesDidChangeCompletion, delegateCompletion!, purgeCachedGlucoseObjectsCompletion], timeout: 10, enforceOrder: true)
 
         NotificationCenter.default.removeObserver(observer)
         delegateCompletion = nil

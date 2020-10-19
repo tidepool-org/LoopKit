@@ -168,6 +168,8 @@ public final class GlucoseStore: HealthKitSampleStore {
                             if try self.addGlucoseSample(for: sample) {
                                 self.log.debug("Saved sample %@ into cache from HKAnchoredObjectQuery", sample.uuid.uuidString)
                                 changed = true
+                            } else {
+                                self.log.default("Sample %@ from HKAnchoredObjectQuery already present in cache", sample.uuid.uuidString)
                             }
                         }
                     }
@@ -489,7 +491,7 @@ extension GlucoseStore {
     ///   - completion: The completion handler returning any error.
     public func purgeAllGlucoseSamples(healthKitPredicate: NSPredicate, completion: @escaping (Error?) -> Void) {
         queue.async {
-            let storeError = self.purgeGlucoseObjects()
+            let storeError = self.purgeCachedGlucoseObjects()
             self.healthStore.deleteObjects(of: self.glucoseType, predicate: healthKitPredicate) { _, _, healthKitError in
                 self.queue.async {
                     if let error = storeError ?? healthKitError {
@@ -504,18 +506,18 @@ extension GlucoseStore {
         }
     }
 
-    private func purgeExpiredGlucoseObjects() {
-        purgeGlucoseObjects(before: earliestCacheDate)
+    private func purgeExpiredCachedGlucoseObjects() {
+        purgeCachedGlucoseObjects(before: earliestCacheDate)
     }
 
-    /// Purge glucose samples from the glucose store.
+    /// Purge cached glucose objects from the glucose store.
     ///
     /// - Parameters:
-    ///   - date: Purge glucose samples with start date before this date.
+    ///   - date: Purge cached glucose objects with start date before this date.
     ///   - completion: The completion handler returning any error.
-    public func purgeGlucoseObjects(before date: Date? = nil, completion: @escaping (Error?) -> Void) {
+    public func purgeCachedGlucoseObjects(before date: Date? = nil, completion: @escaping (Error?) -> Void) {
         queue.async {
-            if let error = self.purgeGlucoseObjects(before: date) {
+            if let error = self.purgeCachedGlucoseObjects(before: date) {
                 completion(error)
                 return
             }
@@ -525,7 +527,7 @@ extension GlucoseStore {
     }
 
     @discardableResult
-    private func purgeGlucoseObjects(before date: Date? = nil) -> Error? {
+    private func purgeCachedGlucoseObjects(before date: Date? = nil) -> Error? {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var error: Error?
@@ -567,15 +569,10 @@ extension GlucoseStore {
     private func notifyUpdatedGlucoseData(updateSource: UpdateSource) {
         dispatchPrecondition(condition: .onQueue(queue))
 
-        NotificationCenter.default.post(name: GlucoseStore.glucoseSamplesDidChange, object: self, userInfo: [GlucoseStore.notificationUpdateSourceKey: updateSource.rawValue])
-        notifyDelegateOfUpdatedGlucoseData()
-    }
-
-    private func notifyDelegateOfUpdatedGlucoseData() {
-        dispatchPrecondition(condition: .onQueue(queue))
-
         self.updateLatestGlucose()
-        self.purgeExpiredGlucoseObjects()
+        self.purgeExpiredCachedGlucoseObjects()
+
+        NotificationCenter.default.post(name: GlucoseStore.glucoseSamplesDidChange, object: self, userInfo: [GlucoseStore.notificationUpdateSourceKey: updateSource.rawValue])
         delegate?.glucoseStoreHasUpdatedGlucoseData(self)
     }
 }

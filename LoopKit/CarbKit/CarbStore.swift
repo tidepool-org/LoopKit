@@ -308,6 +308,8 @@ public final class CarbStore: HealthKitSampleStore {
                             if try self.addCarbEntry(for: sample, on: date) {
                                 self.log.debug("Saved sample %@ into cache from HKAnchoredObjectQuery", sample.uuid.uuidString)
                                 changed = true
+                            } else {
+                                self.log.default("Sample %@ from HKAnchoredObjectQuery already present in cache", sample.uuid.uuidString)
                             }
                         }
                     }
@@ -752,7 +754,7 @@ extension CarbStore {
     /// Store carb objects in Watch extension
     public func setSyncCarbObjects(_ objects: [SyncCarbObject], completion: @escaping (CarbStoreError?) -> Void) {
         queue.async {
-            if let error = self.purgeCarbObjectsUnconditionally() {
+            if let error = self.purgeCachedCarbObjectsUnconditionally() {
                 completion(error)
                 return
             }
@@ -780,17 +782,18 @@ extension CarbStore {
 }
 
 // MARK: - Cache management
+
 extension CarbStore {
     public var earliestCacheDate: Date {
         return Date(timeIntervalSinceNow: -cacheLength)
     }
 
-    private func purgeExpiredCarbObjects() {
-        purgeCarbObjects(before: earliestCacheDate)
+    private func purgeExpiredCachedCarbObjects() {
+        purgeCachedCarbObjects(before: earliestCacheDate)
     }
 
     @discardableResult
-    private func purgeCarbObjects(before date: Date) -> CarbStoreError? {
+    private func purgeCachedCarbObjects(before date: Date) -> CarbStoreError? {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var error: CarbStoreError?
@@ -831,19 +834,19 @@ extension CarbStore {
         return nil
     }
 
-    public func purgeCarbObjectsUnconditionally(before date: Date, completion: @escaping (CarbStoreError?) -> Void) {
+    public func purgeCachedCarbObjectsUnconditionally(before date: Date, completion: @escaping (CarbStoreError?) -> Void) {
         queue.async {
-            if let error = self.purgeCarbObjectsUnconditionally(before: date) {
+            if let error = self.purgeCachedCarbObjectsUnconditionally(before: date) {
                 completion(error)
                 return
             }
 
-            self.delegate?.carbStoreHasUpdatedCarbData(self)
+            self.notifyUpdatedCarbData(updateSource: .changedInApp)
             completion(nil)
         }
     }
 
-    private func purgeCarbObjectsUnconditionally(before date: Date? = nil) -> CarbStoreError? {
+    private func purgeCachedCarbObjectsUnconditionally(before date: Date? = nil) -> CarbStoreError? {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var error: CarbStoreError?
@@ -868,14 +871,9 @@ extension CarbStore {
     private func notifyUpdatedCarbData(updateSource: UpdateSource) {
         dispatchPrecondition(condition: .onQueue(queue))
 
+        purgeExpiredCachedCarbObjects()
+
         NotificationCenter.default.post(name: CarbStore.carbEntriesDidChange, object: self, userInfo: [CarbStore.notificationUpdateSourceKey: updateSource.rawValue])
-        notifyDelegateOfUpdatedCarbData()
-    }
-
-    private func notifyDelegateOfUpdatedCarbData() {
-        dispatchPrecondition(condition: .onQueue(queue))
-
-        purgeExpiredCarbObjects()
         delegate?.carbStoreHasUpdatedCarbData(self)
     }
 
