@@ -425,15 +425,15 @@ extension GlucoseStore {
 
 extension GlucoseStore {
 
-    /// Get glucose objects in main app to deliver to Watch extension
-    public func getSyncGlucoseObjects(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[SyncGlucoseObject], Error>) -> Void) {
+    /// Get glucose samples in main app to deliver to Watch extension
+    public func getSyncGlucoseSamples(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[StoredGlucoseSample], Error>) -> Void) {
         queue.async {
-            var objects: [SyncGlucoseObject] = []
+            var samples: [StoredGlucoseSample] = []
             var error: Error?
 
             self.cacheStore.managedObjectContext.performAndWait {
                 do {
-                    objects = try self.getCachedGlucoseObjects(start: start, end: end).map { SyncGlucoseObject(managedObject: $0) }
+                    samples = try self.getCachedGlucoseObjects(start: start, end: end).map { StoredGlucoseSample(managedObject: $0) }
                 } catch let coreDataError {
                     error = coreDataError
                 }
@@ -444,12 +444,12 @@ extension GlucoseStore {
                 return
             }
 
-            completion(.success(objects))
+            completion(.success(samples))
         }
     }
 
-    /// Store glucose objects in Watch extension
-    public func setSyncGlucoseObjects(_ objects: [SyncGlucoseObject], completion: @escaping (Error?) -> Void) {
+    /// Store glucose samples in Watch extension
+    public func setSyncGlucoseSamples(_ objects: [StoredGlucoseSample], completion: @escaping (Error?) -> Void) {
         queue.async {
             var error: Error?
 

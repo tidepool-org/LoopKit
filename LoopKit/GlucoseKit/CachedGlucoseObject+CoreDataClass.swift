@@ -84,15 +84,15 @@ extension CachedGlucoseObject {
 // MARK: - Watch Synchronization
 
 extension CachedGlucoseObject {
-    func update(from object: SyncGlucoseObject) {
-        self.uuid = object.uuid
-        self.provenanceIdentifier = object.provenanceIdentifier
-        self.syncIdentifier = object.syncIdentifier
-        self.syncVersion = object.syncVersion
-        self.value = object.value
-        self.unitString = object.unitString
-        self.startDate = object.startDate
-        self.isDisplayOnly = object.isDisplayOnly
-        self.wasUserEntered = object.wasUserEntered
+    func update(from sample: StoredGlucoseSample) {
+        self.uuid = sample.uuid
+        self.provenanceIdentifier = sample.provenanceIdentifier
+        self.syncIdentifier = sample.syncIdentifier
+        self.syncVersion = sample.syncVersion
+        self.value = sample.quantity.doubleValue(for: .milligramsPerDeciliter)
+        self.unitString = HKUnit.milligramsPerDeciliter.unitString
+        self.startDate = sample.startDate
+        self.isDisplayOnly = sample.isDisplayOnly
+        self.wasUserEntered = sample.wasUserEntered
     }
 }

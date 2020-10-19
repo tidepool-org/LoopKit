@@ -450,8 +450,8 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
 
     // MARK: - Watch Synchronization
 
-    func testSyncGlucoseObjects() {
-        var syncGlucoseObjects: [SyncGlucoseObject] = []
+    func testSyncGlucoseSamples() {
+        var syncGlucoseSamples: [StoredGlucoseSample] = []
 
         let addGlucoseSamplesCompletion = expectation(description: "addGlucoseSamples")
         glucoseStore.addGlucoseSamples([sample1, sample2, sample3]) { result in
@@ -465,8 +465,8 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         }
         wait(for: [addGlucoseSamplesCompletion], timeout: 10)
 
-        let getSyncGlucoseObjects1Completion = expectation(description: "getSyncGlucoseObjects1")
-        glucoseStore.getSyncGlucoseObjects() { result in
+        let getSyncGlucoseSamples1Completion = expectation(description: "getSyncGlucoseSamples1")
+        glucoseStore.getSyncGlucoseSamples() { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -476,8 +476,7 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
                 XCTAssertEqual(objects[0].syncIdentifier, self.sample1.syncIdentifier)
                 XCTAssertEqual(objects[0].syncVersion, self.sample1.syncVersion)
-                XCTAssertEqual(objects[0].value, self.sample1.quantity.doubleValue(for: .milligramsPerDeciliter))
-                XCTAssertEqual(objects[0].unitString, HKUnit.milligramsPerDeciliter.unitString)
+                XCTAssertEqual(objects[0].quantity, self.sample1.quantity)
                 XCTAssertEqual(objects[0].startDate, self.sample1.date)
                 XCTAssertEqual(objects[0].isDisplayOnly, self.sample1.isDisplayOnly)
                 XCTAssertEqual(objects[0].wasUserEntered, self.sample1.wasUserEntered)
@@ -485,8 +484,7 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(objects[1].provenanceIdentifier, HKSource.default().bundleIdentifier)
                 XCTAssertEqual(objects[1].syncIdentifier, self.sample3.syncIdentifier)
                 XCTAssertEqual(objects[1].syncVersion, self.sample3.syncVersion)
-                XCTAssertEqual(objects[1].value, self.sample3.quantity.doubleValue(for: .milligramsPerDeciliter))
-                XCTAssertEqual(objects[1].unitString, HKUnit.milligramsPerDeciliter.unitString)
+                XCTAssertEqual(objects[1].quantity, self.sample3.quantity)
                 XCTAssertEqual(objects[1].startDate, self.sample3.date)
                 XCTAssertEqual(objects[1].isDisplayOnly, self.sample3.isDisplayOnly)
                 XCTAssertEqual(objects[1].wasUserEntered, self.sample3.wasUserEntered)
@@ -494,19 +492,18 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(objects[2].provenanceIdentifier, HKSource.default().bundleIdentifier)
                 XCTAssertEqual(objects[2].syncIdentifier, self.sample2.syncIdentifier)
                 XCTAssertEqual(objects[2].syncVersion, self.sample2.syncVersion)
-                XCTAssertEqual(objects[2].value, self.sample2.quantity.doubleValue(for: .milligramsPerDeciliter))
-                XCTAssertEqual(objects[2].unitString, HKUnit.milligramsPerDeciliter.unitString)
+                XCTAssertEqual(objects[2].quantity, self.sample2.quantity)
                 XCTAssertEqual(objects[2].startDate, self.sample2.date)
                 XCTAssertEqual(objects[2].isDisplayOnly, self.sample2.isDisplayOnly)
                 XCTAssertEqual(objects[2].wasUserEntered, self.sample2.wasUserEntered)
-                syncGlucoseObjects = objects
+                syncGlucoseSamples = objects
             }
-            getSyncGlucoseObjects1Completion.fulfill()
+            getSyncGlucoseSamples1Completion.fulfill()
         }
-        wait(for: [getSyncGlucoseObjects1Completion], timeout: 10)
+        wait(for: [getSyncGlucoseSamples1Completion], timeout: 10)
 
-        let getSyncGlucoseObjects2Completion = expectation(description: "getSyncGlucoseObjects2")
-        glucoseStore.getSyncGlucoseObjects(start: Date(timeIntervalSinceNow: -.minutes(5)), end: Date(timeIntervalSinceNow: -.minutes(3))) { result in
+        let getSyncGlucoseSamples2Completion = expectation(description: "getSyncGlucoseSamples2")
+        glucoseStore.getSyncGlucoseSamples(start: Date(timeIntervalSinceNow: -.minutes(5)), end: Date(timeIntervalSinceNow: -.minutes(3))) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -516,15 +513,14 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
                 XCTAssertEqual(objects[0].syncIdentifier, self.sample3.syncIdentifier)
                 XCTAssertEqual(objects[0].syncVersion, self.sample3.syncVersion)
-                XCTAssertEqual(objects[0].value, self.sample3.quantity.doubleValue(for: .milligramsPerDeciliter))
-                XCTAssertEqual(objects[0].unitString, HKUnit.milligramsPerDeciliter.unitString)
+                XCTAssertEqual(objects[0].quantity, self.sample3.quantity)
                 XCTAssertEqual(objects[0].startDate, self.sample3.date)
                 XCTAssertEqual(objects[0].isDisplayOnly, self.sample3.isDisplayOnly)
                 XCTAssertEqual(objects[0].wasUserEntered, self.sample3.wasUserEntered)
             }
-            getSyncGlucoseObjects2Completion.fulfill()
+            getSyncGlucoseSamples2Completion.fulfill()
         }
-        wait(for: [getSyncGlucoseObjects2Completion], timeout: 10)
+        wait(for: [getSyncGlucoseSamples2Completion], timeout: 10)
 
         let purgeCachedGlucoseObjectsCompletion = expectation(description: "purgeCachedGlucoseObjects")
         glucoseStore.purgeCachedGlucoseObjects() { error in
@@ -533,27 +529,27 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         }
         wait(for: [purgeCachedGlucoseObjectsCompletion], timeout: 10)
 
-        let getSyncGlucoseObjects3Completion = expectation(description: "getSyncGlucoseObjects3")
-        glucoseStore.getSyncGlucoseObjects() { result in
+        let getSyncGlucoseSamples3Completion = expectation(description: "getSyncGlucoseSamples3")
+        glucoseStore.getSyncGlucoseSamples() { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let samples):
                 XCTAssertEqual(samples.count, 0)
             }
-            getSyncGlucoseObjects3Completion.fulfill()
+            getSyncGlucoseSamples3Completion.fulfill()
         }
-        wait(for: [getSyncGlucoseObjects3Completion], timeout: 10)
+        wait(for: [getSyncGlucoseSamples3Completion], timeout: 10)
 
-        let setSyncGlucoseObjectsCompletion = expectation(description: "setSyncGlucoseObjects")
-        glucoseStore.setSyncGlucoseObjects(syncGlucoseObjects) { error in
+        let setSyncGlucoseSamplesCompletion = expectation(description: "setSyncGlucoseSamples")
+        glucoseStore.setSyncGlucoseSamples(syncGlucoseSamples) { error in
             XCTAssertNil(error)
-            setSyncGlucoseObjectsCompletion.fulfill()
+            setSyncGlucoseSamplesCompletion.fulfill()
         }
-        wait(for: [setSyncGlucoseObjectsCompletion], timeout: 10)
+        wait(for: [setSyncGlucoseSamplesCompletion], timeout: 10)
 
-        let getSyncGlucoseObjects4Completion = expectation(description: "getSyncGlucoseObjects4")
-        glucoseStore.getSyncGlucoseObjects() { result in
+        let getSyncGlucoseSamples4Completion = expectation(description: "getSyncGlucoseSamples4")
+        glucoseStore.getSyncGlucoseSamples() { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -563,8 +559,7 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(objects[0].provenanceIdentifier, HKSource.default().bundleIdentifier)
                 XCTAssertEqual(objects[0].syncIdentifier, self.sample1.syncIdentifier)
                 XCTAssertEqual(objects[0].syncVersion, self.sample1.syncVersion)
-                XCTAssertEqual(objects[0].value, self.sample1.quantity.doubleValue(for: .milligramsPerDeciliter))
-                XCTAssertEqual(objects[0].unitString, HKUnit.milligramsPerDeciliter.unitString)
+                XCTAssertEqual(objects[0].quantity, self.sample1.quantity)
                 XCTAssertEqual(objects[0].startDate, self.sample1.date)
                 XCTAssertEqual(objects[0].isDisplayOnly, self.sample1.isDisplayOnly)
                 XCTAssertEqual(objects[0].wasUserEntered, self.sample1.wasUserEntered)
@@ -572,8 +567,7 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(objects[1].provenanceIdentifier, HKSource.default().bundleIdentifier)
                 XCTAssertEqual(objects[1].syncIdentifier, self.sample3.syncIdentifier)
                 XCTAssertEqual(objects[1].syncVersion, self.sample3.syncVersion)
-                XCTAssertEqual(objects[1].value, self.sample3.quantity.doubleValue(for: .milligramsPerDeciliter))
-                XCTAssertEqual(objects[1].unitString, HKUnit.milligramsPerDeciliter.unitString)
+                XCTAssertEqual(objects[1].quantity, self.sample3.quantity)
                 XCTAssertEqual(objects[1].startDate, self.sample3.date)
                 XCTAssertEqual(objects[1].isDisplayOnly, self.sample3.isDisplayOnly)
                 XCTAssertEqual(objects[1].wasUserEntered, self.sample3.wasUserEntered)
@@ -581,16 +575,15 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(objects[2].provenanceIdentifier, HKSource.default().bundleIdentifier)
                 XCTAssertEqual(objects[2].syncIdentifier, self.sample2.syncIdentifier)
                 XCTAssertEqual(objects[2].syncVersion, self.sample2.syncVersion)
-                XCTAssertEqual(objects[2].value, self.sample2.quantity.doubleValue(for: .milligramsPerDeciliter))
-                XCTAssertEqual(objects[2].unitString, HKUnit.milligramsPerDeciliter.unitString)
+                XCTAssertEqual(objects[2].quantity, self.sample2.quantity)
                 XCTAssertEqual(objects[2].startDate, self.sample2.date)
                 XCTAssertEqual(objects[2].isDisplayOnly, self.sample2.isDisplayOnly)
                 XCTAssertEqual(objects[2].wasUserEntered, self.sample2.wasUserEntered)
-                syncGlucoseObjects = objects
+                syncGlucoseSamples = objects
             }
-            getSyncGlucoseObjects4Completion.fulfill()
+            getSyncGlucoseSamples4Completion.fulfill()
         }
-        wait(for: [getSyncGlucoseObjects4Completion], timeout: 10)
+        wait(for: [getSyncGlucoseSamples4Completion], timeout: 10)
     }
 
     // MARK: - Cache Management

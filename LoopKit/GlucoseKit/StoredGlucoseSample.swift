@@ -7,7 +7,7 @@
 
 import HealthKit
 
-public struct StoredGlucoseSample: GlucoseSampleValue {
+public struct StoredGlucoseSample: GlucoseSampleValue, Equatable {
     public let uuid: UUID?
 
     // MARK: - HealthKit Sync Support
