@@ -90,7 +90,8 @@ extension BidirectionalCollection where Element: GlucoseSampleValue, Index == In
     /// - Returns: An array of glucose effects
     func linearMomentumEffect(
         duration: TimeInterval = TimeInterval(minutes: 30),
-        delta: TimeInterval = TimeInterval(minutes: 5)
+        delta: TimeInterval = TimeInterval(minutes: 5),
+        velocityCap: HKQuantity = HKQuantity(unit: HKUnit.milligramsPerDeciliter.unitDivided(by: .minute()), doubleValue: 4.0)
     ) -> [GlucoseEffect] {
         guard
             self.count > 2,  // Linear regression isn't much use without 3 or more entries.
@@ -118,9 +119,10 @@ extension BidirectionalCollection where Element: GlucoseSampleValue, Index == In
         var values = [GlucoseEffect]()
 
         repeat {
-            let value = Swift.max(0, date.timeIntervalSince(lastSample.startDate)) * slope
-
-            values.append(GlucoseEffect(startDate: date, quantity: HKQuantity(unit: unit, doubleValue: value)))
+            let value = Swift.max(0, date.timeIntervalSince(lastSample.startDate)) * Swift.min(slope, velocityCap.doubleValue(for: unit.unitDivided(by: .second())))
+            let momentumEffect = GlucoseEffect(startDate: date, quantity: HKQuantity(unit: unit, doubleValue: value))
+            
+            values.append(momentumEffect)
             date = date.addingTimeInterval(delta)
         } while date <= endDate
 
