@@ -87,6 +87,7 @@ extension BidirectionalCollection where Element: GlucoseSampleValue, Index == In
     /// - Parameters:
     ///   - duration: The duration of the effects
     ///   - delta: The time differential for the returned values
+    ///   - velocityCap: The limit on how fast the momentum effect can rise. Defaults to 4 mg/dL/min based on physiological rate
     /// - Returns: An array of glucose effects
     func linearMomentumEffect(
         duration: TimeInterval = TimeInterval(minutes: 30),
