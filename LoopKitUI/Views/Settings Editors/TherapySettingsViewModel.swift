@@ -40,7 +40,6 @@ public class TherapySettingsViewModel: ObservableObject {
                 chartColors: ChartColorPalette,
                 didSave: SaveCompletion? = nil) {
         self.mode = mode
-        let therapySettings = therapySettings
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.pumpSupportedIncrements = pumpSupportedIncrements
