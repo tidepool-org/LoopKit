@@ -291,7 +291,7 @@ class GlucoseMathTests: XCTestCase {
         XCTAssertEqual(output.count, effects.count)
     }
     
-    func testMomentumEffectWithVelocityCap() {
+    func testMomentumEffectWithVelocityLimit() {
         let input = loadInputFixture("momentum_effect_impossible_rising_glucose_input")
         let output = loadOutputFixture("momentum_effect_impossible_rising_glucose_output")
 
