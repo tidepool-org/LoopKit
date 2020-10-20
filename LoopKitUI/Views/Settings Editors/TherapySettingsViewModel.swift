@@ -31,7 +31,7 @@ public class TherapySettingsViewModel: ObservableObject {
     public let chartColors: ChartColorPalette
 
     public init(mode: PresentationMode,
-                therapySettings: () -> TherapySettings,
+                therapySettings: TherapySettings,
                 supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
                 syncPumpSchedule: (() -> PumpManager.SyncSchedule?)? = nil,
@@ -40,7 +40,7 @@ public class TherapySettingsViewModel: ObservableObject {
                 chartColors: ChartColorPalette,
                 didSave: SaveCompletion? = nil) {
         self.mode = mode
-        let therapySettings = therapySettings()
+        let therapySettings = therapySettings
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.pumpSupportedIncrements = pumpSupportedIncrements
