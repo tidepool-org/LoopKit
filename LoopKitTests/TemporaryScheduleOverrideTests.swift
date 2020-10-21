@@ -184,7 +184,9 @@ class TemporaryScheduleOverrideTests: XCTestCase {
         let tempOverride = TemporaryScheduleOverride(context: .legacyWorkout,
                                                      settings: .init(unit: .milligramsPerDeciliter, targetRange: DoubleRange(minValue: 120, maxValue: 150)),
                                                      startDate: Date(),
-                                                     duration: .indefinite, enactTrigger: .local, syncIdentifier: UUID())
+                                                     duration: .indefinite,
+                                                     enactTrigger: .local,
+                                                     syncIdentifier: UUID())
         XCTAssertTrue(tempOverride.duration.isInfinite)
     }
 
