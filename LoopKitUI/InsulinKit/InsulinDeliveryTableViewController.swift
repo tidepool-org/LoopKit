@@ -175,7 +175,7 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
             case .history(let values):
                 count = values.count
             }
-            
+
             if count > 0 && enableEntryDeletion {
                 navigationItem.rightBarButtonItem = self.editButtonItem
             }
