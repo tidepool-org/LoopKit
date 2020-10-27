@@ -380,7 +380,7 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
                 let volume = NumberFormatter.localizedString(from: NSNumber(value: entry.unitVolume), number: .decimal)
                 let time = timeFormatter.string(from: entry.startDate)
 
-                cell.textLabel?.text = "\(volume) U"
+                cell.textLabel?.text = String(format: NSLocalizedString("%1$@ U", comment: "Reservoir entry (1: volume value)"), volume)
                 cell.textLabel?.textColor = .label
                 cell.detailTextLabel?.text = time
                 cell.accessoryType = .none
@@ -389,7 +389,12 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
                 let entry = values[indexPath.row]
                 let time = timeFormatter.string(from: entry.date)
 
-                cell.textLabel?.attributedText = entry.dose?.localizedAttributedDescription ?? NSAttributedString(string: LocalizedString("Unknown", comment: "The default description to use when an entry has no dose description"))
+                if let attributedText = entry.dose?.localizedAttributedDescription {
+                    cell.textLabel?.attributedText = attributedText
+                } else {
+                    cell.textLabel?.text = LocalizedString("Unknown", comment: "The default description to use when an entry has no dose description")
+                }
+                
                 cell.detailTextLabel?.text = time
                 cell.accessoryType = entry.isUploaded ? .checkmark : .none
                 cell.selectionStyle = .default
