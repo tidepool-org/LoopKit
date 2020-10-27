@@ -41,7 +41,7 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
         }
     }
 
-    public var enableDeleteAllButton: Bool = true
+    public var enableEntryDeletion: Bool = true
     
     public var doseStore: DoseStore? {
         didSet {
@@ -125,7 +125,7 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
     public override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
 
-        if editing && enableDeleteAllButton {
+        if editing && enableEntryDeletion {
             let item = UIBarButtonItem(
                 title: LocalizedString("Delete All", comment: "Button title to delete all objects"),
                 style: .plain,
@@ -174,6 +174,10 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
                 count = values.count
             case .history(let values):
                 count = values.count
+            }
+            
+            if count > 0 && enableEntryDeletion {
+                navigationItem.rightBarButtonItem = self.editButtonItem
             }
         }
     }
@@ -396,7 +400,7 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
     }
 
     public override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return false
+        return enableEntryDeletion
     }
 
     public override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
