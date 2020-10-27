@@ -175,10 +175,6 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
             case .history(let values):
                 count = values.count
             }
-
-            if count > 0 {
-                navigationItem.rightBarButtonItem = self.editButtonItem
-            }
         }
     }
 
@@ -400,7 +396,7 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
     }
 
     public override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
+        return false
     }
 
     public override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
