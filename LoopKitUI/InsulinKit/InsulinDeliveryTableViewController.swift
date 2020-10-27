@@ -492,3 +492,48 @@ fileprivate extension UIAlertController {
         ))
     }
 }
+
+extension DoseEntry {
+
+    fileprivate var numberFormatter: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.maximumFractionDigits = DoseEntry.unitsPerHour.maxFractionDigits
+        return numberFormatter
+    }
+
+    fileprivate var localizedAttributedDescription: NSAttributedString? {
+        let font = UIFont.preferredFont(forTextStyle: .body)
+
+        switch type {
+        case .basal, .bolus, .tempBasal:
+            let unitString = type == .bolus ? DoseEntry.units.shortLocalizedUnitString() : DoseEntry.unitsPerHour.shortLocalizedUnitString()
+            let value: Double = type == .bolus ? (deliveredUnits ?? programmedUnits) : unitsPerHour
+
+            let description = String(format: NSLocalizedString("%1$@: <b>%2$@</b> %3$@", comment: "Description of a basal, bolus, or temp basal dose entry (1: title for dose type, 2: value (? if no value) in bold, 3: unit)"), type.localizedDescription, numberFormatter.string(from: value) ?? "?", unitString)
+            let descriptionWithFont = String(format:"<style>body{font-family: '-apple-system', '\(font.fontName)'; font-size: \(font.pointSize);}</style>%@", description)
+
+            guard let attributedDescription = try? NSMutableAttributedString(data: Data(descriptionWithFont.utf8), options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) else {
+                return nil
+            }
+
+            // make the complete description the same color
+            attributedDescription.addAttributes([.foregroundColor: UIColor.secondaryLabel], range: NSRange(location: 0, length: attributedDescription.length))
+            attributedDescription.enumerateAttribute(.font, in: NSRange(location: 0, length: attributedDescription.length)) { value, range, stop in
+                if let font = value as? UIFont,
+                   font.fontDescriptor.symbolicTraits.contains(.traitBold)
+                {
+                    // give the bold text a dominate color
+                    attributedDescription.addAttributes([.foregroundColor: UIColor.label], range: range)
+                }
+            }
+
+            return attributedDescription
+        case .suspend, .resume:
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .foregroundColor: UIColor.secondaryLabel
+            ]
+            return NSAttributedString(string: type.localizedDescription, attributes: attributes)
+        }
+    }
+}
