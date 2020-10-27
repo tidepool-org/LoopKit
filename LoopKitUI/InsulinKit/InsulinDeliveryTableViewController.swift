@@ -16,15 +16,30 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
 
     @IBOutlet var needsConfigurationMessageView: ErrorBackgroundView!
 
-    @IBOutlet weak var iobValueLabel: UILabel!
+    @IBOutlet weak var iobValueLabel: UILabel! {
+        didSet {
+            iobValueLabel.textColor = headerValueLabelColor
+        }
+    }
 
     @IBOutlet weak var iobDateLabel: UILabel!
 
-    @IBOutlet weak var totalValueLabel: UILabel!
+    @IBOutlet weak var totalValueLabel: UILabel! {
+        didSet {
+            totalValueLabel.textColor = headerValueLabelColor
+        }
+    }
 
     @IBOutlet weak var totalDateLabel: UILabel!
 
-    @IBOutlet weak var dataSourceSegmentedControl: UISegmentedControl!
+    @IBOutlet weak var dataSourceSegmentedControl: UISegmentedControl! {
+        didSet {
+            let titleFont = UIFont.systemFont(ofSize: 15, weight: .semibold)
+            dataSourceSegmentedControl.setTitleTextAttributes([NSAttributedString.Key.font: titleFont], for: .normal)
+            dataSourceSegmentedControl.setTitle(NSLocalizedString("Event History", comment: "Segmented button title for insulin delivery log event history"), forSegmentAt: 0)
+            dataSourceSegmentedControl.setTitle(NSLocalizedString("Reservoir", comment: "Segmented button title for insulin delivery log reservoir history"), forSegmentAt: 1)
+        }
+    }
 
     public var enableDeleteAllButton: Bool = true
     
@@ -47,6 +62,8 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
             }
         }
     }
+    
+    public var headerValueLabelColor: UIColor = .label
 
     private var updateTimer: Timer? {
         willSet {
@@ -138,8 +155,8 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
     }
 
     private enum DataSourceSegment: Int {
-        case reservoir = 0
-        case history
+        case history = 0
+        case reservoir
     }
 
     private enum Values {
@@ -270,7 +287,6 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
                         self.totalDateLabel.text = nil
                     case .success(let result):
                         self.totalValueLabel.text = NumberFormatter.localizedString(from: NSNumber(value: result.value), number: .none)
-
                         self.totalDateLabel.text = String(format: LocalizedString("com.loudnate.InsulinKit.totalDateLabel", value: "since %1$@", comment: "The format string describing the starting date of a total value. The first format argument is the localized date."), DateFormatter.localizedString(from: result.startDate, dateStyle: .none, timeStyle: .short))
                     }
                 }
@@ -365,6 +381,7 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
                 let time = timeFormatter.string(from: entry.startDate)
 
                 cell.textLabel?.text = "\(volume) U"
+                cell.textLabel?.textColor = .label
                 cell.detailTextLabel?.text = time
                 cell.accessoryType = .none
                 cell.selectionStyle = .none
@@ -372,7 +389,7 @@ public final class InsulinDeliveryTableViewController: UITableViewController {
                 let entry = values[indexPath.row]
                 let time = timeFormatter.string(from: entry.date)
 
-                cell.textLabel?.text = entry.title ?? LocalizedString("Unknown", comment: "The default title to use when an entry has none")
+                cell.textLabel?.attributedText = entry.dose?.localizedAttributedDescription ?? NSAttributedString(string: LocalizedString("Unknown", comment: "The default description to use when an entry has no dose description"))
                 cell.detailTextLabel?.text = time
                 cell.accessoryType = entry.isUploaded ? .checkmark : .none
                 cell.selectionStyle = .default

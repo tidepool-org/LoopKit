@@ -708,6 +708,7 @@
 		B4A2AAB1240830A30066563F /* LabeledTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2AAB0240830A30066563F /* LabeledTextField.swift */; };
 		B4A2AAB3240832350066563F /* MultipleSelectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2AAB2240832350066563F /* MultipleSelectionList.swift */; };
 		B4AA27F224C1ECDC001B8AFA /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AA27F124C1ECDC001B8AFA /* UIColor.swift */; };
+		B4B111AD254872A800040EEA /* DoseEntry+LocalizedDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B111AC254872A800040EEA /* DoseEntry+LocalizedDescription.swift */; };
 		B4B85FCD24A2312000A296A3 /* GlucoseRangeCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B85FCC24A2312000A296A3 /* GlucoseRangeCategory.swift */; };
 		B4B85FD024A2318A00A296A3 /* GlucoseRangeCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B85FCC24A2312000A296A3 /* GlucoseRangeCategory.swift */; };
 		B4C004D12416961300B40429 /* GuidePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C004B3241085DB00B40429 /* GuidePage.swift */; };
@@ -1480,6 +1481,7 @@
 		B4A2AAB0240830A30066563F /* LabeledTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabeledTextField.swift; sourceTree = "<group>"; };
 		B4A2AAB2240832350066563F /* MultipleSelectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSelectionList.swift; sourceTree = "<group>"; };
 		B4AA27F124C1ECDC001B8AFA /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
+		B4B111AC254872A800040EEA /* DoseEntry+LocalizedDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DoseEntry+LocalizedDescription.swift"; sourceTree = "<group>"; };
 		B4B85FCC24A2312000A296A3 /* GlucoseRangeCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseRangeCategory.swift; sourceTree = "<group>"; };
 		B4C004B2241085DB00B40429 /* ActionButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		B4C004B3241085DB00B40429 /* GuidePage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuidePage.swift; sourceTree = "<group>"; };
@@ -1938,6 +1940,7 @@
 				432762731D60505F0083215A /* HKQuantitySample.swift */,
 				A967D94824F99B6A00CDDF8A /* OutputStream.swift */,
 				43CB51B0211EB16C00DB9B4A /* NSUserActivity+CarbKit.swift */,
+				B4B111AC254872A800040EEA /* DoseEntry+LocalizedDescription.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3517,6 +3520,7 @@
 				C17F39D023CE34B100FA1113 /* StoredDeviceLogEntry.swift in Sources */,
 				43B17C89208EEC0B00AC27E9 /* HealthStoreUnitCache.swift in Sources */,
 				A912BE29245B9CD500CBE199 /* SettingsObject+CoreDataClass.swift in Sources */,
+				B4B111AD254872A800040EEA /* DoseEntry+LocalizedDescription.swift in Sources */,
 				89AE222E228BC68000BDFD85 /* DoseProgressReporter.swift in Sources */,
 				4322B775202FA2790002837D /* CarbStatus.swift in Sources */,
 				4322B787202FA2B30002837D /* DoseEntry.swift in Sources */,
