@@ -521,14 +521,14 @@ extension DoseEntry {
                 return nil
             }
 
-            // make the complete description the same color
-            attributedDescription.addAttributes([.foregroundColor: UIColor.secondaryLabel], range: NSRange(location: 0, length: attributedDescription.length))
             attributedDescription.enumerateAttribute(.font, in: NSRange(location: 0, length: attributedDescription.length)) { value, range, stop in
+                // bold font items have a dominate colour
                 if let font = value as? UIFont,
                    font.fontDescriptor.symbolicTraits.contains(.traitBold)
                 {
-                    // give the bold text a dominate color
                     attributedDescription.addAttributes([.foregroundColor: UIColor.label], range: range)
+                } else {
+                    attributedDescription.addAttributes([.foregroundColor: UIColor.secondaryLabel], range: range)
                 }
             }
 
