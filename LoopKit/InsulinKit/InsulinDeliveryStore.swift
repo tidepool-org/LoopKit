@@ -9,14 +9,14 @@ import HealthKit
 import CoreData
 import os.log
 
-/// Manages insulin dose data from HealthKit.
+/// Manages insulin dose data in Core Data and optionally reads insulin dose data from HealthKit.
 ///
-/// Scheduled doses (e.g. a bolus or temporary basal) shouldn't be written to HealthKit until they've
-/// been delivered into the patient, which means its common for the HealthKit data to slightly lag
+/// Scheduled doses (e.g. a bolus or temporary basal) shouldn't be written to this store until they've
+/// been delivered into the patient, which means its common for this store data to slightly lag
 /// behind the dose data used for algorithmic calculation.
 ///
-/// HealthKit data isn't a substitute for an insulin pump's diagnostic event history, but doses fetched
-/// from HealthKit can reduce the amount of repeated communication with an insulin pump.
+/// This store data isn't a substitute for an insulin pump's diagnostic event history, but doses fetched
+/// from this store can reduce the amount of repeated communication with an insulin pump.
 public class InsulinDeliveryStore: HealthKitSampleStore {
     
     /// Notification posted when dose entries were changed, either via direct add or from HealthKit
@@ -195,6 +195,8 @@ extension InsulinDeliveryStore {
     private func getCachedInsulinDeliveryObjects(start: Date? = nil, end: Date? = nil) throws -> [CachedInsulinDeliveryObject] {
         dispatchPrecondition(condition: .onQueue(queue))
 
+        // Match all doses whose start OR end dates fall in the start and end date range, if specified. Therefore, we ensure the
+        // dose end date is AFTER the start date, if specified, and the dose start date is BEFORE the end date, if specified.
         var predicates: [NSPredicate] = []
         if let start = start {
             predicates.append(NSPredicate(format: "endDate >= %@", start as NSDate))
