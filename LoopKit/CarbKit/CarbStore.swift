@@ -927,7 +927,7 @@ extension CarbStore {
             case .success(let values):
                 guard let value = values.closestPrior(to: date) else {
                     // If we have no cob values in the store, and did not encounter an error, return 0
-                    completion(.success(CarbValue(startDate: date, quantity: HKQuantity(unit: .gram(), doubleValue: 0))))
+                    completion(.success(CarbValue(startDate: date, quantity: HKQuantity(unit: self.preferredUnit, doubleValue: 0))))
                     return
                 }
                 completion(.success(value))
