@@ -124,6 +124,10 @@ public extension DailyQuantitySchedule where T == Double {
     func averageQuantity() -> HKQuantity {
         return HKQuantity(unit: unit, doubleValue: averageValue())
     }
+    
+    func minimumValue() -> Double? {
+        return valueSchedule.items.map { $0.value }.min()
+    }
 }
 
 

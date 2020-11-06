@@ -17,6 +17,7 @@ public struct DeliveryLimitsEditor: View {
     var selectableBasalRates: [Double]
     var scheduledBasalRange: ClosedRange<Double>?
     var supportedBolusVolumes: [Double]
+    var carbRatioSchedule: CarbRatioSchedule?
     var save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: PresentationMode
 
@@ -33,6 +34,7 @@ public struct DeliveryLimitsEditor: View {
         supportedBasalRates: [Double],
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
+        carbRatioSchedule: CarbRatioSchedule?,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: PresentationMode = .settings
     ) {
@@ -46,6 +48,7 @@ public struct DeliveryLimitsEditor: View {
         }
         self.scheduledBasalRange = scheduledBasalRange
         self.supportedBolusVolumes = supportedBolusVolumes
+        self.carbRatioSchedule = carbRatioSchedule
         self.save = save
         self.mode = mode
     }
@@ -63,6 +66,7 @@ public struct DeliveryLimitsEditor: View {
             supportedBasalRates: viewModel.pumpSupportedIncrements!()!.basalRates,
             scheduledBasalRange: viewModel.therapySettings.basalRateSchedule?.valueRange(),
             supportedBolusVolumes: viewModel.pumpSupportedIncrements!()!.bolusVolumes,
+            carbRatioSchedule: viewModel.therapySettings.carbRatioSchedule,
             onSave: { [weak viewModel] newLimits in
                 viewModel?.saveDeliveryLimits(limits: newLimits)
                 didSave?()
@@ -137,7 +141,9 @@ public struct DeliveryLimitsEditor: View {
     }
 
     var maximumBasalRateGuardrail: Guardrail<HKQuantity> {
-        return Guardrail.maximumBasalRate(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange)
+        return Guardrail.maximumBasalRate(supportedBasalRates: supportedBasalRates,
+                                          scheduledBasalRange: scheduledBasalRange,
+                                          lowestCarbRatio: carbRatioSchedule?.minimumValue())
     }
 
     var maximumBasalRateCard: Card {
