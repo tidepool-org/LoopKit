@@ -14,6 +14,8 @@ public extension Guardrail where Value == HKQuantity {
     static func maxSuspendThresholdValue(correctionRangeSchedule: GlucoseRangeSchedule?, preMealTargetRange: DoubleRange?, workoutTargetRange: DoubleRange?, unit: HKUnit) -> HKQuantity? {
 
         return [
+            // WHY ISN'T THIS HERE???
+            Guardrail.suspendThreshold.absoluteBounds.upperBound.doubleValue(for: unit),
             correctionRangeSchedule?.minLowerBound().doubleValue(for: unit),
             preMealTargetRange?.minValue,
             workoutTargetRange?.minValue
