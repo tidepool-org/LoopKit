@@ -65,67 +65,56 @@ public extension Guardrail where Value == HKQuantity {
     )
 
     static let carbRatio = Guardrail(
-        absoluteBounds: 2...150,
+        absoluteBounds: 1...150,
         recommendedBounds: 3.0.nextUp...28.0.nextDown,
         unit: .gramsPerUnit
     )
 
-    static let scheduledBasalRates = 0.05...30
-    
     static func basalRate(supportedBasalRates: [Double]) -> Guardrail {
         let recommendedLowerBound = supportedBasalRates.first == 0
             ? supportedBasalRates.dropFirst().first!
             : supportedBasalRates.first!
         return Guardrail(
-            absoluteBounds: (supportedBasalRates.first!...supportedBasalRates.last!).clamped(to: scheduledBasalRates),
-            recommendedBounds: (recommendedLowerBound...supportedBasalRates.last!).clamped(to: scheduledBasalRates),
+            absoluteBounds: supportedBasalRates.first!...supportedBasalRates.last!,
+            recommendedBounds: recommendedLowerBound...supportedBasalRates.last!,
             unit: .internationalUnitsPerHour
         )
     }
 
-    static let recommendedMaxBasalDeliveryLimitScheduledBasalHighWarningScaleFactor = 6.4
-    static let recommendedMaxBasalDeliveryLimitScheduledBasalLowWarningScaleFactor = 2.1
+    static var recommendedMaximumScheduledBasalScaleFactor: Double {
+        return 6
+    }
 
     static func maximumBasalRate(
         supportedBasalRates: [Double],
         scheduledBasalRange: ClosedRange<Double>?,
-        lowestCarbRatio: Double?,
         maximumBasalRatePrecision decimalPlaces: Int = 3
     ) -> Guardrail {
-        
-        let supportedBasalRates = supportedBasalRates.sorted()
-        let maxUpperBound = lowestCarbRatio != nil && lowestCarbRatio != 0 ? 70.0 / lowestCarbRatio! : supportedBasalRates.last!
-            
         let minimumSupportedBasalRate = supportedBasalRates.first!
-//        let recommendedLowerBound = minimumSupportedBasalRate == 0 ? supportedBasalRates.dropFirst().first! : minimumSupportedBasalRate
-        let recommendedLowerBound: Double
+        let recommendedLowerBound = minimumSupportedBasalRate == 0 ? supportedBasalRates.dropFirst().first! : minimumSupportedBasalRate
         let recommendedUpperBound: Double
         if let maximumScheduledBasalRate = scheduledBasalRange?.upperBound {
-            let scaledMinimumScheduledBasalRate = (recommendedMaxBasalDeliveryLimitScheduledBasalLowWarningScaleFactor * maximumScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
-            recommendedLowerBound = minimumSupportedBasalRate == 0 ? supportedBasalRates.dropFirst().first! : scaledMinimumScheduledBasalRate
-            let scaledMaximumScheduledBasalRate = (recommendedMaxBasalDeliveryLimitScheduledBasalHighWarningScaleFactor * maximumScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
+            let scaledMaximumScheduledBasalRate = (recommendedMaximumScheduledBasalScaleFactor * maximumScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
             recommendedUpperBound = maximumScheduledBasalRate == 0
                 ? recommendedLowerBound
                 : scaledMaximumScheduledBasalRate
         } else {
-            recommendedLowerBound = supportedBasalRates.dropFirst().first!
             recommendedUpperBound = supportedBasalRates.last!
         }
         return Guardrail(
-            absoluteBounds: supportedBasalRates.first!...maxUpperBound,
-            recommendedBounds: recommendedLowerBound...min(maxUpperBound, recommendedUpperBound),
+            absoluteBounds: supportedBasalRates.first!...supportedBasalRates.last!,
+            recommendedBounds: recommendedLowerBound...recommendedUpperBound,
             unit: .internationalUnitsPerHour
         )
     }
 
     static func maximumBolus(supportedBolusVolumes: [Double]) -> Guardrail {
-        let maxBolusThresholdUnits: Double = 30
         let maxBolusWarningThresholdUnits: Double = 20
         let minimumSupportedBolusVolume = supportedBolusVolumes.first!
         let recommendedLowerBound = minimumSupportedBolusVolume == 0 ? supportedBolusVolumes.dropFirst().first! : minimumSupportedBolusVolume
         let recommendedUpperBound = min(maxBolusWarningThresholdUnits.nextDown, supportedBolusVolumes.last!)
         return Guardrail(
-            absoluteBounds: supportedBolusVolumes.first!...min(maxBolusThresholdUnits, supportedBolusVolumes.last!),
+            absoluteBounds: supportedBolusVolumes.first!...supportedBolusVolumes.last!,
             recommendedBounds: recommendedLowerBound...recommendedUpperBound,
             unit: .internationalUnit()
         )
