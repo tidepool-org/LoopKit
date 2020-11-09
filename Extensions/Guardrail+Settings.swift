@@ -92,12 +92,13 @@ public extension Guardrail where Value == HKQuantity {
     )
 
     static func basalRate(supportedBasalRates: [Double]) -> Guardrail {
+        let scheduledBasalRateAbsoluteRange = 0.05...30
         let recommendedLowerBound = supportedBasalRates.first == 0
             ? supportedBasalRates.dropFirst().first!
             : supportedBasalRates.first!
         return Guardrail(
-            absoluteBounds: supportedBasalRates.first!...supportedBasalRates.last!,
-            recommendedBounds: recommendedLowerBound...supportedBasalRates.last!,
+            absoluteBounds: (supportedBasalRates.first!...supportedBasalRates.last!).clamped(to: scheduledBasalRateAbsoluteRange),
+            recommendedBounds: (recommendedLowerBound...supportedBasalRates.last!).clamped(to: scheduledBasalRateAbsoluteRange),
             unit: .internationalUnitsPerHour
         )
     }
