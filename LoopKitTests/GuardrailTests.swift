@@ -72,19 +72,20 @@ class GuardrailTests: XCTestCase {
 
     func testPreMealCorrectionRange() {
         let correctionRangeInputs = [ 60...80, 100...110, 150...180 ]
-        let suspendThresholdInputs: [Double?] = [ nil, 80, 105 ]
-        let expectedHigh: [Double] = [ 67, 100, 130,
-                                       67, 100, 130,
-                                       67, 100, 130 ]
-        let expectedMin: [Double] = [ 87, 100, 130, 87, 100, 130, 87, 100, 130 ]
+        let suspendThresholdInputs: [Double?] = [ nil, 90 ]
+        let expectedRecommendedHigh: [Double] = [ 67, 90,
+                                                  100, 100,
+                                                  130, 130 ]
+        let expectedMin: [Double] = [ 67, 90, 67, 90, 67, 90 ]
 
         var index = 0
         for correctionRange in correctionRangeInputs {
             for suspendThreshold in suspendThresholdInputs {
                 let guardrail = Guardrail.correctionRangeOverride(for: .preMeal, correctionRangeScheduleRange: correctionRange.range(withUnit: .milligramsPerDeciliter), suspendThreshold: suspendThreshold.map { GlucoseThreshold(unit: .milligramsPerDeciliter, value: $0) }, unit: .milligramsPerDeciliter)
-                XCTAssertEqual(expectedHigh[index], guardrail.recommendedBounds.upperBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
-                XCTAssertEqual(expectedMin[index], guardrail.recommendedBounds.lowerBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
+                XCTAssertEqual(expectedRecommendedHigh[index], guardrail.recommendedBounds.upperBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
                 XCTAssertEqual(expectedMin[index], guardrail.absoluteBounds.lowerBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
+                XCTAssertEqual(guardrail.absoluteBounds.lowerBound.doubleValue(for: .milligramsPerDeciliter),
+                               guardrail.recommendedBounds.lowerBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
                 index += 1
             }
         }
