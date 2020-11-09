@@ -212,21 +212,6 @@ public struct CorrectionRangeOverridesEditor: View {
     }
 
     private func selectableBounds(for preset: CorrectionRangeOverrides.Preset) -> ClosedRange<HKQuantity> {
-//        switch preset {
-//        case .preMeal:
-//            if let minValue = minValue {
-//                return max(minValue, Guardrail.correctionRange.absoluteBounds.lowerBound)...Guardrail.correctionRange.absoluteBounds.upperBound
-//            } else {
-//                return Guardrail.correctionRange.absoluteBounds.lowerBound...Guardrail.correctionRange.absoluteBounds.upperBound
-//            }
-//        case .workout:
-//            if let minValue = minValue {
-//                return max(minValue, correctionRangeScheduleRange.upperBound)...Guardrail.correctionRange.absoluteBounds.upperBound
-//            } else {
-//                return correctionRangeScheduleRange.upperBound...Guardrail.correctionRange.absoluteBounds.upperBound
-//            }
-//        }
-        
         Guardrail.correctionRangeOverride(for: preset, correctionRangeScheduleRange: correctionRangeScheduleRange, suspendThreshold: suspendThreshold, unit: unit).absoluteBounds
     }
 

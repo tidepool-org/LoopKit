@@ -11,25 +11,24 @@ import HealthKit
 public extension Guardrail where Value == HKQuantity {
     static let suspendThreshold = Guardrail(absoluteBounds: 67...110, recommendedBounds: 74...80, unit: .milligramsPerDeciliter)
 
-    static func maxSuspendThresholdValue(correctionRangeSchedule: GlucoseRangeSchedule?, preMealTargetRange: DoubleRange?, workoutTargetRange: DoubleRange?, unit: HKUnit) -> HKQuantity? {
+    static func maxSuspendThresholdValue(correctionRangeSchedule: GlucoseRangeSchedule?, preMealTargetRange: DoubleRange?, workoutTargetRange: DoubleRange?, unit: HKUnit) -> HKQuantity {
 
         return [
-            // WHY ISN'T THIS HERE???
-            Guardrail.suspendThreshold.absoluteBounds.upperBound.doubleValue(for: unit),
+            suspendThreshold.absoluteBounds.upperBound.doubleValue(for: unit),
             correctionRangeSchedule?.minLowerBound().doubleValue(for: unit),
             preMealTargetRange?.minValue,
             workoutTargetRange?.minValue
         ]
         .compactMap { $0 }
         .min()
-        .map { HKQuantity(unit: unit, doubleValue: $0) }
+        .map { HKQuantity(unit: unit, doubleValue: $0) }!
     }
 
     static let correctionRange = Guardrail(absoluteBounds: 87...180, recommendedBounds: 101...115, unit: .milligramsPerDeciliter)
 
     static func minCorrectionRangeValue(suspendThreshold: GlucoseThreshold?, unit: HKUnit) -> HKQuantity {
         return [
-            Guardrail.correctionRange.absoluteBounds.lowerBound.doubleValue(for: unit),
+            correctionRange.absoluteBounds.lowerBound.doubleValue(for: unit),
             suspendThreshold?.value
         ]
         .compactMap { $0 }
@@ -37,24 +36,46 @@ public extension Guardrail where Value == HKQuantity {
         .map { HKQuantity(unit: unit, doubleValue: $0) }!
     }
     
-    static let workoutCorrectionRange = Guardrail(absoluteBounds: 85...250, recommendedBounds: 101...180, unit: .milligramsPerDeciliter)
-    static let premealCorrectionRange = Guardrail(absoluteBounds: 67...130, recommendedBounds: 67...115, unit: .milligramsPerDeciliter)
-    static func correctionRangeOverride(for preset: CorrectionRangeOverrides.Preset, correctionRangeScheduleRange: ClosedRange<HKQuantity>,
+    fileprivate static func workoutCorrectionRange(correctionRangeScheduleRange: ClosedRange<HKQuantity>,
+                                                   suspendThreshold: GlucoseThreshold?,
+                                                   unit: HKUnit) -> Guardrail<HKQuantity> {
+        // Static "unconstrained" constant values before applying constraints
+        let workoutCorrectionRange = Guardrail(absoluteBounds: 85...250, recommendedBounds: 101...180, unit: .milligramsPerDeciliter)
+        
+        let absoluteLowerBound = [
+            workoutCorrectionRange.absoluteBounds.lowerBound.doubleValue(for: unit),
+            suspendThreshold?.value
+        ]
+        .compactMap { $0 }
+        .max()
+        .map { HKQuantity(unit: unit, doubleValue: $0) }!
+        let recommmendedLowerBound = max(absoluteLowerBound, correctionRangeScheduleRange.upperBound)
+        return Guardrail(
+            absoluteBounds: absoluteLowerBound...workoutCorrectionRange.absoluteBounds.upperBound,
+            recommendedBounds: recommmendedLowerBound...workoutCorrectionRange.recommendedBounds.upperBound
+        )
+    }
+    
+    fileprivate static func preMealCorrectionRange(correctionRangeScheduleRange: ClosedRange<HKQuantity>,
+                                                   suspendThreshold: GlucoseThreshold?,
+                                                   unit: HKUnit) -> Guardrail<HKQuantity> {
+        let premealCorrectionRangeMaximum = HKQuantity(unit: unit, doubleValue: 130.0)
+        let absoluteLowerBound = suspendThreshold?.quantity ?? Guardrail.suspendThreshold.absoluteBounds.lowerBound
+        return Guardrail(
+            absoluteBounds: absoluteLowerBound...premealCorrectionRangeMaximum,
+            recommendedBounds: absoluteLowerBound...min(max(absoluteLowerBound, correctionRangeScheduleRange.lowerBound), premealCorrectionRangeMaximum)
+        )
+    }
+    
+    static func correctionRangeOverride(for preset: CorrectionRangeOverrides.Preset,
+                                        correctionRangeScheduleRange: ClosedRange<HKQuantity>,
                                         suspendThreshold: GlucoseThreshold?, unit: HKUnit) -> Guardrail {
+        
         switch preset {
         case .workout:
-            let absoluteLowerBound = suspendThreshold == nil ? workoutCorrectionRange.absoluteBounds.lowerBound :
-                max(premealCorrectionRange.absoluteBounds.lowerBound, HKQuantity(unit: unit, doubleValue: suspendThreshold!.value))
-            return Guardrail(
-                absoluteBounds: absoluteLowerBound...workoutCorrectionRange.absoluteBounds.upperBound,
-                recommendedBounds: correctionRangeScheduleRange.upperBound...correctionRange.absoluteBounds.upperBound
-            )
+            return workoutCorrectionRange(correctionRangeScheduleRange: correctionRangeScheduleRange, suspendThreshold: suspendThreshold, unit: unit)
         case .preMeal:
-            let absoluteLowerBound = suspendThreshold == nil ? correctionRange.absoluteBounds.lowerBound : HKQuantity(unit: unit, doubleValue: suspendThreshold!.value)
-            return Guardrail(
-                absoluteBounds: absoluteLowerBound...premealCorrectionRange.absoluteBounds.upperBound,
-                recommendedBounds: max(premealCorrectionRange.recommendedBounds.lowerBound, absoluteLowerBound)...correctionRangeScheduleRange.upperBound
-            )
+            return preMealCorrectionRange(correctionRangeScheduleRange: correctionRangeScheduleRange, suspendThreshold: suspendThreshold, unit: unit)
         }
     }
     
