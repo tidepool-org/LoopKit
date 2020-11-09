@@ -37,7 +37,7 @@ public struct CorrectionRangeOverridesEditor: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
 
-    public init(
+    fileprivate init(
         value: CorrectionRangeOverrides,
         preset: CorrectionRangeOverrides.Preset,
         unit: HKUnit,
@@ -212,7 +212,7 @@ public struct CorrectionRangeOverridesEditor: View {
     }
 
     private func selectableBounds(for preset: CorrectionRangeOverrides.Preset) -> ClosedRange<HKQuantity> {
-        Guardrail.correctionRangeOverride(for: preset, correctionRangeScheduleRange: correctionRangeScheduleRange, suspendThreshold: suspendThreshold, unit: unit).absoluteBounds
+        guardrail(for: preset).absoluteBounds
     }
 
     private func initiallySelectedValue(for preset: CorrectionRangeOverrides.Preset) -> ClosedRange<HKQuantity> {

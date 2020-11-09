@@ -21,7 +21,7 @@ public struct CorrectionRangeScheduleEditor: View {
     let mode: PresentationMode
     @State private var userDidTap: Bool = false
     
-    init(
+    fileprivate init(
         schedule: GlucoseRangeSchedule?,
         unit: HKUnit,
         minValue: HKQuantity?,
