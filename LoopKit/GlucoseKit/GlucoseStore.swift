@@ -295,7 +295,7 @@ extension GlucoseStore {
     /// Add glucose samples to store.
     ///
     /// - Parameters:
-    ///   - newSamples: The new glucose samples to add to the store.
+    ///   - samples: The new glucose samples to add to the store.
     ///   - completion: A closure called once the glucose samples have been stored.
     ///   - result: An array of glucose samples that were stored, or error.
     public func addGlucoseSamples(_ samples: [NewGlucoseSample], completion: @escaping (_ result: Result<[StoredGlucoseSample], Error>) -> Void) {
