@@ -44,10 +44,10 @@ public struct DeliveryLimitsEditor: View {
         self.supportedBasalRates = supportedBasalRates
         let basalGuardrail = Guardrail.maximumBasalRate(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
         if let maximumScheduledBasalRate = scheduledBasalRange?.upperBound {
-            selectableBasalRates = Array(supportedBasalRates.drop(while: { $0 < maximumScheduledBasalRate }))
+            self.selectableBasalRates = Array(supportedBasalRates.drop(while: { $0 < maximumScheduledBasalRate }))
                 .filter { basalGuardrail.absoluteBounds.contains(HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0)) }
         } else {
-            selectableBasalRates = supportedBasalRates
+            self.selectableBasalRates = supportedBasalRates
                 .filter { basalGuardrail.absoluteBounds.contains(HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0)) }
         }
         self.scheduledBasalRange = scheduledBasalRange
