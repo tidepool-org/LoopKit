@@ -67,6 +67,10 @@ public final class MockPumpManager: TestingPumpManager {
             return state.reservoirUnitsRemaining / pumpReservoirCapacity
         }
         set {
+            guard newValue >= 0 else {
+                state.reservoirUnitsRemaining = 0
+                return
+            }
             state.reservoirUnitsRemaining = newValue * pumpReservoirCapacity
         }
     }
@@ -125,7 +129,7 @@ public final class MockPumpManager: TestingPumpManager {
                                                          imageName: "exclamationmark.circle.fill",
                                                          state: .critical)
         }
-        else if state.reservoirUnitsRemaining <= 0 {
+        else if state.reservoirUnitsRemaining == 0 {
             return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("No Insulin", comment: "Status highlight that a pump is out of insulin."),
                                                          imageName: "exclamationmark.circle.fill",
                                                          state: .critical)
@@ -225,7 +229,7 @@ public final class MockPumpManager: TestingPumpManager {
             if (newValue.occlusionDetected != oldValue.occlusionDetected && newValue.occlusionDetected) ||
                 (newValue.pumpErrorDetected != oldValue.pumpErrorDetected && newValue.pumpErrorDetected) ||
                 (newValue.pumpBatteryChargeRemaining != oldValue.pumpBatteryChargeRemaining && newValue.pumpBatteryChargeRemaining == 0) ||
-                (newValue.reservoirUnitsRemaining != oldValue.reservoirUnitsRemaining && newValue.reservoirUnitsRemaining <= 0)
+                (newValue.reservoirUnitsRemaining != oldValue.reservoirUnitsRemaining && newValue.reservoirUnitsRemaining == 0)
             {
                 stopInsulinDelivery()
             }
@@ -352,6 +356,9 @@ public final class MockPumpManager: TestingPumpManager {
                     
                     self.state.finalizedDoses = []
                     self.state.reservoirUnitsRemaining -= totalInsulinUsage
+                    if self.state.reservoirUnitsRemaining < 0 {
+                        self.state.reservoirUnitsRemaining = 0
+                    }
                     
                     DispatchQueue.global().async {
                         completion?()
@@ -389,6 +396,10 @@ public final class MockPumpManager: TestingPumpManager {
         } else if case .suspended = state.suspendState {
             let error = PumpManagerError.deviceState(MockPumpManagerError.pumpSuspended)
             logDeviceComms(.error, message: "Temp Basal failed because inulin delivery is suspended")
+            completion(.failure(error))
+        } else if state.reservoirUnitsRemaining == 0 {
+            let error = PumpManagerError.deviceState(MockPumpManagerError.pumpSuspended)
+            logDeviceComms(.error, message: "Temp Basal failed because there is no insulin in the reservoir")
             completion(.failure(error))
         } else {
             let now = Date()
@@ -438,7 +449,7 @@ public final class MockPumpManager: TestingPumpManager {
             let error = PumpManagerError.deviceState(MockPumpManagerError.pumpError)
             logDeviceComms(.error, message: "Bolus failed because the pump is in an error state")
             completion(.failure(error))
-        } else if state.reservoirUnitsRemaining <= 0 {
+        } else if state.reservoirUnitsRemaining == 0 {
             let error = PumpManagerError.deviceState(MockPumpManagerError.pumpSuspended)
             logDeviceComms(.error, message: "Bolus failed because there is no insulin in the reservoir")
             completion(.failure(error))
