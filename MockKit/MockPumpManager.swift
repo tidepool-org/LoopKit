@@ -67,11 +67,7 @@ public final class MockPumpManager: TestingPumpManager {
             return state.reservoirUnitsRemaining / pumpReservoirCapacity
         }
         set {
-            guard newValue >= 0 else {
-                state.reservoirUnitsRemaining = 0
-                return
-            }
-            state.reservoirUnitsRemaining = newValue * pumpReservoirCapacity
+            state.reservoirUnitsRemaining = max(newValue * pumpReservoirCapacity, 0)
         }
     }
 
@@ -355,10 +351,7 @@ public final class MockPumpManager: TestingPumpManager {
                     }
                     
                     self.state.finalizedDoses = []
-                    self.state.reservoirUnitsRemaining -= totalInsulinUsage
-                    if self.state.reservoirUnitsRemaining < 0 {
-                        self.state.reservoirUnitsRemaining = 0
-                    }
+                    self.state.reservoirUnitsRemaining = max(self.state.reservoirUnitsRemaining - totalInsulinUsage, 0)
                     
                     DispatchQueue.global().async {
                         completion?()
