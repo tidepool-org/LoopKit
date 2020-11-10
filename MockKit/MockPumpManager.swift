@@ -20,6 +20,7 @@ public enum MockPumpManagerError: LocalizedError {
     case communicationFailure
     case bolusInProgress
     case missingSettings
+    case pumpError
     
 
     public var failureReason: String? {
@@ -32,6 +33,8 @@ public enum MockPumpManagerError: LocalizedError {
             return "Bolus in progress"
         case .missingSettings:
             return "Missing Settings"
+        case .pumpError:
+            return "Pump is in an error state"
         }
     }
 }
@@ -122,7 +125,7 @@ public final class MockPumpManager: TestingPumpManager {
                                                          imageName: "exclamationmark.circle.fill",
                                                          state: .critical)
         }
-        else if state.reservoirUnitsRemaining == 0 {
+        else if state.reservoirUnitsRemaining <= 0 {
             return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("No Insulin", comment: "Status highlight that a pump is out of insulin."),
                                                          imageName: "exclamationmark.circle.fill",
                                                          state: .critical)
@@ -138,6 +141,10 @@ public final class MockPumpManager: TestingPumpManager {
             return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Insulin Suspended", comment: "Status highlight that insulin delivery was suspended."),
                                                          imageName: "pause.circle.fill",
                                                          state: .warning)
+        } else if pumpBatteryChargeRemaining == 0 {
+            return PumpManagerStatus.PumpStatusHighlight(localizedMessage: NSLocalizedString("Pump Battery Dead", comment: "Status highlight that pump has a dead battery."),
+                                                         imageName: "exclamationmark.circle.fill",
+                                                         state: .critical)
         }
         
         return nil
@@ -213,7 +220,16 @@ public final class MockPumpManager: TestingPumpManager {
             if oldStatus != newStatus {
                 notifyStatusObservers(oldStatus: oldStatus)
             }
-
+            
+            // stop insulin delivery as pump state requires
+            if (newValue.occlusionDetected != oldValue.occlusionDetected && newValue.occlusionDetected) ||
+                (newValue.pumpErrorDetected != oldValue.pumpErrorDetected && newValue.pumpErrorDetected) ||
+                (newValue.pumpBatteryChargeRemaining != oldValue.pumpBatteryChargeRemaining && newValue.pumpBatteryChargeRemaining == 0) ||
+                (newValue.reservoirUnitsRemaining != oldValue.reservoirUnitsRemaining && newValue.reservoirUnitsRemaining <= 0)
+            {
+                stopInsulinDelivery()
+            }
+            
             stateObservers.forEach { $0.mockPumpManager(self, didUpdate: self.state) }
 
             delegate.notify { (delegate) in
@@ -358,7 +374,7 @@ public final class MockPumpManager: TestingPumpManager {
     public func enactTempBasal(unitsPerHour: Double, for duration: TimeInterval, completion: @escaping (PumpManagerResult<DoseEntry>) -> Void) {
         logDeviceComms(.send, message: "Temp Basal \(unitsPerHour) U/hr Duration:\(duration.hours)")
 
-        if state.tempBasalEnactmentShouldError {
+        if state.tempBasalEnactmentShouldError || state.pumpBatteryChargeRemaining == 0 {
             let error = PumpManagerError.communication(MockPumpManagerError.communicationFailure)
             logDeviceComms(.error, message: "Temp Basal failed with error \(error)")
             completion(.failure(error))
@@ -366,6 +382,14 @@ public final class MockPumpManager: TestingPumpManager {
             state.deliveryIsUncertain = true
             logDeviceComms(.error, message: "Uncertain delivery for temp basal")
             completion(.failure(PumpManagerError.uncertainDelivery))
+        } else if state.occlusionDetected || state.pumpErrorDetected {
+            let error = PumpManagerError.deviceState(MockPumpManagerError.pumpError)
+            logDeviceComms(.error, message: "Temp Basal failed because the pump is in an error state")
+            completion(.failure(error))
+        } else if case .suspended = state.suspendState {
+            let error = PumpManagerError.deviceState(MockPumpManagerError.pumpSuspended)
+            logDeviceComms(.error, message: "Temp Basal failed because inulin delivery is suspended")
+            completion(.failure(error))
         } else {
             let now = Date()
             if let temp = state.unfinalizedTempBasal, temp.finishTime.compare(now) == .orderedDescending {
@@ -402,7 +426,7 @@ public final class MockPumpManager: TestingPumpManager {
 
         logDeviceCommunication("enactBolus(\(units), \(startDate))")
 
-        if state.bolusEnactmentShouldError {
+        if state.bolusEnactmentShouldError || state.pumpBatteryChargeRemaining == 0 {
             let error = PumpManagerError.communication(MockPumpManagerError.communicationFailure)
             logDeviceComms(.error, message: "Bolus failed with error \(error)")
             completion(.failure(error))
@@ -410,6 +434,14 @@ public final class MockPumpManager: TestingPumpManager {
             state.deliveryIsUncertain = true
             logDeviceComms(.error, message: "Uncertain delivery for bolus")
             completion(.failure(PumpManagerError.uncertainDelivery))
+        } else if state.occlusionDetected || state.pumpErrorDetected {
+            let error = PumpManagerError.deviceState(MockPumpManagerError.pumpError)
+            logDeviceComms(.error, message: "Bolus failed because the pump is in an error state")
+            completion(.failure(error))
+        } else if state.reservoirUnitsRemaining <= 0 {
+            let error = PumpManagerError.deviceState(MockPumpManagerError.pumpSuspended)
+            logDeviceComms(.error, message: "Bolus failed because there is no insulin in the reservoir")
+            completion(.failure(error))
         } else {
             state.finalizeFinishedDoses()
 
@@ -460,6 +492,13 @@ public final class MockPumpManager: TestingPumpManager {
 
     public func setMustProvideBLEHeartbeat(_ mustProvideBLEHeartbeat: Bool) {
         // nothing to do here
+    }
+    
+    private func stopInsulinDelivery() {
+        let now = Date()
+        state.unfinalizedTempBasal?.cancel(at: now)
+        state.unfinalizedBolus?.cancel(at: now)
+        storeDoses { _ in }
     }
 
     public func suspendDelivery(completion: @escaping (Error?) -> Void) {
