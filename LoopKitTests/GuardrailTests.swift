@@ -35,7 +35,7 @@ class GuardrailTests: XCTestCase {
         for correctionRange in correctionRangeInputs {
             for preMeal in preMealInputs {
                 for workout in workoutInputs {
-                    let maxSuspendThresholdValue = Guardrail.maxSuspendThresholdValue(correctionRangeSchedule: correctionRange, preMealTargetRange: preMeal, workoutTargetRange: workout, unit: .milligramsPerDeciliter).doubleValue(for: .milligramsPerDeciliter)
+                    let maxSuspendThresholdValue = Guardrail.maxSuspendThresholdValue(correctionRangeSchedule: correctionRange, preMealTargetRange: preMeal?.quantityRange(for: .milligramsPerDeciliter), workoutTargetRange: workout?.quantityRange(for: .milligramsPerDeciliter)).doubleValue(for: .milligramsPerDeciliter)
                     XCTAssertEqual(expected[index], maxSuspendThresholdValue, "Index \(index) failed")
                     index += 1
                 }
@@ -47,7 +47,7 @@ class GuardrailTests: XCTestCase {
         let suspendThresholdInputs: [Double?] = [ nil, 80, 88 ]
         let expected: [Double] = [ 87, 87, 88 ]
         for (index, suspendThreshold) in suspendThresholdInputs.enumerated() {
-            XCTAssertEqual(expected[index], Guardrail.minCorrectionRangeValue(suspendThreshold: suspendThreshold.map { GlucoseThreshold(unit: .milligramsPerDeciliter, value: $0) }, unit: .milligramsPerDeciliter).doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
+            XCTAssertEqual(expected[index], Guardrail.minCorrectionRangeValue(suspendThreshold: suspendThreshold.map { GlucoseThreshold(unit: .milligramsPerDeciliter, value: $0) }).doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
         }
     }
     
@@ -62,7 +62,7 @@ class GuardrailTests: XCTestCase {
         var index = 0
         for correctionRange in correctionRangeInputs {
             for suspendThreshold in suspendThresholdInputs {
-                let guardrail = Guardrail.correctionRangeOverride(for: .workout, correctionRangeScheduleRange: correctionRange.range(withUnit: .milligramsPerDeciliter), suspendThreshold: suspendThreshold.map { GlucoseThreshold(unit: .milligramsPerDeciliter, value: $0) }, unit: .milligramsPerDeciliter)
+                let guardrail = Guardrail.correctionRangeOverride(for: .workout, correctionRangeScheduleRange: correctionRange.range(withUnit: .milligramsPerDeciliter), suspendThreshold: suspendThreshold.map { GlucoseThreshold(unit: .milligramsPerDeciliter, value: $0) })
                 XCTAssertEqual(expectedLow[index], guardrail.recommendedBounds.lowerBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
                 XCTAssertEqual(expectedMin[index], guardrail.absoluteBounds.lowerBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
                 index += 1
@@ -81,7 +81,7 @@ class GuardrailTests: XCTestCase {
         var index = 0
         for correctionRange in correctionRangeInputs {
             for suspendThreshold in suspendThresholdInputs {
-                let guardrail = Guardrail.correctionRangeOverride(for: .preMeal, correctionRangeScheduleRange: correctionRange.range(withUnit: .milligramsPerDeciliter), suspendThreshold: suspendThreshold.map { GlucoseThreshold(unit: .milligramsPerDeciliter, value: $0) }, unit: .milligramsPerDeciliter)
+                let guardrail = Guardrail.correctionRangeOverride(for: .preMeal, correctionRangeScheduleRange: correctionRange.range(withUnit: .milligramsPerDeciliter), suspendThreshold: suspendThreshold.map { GlucoseThreshold(unit: .milligramsPerDeciliter, value: $0) })
                 XCTAssertEqual(expectedRecommendedHigh[index], guardrail.recommendedBounds.upperBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
                 XCTAssertEqual(expectedMin[index], guardrail.absoluteBounds.lowerBound.doubleValue(for: .milligramsPerDeciliter), "Index \(index) failed")
                 XCTAssertEqual(guardrail.absoluteBounds.lowerBound.doubleValue(for: .milligramsPerDeciliter),

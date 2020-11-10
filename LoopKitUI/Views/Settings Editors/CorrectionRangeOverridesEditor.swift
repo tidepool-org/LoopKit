@@ -191,7 +191,7 @@ public struct CorrectionRangeOverridesEditor: View {
     
     private func guardrail(for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity> {
         return Guardrail.correctionRangeOverride(for: preset, correctionRangeScheduleRange: correctionRangeScheduleRange,
-                                                 suspendThreshold: suspendThreshold, unit: unit)
+                                                 suspendThreshold: suspendThreshold)
     }
     
     private var instructionalContentIfNecessary: some View {
