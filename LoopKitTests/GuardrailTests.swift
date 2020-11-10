@@ -90,6 +90,39 @@ class GuardrailTests: XCTestCase {
             }
         }
     }
+    
+    func testCarbRatioGuardrail() {
+        XCTAssertEqual(Guardrail.carbRatio.absoluteBounds.range(withUnit: .gramsPerUnit), 2.0...150.0)
+        XCTAssertEqual(Guardrail.carbRatio.recommendedBounds.range(withUnit: .gramsPerUnit), 4...28)
+    }
+
+    func testBasalRateGuardrail() {
+        let supportedBasalRates = (2...600).map { Double($0) / 20 }
+        let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
+    }
+
+    func testBasalRateGuardrailClampedLow() {
+        let supportedBasalRates = [0.01, 30.0]
+        let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.05...30.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.05...30.0)
+    }
+
+    func testBasalRateGuardrailClampedHigh() {
+        let supportedBasalRates = (2...800).map { Double($0) / 20 }
+        let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
+    }
+
+    func testBasalRateGuardrailZeroDropsFirst() {
+        let supportedBasalRates = (0...600).map { Double($0) / 20 }
+        let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
+    }
 
     func testMaxBasalRateGuardrail() {
         let supportedBasalRates = (1...600).map { Double($0) / 20 }
