@@ -84,9 +84,10 @@ public extension Guardrail where Value == HKQuantity {
         recommendedBounds: 16...399,
         unit: HKUnit.milligramsPerDeciliter.unitDivided(by: .internationalUnit())
     )
-
+ 
+    static let absoluteMinimumCarbRatio = 2.0
     static let carbRatio = Guardrail(
-        absoluteBounds: 2...150,
+        absoluteBounds: absoluteMinimumCarbRatio...150,
         recommendedBounds: 4...28,
         unit: .gramsPerUnit
     )
@@ -103,31 +104,44 @@ public extension Guardrail where Value == HKQuantity {
         )
     }
 
-    static var recommendedMaximumScheduledBasalScaleFactor: Double {
-        return 6
-    }
-
     static func maximumBasalRate(
         supportedBasalRates: [Double],
         scheduledBasalRange: ClosedRange<Double>?,
+        lowestCarbRatio: Double?,
         maximumBasalRatePrecision decimalPlaces: Int = 3
     ) -> Guardrail {
-        let minimumSupportedBasalRate = supportedBasalRates.first!
-        let recommendedLowerBound = minimumSupportedBasalRate == 0 ? supportedBasalRates.dropFirst().first! : minimumSupportedBasalRate
+        
+        let maximum = 70.0 / (lowestCarbRatio ?? absoluteMinimumCarbRatio)
+        
+        let recommendedHighScheduledBasalScaleFactor = 6.4
+        let recommendedLowScheduledBasalScaleFactor = 2.1
+
+        let recommendedLowerBound: Double
         let recommendedUpperBound: Double
-        if let maximumScheduledBasalRate = scheduledBasalRange?.upperBound {
-            let scaledMaximumScheduledBasalRate = (recommendedMaximumScheduledBasalScaleFactor * maximumScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
-            recommendedUpperBound = maximumScheduledBasalRate == 0
+        if let highestScheduledBasalRate = scheduledBasalRange?.upperBound {
+            let lowWarning = (recommendedLowScheduledBasalScaleFactor * highestScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
+            let highWarning = (recommendedHighScheduledBasalScaleFactor * highestScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
+            
+            recommendedLowerBound = lowWarning
+            recommendedUpperBound = highestScheduledBasalRate == 0
                 ? recommendedLowerBound
-                : scaledMaximumScheduledBasalRate
+                : highWarning
+            
+            let absoluteBounds = highestScheduledBasalRate...maximum
+            let recommendedBounds = (recommendedLowerBound...recommendedUpperBound).clamped(to: absoluteBounds)
+            return Guardrail(
+                absoluteBounds: absoluteBounds,
+                recommendedBounds: recommendedBounds,
+                unit: .internationalUnitsPerHour
+            )
+
         } else {
-            recommendedUpperBound = supportedBasalRates.last!
+            return Guardrail(
+                absoluteBounds: supportedBasalRates.first!...maximum,
+                recommendedBounds:  supportedBasalRates.first!...maximum,
+                unit: .internationalUnitsPerHour
+            )
         }
-        return Guardrail(
-            absoluteBounds: supportedBasalRates.first!...supportedBasalRates.last!,
-            recommendedBounds: recommendedLowerBound...recommendedUpperBound,
-            unit: .internationalUnitsPerHour
-        )
     }
 
     static func maximumBolus(supportedBolusVolumes: [Double]) -> Guardrail {
