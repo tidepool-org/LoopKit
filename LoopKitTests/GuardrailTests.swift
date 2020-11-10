@@ -104,10 +104,10 @@ class GuardrailTests: XCTestCase {
     }
 
     func testBasalRateGuardrailClampedLow() {
-        let supportedBasalRates = [0.01, 30.0]
+        let supportedBasalRates = [0.01, 1.0, 30.0]
         let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
-        XCTAssertEqual(0.05...30.0, guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour))
-        XCTAssertEqual(0.05...30.0, guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour))
+        XCTAssertEqual(1.0...30.0, guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour))
+        XCTAssertEqual(1.0...30.0, guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour))
     }
 
     func testBasalRateGuardrailClampedHigh() {
@@ -120,7 +120,7 @@ class GuardrailTests: XCTestCase {
     func testBasalRateGuardrailZeroDropsFirst() {
         let supportedBasalRates = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
         let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
-        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.05...5.0)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour),  1.0...5.0)
         XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 1.0...5.0)
     }
 
@@ -137,7 +137,7 @@ class GuardrailTests: XCTestCase {
         let supportedBasalRates = (1...600).map { Double($0) / 20 }
         let scheduledBasalRange = 0.05...0.78125
         let guardrail = Guardrail.maximumBasalRate(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: nil)
-        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.78125...35.0)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.78125...30.0)
         XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 1.6...5.0)
     }
     
@@ -146,7 +146,7 @@ class GuardrailTests: XCTestCase {
         let scheduledBasalRange = 0.05...0.78125
         let lowestCarbRatio = 10.0
         let guardrail = Guardrail.maximumBasalRate(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
-        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.78125...7.0)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.78125...1.0)
         XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 1.0...1.0)
     }
     
@@ -155,7 +155,7 @@ class GuardrailTests: XCTestCase {
         let scheduledBasalRange = 0.0...0.0
         let lowestCarbRatio = 10.0
         let guardrail = Guardrail.maximumBasalRate(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
-        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.0...7.0)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.0...1.0)
         XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.0...0.0)
     }
     
@@ -163,8 +163,8 @@ class GuardrailTests: XCTestCase {
         let supportedBasalRates = [0.0, 1.0]
         let lowestCarbRatio = 10.0
         let guardrail = Guardrail.maximumBasalRate(supportedBasalRates: supportedBasalRates, scheduledBasalRange: nil, lowestCarbRatio: lowestCarbRatio)
-        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.0...7.0)
-        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.0...7.0)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.0...1.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.0...1.0)
     }
     
     func testMaxBolusGuardrail() {
