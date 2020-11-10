@@ -166,6 +166,27 @@ class GuardrailTests: XCTestCase {
         XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.0...7.0)
         XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.0...7.0)
     }
+    
+    func testMaxBolusGuardrail() {
+        let supportedBolusVolumes = [1.0, 2.0]
+        let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnit()), 1.0...2.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...2.0)
+    }
+    
+    func testMaxBolusGuardrailClamped() {
+        let supportedBolusVolumes = [1.0, 2.0, 200.0]
+        let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnit()), 1.0...30.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0)
+    }
+    
+    func testMaxBolusGuardrailDropsZeroVolume() {
+        let supportedBolusVolumes = [0.0, 1.0, 2.0, 200.0]
+        let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnit()), 0.0...30.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0)
+    }
 }
 
 fileprivate extension ClosedRange where Bound == HKQuantity {
