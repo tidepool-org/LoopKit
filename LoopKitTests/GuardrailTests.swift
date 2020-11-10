@@ -92,22 +92,22 @@ class GuardrailTests: XCTestCase {
     }
     
     func testCarbRatioGuardrail() {
-        XCTAssertEqual(Guardrail.carbRatio.absoluteBounds.range(withUnit: .gramsPerUnit), 2.0...150.0)
-        XCTAssertEqual(Guardrail.carbRatio.recommendedBounds.range(withUnit: .gramsPerUnit), 4...28)
+        XCTAssertEqual(2.0...150.0, Guardrail.carbRatio.absoluteBounds.range(withUnit: .gramsPerUnit))
+        XCTAssertEqual(4...28, Guardrail.carbRatio.recommendedBounds.range(withUnit: .gramsPerUnit))
     }
 
     func testBasalRateGuardrail() {
         let supportedBasalRates = (2...600).map { Double($0) / 20 }
         let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
-        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
-        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
+        XCTAssertEqual(0.1...30.0, guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour))
+        XCTAssertEqual(0.1...30.0, guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour))
     }
 
     func testBasalRateGuardrailClampedLow() {
         let supportedBasalRates = [0.01, 30.0]
         let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
-        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.05...30.0)
-        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.05...30.0)
+        XCTAssertEqual(0.05...30.0, guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour))
+        XCTAssertEqual(0.05...30.0, guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour))
     }
 
     func testBasalRateGuardrailClampedHigh() {
@@ -118,10 +118,10 @@ class GuardrailTests: XCTestCase {
     }
 
     func testBasalRateGuardrailZeroDropsFirst() {
-        let supportedBasalRates = (0...600).map { Double($0) / 20 }
+        let supportedBasalRates = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
         let guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
-        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
-        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.1...30.0)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnitsPerHour), 0.05...5.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 1.0...5.0)
     }
 
     func testMaxBasalRateGuardrail() {
