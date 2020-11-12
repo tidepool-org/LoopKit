@@ -116,7 +116,7 @@ public extension Guardrail where Value == HKQuantity {
             recommendedUpperBound = (recommendedHighScheduledBasalScaleFactor * highestScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
             
             let absoluteBounds = highestScheduledBasalRate...absoluteUpperBound
-            let recommendedBounds = (recommendedLowerBound...recommendedUpperBound).clamped(to: absoluteBounds)
+            let recommendedBounds = recommendedLowerBound...recommendedUpperBound
             return Guardrail(
                 absoluteBounds: absoluteBounds,
                 recommendedBounds: recommendedBounds,
@@ -135,11 +135,11 @@ public extension Guardrail where Value == HKQuantity {
     static func maximumBolus(supportedBolusVolumes: [Double]) -> Guardrail {
         let maxBolusThresholdUnits: Double = 30
         let maxBolusWarningThresholdUnits: Double = 20
-        let supportedBolusVolumes = supportedBolusVolumes.drop { $0 == 0 }
-        let recommendedUpperBound = min(maxBolusWarningThresholdUnits, supportedBolusVolumes.last!)
+        let supportedBolusVolumes = supportedBolusVolumes.filter { $0 > 0 && $0 <= maxBolusThresholdUnits }
+        let recommendedUpperBound = supportedBolusVolumes.last { $0 < maxBolusWarningThresholdUnits }
         return Guardrail(
-            absoluteBounds: (supportedBolusVolumes.first!...supportedBolusVolumes.last!).clamped(to: 0...maxBolusThresholdUnits),
-            recommendedBounds: supportedBolusVolumes.dropFirst().first!...recommendedUpperBound,
+            absoluteBounds: supportedBolusVolumes.first!...supportedBolusVolumes.last!,
+            recommendedBounds: supportedBolusVolumes.dropFirst().first!...recommendedUpperBound!,
             unit: .internationalUnit()
         )
     }

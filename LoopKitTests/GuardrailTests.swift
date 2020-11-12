@@ -176,7 +176,7 @@ class GuardrailTests: XCTestCase {
         XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnitsPerHour), 0.0...1.0)
     }
     
-    func testMaxBolusGuardrail() {
+    func testMaxBolusGuardrailInsideLimits() {
         let supportedBolusVolumes = [0.05, 1.0, 2.0]
         let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
         XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnit()), 0.05...2.0)
@@ -184,24 +184,31 @@ class GuardrailTests: XCTestCase {
     }
     
     func testMaxBolusGuardrailClamped() {
-        let supportedBolusVolumes = [0.05, 1.0, 2.0, 200.0]
+        let supportedBolusVolumes = [0.05, 1.0, 2.0, 20.0.nextDown, 20.0, 25.0, 30.0, 30.0.nextUp]
         let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
         XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnit()), 0.05...30.0)
-        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0.nextDown)
     }
     
     func testMaxBolusGuardrailDropsZeroVolume() {
-        let supportedBolusVolumes = [0.0, 0.05, 1.0, 2.0, 200.0]
+        let supportedBolusVolumes = [0.0, 0.05, 1.0, 2.0, 20.0.nextDown, 20.0, 25.0, 30.0, 30.0.nextUp]
         let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
         XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnit()), 0.05...30.0)
-        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0.nextDown)
     }
     
     func testMaxBolusGuardrailDropsAllZeroVolumes() {
-        let supportedBolusVolumes = [0.0, 0.0, 0.05, 1.0, 2.0, 200.0]
+        let supportedBolusVolumes = [0.0, 0.0, 0.05, 1.0, 2.0, 20.0.nextDown, 20.0, 25.0, 30.0, 30.0.nextUp]
         let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
         XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnit()), 0.05...30.0)
-        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0.nextDown)
+    }
+    
+    func testMaxBolusGuardrailDropsNegatives() {
+        let supportedBolusVolumes = [-2.0, -1.0, 0.05, 1.0, 2.0, 20.0.nextDown, 20.0, 25.0, 30.0, 30.0.nextUp]
+        let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
+        XCTAssertEqual(guardrail.absoluteBounds.range(withUnit: .internationalUnit()), 0.05...30.0)
+        XCTAssertEqual(guardrail.recommendedBounds.range(withUnit: .internationalUnit()), 1.0...20.0.nextDown)
     }
 }
 
