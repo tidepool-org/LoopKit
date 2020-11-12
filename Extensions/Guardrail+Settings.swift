@@ -138,12 +138,11 @@ public extension Guardrail where Value == HKQuantity {
     static func maximumBolus(supportedBolusVolumes: [Double]) -> Guardrail {
         let maxBolusThresholdUnits: Double = 30
         let maxBolusWarningThresholdUnits: Double = 20
-        let minimumSupportedBolusVolume = supportedBolusVolumes.first!
-        let recommendedLowerBound = minimumSupportedBolusVolume == 0 ? supportedBolusVolumes.dropFirst().first! : minimumSupportedBolusVolume
+        let supportedBolusVolumes = supportedBolusVolumes.drop { $0 == 0 }
         let recommendedUpperBound = min(maxBolusWarningThresholdUnits, supportedBolusVolumes.last!)
         return Guardrail(
             absoluteBounds: (supportedBolusVolumes.first!...supportedBolusVolumes.last!).clamped(to: 0...maxBolusThresholdUnits),
-            recommendedBounds: recommendedLowerBound...recommendedUpperBound,
+            recommendedBounds: supportedBolusVolumes.dropFirst().first!...recommendedUpperBound,
             unit: .internationalUnit()
         )
     }
