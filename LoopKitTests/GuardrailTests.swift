@@ -12,11 +12,20 @@ import HealthKit
 
 class GuardrailTests: XCTestCase {
     let correctionRangeSchedule120 = GlucoseRangeSchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue(startTime: 0, value: DoubleRange(120...130))])
-    let preMealTargetRange120 = DoubleRange(120...130)
-    let workoutTargetRange120 = DoubleRange(120...130)
+    let preMealTargetRange120 = DoubleRange(120...130).quantityRange(for: .milligramsPerDeciliter)
+    let workoutTargetRange120 = DoubleRange(120...130).quantityRange(for: .milligramsPerDeciliter)
     let correctionRangeSchedule80 = GlucoseRangeSchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue(startTime: 0, value: DoubleRange(80...100))])
-    let preMealTargetRange85 = DoubleRange(85...100)
-    let workoutTargetRange90 = DoubleRange(90...100)
+    let preMealTargetRange85 = DoubleRange(85...100).quantityRange(for: .milligramsPerDeciliter)
+    let workoutTargetRange90 = DoubleRange(90...100).quantityRange(for: .milligramsPerDeciliter)
+
+    func testSuspendThresholdUnits() {
+        XCTAssertTrue(Guardrail.suspendThreshold.absoluteBounds.contains(HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 67)))
+        XCTAssertTrue(Guardrail.suspendThreshold.absoluteBounds.contains(HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 110)))
+        XCTAssertTrue(Guardrail.suspendThreshold.absoluteBounds.contains(HKQuantity(unit: .millimolesPerLiter, doubleValue: 6.1)))
+        XCTAssertTrue(Guardrail.suspendThreshold.recommendedBounds.contains(HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 74)))
+        XCTAssertTrue(Guardrail.suspendThreshold.recommendedBounds.contains(HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 80)))
+        XCTAssertTrue(Guardrail.suspendThreshold.absoluteBounds.contains(HKQuantity(unit: .millimolesPerLiter, doubleValue: 4.44)))
+    }
 
     func testMaxSuspensionThresholdValue() {
         let correctionRangeInputs = [ nil, correctionRangeSchedule120, correctionRangeSchedule80 ]
@@ -35,7 +44,7 @@ class GuardrailTests: XCTestCase {
         for correctionRange in correctionRangeInputs {
             for preMeal in preMealInputs {
                 for workout in workoutInputs {
-                    let maxSuspendThresholdValue = Guardrail.maxSuspendThresholdValue(correctionRangeSchedule: correctionRange, preMealTargetRange: preMeal?.quantityRange(for: .milligramsPerDeciliter), workoutTargetRange: workout?.quantityRange(for: .milligramsPerDeciliter)).doubleValue(for: .milligramsPerDeciliter)
+                    let maxSuspendThresholdValue = Guardrail.maxSuspendThresholdValue(correctionRangeSchedule: correctionRange, preMealTargetRange: preMeal, workoutTargetRange: workout).doubleValue(for: .milligramsPerDeciliter)
                     XCTAssertEqual(expected[index], maxSuspendThresholdValue, "Index \(index) failed")
                     index += 1
                 }
