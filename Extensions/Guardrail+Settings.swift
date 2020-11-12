@@ -113,10 +113,7 @@ public extension Guardrail where Value == HKQuantity {
         let recommendedUpperBound: Double
         if let highestScheduledBasalRate = scheduledBasalRange?.upperBound {
             recommendedLowerBound = (recommendedLowScheduledBasalScaleFactor * highestScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
-            recommendedUpperBound = highestScheduledBasalRate == 0
-                ? recommendedLowerBound
-                : (recommendedHighScheduledBasalScaleFactor * highestScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
-            
+            recommendedUpperBound = (recommendedHighScheduledBasalScaleFactor * highestScheduledBasalRate).matchingOrTruncatedValue(from: supportedBasalRates, withinDecimalPlaces: decimalPlaces)
             
             let absoluteBounds = highestScheduledBasalRate...absoluteUpperBound
             let recommendedBounds = (recommendedLowerBound...recommendedUpperBound).clamped(to: absoluteBounds)
