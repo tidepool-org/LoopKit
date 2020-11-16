@@ -37,16 +37,16 @@ struct SuspendThresholdInformationView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             SuspendThresholdInformationView(onExit: nil, mode: .acceptanceFlow)
-                .colorScheme(.light)
-                .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
-                .previewDisplayName("SE light")
         }
+        .colorScheme(.light)
+        .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
+        .previewDisplayName("SE light")
         NavigationView {
             SuspendThresholdInformationView(onExit: nil, mode: .acceptanceFlow)
-                .preferredColorScheme(.dark)
-                .colorScheme(.dark)
-                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
-                .previewDisplayName("11 Pro dark")
         }
+        .preferredColorScheme(.dark)
+        .colorScheme(.dark)
+        .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
+        .previewDisplayName("11 Pro dark")
     }
 }
