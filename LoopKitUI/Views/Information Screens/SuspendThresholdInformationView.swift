@@ -26,43 +26,10 @@ public struct SuspendThresholdInformationView: View {
     }
     
     public var body: some View {
-        InformationView(
-            title: Text(TherapySetting.suspendThreshold.title),
-            informationalContent: {
-                VStack {
-                    illustration
-                    text
-                }
-            },
-            onExit: onExit ?? { self.presentationMode.wrappedValue.dismiss() },
-            mode: mode
-        )
-    }
-    
-    private var illustration: some View {
-        Image(frameworkImage: illustrationImageName)
-            .renderingMode(.original)
-            .resizable()
-            .aspectRatio(contentMode: ContentMode.fit)
-    }
-    
-    private var text: some View {
-        VStack(alignment: .leading, spacing: 25) {
-            Text(TherapySetting.suspendThreshold.descriptiveText)
-        }
-        .accentColor(.secondary)
-        .foregroundColor(.accentColor)
-    }
-    
-    private var illustrationImageName: String {
-        switch preferredUnit {
-        case .milligramsPerDeciliter:
-            return "Glucose Safety Limit mgdL"
-        case .millimolesPerLiter:
-            return "Glucose Safety Limit mmolL"
-        default:
-            fatalError()
-        }
+        GlucoseTherapySettingInformationView(therapySetting: .suspendThreshold,
+                                             preferredUnit: preferredUnit,
+                                             onExit: onExit,
+                                             mode: mode)
     }
 }
 
@@ -76,10 +43,10 @@ struct SuspendThresholdInformationView_Previews: PreviewProvider {
         }
         NavigationView {
             SuspendThresholdInformationView(onExit: nil, mode: .acceptanceFlow)
-            .preferredColorScheme(.dark)
-            .colorScheme(.dark)
-            .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
-            .previewDisplayName("11 Pro dark")
+                .preferredColorScheme(.dark)
+                .colorScheme(.dark)
+                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
+                .previewDisplayName("11 Pro dark")
         }
     }
 }

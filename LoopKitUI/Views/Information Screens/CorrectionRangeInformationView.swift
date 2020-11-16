@@ -21,10 +21,10 @@ public struct CorrectionRangeInformationView: View {
     }
     
     public var body: some View {
-        InformationView(
-            title: Text(TherapySetting.glucoseTargetRange.title),
-            informationalContent: {text},
-            onExit: onExit ?? { self.presentationMode.wrappedValue.dismiss() },
+        GlucoseTherapySettingInformationView(
+            therapySetting: .glucoseTargetRange,
+            text: AnyView(text),
+            onExit: onExit,
             mode: mode
         )
     }
@@ -38,5 +38,23 @@ public struct CorrectionRangeInformationView: View {
             Text(LocalizedString("Your healthcare provider can help you choose a correction range that's right for you.", comment: "Disclaimer"))
         }
         .foregroundColor(.secondary)
+    }
+}
+
+struct CorrectionRangeInformationView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            CorrectionRangeInformationView(onExit: nil, mode: .acceptanceFlow)
+                .colorScheme(.light)
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
+                .previewDisplayName("SE light")
+        }
+        NavigationView {
+            CorrectionRangeInformationView(onExit: nil, mode: .acceptanceFlow)
+                .preferredColorScheme(.dark)
+                .colorScheme(.dark)
+                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
+                .previewDisplayName("11 Pro dark")
+        }
     }
 }
