@@ -264,7 +264,7 @@ public struct DeliveryLimitsEditor: View {
         let crossedThresholds = self.crossedThresholds
         return Group {
             if !crossedThresholds.isEmpty && (userDidTap || mode == .settings) {
-                DeliveryLimitsGuardrailWarning(crossedThresholds: crossedThresholds)
+                DeliveryLimitsGuardrailWarning(crossedThresholds: crossedThresholds, value: value)
             }
         }
     }
@@ -321,8 +321,8 @@ public struct DeliveryLimitsEditor: View {
 
 
 struct DeliveryLimitsGuardrailWarning: View {
-    var crossedThresholds: [DeliveryLimits.Setting: SafetyClassification.Threshold]
-
+    let crossedThresholds: [DeliveryLimits.Setting: SafetyClassification.Threshold]
+    let value: DeliveryLimits
     var body: some View {
         switch crossedThresholds.count {
         case 0:
@@ -336,7 +336,11 @@ struct DeliveryLimitsGuardrailWarning: View {
                 case .minimum, .belowRecommended:
                     // ANNA TODO: Ask MLee about this one
                     title = Text("Low Maximum Basal Rate", comment: "Title text for low maximum basal rate warning")
-                    caption = Text("A setting of 0 U/hr means Loop will not automatically administer insulin.", comment: "Caption text for low maximum basal rate warning")
+                    if value.maximumBasalRate?.doubleValue(for: .internationalUnitsPerHour) == 0 {
+                        caption = Text("A setting of 0 U/hr means Loop will not automatically administer insulin.", comment: "Caption text for low maximum basal rate warning")
+                    } else {
+                        caption = Text(TherapySetting.deliveryLimits.guardrailCaptionForLowValue)
+                    }
                 case .aboveRecommended, .maximum:
                     title = Text("High Maximum Basal Rate", comment: "Title text for high maximum basal rate warning")
                     caption = Text(TherapySetting.deliveryLimits.guardrailCaptionForHighValue)
@@ -345,7 +349,11 @@ struct DeliveryLimitsGuardrailWarning: View {
                 switch threshold {
                 case .minimum, .belowRecommended:
                     title = Text("Low Maximum Bolus", comment: "Title text for low maximum bolus warning")
-                    caption = Text("A setting of 0 U means you will not be able to bolus.", comment: "Caption text for zero maximum bolus setting warning")
+                    if value.maximumBolus?.doubleValue(for: .internationalUnit()) == 0 {
+                        caption = Text("A setting of 0 U means you will not be able to bolus.", comment: "Caption text for zero maximum bolus setting warning")
+                    } else {
+                        caption = Text(TherapySetting.deliveryLimits.guardrailCaptionForLowValue)
+                    }
                 case .aboveRecommended, .maximum:
                     title = Text("High Maximum Bolus", comment: "Title text for high maximum bolus warning")
                     caption = nil
