@@ -17,6 +17,7 @@ public struct DeliveryLimitsEditor: View {
     let selectableBasalRates: [Double]
     let scheduledBasalRange: ClosedRange<Double>?
     let supportedBolusVolumes: [Double]
+    let selectableBolusVolumes: [Double]
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: PresentationMode
     
@@ -42,16 +43,10 @@ public struct DeliveryLimitsEditor: View {
         self._value = State(initialValue: value)
         self.initialValue = value
         self.supportedBasalRates = supportedBasalRates
-        let basalGuardrail = Guardrail.maximumBasalRate(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
-        if let maximumScheduledBasalRate = scheduledBasalRange?.upperBound {
-            self.selectableBasalRates = Array(supportedBasalRates.drop(while: { $0 < maximumScheduledBasalRate }))
-                .filter { basalGuardrail.absoluteBounds.contains(HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0)) }
-        } else {
-            self.selectableBasalRates = supportedBasalRates
-                .filter { basalGuardrail.absoluteBounds.contains(HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0)) }
-        }
+        self.selectableBasalRates = Guardrail.selectableBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
         self.scheduledBasalRange = scheduledBasalRange
         self.supportedBolusVolumes = supportedBolusVolumes
+        self.selectableBolusVolumes = Guardrail.selectableBolusVolumes(supportedBolusVolumes: supportedBolusVolumes)
         self.save = save
         self.mode = mode
         self.lowestCarbRatio = lowestCarbRatio
@@ -234,7 +229,7 @@ public struct DeliveryLimitsEditor: View {
                         ),
                         unit: .internationalUnit(),
                         guardrail: self.maximumBolusGuardrail,
-                        selectableValues: self.supportedBolusVolumes,
+                        selectableValues: self.selectableBolusVolumes,
                         usageContext: .independent
                     )
                     .accessibility(identifier: "max_bolus_picker")
