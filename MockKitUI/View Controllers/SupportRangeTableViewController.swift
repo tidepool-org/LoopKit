@@ -24,11 +24,11 @@ final class SupportRangeTableViewController: UITableViewController {
 
     weak var delegate: SupportRangeTableViewControllerDelegate?
 
-    var minValue: Double = 0
+    var minValue: Double
     
-    var maxValue: Double = 100
+    var maxValue: Double
     
-    var stepSize: Double = 1
+    var stepSize: Double
     
     var indexPath: IndexPath?
     
@@ -40,7 +40,6 @@ final class SupportRangeTableViewController: UITableViewController {
         self.maxValue = maxValue
         self.stepSize = stepSize
         super.init(style: .grouped)
-        self.title = title
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -69,7 +68,7 @@ final class SupportRangeTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        return "Changing the supported values of the pump may cause the app to crash. Ensure you are changing them such that the set therapy value are still valid (e.g., basal rate, max bolus, etc.)"
+        return "Changing the supported values of the pump may cause the app to crash. Ensure you are changing them such that the set therapy values are still valid (e.g., basal rate, max bolus, etc.)"
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -105,7 +104,7 @@ final class SupportRangeTableViewController: UITableViewController {
         }
 
         let vc = TextFieldTableViewController()
-        vc.value = String(format: "%.3f", value)
+        vc.value = "\(value)"
         vc.keyboardType = .decimalPad
         vc.indexPath = indexPath
         vc.delegate = self
