@@ -63,6 +63,6 @@ public struct GlucoseTherapySettingInformationView: View {
     }
     
     private var illustrationImageName: String {
-        return "\(therapySetting.title) \(preferredUnit.description.replacingOccurrences(of: "/", with: ""))"
+        return "\(therapySetting) \(preferredUnit.description.replacingOccurrences(of: "/", with: ""))"
     }
 }

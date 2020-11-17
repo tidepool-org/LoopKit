@@ -15,7 +15,7 @@ public struct CorrectionRangeInformationView: View {
     
     @Environment(\.presentationMode) var presentationMode
     
-    public init(onExit: (() -> Void)?, mode: PresentationMode = .acceptanceFlow) {
+    public init(onExit: (() -> Void)? = nil, mode: PresentationMode = .acceptanceFlow) {
         self.onExit = onExit
         self.mode = mode
     }
@@ -44,13 +44,13 @@ public struct CorrectionRangeInformationView: View {
 struct CorrectionRangeInformationView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            CorrectionRangeInformationView(onExit: nil, mode: .acceptanceFlow)
+            CorrectionRangeInformationView()
         }
         .colorScheme(.light)
         .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
         .previewDisplayName("SE light")
         NavigationView {
-            CorrectionRangeInformationView(onExit: nil, mode: .acceptanceFlow)
+            CorrectionRangeInformationView()
         }
         .preferredColorScheme(.dark)
         .colorScheme(.dark)

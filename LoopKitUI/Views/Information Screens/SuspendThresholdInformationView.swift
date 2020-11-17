@@ -18,7 +18,7 @@ public struct SuspendThresholdInformationView: View {
     @Environment(\.presentationMode) var presentationMode
     
     public init(
-        onExit: (() -> Void)?,
+        onExit: (() -> Void)? = nil,
         mode: PresentationMode = .acceptanceFlow
     ){
         self.onExit = onExit
@@ -36,13 +36,13 @@ public struct SuspendThresholdInformationView: View {
 struct SuspendThresholdInformationView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            SuspendThresholdInformationView(onExit: nil, mode: .acceptanceFlow)
+            SuspendThresholdInformationView()
         }
         .colorScheme(.light)
         .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
         .previewDisplayName("SE light")
         NavigationView {
-            SuspendThresholdInformationView(onExit: nil, mode: .acceptanceFlow)
+            SuspendThresholdInformationView()
         }
         .preferredColorScheme(.dark)
         .colorScheme(.dark)
