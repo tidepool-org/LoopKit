@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Glucose Safety Limit (light) mgdL.pdf",
+      "filename" : "Chart=Glucose, Version=V7, Appearance=Light, Unit=mgdL.pdf",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Glucose Safety Limit (dark) mgdL.pdf",
+      "filename" : "Chart=Glucose, Version=V7, Appearance=Dark, Unit=mgdL.pdf",
       "idiom" : "universal"
     }
   ],
