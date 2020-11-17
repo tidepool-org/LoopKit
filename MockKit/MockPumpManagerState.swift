@@ -118,7 +118,7 @@ public struct MockPumpManagerState {
             guard let minBolusVolume = supportedBolusVolumes.first, let maxBolusVolume = supportedBolusVolumes.last, supportedBolusVolumes.indices.contains(1) else {
                 return "–"
             }
-            return "\(minBolusVolume)-\(maxBolusVolume) by \(supportedBolusVolumes[1]-minBolusVolume)"
+            return String(format: "\(minBolusVolume)-\(maxBolusVolume) by %.3f", (supportedBolusVolumes[1]-minBolusVolume))
         }
         return bolusVolumesDescription
     }
@@ -129,7 +129,7 @@ public struct MockPumpManagerState {
             guard let minBasalRate = supportedBasalRates.first, let maxBasalRate = supportedBasalRates.last, supportedBasalRates.indices.contains(1) else {
                 return "–"
             }
-            return "\(minBasalRate)-\(maxBasalRate) by \(supportedBasalRates[1]-minBasalRate)"
+            return String(format: "\(minBasalRate)-\(maxBasalRate) by %.3f", (supportedBasalRates[1]-minBasalRate))
         }
         return basalRatesDescription
     }

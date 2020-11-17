@@ -32,6 +32,16 @@ final class SupportedRangeTableViewController: UITableViewController {
     
     var indexPath: IndexPath?
     
+    private let numberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 3
+
+        return formatter
+    }()
+    
     init(minValue: Double,
          maxValue: Double,
          stepSize: Double)
@@ -77,13 +87,13 @@ final class SupportedRangeTableViewController: UITableViewController {
         switch Row(rawValue: indexPath.row)! {
         case .minValue:
             cell.textLabel?.text = "Minimum Value"
-            cell.detailTextLabel?.text = "\(minValue)"
+            cell.detailTextLabel?.text = numberFormatter.string(from: minValue)
         case .maxValue:
             cell.textLabel?.text = "Maximum Value"
-            cell.detailTextLabel?.text = "\(maxValue)"
+            cell.detailTextLabel?.text = numberFormatter.string(from: maxValue)
         case .stepSize:
             cell.textLabel?.text = "Step Size"
-            cell.detailTextLabel?.text = "\(stepSize)"
+            cell.detailTextLabel?.text = numberFormatter.string(from: stepSize)
         }
 
         cell.accessoryType = .disclosureIndicator
@@ -104,7 +114,7 @@ final class SupportedRangeTableViewController: UITableViewController {
         }
 
         let vc = TextFieldTableViewController()
-        vc.value = "\(value)"
+        vc.value = numberFormatter.string(from: value)
         vc.keyboardType = .decimalPad
         vc.indexPath = indexPath
         vc.delegate = self
