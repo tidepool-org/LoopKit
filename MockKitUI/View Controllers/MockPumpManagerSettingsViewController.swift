@@ -311,7 +311,7 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
             case .supportedBasalRates:
                 if pumpManager.state.deliverableIncrements == .custom, pumpManager.state.supportedBasalRates.indices.contains(1) {
                     let basalRates = pumpManager.state.supportedBasalRates
-                    let vc = SupportRangeTableViewController(minValue: basalRates.first!, maxValue: basalRates.last!, stepSize: basalRates[1] - basalRates.first!)
+                    let vc = SupportedRangeTableViewController(minValue: basalRates.first!, maxValue: basalRates.last!, stepSize: basalRates[1] - basalRates.first!)
                     vc.title = "Supported Basal Rates"
                     vc.indexPath = indexPath
                     vc.delegate = self
@@ -321,7 +321,7 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
             case .supportedBolusVolumes:
                 if pumpManager.state.deliverableIncrements == .custom, pumpManager.state.supportedBolusVolumes.indices.contains(1) {
                     let bolusVolumes = pumpManager.state.supportedBolusVolumes
-                    let vc = SupportRangeTableViewController(minValue: bolusVolumes.first!, maxValue: bolusVolumes.last!, stepSize: bolusVolumes[1] - bolusVolumes.first!)
+                    let vc = SupportedRangeTableViewController(minValue: bolusVolumes.first!, maxValue: bolusVolumes.last!, stepSize: bolusVolumes[1] - bolusVolumes.first!)
                     vc.title = "Supported Bolus Volumes"
                     vc.indexPath = indexPath
                     vc.delegate = self
@@ -538,8 +538,8 @@ private extension UIAlertController {
     }
 }
 
-extension MockPumpManagerSettingsViewController: SupportRangeTableViewControllerDelegate {
-    func supportedRangeDidUpdate(_ controller: SupportRangeTableViewController) {
+extension MockPumpManagerSettingsViewController: SupportedRangeTableViewControllerDelegate {
+    func supportedRangeDidUpdate(_ controller: SupportedRangeTableViewController) {
         guard let indexPath = controller.indexPath else {
             assertionFailure()
             return

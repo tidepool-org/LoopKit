@@ -1,5 +1,5 @@
 //
-//  SupportRangeTableViewController.swift
+//  SupportedRangeTableViewController.swift
 //  MockKitUI
 //
 //  Created by Nathaniel Hamming on 2020-11-16.
@@ -16,13 +16,13 @@ import LoopKitUI
 import MockKit
 
 
-protocol SupportRangeTableViewControllerDelegate: class {
-    func supportedRangeDidUpdate(_ controller: SupportRangeTableViewController)
+protocol SupportedRangeTableViewControllerDelegate: class {
+    func supportedRangeDidUpdate(_ controller: SupportedRangeTableViewController)
 }
 
-final class SupportRangeTableViewController: UITableViewController {
+final class SupportedRangeTableViewController: UITableViewController {
 
-    weak var delegate: SupportRangeTableViewControllerDelegate?
+    weak var delegate: SupportedRangeTableViewControllerDelegate?
 
     var minValue: Double
     
@@ -113,7 +113,7 @@ final class SupportRangeTableViewController: UITableViewController {
     }
 }
 
-extension SupportRangeTableViewController: TextFieldTableViewControllerDelegate {
+extension SupportedRangeTableViewController: TextFieldTableViewControllerDelegate {
     func textFieldTableViewControllerDidReturn(_ controller: TextFieldTableViewController) {
         update(from: controller)
     }
