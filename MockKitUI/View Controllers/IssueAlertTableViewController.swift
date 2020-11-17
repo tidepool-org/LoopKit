@@ -24,7 +24,7 @@ final class IssueAlertTableViewController: UITableViewController {
         case issueLater
         case buzz
         case critical
-        case retract // should be kept at the bottom on the list
+        case retract // should be kept at the bottom of the list
 
         var description: String {
             switch self {
