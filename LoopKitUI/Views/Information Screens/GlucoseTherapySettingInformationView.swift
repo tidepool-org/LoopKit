@@ -37,10 +37,8 @@ public struct GlucoseTherapySettingInformationView: View {
         InformationView(
             title: Text(self.therapySetting.title),
             informationalContent: {
-                VStack {
-                    illustration
-                    text
-                }
+                illustration
+                text.fixedSize(horizontal: false, vertical: true)
             },
             onExit: onExit ?? { self.presentationMode.wrappedValue.dismiss() },
             mode: mode
