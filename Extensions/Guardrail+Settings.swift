@@ -132,7 +132,7 @@ public extension Guardrail where Value == HKQuantity {
         }
     }
     
-    static func selectableBasalRates(supportedBasalRates: [Double],
+    static func selectableMaxBasalRates(supportedBasalRates: [Double],
                                      scheduledBasalRange: ClosedRange<Double>?,
                                      lowestCarbRatio: Double?,
                                      maximumBasalRatePrecision decimalPlaces: Int = 3) -> [Double] {
@@ -156,8 +156,9 @@ public extension Guardrail where Value == HKQuantity {
     }
     
     static func selectableBolusVolumes(supportedBolusVolumes: [Double]) -> [Double] {
+        let guardrail = Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes)
         return supportedBolusVolumes.filter {
-            Guardrail.maximumBolus(supportedBolusVolumes: supportedBolusVolumes).absoluteBounds.contains(HKQuantity(unit: .internationalUnit(), doubleValue: $0))
+            guardrail.absoluteBounds.contains(HKQuantity(unit: .internationalUnit(), doubleValue: $0))
         }
     }
 }

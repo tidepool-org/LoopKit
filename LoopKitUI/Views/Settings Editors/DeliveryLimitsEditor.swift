@@ -43,7 +43,7 @@ public struct DeliveryLimitsEditor: View {
         self._value = State(initialValue: value)
         self.initialValue = value
         self.supportedBasalRates = supportedBasalRates
-        self.selectableBasalRates = Guardrail.selectableBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
+        self.selectableBasalRates = Guardrail.selectableMaxBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
         self.scheduledBasalRange = scheduledBasalRange
         self.supportedBolusVolumes = supportedBolusVolumes
         self.selectableBolusVolumes = Guardrail.selectableBolusVolumes(supportedBolusVolumes: supportedBolusVolumes)
