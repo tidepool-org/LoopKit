@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Pre-Meal (light) mgdL.pdf",
+      "filename" : "Chart=Premeal, Version=V7, Appearance=Light, Unit=mgdL.pdf",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Pre-Meal (dark) mgdL.pdf",
+      "filename" : "Chart=Premeal, Version=V7, Appearance=Dark, Unit=mgdL.pdf",
       "idiom" : "universal"
     }
   ],
