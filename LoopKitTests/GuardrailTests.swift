@@ -189,15 +189,15 @@ class GuardrailTests: XCTestCase {
         let supportedBasalRates = [0, 0.05, 1.0]
         let scheduledBasalRange = 0.05...0.78125
         let lowestCarbRatio = 10.0
-        let selectableBasalRates = Guardrail.selectableMaxBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
-        XCTAssertEqual([1.0], selectableBasalRates)
+        let selectableMaxBasalRates = Guardrail.selectableMaxBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
+        XCTAssertEqual([1.0], selectableMaxBasalRates)
     }
     
     func testSelectableBasalRatesGuardrailNoScheduledBasalRates() {
         let supportedBasalRates = [0, 0.05, 1.0]
         let lowestCarbRatio = 10.0
-        let selectableBasalRates = Guardrail.selectableMaxBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: nil, lowestCarbRatio: lowestCarbRatio)
-        XCTAssertEqual([0.05, 1.0], selectableBasalRates)
+        let selectableMaxBasalRates = Guardrail.selectableMaxBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: nil, lowestCarbRatio: lowestCarbRatio)
+        XCTAssertEqual([0.05, 1.0], selectableMaxBasalRates)
     }
     
     func testMaxBolusGuardrailInsideLimits() {

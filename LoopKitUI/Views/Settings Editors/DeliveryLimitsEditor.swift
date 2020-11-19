@@ -14,7 +14,7 @@ import LoopKit
 public struct DeliveryLimitsEditor: View {
     let initialValue: DeliveryLimits
     let supportedBasalRates: [Double]
-    let selectableBasalRates: [Double]
+    let selectableMaxBasalRates: [Double]
     let scheduledBasalRange: ClosedRange<Double>?
     let supportedBolusVolumes: [Double]
     let selectableBolusVolumes: [Double]
@@ -43,7 +43,7 @@ public struct DeliveryLimitsEditor: View {
         self._value = State(initialValue: value)
         self.initialValue = value
         self.supportedBasalRates = supportedBasalRates
-        self.selectableBasalRates = Guardrail.selectableMaxBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
+        self.selectableMaxBasalRates = Guardrail.selectableMaxBasalRates(supportedBasalRates: supportedBasalRates, scheduledBasalRange: scheduledBasalRange, lowestCarbRatio: lowestCarbRatio)
         self.scheduledBasalRange = scheduledBasalRange
         self.supportedBolusVolumes = supportedBolusVolumes
         self.selectableBolusVolumes = Guardrail.selectableBolusVolumes(supportedBolusVolumes: supportedBolusVolumes)
@@ -179,7 +179,7 @@ public struct DeliveryLimitsEditor: View {
                         ),
                         unit: .internationalUnitsPerHour,
                         guardrail: self.maximumBasalRateGuardrail,
-                        selectableValues: self.selectableBasalRates,
+                        selectableValues: self.selectableMaxBasalRates,
                         usageContext: .independent
                     )
                     .accessibility(identifier: "max_basal_picker")
