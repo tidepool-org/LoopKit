@@ -44,8 +44,8 @@ jobs:
       xcode: 12.2.0
     steps:
       - checkout
-      - run: &update_carthage
-      - run: &carthage_bootstrap
+      - run: *update_carthage
+      - run: *carthage_bootstrap
       - run:
           name: Test
           command: |
@@ -59,8 +59,8 @@ jobs:
       xcode: 12.2.0
     steps:
       - checkout
-      - run: &update_carthage
-      - run: &carthage_bootstrap
+      - run: *update_carthage
+      - run: *carthage_bootstrap
       - run:
           name: Build Example
           command: |
