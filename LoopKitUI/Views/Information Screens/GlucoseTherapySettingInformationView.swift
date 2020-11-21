@@ -22,9 +22,9 @@ public struct GlucoseTherapySettingInformationView: View {
     public init(
         therapySetting: TherapySetting,
         preferredUnit: HKUnit? = nil,
-        text: AnyView? = nil,
         onExit: (() -> Void)?,
-        mode: SettingsPresentationMode = .acceptanceFlow
+        mode: SettingsPresentationMode = .acceptanceFlow,
+        text: AnyView? = nil
     ){
         self.therapySetting = therapySetting
         self.preferredUnit = preferredUnit ?? .milligramsPerDeciliter

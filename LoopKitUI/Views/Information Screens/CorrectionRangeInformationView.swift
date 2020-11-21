@@ -23,9 +23,9 @@ public struct CorrectionRangeInformationView: View {
     public var body: some View {
         GlucoseTherapySettingInformationView(
             therapySetting: .glucoseTargetRange,
-            text: AnyView(text),
             onExit: onExit,
-            mode: mode
+            mode: mode,
+            text: AnyView(text)
         )
     }
     

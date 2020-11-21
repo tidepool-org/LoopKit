@@ -31,9 +31,9 @@ public struct CorrectionRangeOverrideInformationView: View {
     public var body: some View {
         GlucoseTherapySettingInformationView(
             therapySetting: preset.therapySetting,
-            text: AnyView(section(for: preset)),
             onExit: onExit,
-            mode: mode
+            mode: mode,
+            text: AnyView(section(for: preset))
         )
     }
     
