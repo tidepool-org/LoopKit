@@ -20,19 +20,30 @@ update_carthage: &update_carthage
         brew install carthage
     fi
 
-  carthage_bootstrap: &carthage_bootstrap
-    name: Carthage Bootstrap
-    command: |
-      echo "Bootstrapping carthage dependencies"
-      unset LLVM_TARGET_TRIPLE_SUFFIX
+carthage_bootstrap: &carthage_bootstrap
+  name: Carthage Bootstrap
+  command: |
+    echo "Bootstrapping carthage dependencies"
+    unset LLVM_TARGET_TRIPLE_SUFFIX
 
-      if ! cmp -s Cartfile.Resolved Carthage/Cartfile.resolved; then
-        time ./Scripts/carthage.sh bootstrap --project-directory "$SRCROOT" --platform ios,watchos --cache-builds --verbose
-        cp Cartfile.resolved Carthage
-      else
-        echo "Carthage: not bootstrapping"
-      fi
-    
+    if ! cmp -s Cartfile.Resolved Carthage/Cartfile.resolved; then
+      time ./Scripts/carthage.sh bootstrap --project-directory "$SRCROOT" --platform ios,watchos --cache-builds --verbose
+      cp Cartfile.resolved Carthage
+    else
+      echo "Carthage: not bootstrapping"
+    fi
+
+carthage_save_cache: &carthage_save_cache
+  name: Save Carthage Cache
+  key: Carthage-v1-{{ checksum "Cartfile.resolved" }}
+  paths:
+    - Carthage
+
+carthage_restore_cache: &carthage_restore_cache
+  name: Restore Carthage Cache
+  keys:
+    - Carthage-v1-{{ checksum "Cartfile.resolved" }}
+
 #
 # Jobs
 #
@@ -44,12 +55,14 @@ jobs:
       xcode: 12.2.0
     steps:
       - checkout
+      - run: *carthage_restore_cache
       - run: *update_carthage
       - run: *carthage_bootstrap
       - run:
           name: Test
           command: |
             set -o pipefail && xcodebuild -project LoopKit.xcodeproj -scheme Shared build -destination 'name=iPhone 8' test | xcpretty
+      - run: *carthage_save_cache
       - store_test_results:
           path: test_output
 
@@ -59,12 +72,14 @@ jobs:
       xcode: 12.2.0
     steps:
       - checkout
+      - run: *carthage_restore_cache
       - run: *update_carthage
       - run: *carthage_bootstrap
       - run:
           name: Build Example
           command: |
             set -o pipefail && xcodebuild -project LoopKit.xcodeproj -scheme "LoopKit Example" build -destination 'name=iPhone 8' CODE_SIGNING_ALLOWED=NO | xcpretty
+      - run: *carthage_save_cache
 
 #
 # Workflows
