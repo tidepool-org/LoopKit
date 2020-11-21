@@ -11,11 +11,11 @@ import LoopKit
 
 public struct CorrectionRangeInformationView: View {
     var onExit: (() -> Void)?
-    var mode: PresentationMode
+    var mode: SettingsPresentationMode
     
     @Environment(\.presentationMode) var presentationMode
     
-    public init(onExit: (() -> Void)? = nil, mode: PresentationMode = .acceptanceFlow) {
+    public init(onExit: (() -> Void)? = nil, mode: SettingsPresentationMode = .acceptanceFlow) {
         self.onExit = onExit
         self.mode = mode
     }

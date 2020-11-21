@@ -12,7 +12,7 @@ import SwiftUI
 public struct CorrectionRangeOverrideInformationView: View {
     let preset: CorrectionRangeOverrides.Preset
     var onExit: (() -> Void)?
-    let mode: PresentationMode
+    let mode: SettingsPresentationMode
     
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.carbTintColor) var carbTintColor
@@ -21,7 +21,7 @@ public struct CorrectionRangeOverrideInformationView: View {
     public init(
         preset: CorrectionRangeOverrides.Preset,
         onExit: (() -> Void)? = nil,
-        mode: PresentationMode = .acceptanceFlow
+        mode: SettingsPresentationMode = .acceptanceFlow
     ) {
         self.preset = preset
         self.onExit = onExit

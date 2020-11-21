@@ -13,7 +13,7 @@ import LoopKit
 public struct GlucoseTherapySettingInformationView: View {
     var text: AnyView!
     let onExit: (() -> Void)?
-    let mode: PresentationMode
+    let mode: SettingsPresentationMode
     let therapySetting: TherapySetting
     let preferredUnit: HKUnit
     
@@ -24,7 +24,7 @@ public struct GlucoseTherapySettingInformationView: View {
         preferredUnit: HKUnit? = nil,
         text: AnyView? = nil,
         onExit: (() -> Void)?,
-        mode: PresentationMode = .acceptanceFlow
+        mode: SettingsPresentationMode = .acceptanceFlow
     ){
         self.therapySetting = therapySetting
         self.preferredUnit = preferredUnit ?? .milligramsPerDeciliter

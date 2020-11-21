@@ -12,14 +12,14 @@ import LoopKit
 
 public struct SuspendThresholdInformationView: View {
     var onExit: (() -> Void)?
-    var mode: PresentationMode
+    var mode: SettingsPresentationMode
     var preferredUnit: HKUnit = HKUnit.milligramsPerDeciliter
     
     @Environment(\.presentationMode) var presentationMode
     
     public init(
         onExit: (() -> Void)? = nil,
-        mode: PresentationMode = .acceptanceFlow
+        mode: SettingsPresentationMode = .acceptanceFlow
     ){
         self.onExit = onExit
         self.mode = mode

@@ -794,7 +794,7 @@
 		E96DCB5824AEF50F007117BC /* SuspendThresholdInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */; };
 		E96DCB5A24AF74AC007117BC /* SuspendThresholdEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */; };
 		E96DCB5E24AF7DC7007117BC /* BasalRatesInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */; };
-		E9D95F6524C7BC400079F47D /* PresentationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D95F6424C7BC400079F47D /* PresentationMode.swift */; };
+		E9D95F6524C7BC400079F47D /* SettingsPresentationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D95F6424C7BC400079F47D /* SettingsPresentationMode.swift */; };
 		E9DFB92524E43CF500468917 /* ExpandableDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DFB92424E43CF500468917 /* ExpandableDatePicker.swift */; };
 		E9E5E56524D362E900B5DFFE /* dynamic_glucose_effect_none_observed_output.json in Resources */ = {isa = PBXBuildFile; fileRef = E9E5E56124D362E800B5DFFE /* dynamic_glucose_effect_none_observed_output.json */; };
 		E9E5E56624D362E900B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json in Resources */ = {isa = PBXBuildFile; fileRef = E9E5E56224D362E800B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json */; };
@@ -1577,7 +1577,7 @@
 		E96DCB5724AEF50F007117BC /* SuspendThresholdInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspendThresholdInformationView.swift; sourceTree = "<group>"; };
 		E96DCB5924AF74AC007117BC /* SuspendThresholdEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspendThresholdEditor.swift; sourceTree = "<group>"; };
 		E96DCB5D24AF7DC7007117BC /* BasalRatesInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasalRatesInformationView.swift; sourceTree = "<group>"; };
-		E9D95F6424C7BC400079F47D /* PresentationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationMode.swift; sourceTree = "<group>"; };
+		E9D95F6424C7BC400079F47D /* SettingsPresentationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPresentationMode.swift; sourceTree = "<group>"; };
 		E9DFB92424E43CF500468917 /* ExpandableDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableDatePicker.swift; sourceTree = "<group>"; };
 		E9E5E56124D362E800B5DFFE /* dynamic_glucose_effect_none_observed_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dynamic_glucose_effect_none_observed_output.json; sourceTree = "<group>"; };
 		E9E5E56224D362E800B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dynamic_glucose_effect_never_fully_observed_output.json; sourceTree = "<group>"; };
@@ -2647,7 +2647,7 @@
 				1D1FCE2A24BE704A000300A8 /* TherapySetting+Settings.swift */,
 				1D1A019D24B678BF0077D86E /* TherapySettingsView.swift */,
 				1D1FCE2424BD42EF000300A8 /* TherapySettingsViewModel.swift */,
-				E9D95F6424C7BC400079F47D /* PresentationMode.swift */,
+				E9D95F6424C7BC400079F47D /* SettingsPresentationMode.swift */,
 				E93C869F24C8F6E00073089B /* InsulinModelSelection.swift */,
 			);
 			path = "Settings Editors";
@@ -3437,7 +3437,7 @@
 				43BA717B201EE6A40058961E /* NibLoadable.swift in Sources */,
 				E916F56F24AE2FFE00BE3547 /* CorrectionRangeOverrideInformationView.swift in Sources */,
 				89BE75C124649C2E00B145D9 /* ModalHeaderButtonBar.swift in Sources */,
-				E9D95F6524C7BC400079F47D /* PresentationMode.swift in Sources */,
+				E9D95F6524C7BC400079F47D /* SettingsPresentationMode.swift in Sources */,
 				89186C0524BEC9CA0003D0F3 /* SegmentedControlTableViewCell.swift in Sources */,
 				89F6E315244A1AB600CB9E15 /* GlucoseValuePicker.swift in Sources */,
 				E9086B3124B3A7270062F5C8 /* ChartTableViewCell.swift in Sources */,
