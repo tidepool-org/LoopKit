@@ -17,7 +17,7 @@ public struct SectionHeader: View {
         case tight
     }
     
-    public init(label: String, style: Style = .tight) {
+    public init(label: String, style: Style = .default) {
         self.label = label
         self.style = style
     }
@@ -28,6 +28,17 @@ public struct SectionHeader: View {
             .foregroundColor(.primary)
             .padding(.leading, style == .tight ? -10 : 0)
     }
+}
+
+public extension SectionHeader.Style {
+    
+    static let `default`: SectionHeader.Style  = {
+        if #available(iOSApplicationExtension 14.0, *) {
+            return .regular
+        } else {
+            return .tight
+        }
+    }()
 }
 
 struct SectionHeader_Previews: PreviewProvider {
