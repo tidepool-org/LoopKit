@@ -391,6 +391,7 @@ public final class MockCGMManager: TestingCGMManager {
             let currentValue = samples.first
         {
             mockSensorState.glucoseRangeCategory = glucoseRangeCategory(for: currentValue.quantitySample)
+            issueAlert(for: currentValue)
         }
         self.delegate.notify { delegate in
             delegate?.cgmManager(self, hasNew: result)
@@ -559,7 +560,42 @@ extension MockCGMManager {
         UIApplication.shared.endBackgroundTask(backgroundTask)
         backgroundTask = .invalid
     }
-    
+
+    private func issueAlert(for glucose: NewGlucoseSample) {
+        guard mockSensorState.glucoseAlertingEnabled else {
+            return
+        }
+
+        let alertTitle: String
+        let glucoseAlertIdentifier: String
+        switch glucose.quantity {
+        case ...mockSensorState.urgentLowGlucoseThreshold:
+            alertTitle = "Urgent Low Glucose Alert"
+            glucoseAlertIdentifier = "glucose.value.low.urgent"
+        case mockSensorState.urgentLowGlucoseThreshold..<mockSensorState.lowGlucoseThreshold:
+            alertTitle = "Low Glucose Alert"
+            glucoseAlertIdentifier = "glucose.value.low"
+        case mockSensorState.highGlucoseThreshold...:
+            alertTitle = "High Glucose Alert"
+            glucoseAlertIdentifier = "glucose.value.high"
+        default:
+            return
+        }
+
+        let alertIdentifier = Alert.Identifier(managerIdentifier: self.managerIdentifier,
+                                               alertIdentifier: glucoseAlertIdentifier)
+        let alertContent = Alert.Content(title: alertTitle,
+                                         body: "The glucose measurement received triggered this alert",
+                                         acknowledgeActionButtonLabel: "Dismiss")
+        let alert = Alert(identifier: alertIdentifier,
+                          foregroundContent: alertContent,
+                          backgroundContent: alertContent,
+                          trigger: .immediate)
+
+        delegate.notify { delegate in
+            delegate?.issueAlert(alert)
+        }
+    }
 }
 
 extension MockCGMManager {
