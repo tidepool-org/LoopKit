@@ -22,7 +22,9 @@ public struct MockCGMState: GlucoseDisplayable {
     public var glucoseRangeCategory: GlucoseRangeCategory?
 
     public let unit: HKUnit = .milligramsPerDeciliter
-    
+
+    public var glucoseAlertingEnabled: Bool
+
     private var cgmLowerLimitValue: Double
        
     // HKQuantity isn't codable
@@ -157,6 +159,7 @@ public struct MockCGMState: GlucoseDisplayable {
     public init(isStateValid: Bool = true,
                 trendType: GlucoseTrend? = nil,
                 glucoseRangeCategory: GlucoseRangeCategory? = nil,
+                glucoseAlertingEnabled: Bool = false,
                 urgentLowGlucoseThresholdValue: Double = 55,
                 lowGlucoseThresholdValue: Double = 80,
                 highGlucoseThresholdValue: Double = 200,
@@ -170,6 +173,7 @@ public struct MockCGMState: GlucoseDisplayable {
         self.isStateValid = isStateValid
         self.trendType = trendType
         self.glucoseRangeCategory = glucoseRangeCategory
+        self.glucoseAlertingEnabled = glucoseAlertingEnabled
         self.urgentLowGlucoseThresholdValue = urgentLowGlucoseThresholdValue
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
@@ -573,6 +577,7 @@ extension MockCGMState: RawRepresentable {
 
     public init?(rawValue: RawValue) {
         guard let isStateValid = rawValue["isStateValid"] as? Bool,
+            let glucoseAlertingEnabled = rawValue["glucoseAlertingEnabled"] as? Bool,
             let urgentLowGlucoseThresholdValue = rawValue["urgentLowGlucoseThresholdValue"] as? Double,
             let lowGlucoseThresholdValue = rawValue["lowGlucoseThresholdValue"] as? Double,
             let highGlucoseThresholdValue = rawValue["highGlucoseThresholdValue"] as? Double,
@@ -583,6 +588,7 @@ extension MockCGMState: RawRepresentable {
         }
 
         self.isStateValid = isStateValid
+        self.glucoseAlertingEnabled = glucoseAlertingEnabled
         self.urgentLowGlucoseThresholdValue = urgentLowGlucoseThresholdValue
         self.lowGlucoseThresholdValue = lowGlucoseThresholdValue
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
@@ -616,6 +622,7 @@ extension MockCGMState: RawRepresentable {
     public var rawValue: RawValue {
         var rawValue: RawValue = [
             "isStateValid": isStateValid,
+            "glucoseAlertingEnabled": glucoseAlertingEnabled,
             "urgentLowGlucoseThresholdValue": urgentLowGlucoseThresholdValue,
             "lowGlucoseThresholdValue": lowGlucoseThresholdValue,
             "highGlucoseThresholdValue": highGlucoseThresholdValue,
@@ -658,6 +665,7 @@ extension MockCGMState: CustomDebugStringConvertible {
         ## MockCGMState
         * isStateValid: \(isStateValid)
         * trendType: \(trendType as Any)
+        * glucoseAlertingEnabled: \(glucoseAlertingEnabled)
         * urgentLowGlucoseThresholdValue: \(urgentLowGlucoseThresholdValue)
         * lowGlucoseThresholdValue: \(lowGlucoseThresholdValue)
         * highGlucoseThresholdValue: \(highGlucoseThresholdValue)
