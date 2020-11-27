@@ -250,7 +250,7 @@ class UnfinalizedDoseTests: XCTestCase {
     func testDoseEntryInitFromUnfinalizedResume() {
         let now = Date()
         let unfinalizedResume = UnfinalizedDose(resumeStartTime: now)
-        let doseEntry = DoseEntry()
+        let doseEntry = DoseEntry(unfinalizedResume)
         XCTAssertEqual(doseEntry.type, .resume)
         XCTAssertEqual(doseEntry.startDate, now)
         XCTAssertEqual(doseEntry.endDate, now)
