@@ -107,36 +107,32 @@ public struct SuspendThresholdEditor: View {
             actionButtonTitle: Text(mode.buttonText),
             actionButtonState: saveButtonState,
             cards: {
-                // TODO: Remove conditional when Swift 5.3 ships
-                // https://bugs.swift.org/browse/SR-11628
-                if true {
-                    Card {
-                        SettingDescription(text: description, informationalContent: { TherapySetting.suspendThreshold.helpScreen() })
-                        ExpandableSetting(
-                            isEditing: $isEditing,
-                            valueContent: {
-                                GuardrailConstrainedQuantityView(
-                                    value: value,
-                                    unit: unit,
-                                    guardrail: guardrail,
-                                    isEditing: isEditing,
-                                    // Workaround for strange animation behavior on appearance
-                                    forceDisableAnimations: true
-                                )
-                            },
-                            expandedContent: {
-                                GlucoseValuePicker(
-                                    value: self.$value.animation(),
-                                    unit: self.unit,
-                                    guardrail: self.guardrail,
-                                    bounds: self.guardrail.absoluteBounds.lowerBound...(self.maxValue ?? self.guardrail.absoluteBounds.upperBound)
-                                )
-                                // Prevent the picker from expanding the card's width on small devices
-                                .frame(maxWidth: UIScreen.main.bounds.width - 48)
-                                .clipped()
-                            }
-                        )
-                    }
+                Card {
+                    SettingDescription(text: description, informationalContent: { TherapySetting.suspendThreshold.helpScreen() })
+                    ExpandableSetting(
+                        isEditing: $isEditing,
+                        valueContent: {
+                            GuardrailConstrainedQuantityView(
+                                value: value,
+                                unit: unit,
+                                guardrail: guardrail,
+                                isEditing: isEditing,
+                                // Workaround for strange animation behavior on appearance
+                                forceDisableAnimations: true
+                            )
+                        },
+                        expandedContent: {
+                            GlucoseValuePicker(
+                                value: self.$value.animation(),
+                                unit: self.unit,
+                                guardrail: self.guardrail,
+                                bounds: self.guardrail.absoluteBounds.lowerBound...(self.maxValue ?? self.guardrail.absoluteBounds.upperBound)
+                            )
+                            // Prevent the picker from expanding the card's width on small devices
+                            .frame(maxWidth: UIScreen.main.bounds.width - 48)
+                            .clipped()
+                        }
+                    )
                 }
             },
             actionAreaContent: {

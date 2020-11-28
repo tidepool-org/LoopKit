@@ -36,7 +36,7 @@ public struct TherapySettingsView: View, HorizontalSizeClassOverride {
     public var body: some View {
         switch viewModel.mode {
         case .acceptanceFlow: return AnyView(content)
-        case .settings: return AnyView(navigationViewWrappedContent)
+        case .settings: return AnyView(content)
         }
     }
     
@@ -428,12 +428,14 @@ struct SectionWithTapToEdit<Header, Content, NavigationDestination>: View where 
                 Text(title)
                     .bold()
                 Spacer()
-                ZStack(alignment: .leading) {
+                HStack {
                     DescriptiveText(label: descriptiveText)
                     if isEnabled {
+                        Spacer()
                         NavigationLink(destination: destination({ self.isActive = false }), isActive: $isActive) {
                             EmptyView()
                         }
+                        .frame(width: 15, alignment: .trailing)
                     }
                 }
                 Spacer()
