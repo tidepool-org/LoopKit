@@ -16,21 +16,23 @@ public struct GlucoseTherapySettingInformationView: View {
     let mode: SettingsPresentationMode
     let therapySetting: TherapySetting
     let preferredUnit: HKUnit
+    let appName: String
     
     @Environment(\.presentationMode) var presentationMode
-    @Environment(\.appName) var appName
 
     public init(
         therapySetting: TherapySetting,
         preferredUnit: HKUnit? = nil,
         onExit: (() -> Void)?,
         mode: SettingsPresentationMode = .acceptanceFlow,
+        appName: String,
         text: AnyView? = nil
     ){
         self.therapySetting = therapySetting
         self.preferredUnit = preferredUnit ?? .milligramsPerDeciliter
         self.onExit = onExit
         self.mode = mode
+        self.appName = appName
         self.text = text ?? AnyView(defaultText)
     }
     
