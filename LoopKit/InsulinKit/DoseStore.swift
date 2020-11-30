@@ -1204,11 +1204,28 @@ extension DoseStore {
             case .failure(let error):
                 completion(.failure(error))
             case .success(let doses):
-                let trimmedDoses = doses.map { $0.trimmed(to: basalDosingEnd) }
-                let insulinOnBoard = trimmedDoses.insulinOnBoard(model: insulinModel)
-                completion(.success(insulinOnBoard.filterDateRange(start, end)))
+                let insulinOnBoard = self.getInsulinOnBoardValues(from: doses, start: start, end: end, basalDosingEnd: basalDosingEnd)
+                completion(.success(insulinOnBoard))
             }
         }
+    }
+
+    /// Retrieves a timeline of unabsorbed insulin values from the provided doses
+    ///
+    /// - Parameters:
+    ///   - doses: The doses from which the timeline should be created
+    ///   - start: The earliest date of values to retrieve
+    ///   - end: The latest date of values to retrieve, if provided
+    ///   - basalDosingEnd: The date at which continuing doses should be assumed to be cancelled
+    ///   - result: An array of insulin values, in chronological order
+    public func getInsulinOnBoardValues(from doses: [DoseEntry], start: Date, end: Date? = nil, basalDosingEnd: Date? = nil) -> [InsulinValue] {
+        guard let insulinModel = self.insulinModel else {
+            return []
+        }
+
+        let trimmedDoses = doses.map { $0.trimmed(to: basalDosingEnd) }
+        let insulinOnBoard = trimmedDoses.insulinOnBoard(model: insulinModel)
+        return insulinOnBoard.filterDateRange(start, end)
     }
 
     /// Retrieves a timeline of effect on blood glucose from doses
@@ -1260,18 +1277,29 @@ extension DoseStore {
             self.getNormalizedDoseEntries(start: startDate) { (result) in
                 switch result {
                 case .success(let doses):
-                    let trimmedDoses = doses.map { $0.trimmed(from: startDate, to: self.currentDate())}
-                    let result = InsulinValue(
-                        startDate: startDate,
-                        value: trimmedDoses.totalDelivery
-                    )
-
+                    let result = self.getTotalUnitsDelivered(from: doses, since: startDate)
                     completion(.success(result))
                 case .failure(let error):
                     completion(.failure(error))
                 }
             }
         }
+    }
+
+    /// Retrieves the estimated total number of units delivered since the specified date from the provided doses
+    ///
+    /// - Parameters:
+    ///   - doses: The doses over which the estimation should be conducted
+    ///   - startDate: The date after which delivery should be calculated
+    ///   - result: The total units delivered and the date of the first dose
+    public func getTotalUnitsDelivered(from doses: [DoseEntry], since startDate: Date) -> InsulinValue {
+        let trimmedDoses = doses.map { $0.trimmed(from: startDate, to: self.currentDate())}
+        let result = InsulinValue(
+            startDate: startDate,
+            value: trimmedDoses.totalDelivery
+        )
+
+        return result
     }
 }
 
