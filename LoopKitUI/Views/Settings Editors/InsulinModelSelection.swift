@@ -10,7 +10,7 @@ import HealthKit
 import SwiftUI
 import LoopKit
 
-public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
+public struct InsulinModelSelection: View {
     @Environment(\.appName) private var appName   
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
@@ -84,12 +84,10 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
            viewModel: TherapySettingsViewModel,
            didSave: (() -> Void)? = nil
     ) {
-        precondition(viewModel.therapySettings.glucoseUnit != nil)
-        precondition(viewModel.therapySettings.insulinModelSettings != nil)
         self.init(
-            value: viewModel.therapySettings.insulinModelSettings!,
+            value: viewModel.therapySettings.insulinModelSettings ?? InsulinModelSettings.exponentialPreset(.humalogNovologAdult),
             insulinSensitivitySchedule: viewModel.therapySettings.insulinSensitivitySchedule,
-            glucoseUnit: viewModel.therapySettings.glucoseUnit!,
+            glucoseUnit: viewModel.therapySettings.insulinSensitivitySchedule?.unit ?? viewModel.preferredGlucoseUnit,
             supportedModelSettings: viewModel.supportedInsulinModelSettings,
             chartColors: viewModel.chartColors,
             onSave: { [weak viewModel] insulinModelSettings in
@@ -122,7 +120,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
     }
     
     private var cancelButton: some View {
-        Button(action: { self.dismiss() } ) { Text("Cancel", comment: "Cancel editing settings button title") }
+        Button(action: { self.dismiss() } ) { Text(LocalizedString("Cancel", comment: "Cancel editing settings button title")) }
     }
     
     private var content: some View {
@@ -138,7 +136,6 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             .padding(.bottom)
             .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
         }
-        .environment(\.horizontalSizeClass, horizontalOverride)
         .navigationBarTitle(Text(TherapySetting.insulinModel.title), displayMode: .large)
         .supportedInterfaceOrientations(.portrait)
         .edgesIgnoringSafeArea(.bottom)
@@ -205,13 +202,14 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
             }
             .buttonStyle(PlainButtonStyle()) // Disable row highlighting on selection
         }
-        .listStyle(GroupedListStyle())
+        .insetGroupedListStyle()
     }
 
     var insulinModelSettingDescription: Text {
         let spellOutFormatter = NumberFormatter()
         spellOutFormatter.numberStyle = .spellOut
-        return Text("\(appName) assumes insulin is actively working for 6 hours. You can choose from \(selectableInsulinModelSettings.count as NSNumber, formatter: spellOutFormatter) different models for how the app measures the insulin’s peak activity.", comment: "Insulin model setting description (1: app name) (2: number of models)")
+        let modelCountString = spellOutFormatter.string(from: selectableInsulinModelSettings.count as NSNumber)!
+        return Text(String(format: LocalizedString("%1$@ assumes insulin is actively working for 6 hours. You can choose from %2$@ different models for how the app measures the insulin’s peak activity.", comment: "Insulin model setting description (1: app name) (2: number of models)"), appName, modelCountString))
     }
 
     var insulinModelChart: InsulinModelChart {
@@ -306,7 +304,7 @@ public struct InsulinModelSelection: View, HorizontalSizeClassOverride {
 
     var dismissButton: some View {
         Button(action: dismiss) {
-            Text("Close", comment: "Button text to close a modal")
+            Text(LocalizedString("Close", comment: "Button text to close a modal"))
         }
     }
 }
