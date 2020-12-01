@@ -25,15 +25,15 @@ extension NumberFormatter {
         case .long, .medium:
             format = LocalizedString(
                 "quantity-and-unit-space",
-                value: "%1$@ %2$@",
-                comment: "Format string for combining localized numeric value and unit with a space. (1: numeric value)(2: unit)"
+                value: "%1$@\u{00a0}%2$@",
+                comment: "Format string for combining localized numeric value and unit with a non-breaking space. (1: numeric value)(2: unit)"
             )
         case .short:
             fallthrough
         @unknown default:
             format = LocalizedString(
                 "quantity-and-unit-tight",
-                value: "%1$@%2$@",
+                value: "%1$@\u{2060}%2$@",
                 comment: "Format string for combining localized numeric value and unit without spacing. (1: numeric value)(2: unit)"
             )
         }
@@ -41,7 +41,7 @@ extension NumberFormatter {
         return String(
             format: format,
             stringValue,
-            unit
+            unit.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}")
         )
     }
 }
