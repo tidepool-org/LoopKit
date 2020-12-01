@@ -44,7 +44,7 @@ public extension DeliveryLimits.Setting {
         }
     }
     
-    func descriptiveText(appName: String) -> String {
+    func localizedDescriptiveText(appName: String) -> String {
         switch self {
         case .maximumBasalRate:
             return String(format: LocalizedString("Maximum Basal Rate is the highest temporary basal rate %1$@ is allowed to set automatically.", comment: "Descriptive text for maximum basal rate (1: app name)"), appName)

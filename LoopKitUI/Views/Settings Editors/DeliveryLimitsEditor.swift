@@ -152,7 +152,7 @@ public struct DeliveryLimitsEditor: View {
 
     var maximumBasalRateCard: Card {
         Card {
-            SettingDescription(text: Text(DeliveryLimits.Setting.maximumBasalRate.descriptiveText(appName: appName)),
+            SettingDescription(text: Text(DeliveryLimits.Setting.maximumBasalRate.localizedDescriptiveText(appName: appName)),
                                informationalContent: { TherapySetting.deliveryLimits.helpScreen() })
             ExpandableSetting(
                 isEditing: Binding(
@@ -202,7 +202,7 @@ public struct DeliveryLimitsEditor: View {
 
     var maximumBolusCard: Card {
         Card {
-            SettingDescription(text: Text(DeliveryLimits.Setting.maximumBolus.descriptiveText(appName: appName)),
+            SettingDescription(text: Text(DeliveryLimits.Setting.maximumBolus.localizedDescriptiveText(appName: appName)),
                                informationalContent: { TherapySetting.deliveryLimits.helpScreen() })
             ExpandableSetting(
                 isEditing: Binding(

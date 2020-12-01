@@ -68,7 +68,7 @@ public extension TherapySetting {
         case .basalRate:
             return LocalizedString("Your Basal Rate of insulin is the number of units per hour that you want to use to cover your background insulin needs.", comment: "Descriptive text for basal rate")
         case .deliveryLimits:
-            return "\(DeliveryLimits.Setting.maximumBasalRate.descriptiveText(appName: appName))\n\n\(DeliveryLimits.Setting.maximumBolus.descriptiveText(appName: appName))"
+            return "\(DeliveryLimits.Setting.maximumBasalRate.localizedDescriptiveText(appName: appName))\n\n\(DeliveryLimits.Setting.maximumBolus.localizedDescriptiveText(appName: appName))"
         case .insulinModel:
             return String(format: LocalizedString("%1$@ assumes insulin is actively working for 6 hours. You can choose from different models for how the app measures the insulin’s peak activity.", comment: "Descriptive text for insulin model (1: app name)"), appName)
         case .carbRatio:
