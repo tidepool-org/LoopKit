@@ -93,6 +93,9 @@ open class QuantityFormatter {
         return formatter
     }()
 
+    /// When `avoidLineBreaking` is true, the formatter avoids unit strings or values and their unit strings being split by a line break.
+    open var avoidLineBreaking: Bool = true
+    
     /// Formats a quantity and unit as a localized string
     ///
     /// - Parameters:
@@ -108,10 +111,16 @@ open class QuantityFormatter {
         }
 
         if let foundationUnit = unit.foundationUnit, unit.usesMeasurementFormatterForMeasurement {
-            return measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
+            if avoidLineBreaking {
+                return measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit)).replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}")
+            } else {
+                return measurementFormatter.string(from: Measurement(value: value, unit: foundationUnit))
+            }
         }        
         
-        return numberFormatter.string(from: value, unit: string(from: unit, forValue: value), style: unitStyle)
+        // Pass 'false' for `avoidLineBreaking` because we don't want to do it twice.
+        return numberFormatter.string(from: value, unit: string(from: unit, forValue: value, avoidLineBreaking: false),
+                                      style: unitStyle, avoidLineBreaking: avoidLineBreaking)
     }
 
     /// Formats a unit as a localized string
@@ -120,21 +129,23 @@ open class QuantityFormatter {
     ///   - unit: The unit
     ///   - value: An optional value for determining the plurality of the unit string
     /// - Returns: A string for the unit. If no localization entry is available, the unlocalized `unitString` is returned.
-    open func string(from unit: HKUnit, forValue value: Double = 10) -> String {
-        if let string = unit.localizedUnitString(in: unitStyle, singular: abs(1.0 - value) < .ulpOfOne) {
+    open func string(from unit: HKUnit, forValue value: Double = 10, avoidLineBreaking: Bool? = nil) -> String {
+        let avoidLineBreaking = avoidLineBreaking ?? self.avoidLineBreaking
+        if let string = unit.localizedUnitString(in: unitStyle, singular: abs(1.0 - value) < .ulpOfOne, avoidLineBreaking: avoidLineBreaking) {
             return string
         }
 
+        let string: String
         if unit.usesMassFormatterForUnitString {
-            return massFormatter.unitString(fromValue: value, unit: HKUnit.massFormatterUnit(from: unit))
+            string = massFormatter.unitString(fromValue: value, unit: HKUnit.massFormatterUnit(from: unit))
+        } else if let foundationUnit = unit.foundationUnit {
+            string = measurementFormatter.string(from: foundationUnit)
+        } else {
+            // Fallback, unlocalized
+            string = unit.unitString
         }
 
-        if let foundationUnit = unit.foundationUnit {
-            return measurementFormatter.string(from: foundationUnit)
-        }
-
-        // Fallback, unlocalized
-        return unit.unitString
+        return avoidLineBreaking ? string.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}") : string
     }
 }
 
@@ -166,13 +177,14 @@ public extension HKUnit {
             return preferredFractionDigits
         }
     }
-
+    
     // Short localized unit string with unlocalized fallback
-    func shortLocalizedUnitString() -> String {
-        return localizedUnitString(in: .short) ?? unitString.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}")
+    func shortLocalizedUnitString(avoidLineBreaking: Bool = true) -> String {
+        return localizedUnitString(in: .short, avoidLineBreaking: avoidLineBreaking) ??
+            (avoidLineBreaking ? unitString.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}") : unitString)
     }
 
-    func localizedUnitString(in style: Formatter.UnitStyle, singular: Bool = false) -> String? {
+    func localizedUnitString(in style: Formatter.UnitStyle, singular: Bool = false, avoidLineBreaking: Bool = true) -> String? {
         
         func localizedUnitStringInternal(in style: Formatter.UnitStyle, singular: Bool = false) -> String? {
             if self == .internationalUnit() {
@@ -252,6 +264,10 @@ public extension HKUnit {
             return nil
         }
         
-        return localizedUnitStringInternal(in: style, singular: singular)?.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}")
+        if avoidLineBreaking && style != .long {
+            return localizedUnitStringInternal(in: style, singular: singular)?.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}")
+        } else {
+            return localizedUnitStringInternal(in: style, singular: singular)
+        }
     }
 }
