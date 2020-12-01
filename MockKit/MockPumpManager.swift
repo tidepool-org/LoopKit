@@ -581,7 +581,7 @@ public final class MockPumpManager: TestingPumpManager {
         state.basalRateSchedule = BasalRateSchedule(dailyItems: scheduleItems, timeZone: self.status.timeZone)
 
         DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(500)) {
-            completion(.success(self.state.basalRateSchedule!))
+            completion(.success(BasalRateSchedule(dailyItems: scheduleItems, timeZone: self.status.timeZone)!))
         }
     }
 }
