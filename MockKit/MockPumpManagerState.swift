@@ -114,7 +114,7 @@ public struct MockPumpManagerState {
     
     public var supportedBolusVolumes: [Double]
     public var supportedBolusVolumesDescription: String {
-        guard let bolusVolumesDescription = deliverableIncrements.basalRateDescription else {
+        guard let bolusVolumesDescription = deliverableIncrements.bolusVolumesDescription else {
             guard let minBolusVolume = supportedBolusVolumes.first, let maxBolusVolume = supportedBolusVolumes.last, supportedBolusVolumes.indices.contains(1) else {
                 return "–"
             }
