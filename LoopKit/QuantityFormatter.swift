@@ -255,19 +255,3 @@ public extension HKUnit {
         return localizedUnitStringInternal(in: style, singular: singular)?.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}")
     }
 }
-
-fileprivate let mgdLFormatter = QuantityFormatter()
-fileprivate let mmolLFormatter: QuantityFormatter = {
-    let result = QuantityFormatter()
-    result.numberFormatter.maximumFractionDigits = 1
-    return result
-}()
-
-public extension HKQuantity {
-    // TODO: pass in preferredUnit instead of having both units.
-    var bothUnitsString: String {
-        String(format: "%1$@ (%2$@)",
-               mgdLFormatter.string(from: self, for: .milligramsPerDeciliter)!,
-               mmolLFormatter.string(from: self, for: .millimolesPerLiter)!)
-    }
-}
