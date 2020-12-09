@@ -35,7 +35,7 @@ extension NumberFormatter {
         let unit = avoidLineBreaking ? unit.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}") : unit
         
         return String(
-            format: "%1$@%2$@%3$@",
+            format: NSLocalizedString("%1$@%2$@%3$@", comment: "String format for value with units (1: value, 2: separator, 3: units)"),
             stringValue,
             separator,
             unit
