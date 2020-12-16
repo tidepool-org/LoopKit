@@ -165,7 +165,7 @@ public struct MockPumpManagerState {
     }
 
     public init(deliverableIncrements: DeliverableIncrements = .medtronicX22,
-                reservoirUnitsRemaining: Double,
+                reservoirUnitsRemaining: Double = 200.0,
                 tempBasalEnactmentShouldError: Bool = false,
                 bolusEnactmentShouldError: Bool = false,
                 bolusCancelShouldError: Bool = false,
