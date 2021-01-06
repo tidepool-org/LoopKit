@@ -346,6 +346,12 @@ public final class MockCGMManager: TestingCGMManager {
 
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
+    public init() {
+        self.mockSensorState = MockCGMState(isStateValid: true, trendType: nil)
+        self.dataSource = MockCGMDataSource(model: .noData)
+        setupGlucoseUpdateTimer()
+    }
+
     public init?(rawState: RawStateValue) {
         if let mockSensorStateRawValue = rawState["mockSensorState"] as? MockCGMState.RawValue,
             let mockSensorState = MockCGMState(rawValue: mockSensorStateRawValue) {
@@ -374,6 +380,8 @@ public final class MockCGMManager: TestingCGMManager {
             "dataSource": dataSource.rawValue
         ]
     }
+
+    public let isOnboarded = true   // No distinction between created and onboarded
 
     public let appURL: URL? = nil
 

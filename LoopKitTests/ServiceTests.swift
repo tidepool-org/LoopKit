@@ -48,4 +48,10 @@ fileprivate class TestService: Service {
 
     var rawState: RawStateValue { return [:] }
 
+    var isOnboarded = true
+
+    func delete() {
+        serviceDelegate?.serviceWasDeleted(self)
+    }
+
 }

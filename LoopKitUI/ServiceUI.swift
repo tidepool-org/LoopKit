@@ -6,41 +6,55 @@
 //  Copyright © 2019 LoopKit Authors. All rights reserved.
 //
 
-import LoopKit
 import SwiftUI
-import HealthKit
-
-public protocol SupportInfoProvider {
-    var pumpStatus: PumpManagerStatus? { get }
-    var cgmDevice: HKDevice? { get }
-    var localizedAppNameAndVersion: String { get }
-    func generateIssueReport(completion: @escaping (String) -> Void)
-}
+import LoopKit
 
 public protocol ServiceUI: Service {
-    
     /// The image for this type of service.
     static var image: UIImage? { get }
-    
-    /// Indicates whether this service provides onboarding (configuring therapy settings)
-    static var providesOnboarding: Bool { get }
 
-    /// Provides a view controller to create and configure a new service, if needed.
+    /// Create and onboard a new service.
     ///
-    /// - Returns: A view controller to create and configure a new service.
-    static func setupViewController(currentTherapySettings: TherapySettings, preferredGlucoseUnit: HKUnit, chartColors: ChartColorPalette, carbTintColor: Color, glucoseTintColor: Color, guidanceColors: GuidanceColors, insulinTintColor: Color) -> (UIViewController & ServiceSetupNotifying & CompletionNotifying)?
+    /// - Parameters:
+    ///     - colorPalette: Color palette to use for any UI.
+    /// - Returns: Either a conforming view controller to create and onboard the service, a newly created and onboarded service, or an error.
+    static func setupViewController(colorPalette: LoopUIColorPalette) -> UIResult<UIViewController & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying, ServiceUI, Error>
 
-    /// Provides a view controller to configure an existing service.
+    /// Configure settings for an existing service.
     ///
+    /// - Parameters:
+    ///     - glucoseUnit: The glucose units to use.
+    ///     - colorPalette: Color palette to use for any UI.
     /// - Returns: A view controller to configure an existing service.
-    func settingsViewController(currentTherapySettings: TherapySettings, preferredGlucoseUnit: HKUnit, chartColors: ChartColorPalette, carbTintColor: Color, glucoseTintColor: Color, guidanceColors: GuidanceColors, insulinTintColor: Color) -> (UIViewController & ServiceSettingsNotifying & CompletionNotifying)
-    
-    /// Provides a view controller to configure an existing service.
-    ///
-    /// - Returns: A view that will be used in a support menu for providing user support
-    func supportMenuItem(supportInfoProvider: SupportInfoProvider, urlHandler: @escaping (URL) -> Void) -> AnyView?
+    func settingsViewController(colorPalette: LoopUIColorPalette) -> (UIViewController & ServiceOnboardNotifying & CompletionNotifying)
 }
 
 public extension ServiceUI {
     var image: UIImage? { return type(of: self).image }
+}
+
+public protocol ServiceCreateDelegate: AnyObject {
+    /// Informs the delegate that the specified service was created.
+    ///
+    /// - Parameters:
+    ///     - service: The service created.
+    func serviceCreateNotifying(_ notifying: ServiceCreateNotifying, didCreateService service: Service)
+}
+
+public protocol ServiceCreateNotifying {
+    /// Delegate to notify about service creation.
+    var serviceCreateDelegate: ServiceCreateDelegate? { get set }
+}
+
+public protocol ServiceOnboardDelegate: AnyObject {
+    /// Informs the delegate that the specified service was onboarded.
+    ///
+    /// - Parameters:
+    ///     - service: The service onboarded.
+    func serviceOnboardNotifying(_ notifying: ServiceOnboardNotifying, didOnboardService service: Service)
+}
+
+public protocol ServiceOnboardNotifying {
+    /// Delegate to notify about service onboarding.
+    var serviceOnboardDelegate: ServiceOnboardDelegate? { get set }
 }

@@ -10,19 +10,27 @@ import SwiftUI
 import LoopKit
 
 public protocol CGMManagerUI: CGMManager, DeviceManagerUI, PreferredGlucoseUnitObserver {
-    /// Provides a view controller for setting up and configuring the manager if needed.
+    /// Create and onboard a new CGM manager.
     ///
-    /// If this method returns nil, it's expected that `init?(rawState: [:])` creates a non-nil manager
-    static func setupViewController(glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)?
+    /// - Parameters:
+    ///     - colorPalette: Color palette to use for any UI.
+    /// - Returns: Either a conforming view controller to create and onboard the CGM manager, a newly created and onboarded CGM manager, or an error.
+    static func setupViewController(colorPalette: LoopUIColorPalette) -> UIResult<UIViewController & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & CompletionNotifying, CGMManagerUI, Error>
 
-    func settingsViewController(for glucoseUnit: HKUnit, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying & PreferredGlucoseUnitObserver)
+    /// Configure settings for an existing CGM manager.
+    ///
+    /// - Parameters:
+    ///     - glucoseUnit: The glucose units to use.
+    ///     - colorPalette: Color palette to use for any UI.
+    /// - Returns: A view controller to configure an existing CGM manager.
+    func settingsViewController(for glucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & PreferredGlucoseUnitObserver & CompletionNotifying)
 
     /// a message from the cgm that needs to be brought to the user's attention in the status bar
     var cgmStatusHighlight: DeviceStatusHighlight? { get }
-    
+
     /// the completed percent of the progress bar to display in the status bar
     var cgmLifecycleProgress: DeviceLifecycleProgress? { get }
-    
+
     /// gets the range category of a glucose sample using the CGM manager managed glucose thresholds
     func glucoseRangeCategory(for glucose: GlucoseSampleValue) -> GlucoseRangeCategory?
 }
@@ -38,10 +46,28 @@ extension CGMManagerUI {
     }
 }
 
-public protocol CGMManagerSetupViewController {
-    var setupDelegate: CGMManagerSetupViewControllerDelegate? { get set }
+public protocol CGMManagerCreateDelegate: AnyObject {
+    /// Informs the delegate that the specified cgm manager was created.
+    ///
+    /// - Parameters:
+    ///     - cgmManager: The cgm manager created.
+    func cgmManagerCreateNotifying(_ notifying: CGMManagerCreateNotifying, didCreateCGMManager cgmManager: CGMManagerUI)
 }
 
-public protocol CGMManagerSetupViewControllerDelegate: class {
-    func cgmManagerSetupViewController(_ cgmManagerSetupViewController: CGMManagerSetupViewController, didSetUpCGMManager cgmManager: CGMManagerUI)
+public protocol CGMManagerCreateNotifying {
+    /// Delegate to notify about cgm manager creation.
+    var cgmManagerCreateDelegate: CGMManagerCreateDelegate? { get set }
+}
+
+public protocol CGMManagerOnboardDelegate: AnyObject {
+    /// Informs the delegate that the specified cgm manager was onboarded.
+    ///
+    /// - Parameters:
+    ///     - cgmManager: The cgm manager onboarded.
+    func cgmManagerOnboardNotifying(_ notifying: CGMManagerOnboardNotifying, didOnboardCGMManager cgmManager: CGMManagerUI)
+}
+
+public protocol CGMManagerOnboardNotifying {
+    /// Delegate to notify about cgm manager onboarding.
+    var cgmManagerOnboardDelegate: CGMManagerOnboardDelegate? { get set }
 }

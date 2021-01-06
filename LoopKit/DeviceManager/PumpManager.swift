@@ -9,6 +9,16 @@ import Foundation
 import HealthKit
 
 
+public struct PumpManagerDescriptor {
+    public let identifier: String
+    public let localizedTitle: String
+
+    public init(identifier: String, localizedTitle: String) {
+        self.identifier = identifier
+        self.localizedTitle = localizedTitle
+    }
+}
+
 public enum PumpManagerResult<T> {
     case success(T)
     case failure(PumpManagerError)
