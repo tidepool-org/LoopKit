@@ -15,7 +15,7 @@ public protocol CGMManagerUI: CGMManager, DeviceManagerUI {
     /// If this method returns nil, it's expected that `init?(rawState: [:])` creates a non-nil manager
     static func setupViewController(glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)?
 
-    func settingsViewController(for glucoseUnit: HKUnit, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying)
+    func settingsViewController(for glucoseUnitFunc: @escaping () -> HKUnit, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying)
     
     /// a message from the cgm that needs to be brought to the user's attention in the status bar
     var cgmStatusHighlight: DeviceStatusHighlight? { get }
