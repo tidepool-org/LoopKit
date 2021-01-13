@@ -23,7 +23,7 @@ final class MockCGMManagerSettingsNavigationController: SettingsNavigationViewCo
         fatalError("init(coder:) has not been implemented")
     }
 
-    public func glucoseUnitDidChange(_ glucoseUnit: HKUnit) {
-        rootViewController.glucoseUnitDidChange(glucoseUnit)
+    public func glucoseUnitDidChange(to glucoseUnit: HKUnit) {
+        rootViewController.glucoseUnitDidChange(to: glucoseUnit)
     }
 }

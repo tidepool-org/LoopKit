@@ -17,7 +17,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController, Glucose
 
     private var glucoseUnit: HKUnit
 
-    public func glucoseUnitDidChange(_ glucoseUnit: HKUnit) {
+    public func glucoseUnitDidChange(to glucoseUnit: HKUnit) {
         self.glucoseUnit = glucoseUnit
         tableView.reloadData()
     }

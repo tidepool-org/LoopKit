@@ -10,7 +10,7 @@ import Foundation
 import HealthKit
 
 public protocol GlucoseUnitObserver {
-    func glucoseUnitDidChange(_ glucoseUnit: HKUnit)
+    func glucoseUnitDidChange(to glucoseUnit: HKUnit)
 }
 
 public protocol GlucoseUnitPublisher {
