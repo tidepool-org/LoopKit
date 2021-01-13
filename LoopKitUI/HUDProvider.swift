@@ -9,7 +9,8 @@
 import Foundation
 
 public enum HUDTapAction {
-    case presentViewController(UIViewController & CompletionNotifying)
+    case presentPumpViewController(UIViewController & CompletionNotifying)
+    case presentCGMViewController(UIViewController & CompletionNotifying & GlucoseUnitObserver)
     case openAppURL(URL)
     case setupNewPump
     case setupNewCGM

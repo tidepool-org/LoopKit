@@ -12,10 +12,15 @@ import LoopKit
 import LoopKitUI
 import MockKit
 
-
-final class MockCGMManagerSettingsViewController: UITableViewController {
+final class MockCGMManagerSettingsViewController: UITableViewController, GlucoseUnitObserver {
     let cgmManager: MockCGMManager
-    let glucoseUnit: HKUnit
+
+    private var glucoseUnit: HKUnit
+
+    public func glucoseUnitDidChange(_ glucoseUnit: HKUnit) {
+        self.glucoseUnit = glucoseUnit
+        tableView.reloadData()
+    }
 
     init(cgmManager: MockCGMManager, glucoseUnit: HKUnit) {
         self.cgmManager = cgmManager

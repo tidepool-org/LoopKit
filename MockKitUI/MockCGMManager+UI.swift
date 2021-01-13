@@ -15,18 +15,19 @@ import MockKit
 
 
 extension MockCGMManager: CGMManagerUI {
+
     public var smallImage: UIImage? { return UIImage(named: "CGM Simulator", in: Bundle(for: MockCGMManagerSettingsViewController.self), compatibleWith: nil) }
     
     public static func setupViewController(glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CGMManagerSetupViewController & CompletionNotifying)? {
         return nil
     }
 
-    public func settingsViewController(for glucoseUnitFunc: @escaping () -> HKUnit, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying) {
-        let settings = MockCGMManagerSettingsViewController(cgmManager: self, glucoseUnit: glucoseUnitFunc())
-        let nav = SettingsNavigationViewController(rootViewController: settings)
+    public func settingsViewController(for glucoseUnit: HKUnit, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying & GlucoseUnitObserver) {
+        let settings = MockCGMManagerSettingsViewController(cgmManager: self, glucoseUnit: glucoseUnit)
+        let nav = MockCGMManagerSettingsNavigationController(rootViewController: settings)
         return nav
     }
-    
+
     public var cgmStatusHighlight: DeviceStatusHighlight? {
         return self.mockSensorState.cgmStatusHighlight
     }
