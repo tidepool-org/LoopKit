@@ -67,7 +67,7 @@ public protocol CGMManagerDelegate: DeviceManagerDelegate {
 }
 
 
-public protocol CGMManager: DeviceManager {
+public protocol CGMManager: DeviceManager, GlucoseUnitObserver {
     var cgmManagerDelegate: CGMManagerDelegate? { get set }
 
     var appURL: URL? { get }
@@ -110,5 +110,9 @@ public extension CGMManager {
             self.cgmManagerDelegate?.cgmManagerWantsDeletion(self)
             completion()
         }
+    }
+
+    func glucoseUnitDidChange(to glucoseUnit: HKUnit) {
+        // optional
     }
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import HealthKit
+import LoopKit
 import LoopKitUI
 
 final class MockCGMManagerSettingsNavigationController: SettingsNavigationViewController, GlucoseUnitObserver {
