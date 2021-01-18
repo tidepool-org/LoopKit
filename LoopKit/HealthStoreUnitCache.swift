@@ -10,7 +10,7 @@ import os.log
 
 public extension Notification.Name {
     // used to avoid potential timing issues since a unit change triggers a cache refresh and all stores pull the current unit from the cache
-    static let StoreUnitChanged = Notification.Name(rawValue:  "com.loopKit.notification.StoreUnitChanged")
+    static let HealthStoreUnitDidChange = Notification.Name(rawValue:  "com.loopKit.notification.HealthStoreUnitDidChange")
 }
 
 public class HealthStoreUnitCache {
@@ -33,7 +33,7 @@ public class HealthStoreUnitCache {
         userPreferencesChangeObserver = NotificationCenter.default.addObserver(forName: .HKUserPreferencesDidChange, object: healthStore, queue: nil, using: { [weak self] (_) in
             _ = self?.unitCache.mutate({ (cache) in
                 cache.removeAll()
-                NotificationCenter.default.post(name: .StoreUnitChanged, object: healthStore)
+                NotificationCenter.default.post(name: .HealthStoreUnitDidChange, object: healthStore)
             })
         })
     }
