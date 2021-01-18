@@ -8,6 +8,9 @@
 import HealthKit
 import os.log
 
+public extension Notification.Name {
+    static let StoreUnitChanged = Notification.Name(rawValue:  "com.loopKit.notification.StoreUnitChanged")
+}
 
 public class HealthStoreUnitCache {
     private static var cacheCache = NSMapTable<HKHealthStore, HealthStoreUnitCache>.weakToStrongObjects()
@@ -29,6 +32,7 @@ public class HealthStoreUnitCache {
         userPreferencesChangeObserver = NotificationCenter.default.addObserver(forName: .HKUserPreferencesDidChange, object: healthStore, queue: nil, using: { [weak self] (_) in
             _ = self?.unitCache.mutate({ (cache) in
                 cache.removeAll()
+                NotificationCenter.default.post(name: .StoreUnitChanged, object: healthStore)
             })
         })
     }
