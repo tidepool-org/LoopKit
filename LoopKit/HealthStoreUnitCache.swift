@@ -33,7 +33,9 @@ public class HealthStoreUnitCache {
         userPreferencesChangeObserver = NotificationCenter.default.addObserver(forName: .HKUserPreferencesDidChange, object: healthStore, queue: nil, using: { [weak self] (_) in
             _ = self?.unitCache.mutate({ (cache) in
                 cache.removeAll()
-                NotificationCenter.default.post(name: .HealthStoreUnitDidChange, object: healthStore)
+                DispatchQueue.global().async {
+                    NotificationCenter.default.post(name: .HealthStoreUnitDidChange, object: healthStore)
+                }
             })
         })
     }
