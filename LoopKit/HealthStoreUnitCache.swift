@@ -9,6 +9,7 @@ import HealthKit
 import os.log
 
 public extension Notification.Name {
+    // used to avoid potential timing issues since a unit change triggers a cache refresh and all stores pull the current unit from the cache
     static let StoreUnitChanged = Notification.Name(rawValue:  "com.loopKit.notification.StoreUnitChanged")
 }
 
