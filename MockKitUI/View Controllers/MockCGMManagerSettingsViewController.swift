@@ -12,15 +12,10 @@ import LoopKit
 import LoopKitUI
 import MockKit
 
-final class MockCGMManagerSettingsViewController: UITableViewController, GlucoseUnitObserver {
+final class MockCGMManagerSettingsViewController: UITableViewController {
     let cgmManager: MockCGMManager
 
     private var glucoseUnit: HKUnit
-
-    public func glucoseUnitDidChange(to glucoseUnit: HKUnit) {
-        self.glucoseUnit = glucoseUnit
-        tableView.reloadData()
-    }
 
     init(cgmManager: MockCGMManager, glucoseUnit: HKUnit) {
         self.cgmManager = cgmManager
@@ -660,5 +655,12 @@ private extension UIAlertController {
 
         let cancel = "Cancel"
         addAction(UIAlertAction(title: cancel, style: .cancel, handler: nil))
+    }
+}
+
+extension MockCGMManagerSettingsViewController: GlucoseUnitObserver {
+    public func glucoseUnitDidChange(to glucoseUnit: HKUnit) {
+        self.glucoseUnit = glucoseUnit
+        tableView.reloadData()
     }
 }
