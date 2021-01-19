@@ -48,7 +48,7 @@ public class TherapySettingsViewModel: ObservableObject {
         self.chartColors = chartColors
         self.didSave = didSave
     }
-    
+
     var deliveryLimits: DeliveryLimits {
         return DeliveryLimits(maximumBasalRate: therapySettings.maximumBasalRatePerHour.map { HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0) },
                               maximumBolus: therapySettings.maximumBolus.map { HKQuantity(unit: .internationalUnit(), doubleValue: $0) } )
