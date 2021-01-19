@@ -52,11 +52,13 @@ public struct GlucoseValuePicker: View {
     }
 
     private var selectableValues: [Double] {
-        Array(Swift.stride(
-            from: bounds.lowerBound.doubleValue(for: unit),
-            through: bounds.upperBound.doubleValue(for: unit),
-            by: stride.doubleValue(for: unit)
-        ))
+        return Array(
+            Swift.stride(
+                from: bounds.lowerBound.doubleValue(for: unit, shouldRound: true),
+                through: bounds.upperBound.doubleValue(for: unit, shouldRound: true),
+                by: stride.doubleValue(for: unit, shouldRound: true)
+            )
+        )
     }
 
     private var stride: HKQuantity {

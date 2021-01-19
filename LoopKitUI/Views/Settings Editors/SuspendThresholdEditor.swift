@@ -12,59 +12,51 @@ import LoopKit
 
 
 public struct SuspendThresholdEditor: View {
-    var initialValue: HKQuantity?
-    var unit: HKUnit
-    var maxValue: HKQuantity?
-    var save: (_ suspendThreshold: HKQuantity) -> Void
-    let mode: SettingsPresentationMode
-    
-    @State private var userDidTap: Bool = false
-    @State var value: HKQuantity
-    @State var isEditing = false
-    @State var showingConfirmationAlert = false
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
     @Environment(\.appName) private var appName
 
+    @ObservedObject var viewModel: TherapySettingsViewModel
+
+    @State private var userDidTap: Bool = false
+    @State var value: HKQuantity
+    @State var isEditing = false
+    @State var showingConfirmationAlert = false
+
+    var initialValue: HKQuantity?
+    var maxValue: HKQuantity?
+    var save: (_ suspendThreshold: HKQuantity) -> Void
     let guardrail = Guardrail.suspendThreshold
 
     public init(
-        value: HKQuantity?,
-        unit: HKUnit,
-        maxValue: HKQuantity?,
-        onSave save: @escaping (_ suspendThreshold: HKQuantity) -> Void,
-        mode: SettingsPresentationMode = .settings
+        viewModel: TherapySettingsViewModel,
+        onSave save: @escaping (_ suspendThreshold: HKQuantity) -> Void
     ) {
-        self._value = State(initialValue: value ?? Self.defaultValue(for: unit))
-        self.initialValue = value
-        self.unit = unit
-        self.maxValue = maxValue
+        let unit = viewModel.preferredGlucoseUnit
+        self.viewModel = viewModel
+        self._value = State(initialValue: viewModel.suspendThreshold?.quantity ?? Self.defaultValue(for: unit))
+        self.initialValue = viewModel.suspendThreshold?.quantity
+        self.maxValue = Guardrail.maxSuspendThresholdValue(
+            correctionRangeSchedule: viewModel.therapySettings.glucoseTargetRangeSchedule,
+            preMealTargetRange: viewModel.therapySettings.preMealTargetRange?.quantityRange(for: unit),
+            workoutTargetRange: viewModel.therapySettings.workoutTargetRange?.quantityRange(for: unit)
+        )
         self.save = save
-        self.mode = mode
     }
     
     public init(
            viewModel: TherapySettingsViewModel,
            didSave: (() -> Void)? = nil
     ) {
-        let unit = viewModel.therapySettings.glucoseUnit ?? viewModel.preferredGlucoseUnit
         self.init(
-            value: viewModel.therapySettings.suspendThreshold?.quantity,
-            unit: unit,
-            maxValue: Guardrail.maxSuspendThresholdValue(
-                correctionRangeSchedule: viewModel.therapySettings.glucoseTargetRangeSchedule,
-                preMealTargetRange: viewModel.therapySettings.preMealTargetRange?.quantityRange(for: unit),
-                workoutTargetRange: viewModel.therapySettings.workoutTargetRange?.quantityRange(for: unit)
-            ),
+            viewModel: viewModel,
             onSave: { [weak viewModel] newValue in
                 guard let viewModel = viewModel else {
                     return
                 }
-                let newThreshold = GlucoseThreshold(unit: viewModel.preferredGlucoseUnit, value: newValue.doubleValue(for: viewModel.preferredGlucoseUnit))
-                viewModel.saveSuspendThreshold(value: newThreshold)
+                viewModel.saveSuspendThreshold(quantity: newValue)
                 didSave?()
-            },
-            mode: viewModel.mode
+            }
         )
     }
 
@@ -80,7 +72,7 @@ public struct SuspendThresholdEditor: View {
     }
 
     public var body: some View {
-        switch mode {
+        switch viewModel.mode {
         case .settings: return AnyView(contentWithCancel)
         case .acceptanceFlow: return AnyView(content)
         }
@@ -107,7 +99,7 @@ public struct SuspendThresholdEditor: View {
     private var content: some View {
         ConfigurationPage(
             title: Text(TherapySetting.suspendThreshold.title),
-            actionButtonTitle: Text(mode.buttonText),
+            actionButtonTitle: Text(viewModel.mode.buttonText),
             actionButtonState: saveButtonState,
             cards: {
                 Card {
@@ -117,7 +109,7 @@ public struct SuspendThresholdEditor: View {
                         valueContent: {
                             GuardrailConstrainedQuantityView(
                                 value: value,
-                                unit: unit,
+                                unit: viewModel.preferredGlucoseUnit,
                                 guardrail: guardrail,
                                 isEditing: isEditing,
                                 // Workaround for strange animation behavior on appearance
@@ -127,7 +119,7 @@ public struct SuspendThresholdEditor: View {
                         expandedContent: {
                             GlucoseValuePicker(
                                 value: self.$value.animation(),
-                                unit: self.unit,
+                                unit: self.viewModel.preferredGlucoseUnit,
                                 guardrail: self.guardrail,
                                 bounds: self.guardrail.absoluteBounds.lowerBound...(self.maxValue ?? self.guardrail.absoluteBounds.upperBound)
                             )
@@ -140,7 +132,7 @@ public struct SuspendThresholdEditor: View {
             },
             actionAreaContent: {
                 instructionalContentIfNecessary
-                if warningThreshold != nil && (userDidTap || mode != .acceptanceFlow) {
+                if warningThreshold != nil && (userDidTap || viewModel.mode != .acceptanceFlow) {
                     SuspendThresholdGuardrailWarning(safetyClassificationThreshold: warningThreshold!)
                 }
             },
@@ -167,7 +159,7 @@ public struct SuspendThresholdEditor: View {
     
     private var instructionalContentIfNecessary: some View {
         return Group {
-            if mode == .acceptanceFlow && !userDidTap {
+            if viewModel.mode == .acceptanceFlow && !userDidTap {
                 instructionalContent
             }
         }
@@ -183,7 +175,7 @@ public struct SuspendThresholdEditor: View {
     }
 
     private var saveButtonState: ConfigurationPageActionButtonState {
-        initialValue == nil || value != initialValue! || mode == .acceptanceFlow ? .enabled : .disabled
+        initialValue == nil || value != initialValue! || viewModel.mode == .acceptanceFlow ? .enabled : .disabled
     }
 
     private var warningThreshold: SafetyClassification.Threshold? {
@@ -208,7 +200,7 @@ public struct SuspendThresholdEditor: View {
     }
     
     private func startSaving() {
-        guard mode == .settings else {
+        guard viewModel.mode == .settings else {
             self.continueSaving()
             return
         }
@@ -244,6 +236,14 @@ struct SuspendThresholdGuardrailWarning: View {
 
 struct SuspendThresholdView_Previews: PreviewProvider {
     static var previews: some View {
-        SuspendThresholdEditor(value: nil, unit: .milligramsPerDeciliter, maxValue: nil, onSave: { _ in })
+        let therapySettingsViewModel = TherapySettingsViewModel(mode: .settings,
+                                                                therapySettings: TherapySettings(),
+                                                                preferredGlucoseUnit: .milligramsPerDeciliter,
+                                                                chartColors: ChartColorPalette(axisLine: .clear,
+                                                                                               axisLabel: .secondaryLabel,
+                                                                                               grid: .systemGray3,
+                                                                                               glucoseTint: .systemTeal,
+                                                                                               insulinTint: .systemOrange))
+        return SuspendThresholdEditor(viewModel: therapySettingsViewModel)
     }
 }

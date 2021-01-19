@@ -156,6 +156,16 @@ public extension HKQuantity {
     }
 }
 
+public extension HKQuantity {
+    func doubleValue(for unit: HKUnit, shouldRound: Bool) -> Double {
+        var value = self.doubleValue(for: unit)
+        if shouldRound {
+            value = unit.round(value: value)
+        }
+
+        return value
+    }
+}
 
 public extension HKUnit {
     var usesMassFormatterForUnitString: Bool {
@@ -171,6 +181,15 @@ public extension HKUnit {
             return 1
         } else {
             return 0
+        }
+    }
+
+    func round(value: Double) -> Double {
+        if preferredFractionDigits == 0 {
+            return value.rounded()
+        } else {
+            let scaleFactor = Double(10 * preferredFractionDigits)
+            return (value * scaleFactor).rounded() / scaleFactor
         }
     }
 
