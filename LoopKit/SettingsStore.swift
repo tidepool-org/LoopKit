@@ -199,6 +199,7 @@ public struct StoredSettingsData {
 }
 
 public struct StoredSettings {
+    //TODO use correction range overrides?
     public let date: Date
     public let dosingEnabled: Bool
     public let glucoseTargetRangeSchedule: GlucoseRangeSchedule?

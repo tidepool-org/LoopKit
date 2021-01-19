@@ -58,6 +58,15 @@ public class TherapySettingsViewModel: ObservableObject {
         return therapySettings.suspendThreshold
     }
 
+    var correctionRangeOverrides: CorrectionRangeOverrides {
+        return CorrectionRangeOverrides(preMeal: therapySettings.correctionRangeOverrides?.preMeal,
+                                        workout: therapySettings.correctionRangeOverrides?.workout)
+    }
+
+    var correctionRangeScheduleRange: ClosedRange<HKQuantity> {
+        return therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
+    }
+
     /// Reset to initial
     public func reset() {
         therapySettings = initialTherapySettings
@@ -68,14 +77,15 @@ public class TherapySettingsViewModel: ObservableObject {
         didSave?(TherapySetting.glucoseTargetRange, therapySettings)
     }
         
-    public func saveCorrectionRangeOverride(preMeal: ClosedRange<HKQuantity>?) {
-        therapySettings.preMealTargetRange = preMeal
-        didSave?(TherapySetting.preMealCorrectionRangeOverride, therapySettings)
-    }
-    
-    public func saveCorrectionRangeOverride(workout: ClosedRange<HKQuantity>?) {
-        therapySettings.workoutTargetRange = workout
-        didSave?(TherapySetting.workoutCorrectionRangeOverride, therapySettings)
+    public func saveCorrectionRangeOverride(preset: CorrectionRangeOverrides.Preset,
+                                            correctionRangeOverrides: CorrectionRangeOverrides) {
+        therapySettings.correctionRangeOverrides = correctionRangeOverrides
+        switch preset {
+        case .preMeal:
+            didSave?(TherapySetting.preMealCorrectionRangeOverride, therapySettings)
+        case .workout:
+            didSave?(TherapySetting.workoutCorrectionRangeOverride, therapySettings)
+        }
     }
 
     public func saveSuspendThreshold(quantity: HKQuantity, withDisplayGlucoseUnit displayGlucoseUnit: HKUnit) {

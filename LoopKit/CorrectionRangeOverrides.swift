@@ -23,6 +23,12 @@ public struct CorrectionRangeOverrides: Equatable {
         ranges[.workout] = workout?.quantityRange(for: unit)
     }
 
+    public init(preMeal: ClosedRange<HKQuantity>?, workout: ClosedRange<HKQuantity>?) {
+        ranges = [:]
+        ranges[.preMeal] = preMeal
+        ranges[.workout] = workout
+    }
+
     public var preMeal: ClosedRange<HKQuantity>? { ranges[.preMeal] }
     public var workout: ClosedRange<HKQuantity>? { ranges[.workout] }
 }
@@ -42,5 +48,72 @@ public extension CorrectionRangeOverrides.Preset {
         case .preMeal: return .preMealCorrectionRangeOverride
         case .workout: return .workoutCorrectionRangeOverride
         }
+    }
+}
+
+extension CorrectionRangeOverrides: Codable {
+    fileprivate var codingGlucoseUnit: HKUnit {
+        return .milligramsPerDeciliter
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let preMealDoubleRange = try container.decodeIfPresent(DoubleRange.self, forKey: .preMealRange)
+        let workoutDoubleRange = try container.decodeIfPresent(DoubleRange.self, forKey: .workoutRange)
+        let bloodGlucoseUnit = HKUnit(from: try container.decode(String.self, forKey: .bloodGlucoseUnit))
+
+        self.ranges = [:]
+        self.ranges[.preMeal] = preMealDoubleRange?.quantityRange(for: bloodGlucoseUnit)
+        self.ranges[.workout] = workoutDoubleRange?.quantityRange(for: bloodGlucoseUnit)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        let preMealDoubleRange = preMeal?.doubleRange(for: codingGlucoseUnit)
+        let workoutDoubleRange = workout?.doubleRange(for: codingGlucoseUnit)
+        try container.encodeIfPresent(preMealDoubleRange, forKey: .preMealRange)
+        try container.encodeIfPresent(workoutDoubleRange, forKey: .workoutRange)
+        try container.encode(codingGlucoseUnit.unitString, forKey: .bloodGlucoseUnit)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case preMealRange
+        case workoutRange
+        case bloodGlucoseUnit
+    }
+}
+
+extension CorrectionRangeOverrides: RawRepresentable {
+    public typealias RawValue = [String: Any]
+
+    public init?(rawValue: RawValue) {
+        guard let bloodGlucoseUnitString = rawValue["bloodGlucoseUnit"] as? String else {
+            return nil
+        }
+
+        let bloodGlucoseUnit = HKUnit(from: bloodGlucoseUnitString)
+
+        ranges = [:]
+        if let rawPreMealTargetRange = rawValue["preMealTargetRange"] as? DoubleRange.RawValue {
+            ranges[.preMeal] = DoubleRange(rawValue: rawPreMealTargetRange)?.quantityRange(for: bloodGlucoseUnit)
+        }
+
+        if let rawWorkoutTargetRange = rawValue["workoutTargetRange"] as? DoubleRange.RawValue {
+            ranges[.workout] = DoubleRange(rawValue: rawWorkoutTargetRange)?.quantityRange(for: bloodGlucoseUnit)
+        }
+    }
+
+    public var rawValue: RawValue {
+        let bloodGlucoseUnit = codingGlucoseUnit
+        let preMealTargetDoubleRange = preMeal?.doubleRange(for: bloodGlucoseUnit)
+        let workoutTargetDoubleRange = workout?.doubleRange(for: bloodGlucoseUnit)
+        var raw: RawValue = [
+            "bloodGlucoseUnit": bloodGlucoseUnit.unitString,
+        ]
+
+        raw["preMealTargetRange"] = preMealTargetDoubleRange?.rawValue
+        raw["workoutTargetRange"] = workoutTargetDoubleRange?.rawValue
+
+        return raw
     }
 }
