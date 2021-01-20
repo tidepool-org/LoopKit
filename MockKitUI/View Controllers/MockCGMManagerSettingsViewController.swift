@@ -658,9 +658,9 @@ private extension UIAlertController {
     }
 }
 
-extension MockCGMManagerSettingsViewController: GlucoseUnitObserver {
-    public func glucoseUnitDidChange(to glucoseUnit: HKUnit) {
-        self.glucoseUnit = glucoseUnit
+extension MockCGMManagerSettingsViewController: PreferredGlucoseUnitObserver {
+    func preferredGlucoseUnitDidChange(to preferredGlucoseUnit: HKUnit) {
+        self.glucoseUnit = preferredGlucoseUnit
         tableView.reloadData()
     }
 }

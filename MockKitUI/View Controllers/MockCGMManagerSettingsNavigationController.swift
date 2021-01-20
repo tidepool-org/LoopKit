@@ -11,7 +11,7 @@ import HealthKit
 import LoopKit
 import LoopKitUI
 
-final class MockCGMManagerSettingsNavigationController: SettingsNavigationViewController, GlucoseUnitObserver {
+final class MockCGMManagerSettingsNavigationController: SettingsNavigationViewController, PreferredGlucoseUnitObserver {
 
     private var rootViewController: MockCGMManagerSettingsViewController
 
@@ -24,7 +24,7 @@ final class MockCGMManagerSettingsNavigationController: SettingsNavigationViewCo
         fatalError("init(coder:) has not been implemented")
     }
 
-    public func glucoseUnitDidChange(to glucoseUnit: HKUnit) {
-        rootViewController.glucoseUnitDidChange(to: glucoseUnit)
+    public func preferredGlucoseUnitDidChange(to preferredGlucoseUnit: HKUnit) {
+        rootViewController.preferredGlucoseUnitDidChange(to: preferredGlucoseUnit)
     }
 }
