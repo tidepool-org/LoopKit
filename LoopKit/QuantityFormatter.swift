@@ -157,9 +157,9 @@ public extension HKQuantity {
 }
 
 public extension HKQuantity {
-    func doubleValue(for unit: HKUnit, shouldRound: Bool) -> Double {
+    func doubleValue(for unit: HKUnit, withRounding: Bool) -> Double {
         var value = self.doubleValue(for: unit)
-        if shouldRound {
+        if withRounding {
             value = unit.round(value: value)
         }
 
