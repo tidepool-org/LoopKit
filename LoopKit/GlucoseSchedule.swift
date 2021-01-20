@@ -29,4 +29,9 @@ public extension InsulinSensitivitySchedule {
                                           dailyItems: convertedDailyItems,
                                           timeZone: timeZone)
     }
+
+    func schedule(for glucoseUnit: HKUnit) -> InsulinSensitivitySchedule? {
+        // InsulinSensitivitySchedule stores only the glucose unit.
+        return self.convertTo(unit: glucoseUnit)
+    }
 }
