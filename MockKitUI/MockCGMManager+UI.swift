@@ -24,7 +24,7 @@ extension MockCGMManager: CGMManagerUI {
 
     public func settingsViewController(for glucoseUnit: HKUnit, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying & PreferredGlucoseUnitObserver) {
         let settings = MockCGMManagerSettingsViewController(cgmManager: self, glucoseUnit: glucoseUnit)
-        let nav = MockCGMManagerSettingsNavigationController(rootViewController: settings)
+        let nav = CGMManagerSettingsNavigationController(rootViewController: settings)
         return nav
     }
 

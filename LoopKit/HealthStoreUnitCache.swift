@@ -56,14 +56,10 @@ public class HealthStoreUnitCache {
             return unit
         }
 
-        guard let unit = getHealthStoreUnitAndUpdateCache(for: quantityTypeIdentifier) else {
-            return nil
-        }
-
-        return unit
+        return getHealthStoreUnitAndUpdateCache(for: quantityTypeIdentifier)
     }
 
-    private func getHealthStoreUnitAndUpdateCache(for quantityTypeIdentifier: HKQuantityTypeIdentifier) -> HKUnit? {
+    @discardableResult private func getHealthStoreUnitAndUpdateCache(for quantityTypeIdentifier: HKQuantityTypeIdentifier) -> HKUnit? {
         guard let quantityType = HKQuantityType.quantityType(forIdentifier: quantityTypeIdentifier) else {
             return nil
         }
@@ -91,16 +87,16 @@ public class HealthStoreUnitCache {
     private func updateCachedUnits() {
         let quantityTypeIdentifiers = unitCache.value.keys
         for quantityTypeIdentifier in quantityTypeIdentifiers {
-            _ = self.getHealthStoreUnitAndUpdateCache(for: quantityTypeIdentifier)
+            self.getHealthStoreUnitAndUpdateCache(for: quantityTypeIdentifier)
         }
     }
 
     private func updateCache(for quantityTypeIdentifier: HKQuantityTypeIdentifier, with unit: HKUnit?) {
-        guard unit != unitCache.value[quantityTypeIdentifier] else {
-            return
-        }
-
         _ = self.unitCache.mutate({ (cache) in
+            guard unit != cache[quantityTypeIdentifier] else {
+                return
+            }
+
             cache[quantityTypeIdentifier] = unit
             var notificationName: Notification.Name? = nil
             switch quantityTypeIdentifier {

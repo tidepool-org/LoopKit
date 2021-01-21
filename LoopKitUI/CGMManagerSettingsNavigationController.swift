@@ -1,5 +1,5 @@
 //
-//  MockCGMManagerSettingsNavigationController.swift
+//  CGMManagerSettingsNavigationController.swift
 //  MockKitUI
 //
 //  Created by Nathaniel Hamming on 2021-01-13.
@@ -9,18 +9,17 @@
 import UIKit
 import HealthKit
 import LoopKit
-import LoopKitUI
 
-final class MockCGMManagerSettingsNavigationController: SettingsNavigationViewController, PreferredGlucoseUnitObserver {
+final public class CGMManagerSettingsNavigationController: SettingsNavigationViewController, PreferredGlucoseUnitObserver {
 
-    private var rootViewController: MockCGMManagerSettingsViewController
+    private var rootViewController: UIViewController & PreferredGlucoseUnitObserver
 
-    init(rootViewController: MockCGMManagerSettingsViewController) {
+    public init(rootViewController: UIViewController & PreferredGlucoseUnitObserver) {
         self.rootViewController = rootViewController
         super.init(rootViewController: rootViewController)
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
