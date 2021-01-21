@@ -10,7 +10,7 @@ import os.log
 
 public extension Notification.Name {
     // used to avoid potential timing issues since a unit change triggers a cache refresh and all stores pull the current unit from the cache
-    static let HealthStoreUnitDidChange = Notification.Name(rawValue:  "com.loopKit.notification.HealthStoreUnitDidChange")
+    static let HealthStorePreferredGlucoseUnitDidChange = Notification.Name(rawValue:  "com.loopKit.notification.HealthStorePreferredGlucoseUnitDidChange")
 }
 
 public class HealthStoreUnitCache {
@@ -30,13 +30,10 @@ public class HealthStoreUnitCache {
     private init(healthStore: HKHealthStore) {
         self.healthStore = healthStore
 
-        userPreferencesChangeObserver = NotificationCenter.default.addObserver(forName: .HKUserPreferencesDidChange, object: healthStore, queue: nil, using: { [weak self] (_) in
-            _ = self?.unitCache.mutate({ (cache) in
-                cache.removeAll()
-                DispatchQueue.global().async {
-                    NotificationCenter.default.post(name: .HealthStoreUnitDidChange, object: healthStore)
-                }
-            })
+        userPreferencesChangeObserver = NotificationCenter.default.addObserver(forName: .HKUserPreferencesDidChange, object: healthStore, queue: nil, using: { [weak self] _ in
+            DispatchQueue.global().async {
+                self?.updateCachedUnits()
+            }
         })
     }
 
@@ -59,6 +56,14 @@ public class HealthStoreUnitCache {
             return unit
         }
 
+        guard let unit = getHealthStoreUnitAndUpdateCache(for: quantityTypeIdentifier) else {
+            return nil
+        }
+
+        return unit
+    }
+
+    private func getHealthStoreUnitAndUpdateCache(for quantityTypeIdentifier: HKQuantityTypeIdentifier) -> HKUnit? {
         guard let quantityType = HKQuantityType.quantityType(forIdentifier: quantityTypeIdentifier) else {
             return nil
         }
@@ -74,15 +79,44 @@ public class HealthStoreUnitCache {
 
             unit = results[quantityType]
 
-            _ = self.unitCache.mutate({ (cache) in
-                cache[quantityTypeIdentifier] = unit
-            })
+            self.updateCache(for: quantityTypeIdentifier, with: unit)
 
             semaphore.signal()
         }
 
         _ = semaphore.wait(timeout: .now() + .seconds(3))
         return unit
+    }
+
+    private func updateCachedUnits() {
+        let quantityTypeIdentifiers = unitCache.value.keys
+        for quantityTypeIdentifier in quantityTypeIdentifiers {
+            _ = self.getHealthStoreUnitAndUpdateCache(for: quantityTypeIdentifier)
+        }
+    }
+
+    private func updateCache(for quantityTypeIdentifier: HKQuantityTypeIdentifier, with unit: HKUnit?) {
+        guard unit != unitCache.value[quantityTypeIdentifier] else {
+            return
+        }
+
+        _ = self.unitCache.mutate({ (cache) in
+            cache[quantityTypeIdentifier] = unit
+            var notificationName: Notification.Name? = nil
+            switch quantityTypeIdentifier {
+            case .bloodGlucose:
+                // currently only changes to glucose unit is reported
+                notificationName = .HealthStorePreferredGlucoseUnitDidChange
+            default:
+                break
+            }
+
+            if let notificationName = notificationName {
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: notificationName, object: self.healthStore)
+                }
+            }
+        })
     }
 
     deinit {
