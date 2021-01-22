@@ -98,19 +98,14 @@ public class HealthStoreUnitCache {
             }
 
             cache[quantityTypeIdentifier] = unit
-            var notificationName: Notification.Name? = nil
             switch quantityTypeIdentifier {
             case .bloodGlucose:
                 // currently only changes to glucose unit is reported
-                notificationName = .HealthStorePreferredGlucoseUnitDidChange
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .HealthStorePreferredGlucoseUnitDidChange, object: self.healthStore)
+                }
             default:
                 break
-            }
-
-            if let notificationName = notificationName {
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: notificationName, object: self.healthStore)
-                }
             }
         })
     }
