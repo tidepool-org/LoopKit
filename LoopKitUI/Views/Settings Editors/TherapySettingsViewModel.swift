@@ -26,7 +26,7 @@ public class TherapySettingsViewModel: ObservableObject {
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
     
-    @Published var preferredGlucoseUnit: HKUnit
+    @Published public var preferredGlucoseUnit: HKUnit
 
     lazy private var cancellables = Set<AnyCancellable>()
     
@@ -53,18 +53,6 @@ public class TherapySettingsViewModel: ObservableObject {
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
         self.chartColors = chartColors
         self.didSave = didSave
-
-        // TESTING switches glucose unit every 2 seconds. Remove once therapy settings UI is updating as expected
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { timer in
-            switch self.preferredGlucoseUnit {
-            case .milligramsPerDeciliter:
-                print("!!! switching to mmol/L")
-                self.preferredGlucoseUnit = .millimolesPerLiter
-            default:
-                print("!!! switching to mg/dL")
-                self.preferredGlucoseUnit = .milligramsPerDeciliter
-            }
-        }
     }
 
     var deliveryLimits: DeliveryLimits {
@@ -126,5 +114,60 @@ public class TherapySettingsViewModel: ObservableObject {
     public func saveInsulinSensitivitySchedule(insulinSensitivitySchedule: InsulinSensitivitySchedule) {
         therapySettings.insulinSensitivitySchedule = insulinSensitivitySchedule
         didSave?(TherapySetting.insulinSensitivity, therapySettings)
+    }
+}
+
+// MARK: Navigation
+
+extension TherapySettingsViewModel {
+
+    func screen(for setting: TherapySetting) -> (_ goBack: @escaping () -> Void) -> AnyView {
+        switch setting {
+        case .suspendThreshold:
+            return { goBack in
+                AnyView(SuspendThresholdEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+            }
+        case .glucoseTargetRange:
+            return { goBack in
+                AnyView(CorrectionRangeScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+            }
+        case .preMealCorrectionRangeOverride:
+            return { goBack in
+                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .preMeal, didSave: goBack).environment(\.dismiss, goBack))
+            }
+        case .workoutCorrectionRangeOverride:
+            return { goBack in
+                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .workout, didSave: goBack).environment(\.dismiss, goBack))
+            }
+        case .basalRate:
+            if self.pumpSupportedIncrements?() != nil {
+                return { goBack in
+                    AnyView(BasalRateScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+                }
+            }
+        case .deliveryLimits:
+            if self.pumpSupportedIncrements?() != nil {
+                return { goBack in
+                    AnyView(DeliveryLimitsEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+                }
+            }
+        case .insulinModel:
+            if self.therapySettings.insulinModelSettings != nil {
+                return { goBack in
+                    AnyView(InsulinModelSelection(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+                }
+            }
+        case .carbRatio:
+            return { goBack in
+                AnyView(CarbRatioScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+            }
+        case .insulinSensitivity:
+            return { goBack in
+                return AnyView(InsulinSensitivityScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+            }
+        case .none:
+            break
+        }
+        return { _ in AnyView(Text("\(setting.title)")) }
     }
 }
