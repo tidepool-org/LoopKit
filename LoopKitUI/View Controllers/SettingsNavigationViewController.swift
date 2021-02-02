@@ -34,7 +34,7 @@ open class CGMManagerSettingsNavigationViewController: SettingsNavigationViewCon
     }
 
     open func notifySetup(cgmManager: CGMManagerUI) {
-        cgmManagerOnboardDelegate?.cgmManagerOnboardNotifying(self, didOnboardCGMManager: cgmManager)
+        cgmManagerOnboardDelegate?.cgmManagerOnboardNotifying(didOnboardCGMManager: cgmManager)
     }
 
     open func preferredGlucoseUnitDidChange(to preferredGlucoseUnit: HKUnit) {
@@ -46,8 +46,8 @@ open class PumpManagerSettingsNavigationViewController: SettingsNavigationViewCo
 
     open weak var pumpManagerOnboardDelegate: PumpManagerOnboardDelegate?
 
-    open func notifySetup(pumpManager: PumpManagerUI, withFinalSettings settings: PumpManagerSettings) {
-        pumpManagerOnboardDelegate?.pumpManagerOnboardNotifying(self, didOnboardPumpManager: pumpManager, withFinalSettings: settings)
+    open func notifySetup(pumpManager: PumpManagerUI, withFinalSettings settings: PumpManagerSetupSettings) {
+        pumpManagerOnboardDelegate?.pumpManagerOnboardNotifying(didOnboardPumpManager: pumpManager, withFinalSettings: settings)
     }
 
 }

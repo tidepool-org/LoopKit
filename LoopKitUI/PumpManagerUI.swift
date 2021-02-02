@@ -9,7 +9,17 @@ import UIKit
 import SwiftUI
 import LoopKit
 
-public struct PumpManagerSettings {
+public struct PumpManagerDescriptor {
+    public let identifier: String
+    public let localizedTitle: String
+
+    public init(identifier: String, localizedTitle: String) {
+        self.identifier = identifier
+        self.localizedTitle = localizedTitle
+    }
+}
+
+public struct PumpManagerSetupSettings {
     public var maxBasalRateUnitsPerHour: Double?
     public var maxBolusUnits: Double?
     public var basalSchedule: BasalRateSchedule?
@@ -27,13 +37,12 @@ public protocol PumpManagerUI: DeviceManagerUI, PumpManager, DeliveryLimitSettin
     /// - Parameters:
     ///     - settings: Settings used to configure the pump manager.
     ///     - colorPalette: Color palette to use for any UI.
-    /// - Returns: Either a conforming view controller to create and onboard the pump manager, a newly created and onboarded pump manager, or an error.
-    static func setupViewController(initialSettings settings: PumpManagerSettings, colorPalette: LoopUIColorPalette) -> UIResult<UIViewController & PumpManagerCreateNotifying & PumpManagerOnboardNotifying & CompletionNotifying, PumpManagerUI, Error>
+    /// - Returns: Either a conforming view controller to create and onboard the pump manager or a newly created and onboarded pump manager.
+    static func setupViewController(initialSettings settings: PumpManagerSetupSettings, colorPalette: LoopUIColorPalette) -> SetupUIResult<UIViewController & PumpManagerCreateNotifying & PumpManagerOnboardNotifying & CompletionNotifying, PumpManagerUI>
 
     /// Configure settings for an existing pump manager.
     ///
     /// - Parameters:
-    ///     - glucoseUnit: The glucose units to use.
     ///     - colorPalette: Color palette to use for any UI.
     /// - Returns: A view controller to configure an existing pump manager.
     func settingsViewController(colorPalette: LoopUIColorPalette) -> (UIViewController & PumpManagerOnboardNotifying & CompletionNotifying)
@@ -53,7 +62,7 @@ public protocol PumpManagerCreateDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - pumpManager: The pump manager created.
-    func pumpManagerCreateNotifying(_ notifying: PumpManagerCreateNotifying, didCreatePumpManager pumpManager: PumpManagerUI)
+    func pumpManagerCreateNotifying(didCreatePumpManager pumpManager: PumpManagerUI)
 }
 
 public protocol PumpManagerCreateNotifying {
@@ -66,7 +75,7 @@ public protocol PumpManagerOnboardDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - pumpManager: The pump manager onboarded.
-    func pumpManagerOnboardNotifying(_ notifying: PumpManagerOnboardNotifying, didOnboardPumpManager pumpManager: PumpManagerUI, withFinalSettings settings: PumpManagerSettings)
+    func pumpManagerOnboardNotifying(didOnboardPumpManager pumpManager: PumpManagerUI, withFinalSettings settings: PumpManagerSetupSettings)
 }
 
 public protocol PumpManagerOnboardNotifying {

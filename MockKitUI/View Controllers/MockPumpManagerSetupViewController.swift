@@ -47,12 +47,12 @@ final class MockPumpManagerSetupViewController: UINavigationController, PumpMana
     }
 
     func completeSetup() {
-        pumpManagerCreateDelegate?.pumpManagerCreateNotifying(self, didCreatePumpManager: pumpManager)
+        pumpManagerCreateDelegate?.pumpManagerCreateNotifying(didCreatePumpManager: pumpManager)
 
-        let settings = PumpManagerSettings(maxBasalRateUnitsPerHour: maxBasalRateUnitsPerHour,
+        let settings = PumpManagerSetupSettings(maxBasalRateUnitsPerHour: maxBasalRateUnitsPerHour,
                                            maxBolusUnits: maxBolusUnits,
                                            basalSchedule: basalSchedule)
-        pumpManagerOnboardDelegate?.pumpManagerOnboardNotifying(self, didOnboardPumpManager: pumpManager, withFinalSettings: settings)
+        pumpManagerOnboardDelegate?.pumpManagerOnboardNotifying(didOnboardPumpManager: pumpManager, withFinalSettings: settings)
         
         completionDelegate?.completionNotifyingDidComplete(self)
     }

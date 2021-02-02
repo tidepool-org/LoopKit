@@ -17,7 +17,10 @@ public protocol SupportInfoProvider {
     func generateIssueReport(completion: @escaping (String) -> Void)
 }
 
-public protocol SupportUI: Support {
+public protocol SupportUI {
+    /// The unique identifier of this type of support.
+    var supportIdentifier: String { get }
+
     /// Provides support menu item.
     ///
     /// - Parameters:

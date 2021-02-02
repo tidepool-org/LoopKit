@@ -14,16 +14,16 @@ open class ServiceViewController: UINavigationController, ServiceCreateNotifying
     public weak var completionDelegate: CompletionDelegate?
 
     public func notifyServiceCreated(_ service: Service) {
-        serviceCreateDelegate?.serviceCreateNotifying(self, didCreateService: service)
+        serviceCreateDelegate?.serviceCreateNotifying(didCreateService: service)
     }
 
-    public func notifyServiceSetup(_ service: Service) {
-        serviceOnboardDelegate?.serviceOnboardNotifying(self, didOnboardService: service)
+    public func notifyServiceOnboarded(_ service: Service) {
+        serviceOnboardDelegate?.serviceOnboardNotifying(didOnboardService: service)
     }
 
-    public func notifyServiceCreatedAndSetup(_ service: ServiceUI) {
+    public func notifyServiceCreatedAndOnboarded(_ service: ServiceUI) {
         notifyServiceCreated(service)
-        notifyServiceSetup(service)
+        notifyServiceOnboarded(service)
     }
 
     public func notifyComplete() {

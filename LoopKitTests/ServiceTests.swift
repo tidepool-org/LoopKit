@@ -51,7 +51,7 @@ fileprivate class TestService: Service {
     var isOnboarded = true
 
     func delete() {
-        serviceDelegate?.serviceWasDeleted(self)
+        serviceDelegate?.serviceWantsDeletion(self)
     }
 
 }

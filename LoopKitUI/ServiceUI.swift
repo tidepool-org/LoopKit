@@ -9,6 +9,16 @@
 import SwiftUI
 import LoopKit
 
+public struct ServiceDescriptor {
+    public let identifier: String
+    public let localizedTitle: String
+
+    public init(identifier: String, localizedTitle: String) {
+        self.identifier = identifier
+        self.localizedTitle = localizedTitle
+    }
+}
+
 public protocol ServiceUI: Service {
     /// The image for this type of service.
     static var image: UIImage? { get }
@@ -17,13 +27,12 @@ public protocol ServiceUI: Service {
     ///
     /// - Parameters:
     ///     - colorPalette: Color palette to use for any UI.
-    /// - Returns: Either a conforming view controller to create and onboard the service, a newly created and onboarded service, or an error.
-    static func setupViewController(colorPalette: LoopUIColorPalette) -> UIResult<UIViewController & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying, ServiceUI, Error>
+    /// - Returns: Either a conforming view controller to create and onboard the service or a newly created and onboarded service.
+    static func setupViewController(colorPalette: LoopUIColorPalette) -> SetupUIResult<UIViewController & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying, ServiceUI>
 
     /// Configure settings for an existing service.
     ///
     /// - Parameters:
-    ///     - glucoseUnit: The glucose units to use.
     ///     - colorPalette: Color palette to use for any UI.
     /// - Returns: A view controller to configure an existing service.
     func settingsViewController(colorPalette: LoopUIColorPalette) -> (UIViewController & ServiceOnboardNotifying & CompletionNotifying)
@@ -38,7 +47,7 @@ public protocol ServiceCreateDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - service: The service created.
-    func serviceCreateNotifying(_ notifying: ServiceCreateNotifying, didCreateService service: Service)
+    func serviceCreateNotifying(didCreateService service: Service)
 }
 
 public protocol ServiceCreateNotifying {
@@ -51,7 +60,7 @@ public protocol ServiceOnboardDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - service: The service onboarded.
-    func serviceOnboardNotifying(_ notifying: ServiceOnboardNotifying, didOnboardService service: Service)
+    func serviceOnboardNotifying(didOnboardService service: Service)
 }
 
 public protocol ServiceOnboardNotifying {

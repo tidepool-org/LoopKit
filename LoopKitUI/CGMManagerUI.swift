@@ -9,21 +9,31 @@ import HealthKit
 import SwiftUI
 import LoopKit
 
+public struct CGMManagerDescriptor {
+    public let identifier: String
+    public let localizedTitle: String
+
+    public init(identifier: String, localizedTitle: String) {
+        self.identifier = identifier
+        self.localizedTitle = localizedTitle
+    }
+}
+
 public protocol CGMManagerUI: CGMManager, DeviceManagerUI, PreferredGlucoseUnitObserver {
     /// Create and onboard a new CGM manager.
     ///
     /// - Parameters:
     ///     - colorPalette: Color palette to use for any UI.
-    /// - Returns: Either a conforming view controller to create and onboard the CGM manager, a newly created and onboarded CGM manager, or an error.
-    static func setupViewController(colorPalette: LoopUIColorPalette) -> UIResult<UIViewController & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & CompletionNotifying, CGMManagerUI, Error>
+    /// - Returns: Either a conforming view controller to create and onboard the CGM manager or a newly created and onboarded CGM manager.
+    static func setupViewController(colorPalette: LoopUIColorPalette) -> SetupUIResult<UIViewController & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & CompletionNotifying, CGMManagerUI>
 
     /// Configure settings for an existing CGM manager.
     ///
     /// - Parameters:
-    ///     - glucoseUnit: The glucose units to use.
+    ///     - preferredGlucoseUnit: The preferred glucose units to use.
     ///     - colorPalette: Color palette to use for any UI.
     /// - Returns: A view controller to configure an existing CGM manager.
-    func settingsViewController(for glucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & PreferredGlucoseUnitObserver & CompletionNotifying)
+    func settingsViewController(for preferredGlucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & PreferredGlucoseUnitObserver & CompletionNotifying)
 
     /// a message from the cgm that needs to be brought to the user's attention in the status bar
     var cgmStatusHighlight: DeviceStatusHighlight? { get }
@@ -51,7 +61,7 @@ public protocol CGMManagerCreateDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - cgmManager: The cgm manager created.
-    func cgmManagerCreateNotifying(_ notifying: CGMManagerCreateNotifying, didCreateCGMManager cgmManager: CGMManagerUI)
+    func cgmManagerCreateNotifying(didCreateCGMManager cgmManager: CGMManagerUI)
 }
 
 public protocol CGMManagerCreateNotifying {
@@ -64,7 +74,7 @@ public protocol CGMManagerOnboardDelegate: AnyObject {
     ///
     /// - Parameters:
     ///     - cgmManager: The cgm manager onboarded.
-    func cgmManagerOnboardNotifying(_ notifying: CGMManagerOnboardNotifying, didOnboardCGMManager cgmManager: CGMManagerUI)
+    func cgmManagerOnboardNotifying(didOnboardCGMManager cgmManager: CGMManagerUI)
 }
 
 public protocol CGMManagerOnboardNotifying {

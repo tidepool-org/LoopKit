@@ -7,17 +7,6 @@
 
 import HealthKit
 
-
-public struct CGMManagerDescriptor {
-    public let identifier: String
-    public let localizedTitle: String
-
-    public init(identifier: String, localizedTitle: String) {
-        self.identifier = identifier
-        self.localizedTitle = localizedTitle
-    }
-}
-
 /// Describes the result of CGM manager operations to fetch and report sensor readings.
 ///
 /// - noData: No new data was available or retrieved

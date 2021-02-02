@@ -66,7 +66,7 @@ public final class MockService: Service {
     }
     
     public func completeDelete() {
-        serviceDelegate?.serviceWasDeleted(self)
+        serviceDelegate?.serviceWantsDeletion(self)
     }
     
     public func clearHistory() {

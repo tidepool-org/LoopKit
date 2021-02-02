@@ -6,16 +6,6 @@
 //  Copyright © 2019 LoopKit Authors. All rights reserved.
 //
 
-public struct ServiceDescriptor {
-    public let identifier: String
-    public let localizedTitle: String
-
-    public init(identifier: String, localizedTitle: String) {
-        self.identifier = identifier
-        self.localizedTitle = localizedTitle
-    }
-}
-
 public protocol ServiceDelegate: AnyObject {
     /// Informs the delegate that the state of the specified service was updated and the delegate should persist the service. May
     /// be invoked prior to the service completing setup.
@@ -24,11 +14,11 @@ public protocol ServiceDelegate: AnyObject {
     ///     - service: The service that updated state.
     func serviceDidUpdateState(_ service: Service)
 
-    /// Informs the delegate that the service was deleted.
+    /// Informs the delegate that the service wants deletion.
     ///
     /// - Parameters:
-    ///     - service: The service that was deleted.
-    func serviceWasDeleted(_ service: Service)
+    ///     - service: The service that wants deletion.
+    func serviceWantsDeletion(_ service: Service)
 }
 
 public protocol Service: AnyObject {
