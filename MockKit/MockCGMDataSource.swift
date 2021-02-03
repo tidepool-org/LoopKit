@@ -143,11 +143,11 @@ extension MockCGMDataSource.Model: RawRepresentable {
     public typealias RawValue = [String: Any]
 
     private enum Kind: String {
-        case constant = "constant"
-        case sineCurve = "sineCurve"
-        case noData = "noData"
-        case signalLoss = "signalLoss"
-        case unreliableData = "unreliableData"
+        case constant
+        case sineCurve
+        case noData
+        case signalLoss
+        case unreliableData
     }
 
     private static let unit = HKUnit.milligramsPerDeciliter
