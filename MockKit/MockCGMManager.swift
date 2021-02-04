@@ -434,6 +434,8 @@ public final class MockCGMManager: TestingCGMManager {
                 self.logDeviceComms(.receive, message: "New data received: \(samples)")
             case .noData:
                 self.logDeviceComms(.receive, message: "No new data")
+            case .deviceStatus:
+                self.logDeviceComms(.receive, message: "New device status")
             }
             completion(result)
         }
@@ -450,6 +452,8 @@ public final class MockCGMManager: TestingCGMManager {
                 self.logDeviceComms(.receive, message: "Backfill data: \(samples)")
             case .noData:
                 self.logDeviceComms(.receive, message: "Backfill empty")
+            case .deviceStatus:
+                break
             }
             self.sendCGMReadingResult(result)
         }
@@ -555,7 +559,7 @@ extension MockCGMManager {
         }
 
         // trigger display of the status highlight
-        sendCGMReadingResult(.noData)
+        sendCGMReadingResult(.deviceStatus)
     }
     
     private func registerBackgroundTask() {

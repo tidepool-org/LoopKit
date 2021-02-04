@@ -13,10 +13,12 @@ import HealthKit
 /// - noData: No new data was available or retrieved
 /// - newData: New glucose data was received and stored
 /// - error: An error occurred while receiving or store data
+/// - deviceStatus: Device has updated with new status (possibly other than new data)
 public enum CGMReadingResult {
     case noData
     case newData([NewGlucoseSample])
     case error(Error)
+    case deviceStatus
 }
 
 public struct CGMManagerStatus {
