@@ -55,10 +55,6 @@ public final class MockService: Service {
     
     public let isOnboarded = true   // No distinction between created and onboarded
 
-    public func delete() {
-        completeDelete()
-    }
-
     public func completeCreate() {}
     
     public func completeUpdate() {

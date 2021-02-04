@@ -44,9 +44,6 @@ public protocol Service: AnyObject {
 
     /// Is the service onboarded and ready for use?
     var isOnboarded: Bool { get }
-
-    /// Delete the service.
-    func delete()
 }
 
 public extension Service {
