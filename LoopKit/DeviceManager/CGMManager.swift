@@ -16,6 +16,7 @@ import HealthKit
 /// - deviceStatus: Device has updated with new status (possibly other than new data)
 public enum CGMReadingResult {
     case noData
+    case unreliableData
     case newData([NewGlucoseSample])
     case error(Error)
     case deviceStatus
