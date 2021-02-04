@@ -68,7 +68,7 @@ public protocol OnboardingNotifying: AnyObject {
     var onboardingDelegate: OnboardingDelegate? { get set }
 }
 
-public typealias OnboardingViewController = (UIViewController & OnboardingNotifying & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & PumpManagerCreateNotifying & PumpManagerOnboardNotifying & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying)
+public typealias OnboardingViewController = (OnboardingNotifying & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & PumpManagerCreateNotifying & PumpManagerOnboardNotifying & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying)
 
 public protocol OnboardingUI {
     /// The unique identifier of this type of onboarding.
@@ -92,5 +92,5 @@ public protocol OnboardingUI {
                                   cgmManagerProvider: CGMManagerProvider,
                                   pumpManagerProvider: PumpManagerProvider,
                                   serviceProvider: ServiceProvider,
-                                  colorPalette: LoopUIColorPalette) -> OnboardingViewController
+                                  colorPalette: LoopUIColorPalette) -> (UIViewController & OnboardingViewController)
 }

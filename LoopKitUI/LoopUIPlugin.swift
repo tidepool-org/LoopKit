@@ -22,6 +22,6 @@ public protocol OnboardingUIPlugin {
     var onboardingType: OnboardingUI.Type? { get }
 }
 
-public protocol SupportUIExtension {
+public protocol SupportUIPlugin {
     var support: SupportUI { get }
 }
