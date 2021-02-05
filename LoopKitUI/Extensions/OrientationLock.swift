@@ -14,8 +14,6 @@ public protocol DeviceOrientationController: AnyObject {
     func setOriginallySupportedInferfaceOrientations()
 }
 
-/// A class whose lifetime defines the application's supported interface orientations.
-///
 /// Use the `supportedInterfaceOrientations` modifier on a SwiftUI view to lock its orientation.
 /// To function, `OrientationLock.deviceOrientationController` must be assigned prior to use.
 public final class OrientationLock {
@@ -55,6 +53,7 @@ private struct OrientationLocked<Content: View>: View {
         self.content = content
     }
 
+    // when view disappears, it reverts to the originally support orientations
     var body: some View {
         content
             .onDisappear { orientationLock.setOriginallySupportedInferfaceOrientations() }
