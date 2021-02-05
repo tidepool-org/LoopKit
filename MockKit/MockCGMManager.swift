@@ -301,7 +301,7 @@ public final class MockCGMManager: TestingCGMManager {
         return mockSensorState
     }
     
-    public var cgmStatus: CGMManagerStatus {
+    public var cgmManagerStatus: CGMManagerStatus {
         return CGMManagerStatus(hasValidSensorSession: dataSource.isValidSession)
     }
     
@@ -337,7 +337,7 @@ public final class MockCGMManager: TestingCGMManager {
         didSet {
             delegate.notify { (delegate) in
                 delegate?.cgmManagerDidUpdateState(self)
-                delegate?.cgmManager(self, didUpdate: self.cgmStatus)
+                self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
             }
         }
     }
@@ -346,6 +346,27 @@ public final class MockCGMManager: TestingCGMManager {
 
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
+    // MARK: Handling CGM Manager Status observers
+    
+    private var statusObservers = WeakSynchronizedSet<CGMManagerStatusObserver>()
+
+    public func addStatusObserver(_ observer: CGMManagerStatusObserver, queue: DispatchQueue) {
+        statusObservers.insert(observer, queue: queue)
+    }
+
+    public func removeStatusObserver(_ observer: CGMManagerStatusObserver) {
+        statusObservers.removeElement(observer)
+    }
+    
+    private func notifyStatusObservers(cgmManagerStatus: CGMManagerStatus) {
+        delegate.notify { delegate in
+            delegate?.cgmManager(self, didUpdate: self.cgmManagerStatus)
+        }
+        statusObservers.forEach { observer in
+            observer.cgmManager(self, didUpdate: cgmManagerStatus)
+        }
+    }
+    
     public init?(rawState: RawStateValue) {
         if let mockSensorStateRawValue = rawState["mockSensorState"] as? MockCGMState.RawValue,
             let mockSensorState = MockCGMState(rawValue: mockSensorStateRawValue) {
