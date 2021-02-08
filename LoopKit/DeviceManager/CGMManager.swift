@@ -29,8 +29,8 @@ public struct CGMManagerStatus {
     }
 }
 
-public protocol CGMManagerStatusObserver: class {
-    /// Notifies observes of changes in CGMManagerStatus
+public protocol CGMManagerStatusObserver: AnyObject {
+    /// Notifies observers of changes in CGMManagerStatus
     ///
     /// - Parameter manager: The manager instance
     /// - Parameter status: The new, updated status. Status includes properties associated with the manager, transmitter, or sensor,
