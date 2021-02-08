@@ -291,9 +291,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public var mockSensorState: MockCGMState {
         didSet {
-            delegate.notify { (delegate) in
-                delegate?.cgmManagerDidUpdateState(self)
-            }
+            self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
         }
     }
 
@@ -335,10 +333,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public var dataSource: MockCGMDataSource {
         didSet {
-            delegate.notify { (delegate) in
-                delegate?.cgmManagerDidUpdateState(self)
-                self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
-            }
+            self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
         }
     }
 
@@ -360,6 +355,7 @@ public final class MockCGMManager: TestingCGMManager {
     
     private func notifyStatusObservers(cgmManagerStatus: CGMManagerStatus) {
         delegate.notify { delegate in
+            delegate?.cgmManagerDidUpdateState(self)
             delegate?.cgmManager(self, didUpdate: self.cgmManagerStatus)
         }
         statusObservers.forEach { observer in
@@ -578,9 +574,6 @@ extension MockCGMManager {
             // restore signal loss status highlight
             issueSignalLossAlert()
         }
-
-        // trigger display of the status highlight
-        sendCGMReadingResult(.noData)
     }
     
     private func registerBackgroundTask() {
