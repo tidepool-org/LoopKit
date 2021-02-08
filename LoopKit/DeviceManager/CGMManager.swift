@@ -130,4 +130,12 @@ public extension CGMManager {
             completion()
         }
     }
+    
+    func addStatusObserver(_ observer: CGMManagerStatusObserver, queue: DispatchQueue) {
+        // optional since a CGM manager may not support status observers
+    }
+
+    func removeStatusObserver(_ observer: CGMManagerStatusObserver) {
+        // optional since a CGM manager may not support status observers
+    }
 }
