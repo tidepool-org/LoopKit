@@ -291,9 +291,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public var mockSensorState: MockCGMState {
         didSet {
-            delegate.notify { (delegate) in
-                delegate?.cgmManagerDidUpdateState(self)
-            }
+            self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
         }
     }
 
@@ -301,7 +299,7 @@ public final class MockCGMManager: TestingCGMManager {
         return mockSensorState
     }
     
-    public var cgmStatus: CGMManagerStatus {
+    public var cgmManagerStatus: CGMManagerStatus {
         return CGMManagerStatus(hasValidSensorSession: dataSource.isValidSession)
     }
     
@@ -335,10 +333,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public var dataSource: MockCGMDataSource {
         didSet {
-            delegate.notify { (delegate) in
-                delegate?.cgmManagerDidUpdateState(self)
-                delegate?.cgmManager(self, didUpdate: self.cgmStatus)
-            }
+            self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
         }
     }
 
@@ -352,6 +347,28 @@ public final class MockCGMManager: TestingCGMManager {
         setupGlucoseUpdateTimer()
     }
 
+    // MARK: Handling CGM Manager Status observers
+    
+    private var statusObservers = WeakSynchronizedSet<CGMManagerStatusObserver>()
+
+    public func addStatusObserver(_ observer: CGMManagerStatusObserver, queue: DispatchQueue) {
+        statusObservers.insert(observer, queue: queue)
+    }
+
+    public func removeStatusObserver(_ observer: CGMManagerStatusObserver) {
+        statusObservers.removeElement(observer)
+    }
+    
+    private func notifyStatusObservers(cgmManagerStatus: CGMManagerStatus) {
+        delegate.notify { delegate in
+            delegate?.cgmManagerDidUpdateState(self)
+            delegate?.cgmManager(self, didUpdate: self.cgmManagerStatus)
+        }
+        statusObservers.forEach { observer in
+            observer.cgmManager(self, didUpdate: cgmManagerStatus)
+        }
+    }
+    
     public init?(rawState: RawStateValue) {
         if let mockSensorStateRawValue = rawState["mockSensorState"] as? MockCGMState.RawValue,
             let mockSensorState = MockCGMState(rawValue: mockSensorStateRawValue) {
@@ -440,6 +457,8 @@ public final class MockCGMManager: TestingCGMManager {
                 self.logDeviceComms(.error, message: "Error fetching new data: \(error)")
             case .newData(let samples):
                 self.logDeviceComms(.receive, message: "New data received: \(samples)")
+            case .unreliableData:
+                self.logDeviceComms(.receive, message: "Unreliable data received")
             case .noData:
                 self.logDeviceComms(.receive, message: "No new data")
             }
@@ -456,6 +475,8 @@ public final class MockCGMManager: TestingCGMManager {
                 self.logDeviceComms(.error, message: "Backfill error: \(error)")
             case .newData(let samples):
                 self.logDeviceComms(.receive, message: "Backfill data: \(samples)")
+            case .unreliableData:
+                self.logDeviceComms(.receive, message: "Backfill data unreliable")
             case .noData:
                 self.logDeviceComms(.receive, message: "Backfill empty")
             }
@@ -561,9 +582,6 @@ extension MockCGMManager {
             // restore signal loss status highlight
             issueSignalLossAlert()
         }
-
-        // trigger display of the status highlight
-        sendCGMReadingResult(.noData)
     }
     
     private func registerBackgroundTask() {
