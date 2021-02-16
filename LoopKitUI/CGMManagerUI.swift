@@ -17,6 +17,9 @@ public protocol CGMManagerUI: CGMManager, DeviceManagerUI, PreferredGlucoseUnitO
 
     func settingsViewController(for glucoseUnit: HKUnit, glucoseTintColor: Color, guidanceColors: GuidanceColors) -> (UIViewController & CompletionNotifying & PreferredGlucoseUnitObserver)
 
+    /// a badge from the cgm that needs to be brought to the user's attention in the status bar
+    var cgmStatusBadge: DeviceStatusBadge? { get }
+    
     /// a message from the cgm that needs to be brought to the user's attention in the status bar
     var cgmStatusHighlight: DeviceStatusHighlight? { get }
     
