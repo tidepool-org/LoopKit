@@ -225,7 +225,12 @@ public struct MockCGMStatusBadge: DeviceStatusBadge {
     }
     
     public var state: DeviceStatusBadgeState {
-        return .warning
+        switch badgeType {
+        case .lowBattery:
+            return .critical
+        case .calibrationRequested:
+            return .warning
+        }
     }
     
     public var badgeType: MockCGMStatusBadgeType
