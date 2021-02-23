@@ -32,7 +32,7 @@ extension GlucoseTrend {
     public var filledImage: Image {
         switch self {
         case .upUpUp:
-            return Image(frameworkImage: "arrow.double.up.circle") // TODO: Filled version needed
+            return Image(frameworkImage: "arrow.double.up.fill")
         case .upUp:
             return Image(systemName: "arrow.up.circle.fill")
         case .up:
