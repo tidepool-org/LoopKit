@@ -44,7 +44,7 @@ extension GlucoseTrend {
         case .downDown:
             return Image(systemName: "arrow.down.circle.fill")
         case .downDownDown:
-            return Image(frameworkImage: "arrow.double.down.circle") // TODO: Filled version needed
+            return Image(frameworkImage: "arrow.double.down.fill")
         }
     }
     
