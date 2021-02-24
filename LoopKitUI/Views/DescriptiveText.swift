@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public struct  DescriptiveText: View {
+public struct DescriptiveText: View {
     var label: String
     let color: Color
     
