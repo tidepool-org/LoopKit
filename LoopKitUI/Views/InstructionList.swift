@@ -22,9 +22,10 @@ public struct InstructionList: View {
             ForEach(instructions.indices, id: \.self) { index in
                 HStack(alignment: .top) {
                     Text("\(index+1)")
+                        .opacity(isEnabled ? 1.0 : 0.8)
                         .padding(6)
                         .background(Circle().fill(Color.accentColor))
-                        .foregroundColor(isEnabled ? Color.white : Color.secondary)
+                        .foregroundColor(Color.white)
                         .font(.caption)
                         .accessibility(label: Text("\(index+1), ")) // Adds a pause after the number
                     Text(self.instructions[index])
