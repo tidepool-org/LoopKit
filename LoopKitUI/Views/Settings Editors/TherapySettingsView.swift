@@ -23,7 +23,7 @@ public struct TherapySettingsView: View {
         let localizedString: String
         let action: () -> Void
     }
-    
+
     @ObservedObject var viewModel: TherapySettingsViewModel
         
     private let actionButton: ActionButton?
@@ -454,61 +454,6 @@ struct SectionWithTapToEdit<Header, Content, NavigationDestination>: View where 
                 .onEnded { _ in
                     self.isActive = true
         })
-    }
-}
-
-// MARK: Navigation
-
-private extension TherapySettingsViewModel {
-    
-    func screen(for setting: TherapySetting) -> (_ goBack: @escaping () -> Void) -> AnyView {
-        switch setting {
-        case .suspendThreshold:
-            return { goBack in
-                AnyView(SuspendThresholdEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
-            }
-        case .glucoseTargetRange:
-            return { goBack in
-                AnyView(CorrectionRangeScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
-            }
-        case .preMealCorrectionRangeOverride:
-            return { goBack in
-                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .preMeal, didSave: goBack).environment(\.dismiss, goBack))
-            }
-        case .workoutCorrectionRangeOverride:
-            return { goBack in
-                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .workout, didSave: goBack).environment(\.dismiss, goBack))
-            }
-        case .basalRate:
-            if self.pumpSupportedIncrements?() != nil {
-                return { goBack in
-                    AnyView(BasalRateScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
-                }
-            }
-        case .deliveryLimits:
-            if self.pumpSupportedIncrements?() != nil {
-                return { goBack in
-                    AnyView(DeliveryLimitsEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
-                }
-            }
-        case .insulinModel:
-            if self.therapySettings.insulinModelSettings != nil {
-                return { goBack in
-                    AnyView(InsulinModelSelection(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
-                }
-            }
-        case .carbRatio:
-            return { goBack in
-                AnyView(CarbRatioScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
-            }
-        case .insulinSensitivity:
-            return { goBack in
-                return AnyView(InsulinSensitivityScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
-            }
-        case .none:
-            break
-        }
-        return { _ in AnyView(Text("\(setting.title)")) }
     }
 }
 
