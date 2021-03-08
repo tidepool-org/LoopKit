@@ -12,6 +12,7 @@ import LoopKit
 import SwiftUI
 
 public struct TherapySettingsView: View {
+    @EnvironmentObject private var preferredGlucoseUnit: PreferredGlucoseUnit
     @Environment(\.dismiss) var dismiss
     @Environment(\.appName) private var appName
 
@@ -323,7 +324,7 @@ extension TherapySettingsView {
 extension TherapySettingsView {
     
     private var glucoseUnit: HKUnit {
-        viewModel.preferredGlucoseUnit
+        preferredGlucoseUnit.unit
     }
     
     private var sensitivityUnit: HKUnit {
@@ -484,7 +485,6 @@ public struct TherapySettingsView_Previews: PreviewProvider {
     static func preview_viewModel(mode: SettingsPresentationMode) -> TherapySettingsViewModel {
         TherapySettingsViewModel(mode: mode,
                                  therapySettings: preview_therapySettings,
-                                 preferredGlucoseUnit: .milligramsPerDeciliter,
                                  supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                                  pumpSupportedIncrements: { PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
                                                                                   bolusVolumes: preview_supportedBolusVolumes,
@@ -498,17 +498,18 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (onboarding)")
+                .environmentObject(PreferredGlucoseUnit(unit: .milligramsPerDeciliter))
             TherapySettingsView(viewModel: preview_viewModel(mode: .settings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (settings)")
+                .environmentObject(PreferredGlucoseUnit(unit: .milligramsPerDeciliter))
             TherapySettingsView(viewModel: preview_viewModel(mode: .settings))
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
                 .previewDisplayName("XS Max dark (settings)")
             TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .settings,
                                                                     therapySettings: TherapySettings(),
-                                                                    preferredGlucoseUnit: .milligramsPerDeciliter,
                                                                     chartColors: ChartColorPalette(axisLine: .clear,
                                                                                                    axisLabel: .secondaryLabel,
                                                                                                    grid: .systemGray3,
@@ -517,6 +518,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
+                .environmentObject(PreferredGlucoseUnit(unit: .millimolesPerLiter))
         }
     }
 }

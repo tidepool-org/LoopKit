@@ -732,6 +732,8 @@
 		B47ECFD625DC22D20024A54D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B47ECFD525DC22D20024A54D /* Assets.xcassets */; };
 		B47ECFE225DC3EFC0024A54D /* DeviceStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47ECFE125DC3EFC0024A54D /* DeviceStatusBadge.swift */; };
 		B485718F25B9FBDF0048A2A2 /* CGMManagerSettingsNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1162125AF398B006428DE /* CGMManagerSettingsNavigationController.swift */; };
+		B4994B6625ED869300D01C5D /* SuspendThresholdEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4994B6525ED869300D01C5D /* SuspendThresholdEditorViewModel.swift */; };
+		B4994B8925F6643400D01C5D /* PreferredGlucoseUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4994B8825F6643400D01C5D /* PreferredGlucoseUnit.swift */; };
 		B4A2AAB1240830A30066563F /* LabeledTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2AAB0240830A30066563F /* LabeledTextField.swift */; };
 		B4A2AAB3240832350066563F /* MultipleSelectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2AAB2240832350066563F /* MultipleSelectionList.swift */; };
 		B4AA27F224C1ECDC001B8AFA /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AA27F124C1ECDC001B8AFA /* UIColor.swift */; };
@@ -1528,6 +1530,8 @@
 		B47ECF8725DC20810024A54D /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		B47ECFD525DC22D20024A54D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B47ECFE125DC3EFC0024A54D /* DeviceStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStatusBadge.swift; sourceTree = "<group>"; };
+		B4994B6525ED869300D01C5D /* SuspendThresholdEditorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuspendThresholdEditorViewModel.swift; sourceTree = "<group>"; };
+		B4994B8825F6643400D01C5D /* PreferredGlucoseUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferredGlucoseUnit.swift; sourceTree = "<group>"; };
 		B4A2AAB0240830A30066563F /* LabeledTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabeledTextField.swift; sourceTree = "<group>"; };
 		B4A2AAB2240832350066563F /* MultipleSelectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSelectionList.swift; sourceTree = "<group>"; };
 		B4AA27F124C1ECDC001B8AFA /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
@@ -2057,6 +2061,7 @@
 				898E6E6B224194050019E459 /* UIColor.swift */,
 				A9012EB125BA3861000813AD /* SetupUIResult.swift */,
 				432CF86320D769070066B889 /* View Controllers */,
+				B4994B6425ED866100D01C5D /* ViewModels */,
 				4369F090208B0D68000E3E45 /* Views */,
 				1DD1964D248AE88000420876 /* HorizontalSizeClassOverride.swift */,
 				E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */,
@@ -2611,6 +2616,15 @@
 				B42A7471235885B600247B03 /* LoopNotificationUserInfoKey.swift */,
 			);
 			path = Notification;
+			sourceTree = "<group>";
+		};
+		B4994B6425ED866100D01C5D /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				B4994B6525ED869300D01C5D /* SuspendThresholdEditorViewModel.swift */,
+				B4994B8825F6643400D01C5D /* PreferredGlucoseUnit.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		B4CEE2E1257129780093111B /* MockKitTests */ = {
@@ -3392,6 +3406,7 @@
 				89E7E61024D11AB600591386 /* OrientationLock.swift in Sources */,
 				89B0B2AA2453C0AB0063D4A7 /* GuardrailConstraintedQuantityView.swift in Sources */,
 				898B4E75246CCAB50053C484 /* Binding.swift in Sources */,
+				B4994B8925F6643400D01C5D /* PreferredGlucoseUnit.swift in Sources */,
 				E9DFB92524E43CF500468917 /* ExpandableDatePicker.swift in Sources */,
 				892155182245FBEF009112BC /* InsulinSensitivityScalingTableViewCell.swift in Sources */,
 				892155132245C516009112BC /* SegmentedGaugeBarView.swift in Sources */,
@@ -3568,6 +3583,7 @@
 				43BA716B201E49220058961E /* CarbEntryValidationNavigationDelegate.swift in Sources */,
 				89AF78C02447E285002B4FCC /* CardStackBuilder.swift in Sources */,
 				43BA7185201EE7090058961E /* DailyValueScheduleTableViewController.swift in Sources */,
+				B4994B6625ED869300D01C5D /* SuspendThresholdEditorViewModel.swift in Sources */,
 				892A5DB32231E191008961AB /* LevelHUDView.swift in Sources */,
 				B41A60B223D1DBC700636320 /* UIFont.swift in Sources */,
 				B41A60AF23D1DB5B00636320 /* TableViewTitleLabel.swift in Sources */,

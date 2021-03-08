@@ -25,8 +25,6 @@ public class TherapySettingsViewModel: ObservableObject {
     let syncPumpSchedule: (() -> PumpManager.SyncSchedule?)?
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
-    
-    @Published public var preferredGlucoseUnit: HKUnit
 
     lazy private var cancellables = Set<AnyCancellable>()
     
@@ -34,7 +32,6 @@ public class TherapySettingsViewModel: ObservableObject {
 
     public init(mode: SettingsPresentationMode,
                 therapySettings: TherapySettings,
-                preferredGlucoseUnit: HKUnit,
                 supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
                 syncPumpSchedule: (() -> PumpManager.SyncSchedule?)? = nil,
@@ -45,7 +42,6 @@ public class TherapySettingsViewModel: ObservableObject {
         self.mode = mode
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
-        self.preferredGlucoseUnit = preferredGlucoseUnit
         self.pumpSupportedIncrements = pumpSupportedIncrements
         self.syncPumpSchedule = syncPumpSchedule
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
@@ -53,18 +49,10 @@ public class TherapySettingsViewModel: ObservableObject {
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
         self.chartColors = chartColors
         self.didSave = didSave
+    }
 
-        // TESTING switches glucose unit every 2 seconds. Remove once therapy settings UI is updating as expected
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { timer in
-            switch self.preferredGlucoseUnit {
-            case .milligramsPerDeciliter:
-                print("!!! switching to mmol/L")
-                self.preferredGlucoseUnit = .millimolesPerLiter
-            default:
-                print("!!! switching to mg/dL")
-                self.preferredGlucoseUnit = .milligramsPerDeciliter
-            }
-        }
+    var preferredGlucoseUnit: HKUnit {
+        therapySettings.glucoseUnit ?? .milligramsPerDeciliter
     }
 
     var deliveryLimits: DeliveryLimits {
@@ -97,7 +85,7 @@ public class TherapySettingsViewModel: ObservableObject {
     }
 
     public func saveSuspendThreshold(quantity: HKQuantity) {
-        let settingsGlucoseUnit = therapySettings.glucoseUnit ?? preferredGlucoseUnit
+        let settingsGlucoseUnit = therapySettings.glucoseUnit ?? .milligramsPerDeciliter
         therapySettings.suspendThreshold = GlucoseThreshold(unit: settingsGlucoseUnit, value: quantity.doubleValue(for: settingsGlucoseUnit))
         didSave?(TherapySetting.suspendThreshold, therapySettings)
     }
@@ -137,7 +125,7 @@ extension TherapySettingsViewModel {
         switch setting {
         case .suspendThreshold:
             return { goBack in
-                AnyView(SuspendThresholdEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+                AnyView(SuspendThresholdEditor(therapySettingsViewModel: self, didSave: goBack).environment(\.dismiss, goBack))
             }
         case .glucoseTargetRange:
             return { goBack in
