@@ -121,49 +121,49 @@ public class TherapySettingsViewModel: ObservableObject {
 
 extension TherapySettingsViewModel {
 
-    func screen(for setting: TherapySetting) -> (_ goBack: @escaping () -> Void) -> AnyView {
+    func screen(for setting: TherapySetting) -> (_ dimiss: @escaping () -> Void) -> AnyView {
         switch setting {
         case .suspendThreshold:
-            return { goBack in
-                AnyView(SuspendThresholdEditor(therapySettingsViewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+            return { dismiss in
+                AnyView(SuspendThresholdEditor(therapySettingsViewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .glucoseTargetRange:
-            return { goBack in
-                AnyView(CorrectionRangeScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+            return { dismiss in
+                AnyView(CorrectionRangeScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .preMealCorrectionRangeOverride:
-            return { goBack in
-                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .preMeal, didSave: goBack).environment(\.dismiss, goBack))
+            return { dismiss in
+                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .preMeal, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .workoutCorrectionRangeOverride:
-            return { goBack in
-                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .workout, didSave: goBack).environment(\.dismiss, goBack))
+            return { dismiss in
+                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .workout, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .basalRate:
             if self.pumpSupportedIncrements?() != nil {
-                return { goBack in
-                    AnyView(BasalRateScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+                return { dismiss in
+                    AnyView(BasalRateScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
                 }
             }
         case .deliveryLimits:
             if self.pumpSupportedIncrements?() != nil {
-                return { goBack in
-                    AnyView(DeliveryLimitsEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+                return { dismiss in
+                    AnyView(DeliveryLimitsEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
                 }
             }
         case .insulinModel:
             if self.therapySettings.insulinModelSettings != nil {
-                return { goBack in
-                    AnyView(InsulinModelSelection(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+                return { dismiss in
+                    AnyView(InsulinModelSelection(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
                 }
             }
         case .carbRatio:
-            return { goBack in
-                AnyView(CarbRatioScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+            return { dismiss in
+                AnyView(CarbRatioScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .insulinSensitivity:
-            return { goBack in
-                return AnyView(InsulinSensitivityScheduleEditor(viewModel: self, didSave: goBack).environment(\.dismiss, goBack))
+            return { dismiss in
+                return AnyView(InsulinSensitivityScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .none:
             break
