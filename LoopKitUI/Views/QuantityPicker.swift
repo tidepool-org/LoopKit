@@ -92,7 +92,7 @@ public struct QuantityPicker: View {
     private var selectedValue: Binding<Double> {
         Binding(
             get: {
-                unit.round(value: value.doubleValue(for: unit))
+                value.doubleValue(for: unit, withRounding: true)
             },
             set: { newValue in
                 self.value = HKQuantity(unit: unit, doubleValue: newValue)
