@@ -51,7 +51,7 @@ public class TherapySettingsViewModel: ObservableObject {
         self.didSave = didSave
     }
 
-    var preferredGlucoseUnit: HKUnit {
+    var therapySettingsGlucoseUnit: HKUnit {
         therapySettings.glucoseUnit ?? .milligramsPerDeciliter
     }
 

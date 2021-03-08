@@ -33,8 +33,8 @@ struct SuspendThresholdEditorViewModel {
         let workoutTargetRange = therapySettingsViewModel.therapySettings.workoutTargetRange
         self.maxSuspendThresholdValue = Guardrail.maxSuspendThresholdValue(
             correctionRangeSchedule: glucoseTargetRangeSchedule,
-            preMealTargetRange: preMealTargetRange?.quantityRange(for: therapySettingsViewModel.preferredGlucoseUnit),
-            workoutTargetRange: workoutTargetRange?.quantityRange(for: therapySettingsViewModel.preferredGlucoseUnit))
+            preMealTargetRange: preMealTargetRange?.quantityRange(for: therapySettingsViewModel.therapySettingsGlucoseUnit),
+            workoutTargetRange: workoutTargetRange?.quantityRange(for: therapySettingsViewModel.therapySettingsGlucoseUnit))
         
         self.mode = therapySettingsViewModel.mode
         self.saveSuspendThreshold = { [weak therapySettingsViewModel] newValue in

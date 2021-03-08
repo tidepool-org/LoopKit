@@ -30,7 +30,7 @@ public struct SuspendThresholdEditor: View {
     ) {
         let viewModel = SuspendThresholdEditorViewModel(therapySettingsViewModel: therapySettingsViewModel,
                                                         didSave: didSave)
-        self._value = State(initialValue: viewModel.suspendThreshold ?? Self.defaultValue(for: therapySettingsViewModel.preferredGlucoseUnit))
+        self._value = State(initialValue: viewModel.suspendThreshold ?? Self.defaultValue(for: therapySettingsViewModel.therapySettingsGlucoseUnit))
         self.viewModel = viewModel
     }
 
