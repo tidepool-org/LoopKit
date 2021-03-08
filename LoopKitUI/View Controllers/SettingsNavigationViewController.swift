@@ -18,13 +18,13 @@ open class SettingsNavigationViewController: UINavigationController, CompletionN
 
 }
 
-open class CGMManagerSettingsNavigationViewController: SettingsNavigationViewController, CGMManagerOnboardNotifying, PreferredGlucoseUnitObserver {
+open class CGMManagerSettingsNavigationViewController: SettingsNavigationViewController, CGMManagerOnboardNotifying, DisplayGlucoseUnitObserver {
 
     open weak var cgmManagerOnboardDelegate: CGMManagerOnboardDelegate?
 
-    private var rootViewController: UIViewController & PreferredGlucoseUnitObserver
+    private var rootViewController: UIViewController & DisplayGlucoseUnitObserver
 
-    public init(rootViewController: UIViewController & PreferredGlucoseUnitObserver) {
+    public init(rootViewController: UIViewController & DisplayGlucoseUnitObserver) {
         self.rootViewController = rootViewController
         super.init(rootViewController: rootViewController)
     }
@@ -37,8 +37,8 @@ open class CGMManagerSettingsNavigationViewController: SettingsNavigationViewCon
         cgmManagerOnboardDelegate?.cgmManagerOnboardNotifying(didOnboardCGMManager: cgmManager)
     }
 
-    open func preferredGlucoseUnitDidChange(to preferredGlucoseUnit: HKUnit) {
-        rootViewController.preferredGlucoseUnitDidChange(to: preferredGlucoseUnit)
+    open func displayGlucoseUnitDidChange(to displayGlucoseUnit: HKUnit) {
+        rootViewController.displayGlucoseUnitDidChange(to: displayGlucoseUnit)
     }
 }
 

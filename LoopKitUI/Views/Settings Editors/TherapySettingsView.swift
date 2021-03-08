@@ -12,7 +12,7 @@ import LoopKit
 import SwiftUI
 
 public struct TherapySettingsView: View {
-    @EnvironmentObject private var preferredGlucoseUnit: PreferredGlucoseUnit
+    @EnvironmentObject private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
     @Environment(\.dismiss) var dismiss
     @Environment(\.appName) private var appName
 
@@ -324,7 +324,7 @@ extension TherapySettingsView {
 extension TherapySettingsView {
     
     private var glucoseUnit: HKUnit {
-        preferredGlucoseUnit.unit
+        displayGlucoseUnitObservable.displayGlucoseUnit
     }
     
     private var sensitivityUnit: HKUnit {
@@ -498,12 +498,12 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (onboarding)")
-                .environmentObject(PreferredGlucoseUnit(unit: .milligramsPerDeciliter))
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .milligramsPerDeciliter))
             TherapySettingsView(viewModel: preview_viewModel(mode: .settings))
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (settings)")
-                .environmentObject(PreferredGlucoseUnit(unit: .milligramsPerDeciliter))
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .milligramsPerDeciliter))
             TherapySettingsView(viewModel: preview_viewModel(mode: .settings))
                 .colorScheme(.dark)
                 .previewDevice(PreviewDevice(rawValue: "iPhone XS Max"))
@@ -518,7 +518,7 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .colorScheme(.light)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
                 .previewDisplayName("SE light (Empty TherapySettings)")
-                .environmentObject(PreferredGlucoseUnit(unit: .millimolesPerLiter))
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .millimolesPerLiter))
         }
     }
 }

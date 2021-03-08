@@ -15,7 +15,7 @@ public struct SuspendThresholdEditor: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
     @Environment(\.appName) private var appName
-    @EnvironmentObject private var preferredGlucoseUnit: PreferredGlucoseUnit
+    @EnvironmentObject private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
 
     var viewModel: SuspendThresholdEditorViewModel
 
@@ -83,7 +83,7 @@ public struct SuspendThresholdEditor: View {
                         valueContent: {
                             GuardrailConstrainedQuantityView(
                                 value: value,
-                                unit: preferredGlucoseUnit.unit,
+                                unit: displayGlucoseUnitObservable.displayGlucoseUnit,
                                 guardrail: viewModel.guardrail,
                                 isEditing: isEditing,
                                 // Workaround for strange animation behavior on appearance
@@ -93,7 +93,7 @@ public struct SuspendThresholdEditor: View {
                         expandedContent: {
                             GlucoseValuePicker(
                                 value: self.$value.animation(),
-                                unit: preferredGlucoseUnit.unit,
+                                unit: displayGlucoseUnitObservable.displayGlucoseUnit,
                                 guardrail: viewModel.guardrail,
                                 bounds: viewModel.guardrail.absoluteBounds.lowerBound...viewModel.maxSuspendThresholdValue
                             )
@@ -217,6 +217,6 @@ struct SuspendThresholdView_Previews: PreviewProvider {
                                                                                                grid: .systemGray3,
                                                                                                glucoseTint: .systemTeal,
                                                                                                insulinTint: .systemOrange))
-        return SuspendThresholdEditor(therapySettingsViewModel: therapySettingsViewModel).environmentObject(PreferredGlucoseUnit(unit: .milligramsPerDeciliter))
+        return SuspendThresholdEditor(therapySettingsViewModel: therapySettingsViewModel).environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .milligramsPerDeciliter))
     }
 }

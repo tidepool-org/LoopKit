@@ -10,11 +10,11 @@ import UIKit
 import HealthKit
 import LoopKit
 
-final public class CGMManagerSettingsNavigationController: SettingsNavigationViewController, PreferredGlucoseUnitObserver {
+final public class CGMManagerSettingsNavigationController: SettingsNavigationViewController, DisplayGlucoseUnitObserver {
 
-    private var rootViewController: UIViewController & PreferredGlucoseUnitObserver
+    private var rootViewController: UIViewController & DisplayGlucoseUnitObserver
 
-    public init(rootViewController: UIViewController & PreferredGlucoseUnitObserver) {
+    public init(rootViewController: UIViewController & DisplayGlucoseUnitObserver) {
         self.rootViewController = rootViewController
         super.init(rootViewController: rootViewController)
     }
@@ -23,7 +23,7 @@ final public class CGMManagerSettingsNavigationController: SettingsNavigationVie
         fatalError("init(coder:) has not been implemented")
     }
 
-    public func preferredGlucoseUnitDidChange(to preferredGlucoseUnit: HKUnit) {
-        rootViewController.preferredGlucoseUnitDidChange(to: preferredGlucoseUnit)
+    public func displayGlucoseUnitDidChange(to displayGlucoseUnit: HKUnit) {
+        rootViewController.displayGlucoseUnitDidChange(to: displayGlucoseUnit)
     }
 }

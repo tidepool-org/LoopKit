@@ -33,7 +33,7 @@ public protocol CGMStatusIndicator {
     func glucoseRangeCategory(for glucose: GlucoseSampleValue) -> GlucoseRangeCategory?
 }
 
-public protocol CGMManagerUI: CGMManager, DeviceManagerUI, PreferredGlucoseUnitObserver, CGMStatusIndicator {
+public protocol CGMManagerUI: CGMManager, DeviceManagerUI, DisplayGlucoseUnitObserver, CGMStatusIndicator {
     /// Create and onboard a new CGM manager.
     ///
     /// - Parameters:
@@ -44,10 +44,10 @@ public protocol CGMManagerUI: CGMManager, DeviceManagerUI, PreferredGlucoseUnitO
     /// Configure settings for an existing CGM manager.
     ///
     /// - Parameters:
-    ///     - preferredGlucoseUnit: The preferred glucose units to use.
+    ///     - displayGlucoseUnit: The glucose units to use for display.
     ///     - colorPalette: Color palette to use for any UI.
     /// - Returns: A view controller to configure an existing CGM manager.
-    func settingsViewController(for preferredGlucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & PreferredGlucoseUnitObserver & CompletionNotifying)
+    func settingsViewController(for displayGlucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & DisplayGlucoseUnitObserver & CompletionNotifying)
 }
 
 extension CGMManagerUI {
@@ -55,8 +55,8 @@ extension CGMManagerUI {
         return nil
     }
 
-    /// When conformance to the PreferredGlucoseUnitObserver is desired, use this function to be notified when the user preferred glucose unit changes
-    public func preferredGlucoseUnitDidChange(to preferredGlucoseUnit: HKUnit) {
+    /// When conformance to the DisplayGlucoseUnitObserver is desired, use this function to be notified when the display glucose unit changes
+    public func displayGlucoseUnitDidChange(to displayGlucoseUnit: HKUnit) {
         // optional
     }
 }

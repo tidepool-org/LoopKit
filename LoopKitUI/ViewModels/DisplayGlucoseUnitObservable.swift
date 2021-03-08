@@ -1,5 +1,5 @@
 //
-//  PreferredDisplayGlucoseUnitObservable.swift
+//  DisplayGlucoseUnitObservable.swift
 //  LoopKitUI
 //
 //  Created by Nathaniel Hamming on 2021-03-08.
@@ -9,16 +9,16 @@
 import Foundation
 import HealthKit
 
-public class PreferredDisplayGlucoseUnitObservable: ObservableObject {
-    @Published public private(set) var preferredGlucoseUnit: HKUnit
+public class DisplayGlucoseUnitObservable: ObservableObject {
+    @Published public private(set) var displayGlucoseUnit: HKUnit
 
-    public init(preferredGlucoseUnit: HKUnit) {
-        self.preferredGlucoseUnit = preferredGlucoseUnit
+    public init(displayGlucoseUnit: HKUnit) {
+        self.displayGlucoseUnit = displayGlucoseUnit
     }
 }
 
-extension PreferredDisplayGlucoseUnitObservable: PreferredGlucoseUnitObserver {
-    public func preferredGlucoseUnitDidChange(to preferredGlucoseUnit: HKUnit) {
-        self.preferredGlucoseUnit = preferredGlucoseUnit
+extension DisplayGlucoseUnitObservable: DisplayGlucoseUnitObserver {
+    public func displayGlucoseUnitDidChange(to displayGlucoseUnit: HKUnit) {
+        self.displayGlucoseUnit = displayGlucoseUnit
     }
 }
