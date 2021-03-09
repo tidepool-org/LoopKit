@@ -17,7 +17,7 @@ public struct SuspendThresholdEditor: View {
     @Environment(\.appName) private var appName
     @EnvironmentObject private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
 
-    var viewModel: SuspendThresholdEditorViewModel
+    let viewModel: SuspendThresholdEditorViewModel
 
     @State private var userDidTap: Bool = false
     @State var value: HKQuantity

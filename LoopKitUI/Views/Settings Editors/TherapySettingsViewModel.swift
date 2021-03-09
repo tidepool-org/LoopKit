@@ -85,8 +85,7 @@ public class TherapySettingsViewModel: ObservableObject {
     }
 
     public func saveSuspendThreshold(quantity: HKQuantity) {
-        let settingsGlucoseUnit = therapySettings.glucoseUnit ?? .milligramsPerDeciliter
-        therapySettings.suspendThreshold = GlucoseThreshold(unit: settingsGlucoseUnit, value: quantity.doubleValue(for: settingsGlucoseUnit))
+        therapySettings.suspendThreshold = GlucoseThreshold(unit: therapySettingsGlucoseUnit, value: quantity.doubleValue(for: therapySettingsGlucoseUnit))
         didSave?(TherapySetting.suspendThreshold, therapySettings)
     }
     
@@ -140,10 +139,9 @@ extension TherapySettingsViewModel {
                 AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .workout, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .basalRate:
-            if self.pumpSupportedIncrements?() != nil {
-                return { dismiss in
-                    AnyView(BasalRateScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
-                }
+            precondition(self.pumpSupportedIncrements?() != nil)
+            return { dismiss in
+                AnyView(BasalRateScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .deliveryLimits:
             if self.pumpSupportedIncrements?() != nil {
