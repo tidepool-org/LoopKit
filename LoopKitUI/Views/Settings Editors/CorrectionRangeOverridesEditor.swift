@@ -67,21 +67,21 @@ public struct CorrectionRangeOverridesEditor: View {
     ) {
         self.init(
             value: CorrectionRangeOverrides(
-                preMeal: viewModel.therapySettings.preMealTargetRange,
-                workout: viewModel.therapySettings.workoutTargetRange,
-                unit: viewModel.therapySettings.glucoseUnit!
+                //TODO when updating this editor, allow HKQuantity range
+                preMeal: viewModel.therapySettings.preMealTargetRange?.doubleRange(for: viewModel.therapySettings.glucoseUnit),
+                workout: viewModel.therapySettings.workoutTargetRange?.doubleRange(for: viewModel.therapySettings.glucoseUnit),
+                unit: viewModel.therapySettings.glucoseUnit
             ),
             preset: preset,
-            unit: viewModel.therapySettings.glucoseUnit!,
+            unit: viewModel.therapySettings.glucoseUnit,
             correctionRangeScheduleRange: viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange(),
             minValue: viewModel.therapySettings.suspendThreshold?.quantity,
             onSave: { [weak viewModel] overrides in
-                let glucoseUnit = viewModel?.therapySettings.glucoseUnit ?? .milligramsPerDeciliter
                 switch preset {
                 case .preMeal:
-                    viewModel?.saveCorrectionRangeOverride(preMeal: overrides.preMeal, unit: glucoseUnit)
+                    viewModel?.saveCorrectionRangeOverride(preMeal: overrides.preMeal)
                 case .workout:
-                    viewModel?.saveCorrectionRangeOverride(workout: overrides.workout, unit: glucoseUnit)
+                    viewModel?.saveCorrectionRangeOverride(workout: overrides.workout)
                 }
                 didSave?()
             },

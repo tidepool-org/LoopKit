@@ -47,14 +47,13 @@ public struct SuspendThresholdEditor: View {
            viewModel: TherapySettingsViewModel,
            didSave: (() -> Void)? = nil
     ) {
-        let unit = viewModel.therapySettings.glucoseUnit ?? viewModel.preferredGlucoseUnit
         self.init(
             value: viewModel.therapySettings.suspendThreshold?.quantity,
-            unit: unit,
+            unit: viewModel.therapySettings.glucoseUnit,
             maxValue: Guardrail.maxSuspendThresholdValue(
                 correctionRangeSchedule: viewModel.therapySettings.glucoseTargetRangeSchedule,
-                preMealTargetRange: viewModel.therapySettings.preMealTargetRange?.quantityRange(for: unit),
-                workoutTargetRange: viewModel.therapySettings.workoutTargetRange?.quantityRange(for: unit)
+                preMealTargetRange: viewModel.therapySettings.preMealTargetRange,
+                workoutTargetRange: viewModel.therapySettings.workoutTargetRange
             ),
             onSave: { [weak viewModel] newValue in
                 guard let viewModel = viewModel else {

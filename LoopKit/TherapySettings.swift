@@ -9,29 +9,69 @@
 import HealthKit
 
 public struct TherapySettings: Equatable, Codable {
-    
-    public var glucoseTargetRangeSchedule: GlucoseRangeSchedule?
 
-    public var preMealTargetRange: DoubleRange?
+    private var glucoseTargetRangeScheduleStored: GlucoseRangeSchedule?
+    public var glucoseTargetRangeSchedule: GlucoseRangeSchedule? {
+        get {
+            glucoseTargetRangeScheduleStored
+        }
+        set {
+            glucoseTargetRangeScheduleStored = newValue?.convertTo(unit: glucoseUnit)
+        }
+    }
 
-    public var workoutTargetRange: DoubleRange?
+    private var preMealTargetRangeStored: DoubleRange?
+    public var preMealTargetRange: ClosedRange<HKQuantity>? {
+        get {
+            preMealTargetRangeStored?.quantityRange(for: glucoseUnit)
+        }
+        set {
+            preMealTargetRangeStored = newValue?.doubleRange(for: glucoseUnit)
+        }
+    }
+
+    private var workoutTargetRangeStored: DoubleRange?
+    public var workoutTargetRange: ClosedRange<HKQuantity>? {
+        get {
+            workoutTargetRangeStored?.quantityRange(for: glucoseUnit)
+        }
+        set {
+            workoutTargetRangeStored = newValue?.doubleRange(for: glucoseUnit)
+        }
+    }
 
     public var maximumBasalRatePerHour: Double?
 
     public var maximumBolus: Double?
 
-    public var suspendThreshold: GlucoseThreshold?
+    private var suspendThresholdStored: GlucoseThreshold?
+    public var suspendThreshold: GlucoseThreshold? {
+        get {
+            suspendThresholdStored
+        }
+        set {
+            suspendThresholdStored = newValue?.convertTo(unit: glucoseUnit)
+        }
+    }
     
-    public var insulinSensitivitySchedule: InsulinSensitivitySchedule?
+    private var insulinSensitivityScheduleStored: InsulinSensitivitySchedule?
+    public var insulinSensitivitySchedule: InsulinSensitivitySchedule? {
+        get {
+            insulinSensitivityScheduleStored
+        }
+        set {
+            insulinSensitivityScheduleStored = newValue?.convertTo(unit: glucoseUnit)
+        }
+    }
     
     public var carbRatioSchedule: CarbRatioSchedule?
     
     public var basalRateSchedule: BasalRateSchedule?
     
     public var insulinModelSettings: InsulinModelSettings?
-    
-    public var glucoseUnit: HKUnit? {
-        return glucoseTargetRangeSchedule?.unit
+
+    public var glucoseUnit: HKUnit {
+        .milligramsPerDeciliter
     }
     
     public var isComplete: Bool {
@@ -51,8 +91,8 @@ public struct TherapySettings: Equatable, Codable {
     
     public init(
         glucoseTargetRangeSchedule: GlucoseRangeSchedule? = nil,
-        preMealTargetRange: DoubleRange? = nil,
-        workoutTargetRange: DoubleRange? = nil,
+        preMealTargetRange: ClosedRange<HKQuantity>? = nil,
+        workoutTargetRange: ClosedRange<HKQuantity>? = nil,
         maximumBasalRatePerHour: Double? = nil,
         maximumBolus: Double? = nil,
         suspendThreshold: GlucoseThreshold? = nil,
@@ -103,8 +143,8 @@ extension TherapySettings {
             timeZone: timeZone)!
         return TherapySettings(
             glucoseTargetRangeSchedule: glucoseTargetRangeSchedule,
-            preMealTargetRange: DoubleRange(minValue: 80.0, maxValue: 90.0),
-            workoutTargetRange: DoubleRange(minValue: 140.0, maxValue: 160.0),
+            preMealTargetRange: DoubleRange(minValue: 80.0, maxValue: 90.0).quantityRange(for: .milligramsPerDeciliter),
+            workoutTargetRange: DoubleRange(minValue: 140.0, maxValue: 160.0).quantityRange(for: .milligramsPerDeciliter),
             maximumBasalRatePerHour: 5,
             maximumBolus: 10,
             suspendThreshold: GlucoseThreshold(unit: .milligramsPerDeciliter, value: 75),
