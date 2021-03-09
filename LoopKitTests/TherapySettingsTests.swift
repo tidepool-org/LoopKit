@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import HealthKit
 import LoopKit
 
 class TherapySettingsTests: XCTestCase {
@@ -75,8 +76,8 @@ class TherapySettingsTests: XCTestCase {
         
         return TherapySettings(
             glucoseTargetRangeSchedule: glucoseTargetRangeSchedule,
-            preMealTargetRange: DoubleRange(minValue: 80.0, maxValue: 90.0),
-            workoutTargetRange: DoubleRange(minValue: 130.0, maxValue: 140.0),
+            preMealTargetRange: DoubleRange(minValue: 80.0, maxValue: 90.0).quantityRange(for: .milligramsPerDeciliter),
+            workoutTargetRange: DoubleRange(minValue: 130.0, maxValue: 140.0).quantityRange(for: .milligramsPerDeciliter),
             maximumBasalRatePerHour: 3,
             maximumBolus: 5,
             suspendThreshold: GlucoseThreshold(unit: .milligramsPerDeciliter, value: 80),
@@ -174,7 +175,7 @@ class TherapySettingsTests: XCTestCase {
           }
         }
       },
-      "glucoseTargetRangeSchedule" : {
+      "glucoseTargetRangeScheduleStored" : {
         "override" : {
           "end" : "1970-01-02T04:16:40Z",
           "start" : "1970-01-02T03:16:40Z",
@@ -241,7 +242,7 @@ class TherapySettingsTests: XCTestCase {
       "insulinModelSettings" : {
         "exponential" : "humalogNovologAdult"
       },
-      "insulinSensitivitySchedule" : {
+      "insulinSensitivityScheduleStored" : {
         "unit" : "mg/dL",
         "valueSchedule" : {
           "items" : [
@@ -279,15 +280,15 @@ class TherapySettingsTests: XCTestCase {
       },
       "maximumBasalRatePerHour" : 3,
       "maximumBolus" : 5,
-      "preMealTargetRange" : {
+      "preMealTargetRangeStored" : {
         "maxValue" : 90,
         "minValue" : 80
       },
-      "suspendThreshold" : {
+      "suspendThresholdStored" : {
         "unit" : "mg/dL",
         "value" : 80
       },
-      "workoutTargetRange" : {
+      "workoutTargetRangeStored" : {
         "maxValue" : 140,
         "minValue" : 130
       }
@@ -343,5 +344,78 @@ class TherapySettingsTests: XCTestCase {
         XCTAssertEqual(decoded.carbRatioSchedule, expected.carbRatioSchedule)
         XCTAssertEqual(decoded.insulinModelSettings, expected.insulinModelSettings)
         XCTAssertEqual(decoded.glucoseTargetRangeSchedule, expected.glucoseTargetRangeSchedule)
+        XCTAssertEqual(decoded.glucoseUnit, .milligramsPerDeciliter)
+    }
+
+    func testGlucoseTargetRangeScheduleStoredUnit() {
+        var therapySettings = getTherapySettings()
+        let unit = HKUnit.millimolesPerLiter
+        let dailyItemsMMOLL = [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 6.0, maxValue: 6.0)),
+                               RepeatingScheduleValue(startTime: .hours(8), value: DoubleRange(minValue: 6.5, maxValue: 7.0)),
+                               RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 6.0, maxValue: 7.0))]
+        let dailyItemsMGDL = dailyItemsMMOLL.map {
+            RepeatingScheduleValue(startTime: $0.startTime,
+                                   value: $0.value.quantityRange(for: unit).doubleRange(for: .milligramsPerDeciliter))
+        }
+
+        let glucoseTargetRangeSchedule =  GlucoseRangeSchedule(
+            unit: unit,
+            dailyItems: dailyItemsMMOLL
+        )
+
+        therapySettings.glucoseTargetRangeSchedule = glucoseTargetRangeSchedule
+        XCTAssertEqual(therapySettings.glucoseTargetRangeSchedule?.items, dailyItemsMGDL)
+    }
+
+    func testPreMealTargetRangeStoredUnit() {
+        var therapySettings = getTherapySettings()
+        let unit = HKUnit.millimolesPerLiter
+        let preMealTargetRangeMMOLL = DoubleRange(minValue: 8.0, maxValue: 9.0).quantityRange(for: unit)
+        let preMealTargetRangeMGDL = preMealTargetRangeMMOLL.doubleRange(for: .milligramsPerDeciliter).quantityRange(for: .milligramsPerDeciliter)
+
+        therapySettings.preMealTargetRange = preMealTargetRangeMMOLL
+        XCTAssertEqual(therapySettings.preMealTargetRange, preMealTargetRangeMGDL)
+    }
+
+    func testWorkoutTargetRangeStoredUnit() {
+        var therapySettings = getTherapySettings()
+        let unit = HKUnit.millimolesPerLiter
+
+        let workoutTargetRangeMMOLL = DoubleRange(minValue: 8.0, maxValue: 9.0).quantityRange(for: unit)
+        let workoutTargetRangeMGDL = workoutTargetRangeMMOLL.doubleRange(for: .milligramsPerDeciliter).quantityRange(for: .milligramsPerDeciliter)
+
+        therapySettings.workoutTargetRange = workoutTargetRangeMMOLL
+        XCTAssertEqual(therapySettings.workoutTargetRange, workoutTargetRangeMGDL)
+    }
+
+    func testSuspendThresholdStoredUnit() {
+        var therapySettings = getTherapySettings()
+        let unit = HKUnit.millimolesPerLiter
+
+        let suspendThresholdMMOLL = GlucoseThreshold(unit: unit, value: 4.5)
+        let suspendThresholdMGDL = suspendThresholdMMOLL.convertTo(unit: .milligramsPerDeciliter)
+
+        therapySettings.suspendThreshold = suspendThresholdMMOLL
+        XCTAssertEqual(therapySettings.suspendThreshold, suspendThresholdMGDL)
+    }
+
+    func testInsulinSensitivityScheduleStoredUnit() {
+        var therapySettings = getTherapySettings()
+        let unit = HKUnit.millimolesPerLiter
+
+        let insulinSensitivityScheduleMMOLL = InsulinSensitivitySchedule(
+            unit: unit,
+            dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 4.5),
+                         RepeatingScheduleValue(startTime: .hours(9), value: 5.5)])!
+        let insulinSensitivityScheduleMGDL = InsulinSensitivitySchedule(
+            unit: .milligramsPerDeciliter,
+            dailyItems: insulinSensitivityScheduleMMOLL.items.map {
+                RepeatingScheduleValue(startTime: $0.startTime,
+                                       value: HKQuantity(unit: unit, doubleValue: $0.value).doubleValue(for: .milligramsPerDeciliter))
+            }
+        )
+
+        therapySettings.insulinSensitivitySchedule = insulinSensitivityScheduleMMOLL
+        XCTAssertEqual(therapySettings.insulinSensitivitySchedule, insulinSensitivityScheduleMGDL)
     }
 }
