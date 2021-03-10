@@ -37,6 +37,11 @@ public struct TemporaryScheduleOverrideSettings: Hashable {
         self.targetRangeInMgdl = targetRange?.quantityRange(for: unit).doubleRange(for: .milligramsPerDeciliter)
         self.insulinNeedsScaleFactor = insulinNeedsScaleFactor
     }
+
+    public init(targetRange: ClosedRange<HKQuantity>?, insulinNeedsScaleFactor: Double? = nil) {
+        self.targetRangeInMgdl = targetRange?.doubleRange(for: .milligramsPerDeciliter)
+        self.insulinNeedsScaleFactor = insulinNeedsScaleFactor
+    }
 }
 
 extension TemporaryScheduleOverrideSettings: RawRepresentable {
