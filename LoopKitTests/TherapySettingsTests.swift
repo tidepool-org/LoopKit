@@ -175,6 +175,7 @@ class TherapySettingsTests: XCTestCase {
           }
         }
       },
+      "codingGlucoseUnitString" : "mg/dL",
       "glucoseTargetRangeSchedule" : {
         "override" : {
           "end" : "1970-01-02T04:16:40Z",
