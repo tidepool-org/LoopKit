@@ -47,9 +47,11 @@ public struct SuspendThresholdEditor: View {
            viewModel: TherapySettingsViewModel,
            didSave: (() -> Void)? = nil
     ) {
+        //TEMPORARY in LOOP-2385 the display unit is provided in the environment
+        let displayGlucoseUnit = HKUnit.milligramsPerDeciliter
         self.init(
             value: viewModel.therapySettings.suspendThreshold?.quantity,
-            unit: viewModel.therapySettings.glucoseUnit,
+            unit: displayGlucoseUnit,
             maxValue: Guardrail.maxSuspendThresholdValue(
                 correctionRangeSchedule: viewModel.therapySettings.glucoseTargetRangeSchedule,
                 preMealTargetRange: viewModel.therapySettings.preMealTargetRange,

@@ -65,15 +65,17 @@ public struct CorrectionRangeOverridesEditor: View {
         preset: CorrectionRangeOverrides.Preset,
         didSave: (() -> Void)? = nil
     ) {
+        //TEMPORARY in LOOP-2385 the display unit is provided in the environment
+        let displayGlucoseUnit = HKUnit.milligramsPerDeciliter
         self.init(
             value: CorrectionRangeOverrides(
                 //TODO when updating this editor, allow HKQuantity range
-                preMeal: viewModel.therapySettings.preMealTargetRange?.doubleRange(for: viewModel.therapySettings.glucoseUnit),
-                workout: viewModel.therapySettings.workoutTargetRange?.doubleRange(for: viewModel.therapySettings.glucoseUnit),
-                unit: viewModel.therapySettings.glucoseUnit
+                preMeal: viewModel.therapySettings.preMealTargetRange?.doubleRange(for: displayGlucoseUnit),
+                workout: viewModel.therapySettings.workoutTargetRange?.doubleRange(for: displayGlucoseUnit),
+                unit: displayGlucoseUnit
             ),
             preset: preset,
-            unit: viewModel.therapySettings.glucoseUnit,
+            unit: displayGlucoseUnit,
             correctionRangeScheduleRange: viewModel.therapySettings.glucoseTargetRangeSchedule!.scheduleRange(),
             minValue: viewModel.therapySettings.suspendThreshold?.quantity,
             onSave: { [weak viewModel] overrides in

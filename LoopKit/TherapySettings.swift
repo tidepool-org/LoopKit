@@ -8,72 +8,28 @@
 
 import HealthKit
 
-public struct TherapySettings: Equatable, Codable {
+public struct TherapySettings: Equatable {
 
-    private var glucoseTargetRangeScheduleStored: GlucoseRangeSchedule?
-    public var glucoseTargetRangeSchedule: GlucoseRangeSchedule? {
-        get {
-            glucoseTargetRangeScheduleStored
-        }
-        set {
-            glucoseTargetRangeScheduleStored = newValue?.convertTo(unit: glucoseUnit)
-        }
-    }
+    public var glucoseTargetRangeSchedule: GlucoseRangeSchedule?
 
-    private var preMealTargetRangeStored: DoubleRange?
-    public var preMealTargetRange: ClosedRange<HKQuantity>? {
-        get {
-            preMealTargetRangeStored?.quantityRange(for: glucoseUnit)
-        }
-        set {
-            preMealTargetRangeStored = newValue?.doubleRange(for: glucoseUnit)
-        }
-    }
+    public var preMealTargetRange: ClosedRange<HKQuantity>?
 
-    private var workoutTargetRangeStored: DoubleRange?
-    public var workoutTargetRange: ClosedRange<HKQuantity>? {
-        get {
-            workoutTargetRangeStored?.quantityRange(for: glucoseUnit)
-        }
-        set {
-            workoutTargetRangeStored = newValue?.doubleRange(for: glucoseUnit)
-        }
-    }
+    public var workoutTargetRange: ClosedRange<HKQuantity>?
 
     public var maximumBasalRatePerHour: Double?
 
     public var maximumBolus: Double?
 
-    private var suspendThresholdStored: GlucoseThreshold?
-    public var suspendThreshold: GlucoseThreshold? {
-        get {
-            suspendThresholdStored
-        }
-        set {
-            suspendThresholdStored = newValue?.convertTo(unit: glucoseUnit)
-        }
-    }
-    
-    private var insulinSensitivityScheduleStored: InsulinSensitivitySchedule?
-    public var insulinSensitivitySchedule: InsulinSensitivitySchedule? {
-        get {
-            insulinSensitivityScheduleStored
-        }
-        set {
-            insulinSensitivityScheduleStored = newValue?.convertTo(unit: glucoseUnit)
-        }
-    }
-    
+    public var suspendThreshold: GlucoseThreshold?
+
+    public var insulinSensitivitySchedule: InsulinSensitivitySchedule?
+
     public var carbRatioSchedule: CarbRatioSchedule?
     
     public var basalRateSchedule: BasalRateSchedule?
     
     public var insulinModelSettings: InsulinModelSettings?
 
-    public var glucoseUnit: HKUnit {
-        .milligramsPerDeciliter
-    }
-    
     public var isComplete: Bool {
         return
             glucoseTargetRangeSchedule != nil &&
@@ -111,6 +67,62 @@ public struct TherapySettings: Equatable, Codable {
         self.carbRatioSchedule = carbRatioSchedule
         self.basalRateSchedule = basalRateSchedule
         self.insulinModelSettings = insulinModelSettings
+    }
+}
+
+extension TherapySettings: Codable {
+    fileprivate static let codingGlucoseUnit: HKUnit = .milligramsPerDeciliter
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let glucoseTargetRangeSchedule = try container.decodeIfPresent(GlucoseRangeSchedule.self, forKey: .glucoseTargetRangeSchedule)
+        let preMealTargetRange = try container.decodeIfPresent(DoubleRange.self, forKey: .preMealTargetRange)?.quantityRange(for: TherapySettings.codingGlucoseUnit)
+        let workoutTargetRange = try container.decodeIfPresent(DoubleRange.self, forKey: .workoutTargetRange)?.quantityRange(for: TherapySettings.codingGlucoseUnit)
+        let maximumBasalRatePerHour = try container.decodeIfPresent(Double.self, forKey: .maximumBasalRatePerHour)
+        let maximumBolus = try container.decodeIfPresent(Double.self, forKey: .maximumBolus)
+        let suspendThreshold = try container.decodeIfPresent(GlucoseThreshold.self, forKey: .suspendThreshold)
+        let insulinSensitivitySchedule = try container.decodeIfPresent(InsulinSensitivitySchedule.self, forKey: .insulinSensitivitySchedule)
+        let carbRatioSchedule = try container.decodeIfPresent(CarbRatioSchedule.self, forKey: .carbRatioSchedule)
+        let basalRateSchedule = try container.decodeIfPresent(BasalRateSchedule.self, forKey: .basalRateSchedule)
+        let insulinModelSettings = try container.decodeIfPresent(InsulinModelSettings.self, forKey: .insulinModelSettings)
+
+        self.init(glucoseTargetRangeSchedule: glucoseTargetRangeSchedule,
+                  preMealTargetRange: preMealTargetRange,
+                  workoutTargetRange: workoutTargetRange,
+                  maximumBasalRatePerHour: maximumBasalRatePerHour,
+                  maximumBolus: maximumBolus,
+                  suspendThreshold: suspendThreshold,
+                  insulinSensitivitySchedule: insulinSensitivitySchedule,
+                  carbRatioSchedule: carbRatioSchedule,
+                  basalRateSchedule: basalRateSchedule,
+                  insulinModelSettings: insulinModelSettings)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(glucoseTargetRangeSchedule, forKey: .glucoseTargetRangeSchedule)
+        try container.encodeIfPresent(preMealTargetRange?.doubleRange(for: TherapySettings.codingGlucoseUnit), forKey: .preMealTargetRange)
+        try container.encodeIfPresent(workoutTargetRange?.doubleRange(for: TherapySettings.codingGlucoseUnit), forKey: .workoutTargetRange)
+        try container.encodeIfPresent(maximumBasalRatePerHour, forKey: .maximumBasalRatePerHour)
+        try container.encodeIfPresent(maximumBolus, forKey: .maximumBolus)
+        try container.encodeIfPresent(suspendThreshold, forKey: .suspendThreshold)
+        try container.encodeIfPresent(insulinSensitivitySchedule, forKey: .insulinSensitivitySchedule)
+        try container.encodeIfPresent(carbRatioSchedule, forKey: .carbRatioSchedule)
+        try container.encodeIfPresent(basalRateSchedule, forKey: .basalRateSchedule)
+        try container.encodeIfPresent(insulinModelSettings, forKey: .insulinModelSettings)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case glucoseTargetRangeSchedule
+        case preMealTargetRange
+        case workoutTargetRange
+        case maximumBasalRatePerHour
+        case maximumBolus
+        case suspendThreshold
+        case insulinSensitivitySchedule
+        case carbRatioSchedule
+        case basalRateSchedule
+        case insulinModelSettings
     }
 }
 

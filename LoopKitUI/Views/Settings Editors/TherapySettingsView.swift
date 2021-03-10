@@ -186,8 +186,8 @@ extension TherapySettingsView {
             if let glucoseUnit = self.glucoseUnit, let schedule = self.viewModel.therapySettings.glucoseTargetRangeSchedule {
                 CorrectionRangeOverridesRangeItem(
                     //TODO when updating this therapy settings editor, allow HKQuantity range
-                    preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange?.doubleRange(for: viewModel.therapySettings.glucoseUnit),
-                    workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange?.doubleRange(for: viewModel.therapySettings.glucoseUnit),
+                    preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange?.doubleRange(for: glucoseUnit),
+                    workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange?.doubleRange(for: glucoseUnit),
                     unit: glucoseUnit,
                     preset: CorrectionRangeOverrides.Preset.preMeal,
                     suspendThreshold: self.viewModel.therapySettings.suspendThreshold,
@@ -202,8 +202,8 @@ extension TherapySettingsView {
             if let glucoseUnit = self.glucoseUnit, let schedule = self.viewModel.therapySettings.glucoseTargetRangeSchedule {
                 CorrectionRangeOverridesRangeItem(
                     //TODO when updating this therapy settings editor, allow HKQuantity range
-                    preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange?.doubleRange(for: viewModel.therapySettings.glucoseUnit),
-                    workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange?.doubleRange(for: viewModel.therapySettings.glucoseUnit),
+                    preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange?.doubleRange(for: glucoseUnit),
+                    workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange?.doubleRange(for: glucoseUnit),
                     unit: glucoseUnit,
                     preset: CorrectionRangeOverrides.Preset.workout,
                     suspendThreshold: self.viewModel.therapySettings.suspendThreshold,
