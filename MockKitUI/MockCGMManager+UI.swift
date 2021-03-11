@@ -22,8 +22,9 @@ extension MockCGMManager: CGMManagerUI {
         return .createdAndOnboarded(MockCGMManager())
     }
 
-    public func settingsViewController(for preferredGlucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & PreferredGlucoseUnitObserver & CompletionNotifying) {
-        let settings = MockCGMManagerSettingsViewController(cgmManager: self, glucoseUnit: preferredGlucoseUnit)
+    public func settingsViewController(for displayGlucoseUnitObservable: DisplayGlucoseUnitObservable, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & CompletionNotifying) {
+        // TODO do not pass in glucose units directly
+        let settings = MockCGMManagerSettingsViewController(cgmManager: self, displayGlucoseUnitObservable: displayGlucoseUnitObservable)
         let nav = CGMManagerSettingsNavigationViewController(rootViewController: settings)
         return nav
     }
@@ -36,7 +37,6 @@ extension MockCGMManager: CGMManagerUI {
         return self.mockSensorState.cgmStatusHighlight
     }
 
-    // TODO Placeholder. This functionality will come with LOOP-1293
     public var cgmLifecycleProgress: DeviceLifecycleProgress? {
         return self.mockSensorState.cgmLifecycleProgress
     }
