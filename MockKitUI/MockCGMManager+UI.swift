@@ -23,7 +23,6 @@ extension MockCGMManager: CGMManagerUI {
     }
 
     public func settingsViewController(for displayGlucoseUnitObservable: DisplayGlucoseUnitObservable, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & CompletionNotifying) {
-        // TODO do not pass in glucose units directly
         let settings = MockCGMManagerSettingsViewController(cgmManager: self, displayGlucoseUnitObservable: displayGlucoseUnitObservable)
         let nav = CGMManagerSettingsNavigationViewController(rootViewController: settings)
         return nav
