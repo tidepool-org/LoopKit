@@ -16,17 +16,13 @@ open class ChartsTableViewController: UITableViewController, UIGestureRecognizer
         didSet {
             guard let displayGlucoseUnitObservable = displayGlucoseUnitObservable else { return }
 
-            cancellable = displayGlucoseUnitObservable.updatePublisher.sink { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
-
-                strongSelf.unitPreferencesDidChange(to: displayGlucoseUnitObservable.displayGlucoseUnit)
-            }
+            displayGlucoseUnitObservable.$displayGlucoseUnit
+                .sink { [weak self] displayGlucoseUnit in self?.unitPreferencesDidChange(to: displayGlucoseUnit) }
+                .store(in: &cancellables)
         }
     }
 
-    private var cancellable: AnyCancellable?
+    private lazy var cancellables = Set<AnyCancellable>()
 
     open override func viewDidLoad() {
         super.viewDidLoad()

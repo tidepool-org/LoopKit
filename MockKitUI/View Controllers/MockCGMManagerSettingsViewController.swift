@@ -16,9 +16,9 @@ import MockKit
 final class MockCGMManagerSettingsViewController: UITableViewController {
     let cgmManager: MockCGMManager
 
-    private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
+    private let displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
 
-    private var cancellable: AnyCancellable?
+    private lazy var cancellables = Set<AnyCancellable>()
 
     private var glucoseUnit: HKUnit {
         displayGlucoseUnitObservable.displayGlucoseUnit
@@ -31,13 +31,9 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
         super.init(style: .grouped)
         title = NSLocalizedString("CGM Settings", comment: "Title for CGM simulator settings")
 
-        cancellable = displayGlucoseUnitObservable.updatePublisher.sink { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
-
-            strongSelf.tableView.reloadData()
-        }
+        displayGlucoseUnitObservable.$displayGlucoseUnit
+            .sink { [weak self] _ in self?.tableView.reloadData() }
+            .store(in: &cancellables)
     }
 
     required init?(coder aDecoder: NSCoder) {

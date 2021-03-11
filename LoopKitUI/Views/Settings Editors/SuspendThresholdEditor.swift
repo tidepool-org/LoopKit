@@ -47,7 +47,7 @@ public struct SuspendThresholdEditor: View {
         therapySettingsViewModel: TherapySettingsViewModel,
         didSave: (() -> Void)? = nil
     ) {
-        //TEMPORARY display glucose unit will be available in the environment. Will be updated when the editor is updated to support both glucose unit
+        //TODO display glucose unit will be available in the environment. Will be updated when the editor is updated to support both glucose unit
         let displayGlucoseUnit = HKUnit.milligramsPerDeciliter
         self.init(
             value: therapySettingsViewModel.therapySettings.suspendThreshold?.quantity,

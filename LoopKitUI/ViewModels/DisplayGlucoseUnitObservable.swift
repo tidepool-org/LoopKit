@@ -11,13 +11,7 @@ import Combine
 import HealthKit
 
 public class DisplayGlucoseUnitObservable: ObservableObject {
-    @Published public private(set) var displayGlucoseUnit: HKUnit {
-        didSet {
-            updatePublisher.send()
-        }
-    }
-
-    public let updatePublisher = PassthroughSubject<Void, Never>()
+    @Published public private(set) var displayGlucoseUnit: HKUnit
 
     public init(displayGlucoseUnit: HKUnit) {
         self.displayGlucoseUnit = displayGlucoseUnit
