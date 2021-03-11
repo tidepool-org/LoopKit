@@ -76,10 +76,10 @@ extension TherapySettings: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        let codingGlucoseUnit = HKUnit(from: try container.decode(String.self, forKey: .codingGlucoseUnitString))
+        let bloodGlucoseUnit = HKUnit(from: try container.decode(String.self, forKey: .bloodGlucoseUnit))
         let glucoseTargetRangeSchedule = try container.decodeIfPresent(GlucoseRangeSchedule.self, forKey: .glucoseTargetRangeSchedule)
-        let preMealTargetRange = try container.decodeIfPresent(DoubleRange.self, forKey: .preMealTargetRange)?.quantityRange(for: codingGlucoseUnit)
-        let workoutTargetRange = try container.decodeIfPresent(DoubleRange.self, forKey: .workoutTargetRange)?.quantityRange(for: codingGlucoseUnit)
+        let preMealTargetRange = try container.decodeIfPresent(DoubleRange.self, forKey: .preMealTargetRange)?.quantityRange(for: bloodGlucoseUnit)
+        let workoutTargetRange = try container.decodeIfPresent(DoubleRange.self, forKey: .workoutTargetRange)?.quantityRange(for: bloodGlucoseUnit)
         let maximumBasalRatePerHour = try container.decodeIfPresent(Double.self, forKey: .maximumBasalRatePerHour)
         let maximumBolus = try container.decodeIfPresent(Double.self, forKey: .maximumBolus)
         let suspendThreshold = try container.decodeIfPresent(GlucoseThreshold.self, forKey: .suspendThreshold)
@@ -102,7 +102,7 @@ extension TherapySettings: Codable {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(TherapySettings.codingGlucoseUnit.unitString, forKey: .codingGlucoseUnitString)
+        try container.encode(TherapySettings.codingGlucoseUnit.unitString, forKey: .bloodGlucoseUnit)
         try container.encodeIfPresent(glucoseTargetRangeSchedule, forKey: .glucoseTargetRangeSchedule)
         try container.encodeIfPresent(preMealTargetRange?.doubleRange(for: TherapySettings.codingGlucoseUnit), forKey: .preMealTargetRange)
         try container.encodeIfPresent(workoutTargetRange?.doubleRange(for: TherapySettings.codingGlucoseUnit), forKey: .workoutTargetRange)
@@ -116,7 +116,7 @@ extension TherapySettings: Codable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case codingGlucoseUnitString
+        case bloodGlucoseUnit
         case glucoseTargetRangeSchedule
         case preMealTargetRange
         case workoutTargetRange

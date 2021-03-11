@@ -262,15 +262,12 @@ extension StoredSettings: Codable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        var bloodGlucoseUnit: HKUnit?
-        if let bloodGlucoseUnitString = try container.decodeIfPresent(String.self, forKey: .bloodGlucoseUnit) {
-            bloodGlucoseUnit = HKUnit(from: bloodGlucoseUnitString)
-        }
+        let bloodGlucoseUnit = HKUnit(from: try container.decode(String.self, forKey: .bloodGlucoseUnit))
         self.init(date: try container.decode(Date.self, forKey: .date),
                   dosingEnabled: try container.decode(Bool.self, forKey: .dosingEnabled),
                   glucoseTargetRangeSchedule: try container.decodeIfPresent(GlucoseRangeSchedule.self, forKey: .glucoseTargetRangeSchedule),
-                  preMealTargetRange: try container.decodeIfPresent(DoubleRange.self, forKey: .preMealTargetRange)?.quantityRange(for: bloodGlucoseUnit ?? StoredSettings.codingGlucoseUnit),
-                  workoutTargetRange: try container.decodeIfPresent(DoubleRange.self, forKey: .workoutTargetRange)?.quantityRange(for: bloodGlucoseUnit ?? StoredSettings.codingGlucoseUnit),
+                  preMealTargetRange: try container.decodeIfPresent(DoubleRange.self, forKey: .preMealTargetRange)?.quantityRange(for: bloodGlucoseUnit),
+                  workoutTargetRange: try container.decodeIfPresent(DoubleRange.self, forKey: .workoutTargetRange)?.quantityRange(for: bloodGlucoseUnit),
                   overridePresets: try container.decodeIfPresent([TemporaryScheduleOverridePreset].self, forKey: .overridePresets),
                   scheduleOverride: try container.decodeIfPresent(TemporaryScheduleOverride.self, forKey: .scheduleOverride),
                   preMealOverride: try container.decodeIfPresent(TemporaryScheduleOverride.self, forKey: .preMealOverride),
@@ -287,12 +284,13 @@ extension StoredSettings: Codable {
     }
 
     public func encode(to encoder: Encoder) throws {
+        let bloodGlucoseUnit = self.bloodGlucoseUnit ?? StoredSettings.codingGlucoseUnit
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(date, forKey: .date)
         try container.encode(dosingEnabled, forKey: .dosingEnabled)
         try container.encodeIfPresent(glucoseTargetRangeSchedule, forKey: .glucoseTargetRangeSchedule)
-        try container.encodeIfPresent(preMealTargetRange?.doubleRange(for: bloodGlucoseUnit ?? StoredSettings.codingGlucoseUnit), forKey: .preMealTargetRange)
-        try container.encodeIfPresent(workoutTargetRange?.doubleRange(for: bloodGlucoseUnit ?? StoredSettings.codingGlucoseUnit), forKey: .workoutTargetRange)
+        try container.encodeIfPresent(preMealTargetRange?.doubleRange(for: bloodGlucoseUnit), forKey: .preMealTargetRange)
+        try container.encodeIfPresent(workoutTargetRange?.doubleRange(for: bloodGlucoseUnit), forKey: .workoutTargetRange)
         try container.encodeIfPresent(overridePresets, forKey: .overridePresets)
         try container.encodeIfPresent(scheduleOverride, forKey: .scheduleOverride)
         try container.encodeIfPresent(preMealOverride, forKey: .preMealOverride)
@@ -304,7 +302,7 @@ extension StoredSettings: Codable {
         try container.encodeIfPresent(basalRateSchedule, forKey: .basalRateSchedule)
         try container.encodeIfPresent(insulinSensitivitySchedule, forKey: .insulinSensitivitySchedule)
         try container.encodeIfPresent(carbRatioSchedule, forKey: .carbRatioSchedule)
-        try container.encodeIfPresent(bloodGlucoseUnit?.unitString, forKey: .bloodGlucoseUnit)
+        try container.encode(bloodGlucoseUnit.unitString, forKey: .bloodGlucoseUnit)
         try container.encode(syncIdentifier, forKey: .syncIdentifier)
     }
 
