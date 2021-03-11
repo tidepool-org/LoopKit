@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import SwiftUI
 import Combine
 import HealthKit
 import LoopKit
@@ -17,7 +16,7 @@ import MockKit
 final class MockCGMManagerSettingsViewController: UITableViewController {
     let cgmManager: MockCGMManager
 
-    @ObservedObject private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
+    private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
 
     private var cancellable: AnyCancellable?
 
