@@ -468,7 +468,7 @@ private extension TherapySettingsView {
         switch setting {
         case .suspendThreshold:
             return { dismiss in
-                AnyView(SuspendThresholdEditor(viewModel: viewModel, didSave: dismiss).environment(\.dismiss, dismiss))
+                AnyView(SuspendThresholdEditor(therapySettingsViewModel: viewModel, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .glucoseTargetRange:
             return { dismiss in
@@ -539,7 +539,6 @@ public struct TherapySettingsView_Previews: PreviewProvider {
     static func preview_viewModel(mode: SettingsPresentationMode) -> TherapySettingsViewModel {
         TherapySettingsViewModel(mode: mode,
                                  therapySettings: preview_therapySettings,
-                                 preferredGlucoseUnit: .milligramsPerDeciliter,
                                  supportedInsulinModelSettings: SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                                  pumpSupportedIncrements: { PumpSupportedIncrements(basalRates: preview_supportedBasalRates,
                                                                                   bolusVolumes: preview_supportedBolusVolumes,
@@ -563,7 +562,6 @@ public struct TherapySettingsView_Previews: PreviewProvider {
                 .previewDisplayName("XS Max dark (settings)")
             TherapySettingsView(viewModel: TherapySettingsViewModel(mode: .settings,
                                                                     therapySettings: TherapySettings(),
-                                                                    preferredGlucoseUnit: .milligramsPerDeciliter,
                                                                     chartColors: ChartColorPalette(axisLine: .clear,
                                                                                                    axisLabel: .secondaryLabel,
                                                                                                    grid: .systemGray3,

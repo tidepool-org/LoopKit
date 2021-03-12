@@ -131,6 +131,7 @@ class TherapySettingsTests: XCTestCase {
           "identifier" : "America/Los_Angeles"
         }
       },
+      "bloodGlucoseUnit" : "mg/dL",
       "carbRatioSchedule" : {
         "unit" : "g",
         "valueSchedule" : {
@@ -175,7 +176,6 @@ class TherapySettingsTests: XCTestCase {
           }
         }
       },
-      "bloodGlucoseUnit" : "mg/dL",
       "glucoseTargetRangeSchedule" : {
         "override" : {
           "end" : "1970-01-02T04:16:40Z",
