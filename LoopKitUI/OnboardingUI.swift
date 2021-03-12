@@ -123,7 +123,7 @@ public protocol OnboardingDelegate: AnyObject {
     func onboarding(_ onboarding: OnboardingUI, hasNewTherapySettings therapySettings: TherapySettings)
 }
 
-public typealias OnboardingViewController = (CGMManagerCreateNotifying & CGMManagerOnboardNotifying & PumpManagerCreateNotifying & PumpManagerOnboardNotifying & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying & PreferredGlucoseUnitObserver)
+public typealias OnboardingViewController = (CGMManagerCreateNotifying & CGMManagerOnboardNotifying & PumpManagerCreateNotifying & PumpManagerOnboardNotifying & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying)
 
 public protocol OnboardingUI: AnyObject {
     typealias RawState = [String: Any]
@@ -155,8 +155,10 @@ public protocol OnboardingUI: AnyObject {
     ///
     /// - Parameters:
     ///   - onboardingProvider: The provider of onboarding functionality.
-    ///   - preferredGlucoseUnit: The preferred glucose unit.
+    ///   - displayGlucoseUnitObservable: The glucose unit to use for display.
     ///   - colorPalette: The colors to use in any UI,
     /// - Returns: A view controller to create and configure a new onboarding.
-    func onboardingViewController(onboardingProvider: OnboardingProvider, preferredGlucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & OnboardingViewController)
+    func onboardingViewController(onboardingProvider: OnboardingProvider,
+                                  displayGlucoseUnitObservable: DisplayGlucoseUnitObservable,
+                                  colorPalette: LoopUIColorPalette) -> (UIViewController & OnboardingViewController)
 }
