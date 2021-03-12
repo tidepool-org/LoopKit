@@ -114,7 +114,7 @@ public class TherapySettingsViewModel: ObservableObject {
 
 extension TherapySettingsViewModel {
 
-    func screen(for setting: TherapySetting) -> (_ dimiss: @escaping () -> Void) -> AnyView {
+    func screen(for setting: TherapySetting) -> (_ dismiss: @escaping () -> Void) -> AnyView {
         switch setting {
         case .suspendThreshold:
             return { dismiss in
