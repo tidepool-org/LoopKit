@@ -26,8 +26,6 @@ public class TherapySettingsViewModel: ObservableObject {
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
     
-    lazy private var cancellables = Set<AnyCancellable>()
-    
     public let chartColors: ChartColorPalette
 
     public init(mode: SettingsPresentationMode,
