@@ -68,7 +68,7 @@ public protocol OnboardingNotifying: AnyObject {
     var onboardingDelegate: OnboardingDelegate? { get set }
 }
 
-public typealias OnboardingViewController = (OnboardingNotifying & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & PumpManagerCreateNotifying & PumpManagerOnboardNotifying & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying & DisplayGlucoseUnitObserver)
+public typealias OnboardingViewController = (OnboardingNotifying & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & PumpManagerCreateNotifying & PumpManagerOnboardNotifying & ServiceCreateNotifying & ServiceOnboardNotifying & CompletionNotifying)
 
 public protocol OnboardingUI {
     /// The unique identifier of this type of onboarding.
@@ -85,12 +85,12 @@ public protocol OnboardingUI {
     ///   - cgmManagerProvider: The provider of CGM Manager functionality.
     ///   - pumpManagerProvider: The provider of Pump Manager functionality.
     ///   - serviceProvider: The provider of Service functionality.
-    ///   - displayGlucoseUnit: The dislpay glucose unit.
+    ///   - displayGlucoseUnitObservable: The glucose unit to use for display.
     ///   - colorPalette: The colors to use in any UI,
     /// - Returns: A view controller to create and configure a new onboarding.
     func onboardingViewController(cgmManagerProvider: CGMManagerProvider,
                                   pumpManagerProvider: PumpManagerProvider,
                                   serviceProvider: ServiceProvider,
-                                  displayGlucoseUnit: HKUnit,
+                                  displayGlucoseUnitObservable: DisplayGlucoseUnitObservable,
                                   colorPalette: LoopUIColorPalette) -> (UIViewController & OnboardingViewController)
 }

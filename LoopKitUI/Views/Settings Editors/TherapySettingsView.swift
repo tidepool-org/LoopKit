@@ -185,8 +185,8 @@ extension TherapySettingsView {
         section(for: .preMealCorrectionRangeOverride) {
             if let schedule = self.viewModel.therapySettings.glucoseTargetRangeSchedule {
                 CorrectionRangeOverridesRangeItem(
-                    preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange,
-                    workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange,
+                    preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange?.doubleRange(for: glucoseUnit),
+                    workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange?.doubleRange(for: glucoseUnit),
                     unit: glucoseUnit,
                     preset: CorrectionRangeOverrides.Preset.preMeal,
                     suspendThreshold: self.viewModel.suspendThreshold,
@@ -200,8 +200,8 @@ extension TherapySettingsView {
         section(for: .workoutCorrectionRangeOverride) {
             if let schedule = self.viewModel.therapySettings.glucoseTargetRangeSchedule {
                 CorrectionRangeOverridesRangeItem(
-                    preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange,
-                    workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange,
+                    preMealTargetRange: self.viewModel.therapySettings.preMealTargetRange?.doubleRange(for: glucoseUnit),
+                    workoutTargetRange: self.viewModel.therapySettings.workoutTargetRange?.doubleRange(for: glucoseUnit),
                     unit: glucoseUnit,
                     preset: CorrectionRangeOverrides.Preset.workout,
                     suspendThreshold: self.viewModel.suspendThreshold,
@@ -470,8 +470,8 @@ public struct TherapySettingsView_Previews: PreviewProvider {
 
     static let preview_therapySettings = TherapySettings(
         glucoseTargetRangeSchedule: GlucoseRangeSchedule(unit: .milligramsPerDeciliter, dailyItems: preview_glucoseScheduleItems),
-        preMealTargetRange: DoubleRange(88...99),
-        workoutTargetRange: DoubleRange(99...111),
+        preMealTargetRange: DoubleRange(88...99).quantityRange(for: .milligramsPerDeciliter),
+        workoutTargetRange: DoubleRange(99...111).quantityRange(for: .milligramsPerDeciliter),
         maximumBasalRatePerHour: 55,
         maximumBolus: 4,
         suspendThreshold: GlucoseThreshold.init(unit: .milligramsPerDeciliter, value: 60),

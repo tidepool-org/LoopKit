@@ -12,10 +12,11 @@ import LoopKit
 
 
 public struct SuspendThresholdEditor: View {
+    @EnvironmentObject private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
+
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
     @Environment(\.appName) private var appName
-    @EnvironmentObject private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
 
     let viewModel: SuspendThresholdEditorViewModel
 
@@ -30,7 +31,7 @@ public struct SuspendThresholdEditor: View {
     ) {
         let viewModel = SuspendThresholdEditorViewModel(therapySettingsViewModel: therapySettingsViewModel,
                                                         didSave: didSave)
-        self._value = State(initialValue: viewModel.suspendThreshold ?? Self.defaultValue(for: therapySettingsViewModel.therapySettingsGlucoseUnit))
+        self._value = State(initialValue: viewModel.suspendThreshold ?? Self.defaultValue(for: viewModel.suspendThresholdUnit))
         self.viewModel = viewModel
     }
 
@@ -187,7 +188,7 @@ public struct SuspendThresholdEditor: View {
     }
     
     private func continueSaving() {
-        viewModel.saveSuspendThreshold(self.value)
+        viewModel.saveSuspendThreshold(self.value, displayGlucoseUnitObservable.displayGlucoseUnit)
     }
 }
 

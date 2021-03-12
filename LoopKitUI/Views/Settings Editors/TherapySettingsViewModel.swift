@@ -25,8 +25,6 @@ public class TherapySettingsViewModel: ObservableObject {
     let syncPumpSchedule: (() -> PumpManager.SyncSchedule?)?
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
-
-    lazy private var cancellables = Set<AnyCancellable>()
     
     public let chartColors: ChartColorPalette
 
@@ -50,11 +48,7 @@ public class TherapySettingsViewModel: ObservableObject {
         self.chartColors = chartColors
         self.didSave = didSave
     }
-
-    var therapySettingsGlucoseUnit: HKUnit {
-        therapySettings.glucoseUnit ?? .milligramsPerDeciliter
-    }
-
+    
     var deliveryLimits: DeliveryLimits {
         return DeliveryLimits(maximumBasalRate: therapySettings.maximumBasalRatePerHour.map { HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0) },
                               maximumBolus: therapySettings.maximumBolus.map { HKQuantity(unit: .internationalUnit(), doubleValue: $0) } )
@@ -74,18 +68,18 @@ public class TherapySettingsViewModel: ObservableObject {
         didSave?(TherapySetting.glucoseTargetRange, therapySettings)
     }
         
-    public func saveCorrectionRangeOverride(preMeal: ClosedRange<HKQuantity>?, unit: HKUnit) {
-        therapySettings.preMealTargetRange = preMeal?.doubleRange(for: unit)
+    public func saveCorrectionRangeOverride(preMeal: ClosedRange<HKQuantity>?) {
+        therapySettings.preMealTargetRange = preMeal
         didSave?(TherapySetting.preMealCorrectionRangeOverride, therapySettings)
     }
     
-    public func saveCorrectionRangeOverride(workout: ClosedRange<HKQuantity>?, unit: HKUnit) {
-        therapySettings.workoutTargetRange = workout?.doubleRange(for: unit)
+    public func saveCorrectionRangeOverride(workout: ClosedRange<HKQuantity>?) {
+        therapySettings.workoutTargetRange = workout
         didSave?(TherapySetting.workoutCorrectionRangeOverride, therapySettings)
     }
 
-    public func saveSuspendThreshold(quantity: HKQuantity) {
-        therapySettings.suspendThreshold = GlucoseThreshold(unit: therapySettingsGlucoseUnit, value: quantity.doubleValue(for: therapySettingsGlucoseUnit))
+    public func saveSuspendThreshold(quantity: HKQuantity, withDisplayGlucoseUnit displayGlucoseUnit: HKUnit) {
+        therapySettings.suspendThreshold = GlucoseThreshold(unit: displayGlucoseUnit, value: quantity.doubleValue(for: displayGlucoseUnit))
         didSave?(TherapySetting.suspendThreshold, therapySettings)
     }
     

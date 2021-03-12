@@ -2,7 +2,7 @@
 //  DisplayGlucoseUnitObservable.swift
 //  LoopKitUI
 //
-//  Created by Nathaniel Hamming on 2021-03-08.
+//  Created by Nathaniel Hamming on 2021-03-10.
 //  Copyright © 2021 LoopKit Authors. All rights reserved.
 //
 

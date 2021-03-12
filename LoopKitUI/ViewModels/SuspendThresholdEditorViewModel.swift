@@ -13,13 +13,15 @@ import LoopKit
 struct SuspendThresholdEditorViewModel {
     var suspendThreshold: HKQuantity?
 
+    var suspendThresholdUnit: HKUnit
+
     let glucoseTargetRangeSchedule: GlucoseRangeSchedule?
 
     var maxSuspendThresholdValue: HKQuantity
 
     let mode: SettingsPresentationMode
 
-    var saveSuspendThreshold: (_ suspendThreshold: HKQuantity) -> Void
+    var saveSuspendThreshold: (_ suspendThreshold: HKQuantity, _ displayGlucoseUnit: HKUnit) -> Void
 
     let guardrail = Guardrail.suspendThreshold
 
@@ -27,21 +29,20 @@ struct SuspendThresholdEditorViewModel {
                 didSave: (() -> Void)? = nil)
     {
         self.suspendThreshold = therapySettingsViewModel.suspendThreshold?.quantity
+        self.suspendThresholdUnit = therapySettingsViewModel.suspendThreshold?.unit ?? .milligramsPerDeciliter
         self.glucoseTargetRangeSchedule = therapySettingsViewModel.therapySettings.glucoseTargetRangeSchedule
 
-        let preMealTargetRange = therapySettingsViewModel.therapySettings.preMealTargetRange
-        let workoutTargetRange = therapySettingsViewModel.therapySettings.workoutTargetRange
         self.maxSuspendThresholdValue = Guardrail.maxSuspendThresholdValue(
             correctionRangeSchedule: glucoseTargetRangeSchedule,
-            preMealTargetRange: preMealTargetRange?.quantityRange(for: therapySettingsViewModel.therapySettingsGlucoseUnit),
-            workoutTargetRange: workoutTargetRange?.quantityRange(for: therapySettingsViewModel.therapySettingsGlucoseUnit))
+            preMealTargetRange: therapySettingsViewModel.therapySettings.preMealTargetRange,
+            workoutTargetRange: therapySettingsViewModel.therapySettings.workoutTargetRange)
         
         self.mode = therapySettingsViewModel.mode
-        self.saveSuspendThreshold = { [weak therapySettingsViewModel] newValue in
+        self.saveSuspendThreshold = { [weak therapySettingsViewModel] suspendThreshold, displayGlucoseUnit in
             guard let therapySettingsViewModel = therapySettingsViewModel else {
                 return
             }
-            therapySettingsViewModel.saveSuspendThreshold(quantity: newValue)
+            therapySettingsViewModel.saveSuspendThreshold(quantity: suspendThreshold, withDisplayGlucoseUnit: displayGlucoseUnit)
             didSave?()
         }
     }
