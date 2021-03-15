@@ -64,6 +64,7 @@ public class TherapySettingsViewModel: ObservableObject {
     }
 
     var correctionRangeScheduleRange: ClosedRange<HKQuantity> {
+        precondition(therapySettings.glucoseTargetRangeSchedule != nil)
         return therapySettings.glucoseTargetRangeSchedule!.scheduleRange()
     }
 
@@ -151,16 +152,14 @@ extension TherapySettingsViewModel {
                 AnyView(BasalRateScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .deliveryLimits:
-            if self.pumpSupportedIncrements?() != nil {
-                return { dismiss in
-                    AnyView(DeliveryLimitsEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
-                }
+            precondition(self.pumpSupportedIncrements?() != nil)
+            return { dismiss in
+                AnyView(DeliveryLimitsEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .insulinModel:
-            if self.therapySettings.insulinModelSettings != nil {
-                return { dismiss in
-                    AnyView(InsulinModelSelection(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
-                }
+            precondition(self.therapySettings.insulinModelSettings != nil)
+            return { dismiss in
+                AnyView(InsulinModelSelection(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .carbRatio:
             return { dismiss in
