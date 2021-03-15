@@ -38,6 +38,10 @@ public struct CorrectionRangeOverridesEditor: View {
     var preset: CorrectionRangeOverrides.Preset {
         viewModel.preset
     }
+
+    var displayGlucoseUnit: HKUnit {
+        displayGlucoseUnitObservable.displayGlucoseUnit
+    }
     
     public init(
         therapySettingsViewModel: TherapySettingsViewModel,
@@ -120,7 +124,7 @@ public struct CorrectionRangeOverridesEditor: View {
                 }),
                 value: $value,
                 preset: preset,
-                unit: displayGlucoseUnitObservable.displayGlucoseUnit,
+                unit: displayGlucoseUnit,
                 suspendThreshold: viewModel.suspendThreshold,
                 correctionRangeScheduleRange: viewModel.correctionRangeScheduleRange,
                 expandedContent: {
@@ -133,7 +137,8 @@ public struct CorrectionRangeOverridesEditor: View {
                                 }
                         }
                         ),
-                        unit: displayGlucoseUnitObservable.displayGlucoseUnit,
+                        unit:
+                            displayGlucoseUnit,
                         minValue: selectableBounds(for: preset).lowerBound,
                         maxValue: selectableBounds(for: preset).upperBound,
                         guardrail: viewModel.guardrail
