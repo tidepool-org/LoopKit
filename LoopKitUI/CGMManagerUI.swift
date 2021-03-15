@@ -19,33 +19,37 @@ public struct CGMManagerDescriptor {
     }
 }
 
-public protocol CGMManagerUI: CGMManager, DeviceManagerUI, PreferredGlucoseUnitObserver {
-    /// Create and onboard a new CGM manager.
-    ///
-    /// - Parameters:
-    ///     - colorPalette: Color palette to use for any UI.
-    /// - Returns: Either a conforming view controller to create and onboard the CGM manager or a newly created and onboarded CGM manager.
-    static func setupViewController(colorPalette: LoopUIColorPalette) -> SetupUIResult<UIViewController & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & CompletionNotifying, CGMManagerUI>
-
-    /// Configure settings for an existing CGM manager.
-    ///
-    /// - Parameters:
-    ///     - preferredGlucoseUnit: The preferred glucose units to use.
-    ///     - colorPalette: Color palette to use for any UI.
-    /// - Returns: A view controller to configure an existing CGM manager.
-    func settingsViewController(for preferredGlucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & PreferredGlucoseUnitObserver & CompletionNotifying)
-
-    /// a badge from the cgm that needs to be brought to the user's attention in the status bar
-    var cgmStatusBadge: DeviceStatusBadge? { get }
-    
+public protocol CGMStatusIndicator {
     /// a message from the cgm that needs to be brought to the user's attention in the status bar
     var cgmStatusHighlight: DeviceStatusHighlight? { get }
 
     /// the completed percent of the progress bar to display in the status bar
     var cgmLifecycleProgress: DeviceLifecycleProgress? { get }
 
+    /// a badge from the cgm that needs to be brought to the user's attention in the status bar
+    var cgmStatusBadge: DeviceStatusBadge? { get }
+
     /// gets the range category of a glucose sample using the CGM manager managed glucose thresholds
     func glucoseRangeCategory(for glucose: GlucoseSampleValue) -> GlucoseRangeCategory?
+}
+
+public protocol CGMManagerUI: CGMManager, DeviceManagerUI, DisplayGlucoseUnitObserver, CGMStatusIndicator {
+    /// Create and onboard a new CGM manager.
+    ///
+    /// - Parameters:
+    ///     - bluetoothProvider: The provider of Bluetooth functionality.
+    ///     - colorPalette: Color palette to use for any UI.
+    /// - Returns: Either a conforming view controller to create and onboard the CGM manager or a newly created and onboarded CGM manager.
+    static func setupViewController(bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette) -> SetupUIResult<UIViewController & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & CompletionNotifying, CGMManagerUI>
+
+    /// Configure settings for an existing CGM manager.
+    ///
+    /// - Parameters:
+    ///     - displayGlucoseUnitObservable: The glucose units to use for display.
+    ///     - bluetoothProvider: The provider of Bluetooth functionality.
+    ///     - colorPalette: Color palette to use for any UI.
+    /// - Returns: A view controller to configure an existing CGM manager.
+    func settingsViewController(for displayGlucoseUnitObservable: DisplayGlucoseUnitObservable, bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & CompletionNotifying)
 }
 
 extension CGMManagerUI {
@@ -53,8 +57,8 @@ extension CGMManagerUI {
         return nil
     }
 
-    /// When conformance to the PreferredGlucoseUnitObserver is desired, use this function to be notified when the user preferred glucose unit changes
-    public func preferredGlucoseUnitDidChange(to preferredGlucoseUnit: HKUnit) {
+    /// When conformance to the DisplayGlucoseUnitObserver is desired, use this function to be notified when the user display glucose unit changes
+    public func displayGlucoseUnitDidChange(to displayGlucoseUnit: HKUnit) {
         // optional
     }
 }

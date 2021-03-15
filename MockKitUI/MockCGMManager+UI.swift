@@ -18,12 +18,12 @@ extension MockCGMManager: CGMManagerUI {
 
     public var smallImage: UIImage? { return UIImage(named: "CGM Simulator", in: Bundle(for: MockCGMManagerSettingsViewController.self), compatibleWith: nil) }
 
-    public static func setupViewController(colorPalette: LoopUIColorPalette) -> SetupUIResult<UIViewController & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & CompletionNotifying, CGMManagerUI> {
+    public static func setupViewController(bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette) -> SetupUIResult<UIViewController & CGMManagerCreateNotifying & CGMManagerOnboardNotifying & CompletionNotifying, CGMManagerUI> {
         return .createdAndOnboarded(MockCGMManager())
     }
 
-    public func settingsViewController(for preferredGlucoseUnit: HKUnit, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & PreferredGlucoseUnitObserver & CompletionNotifying) {
-        let settings = MockCGMManagerSettingsViewController(cgmManager: self, glucoseUnit: preferredGlucoseUnit)
+    public func settingsViewController(for displayGlucoseUnitObservable: DisplayGlucoseUnitObservable, bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette) -> (UIViewController & CGMManagerOnboardNotifying & CompletionNotifying) {
+        let settings = MockCGMManagerSettingsViewController(cgmManager: self, displayGlucoseUnitObservable: displayGlucoseUnitObservable)
         let nav = CGMManagerSettingsNavigationViewController(rootViewController: settings)
         return nav
     }
@@ -36,7 +36,6 @@ extension MockCGMManager: CGMManagerUI {
         return self.mockSensorState.cgmStatusHighlight
     }
 
-    // TODO Placeholder. This functionality will come with LOOP-1293
     public var cgmLifecycleProgress: DeviceLifecycleProgress? {
         return self.mockSensorState.cgmLifecycleProgress
     }
