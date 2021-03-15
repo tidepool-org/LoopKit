@@ -15,7 +15,7 @@ public struct CorrectionRangeOverridesEditor: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.authenticate) var authenticate
 
-    @ObservedObject var viewModel: TherapySettingsViewModel
+    let viewModel: CorrectionRangeOverridesEditorViewModel
 
     @State private var userDidTap: Bool = false
 
@@ -31,41 +31,25 @@ public struct CorrectionRangeOverridesEditor: View {
 
     @State var showingConfirmationAlert = false
 
-    let initialValue: CorrectionRangeOverrides
-    let preset: CorrectionRangeOverrides.Preset
-    var save: (_ overrides: CorrectionRangeOverrides) -> Void
+    var initialValue: CorrectionRangeOverrides {
+        viewModel.correctionRangeOverrides
+    }
 
-    fileprivate init(
-        viewModel: TherapySettingsViewModel,
-        value: CorrectionRangeOverrides,
-        preset: CorrectionRangeOverrides.Preset,
-        onSave save: @escaping (_ overrides: CorrectionRangeOverrides) -> Void
-    ) {
-        self.viewModel = viewModel
-        self._value = State(initialValue: value)
-        self.initialValue = value
-        self.preset = preset
-        self.save = save
+    var preset: CorrectionRangeOverrides.Preset {
+        viewModel.preset
     }
     
     public init(
-        viewModel: TherapySettingsViewModel,
+        therapySettingsViewModel: TherapySettingsViewModel,
         preset: CorrectionRangeOverrides.Preset,
         didSave: (() -> Void)? = nil
     ) {
-        self.init(
-            viewModel: viewModel,
-            value: viewModel.correctionRangeOverrides,
+        let viewModel = CorrectionRangeOverridesEditorViewModel(
+            therapySettingsViewModel: therapySettingsViewModel,
             preset: preset,
-            onSave: { [weak viewModel] overrides in
-                guard let viewModel = viewModel else {
-                    return
-                }
-
-                viewModel.saveCorrectionRangeOverride(preset: preset, correctionRangeOverrides: overrides)
-                didSave?()
-            }
-        )
+            didSave: didSave)
+        self._value = State(initialValue: viewModel.correctionRangeOverrides)
+        self.viewModel = viewModel
     }
 
     public var body: some View {
@@ -152,7 +136,7 @@ public struct CorrectionRangeOverridesEditor: View {
                         unit: displayGlucoseUnitObservable.displayGlucoseUnit,
                         minValue: selectableBounds(for: preset).lowerBound,
                         maxValue: selectableBounds(for: preset).upperBound,
-                        guardrail: guardrail(for: preset)
+                        guardrail: viewModel.guardrail
                     )
                     .accessibility(identifier: "\(accessibilityIdentifier(for: preset))_picker")
             })
@@ -167,13 +151,7 @@ public struct CorrectionRangeOverridesEditor: View {
             return Text(preset.descriptiveText)
         }
     }
-    
-    private func guardrail(for preset: CorrectionRangeOverrides.Preset) -> Guardrail<HKQuantity> {
-        return Guardrail.correctionRangeOverride(for: preset,
-                                                 correctionRangeScheduleRange: viewModel.correctionRangeScheduleRange,
-                                                 suspendThreshold: viewModel.suspendThreshold)
-    }
-    
+
     private var instructionalContentIfNecessary: some View {
         return Group {
             if viewModel.mode == .acceptanceFlow && !userDidTap {
@@ -192,11 +170,11 @@ public struct CorrectionRangeOverridesEditor: View {
     }
 
     private func selectableBounds(for preset: CorrectionRangeOverrides.Preset) -> ClosedRange<HKQuantity> {
-        guardrail(for: preset).absoluteBounds
+        viewModel.guardrail.absoluteBounds
     }
 
     private func initiallySelectedValue(for preset: CorrectionRangeOverrides.Preset) -> ClosedRange<HKQuantity> {
-        guardrail(for: preset).recommendedBounds.clamped(to: selectableBounds(for: preset))
+        viewModel.guardrail.recommendedBounds.clamped(to: selectableBounds(for: preset))
     }
 
     private var guardrailWarningIfNecessary: some View {
@@ -211,7 +189,7 @@ public struct CorrectionRangeOverridesEditor: View {
     private var crossedThresholds: [SafetyClassification.Threshold] {
         guard let range = value.ranges[preset] else { return [] }
         
-        let guardrail = self.guardrail(for: preset)
+        let guardrail = viewModel.guardrail
         let thresholds: [SafetyClassification.Threshold] = [range.lowerBound, range.upperBound].compactMap { bound in
             switch guardrail.classification(for: bound) {
             case .withinRecommendedRange:
@@ -259,7 +237,7 @@ public struct CorrectionRangeOverridesEditor: View {
     }
     
     private func continueSaving() {
-        self.save(self.value)
+        viewModel.saveCorrectionRangeOverride(value)
     }
 
     private func accessibilityIdentifier(for preset: CorrectionRangeOverrides.Preset) -> String {

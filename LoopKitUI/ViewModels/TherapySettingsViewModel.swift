@@ -136,11 +136,14 @@ extension TherapySettingsViewModel {
             }
         case .preMealCorrectionRangeOverride:
             return { dismiss in
-                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .preMeal, didSave: dismiss).environment(\.dismiss, dismiss))
+                AnyView(CorrectionRangeOverridesEditor(therapySettingsViewModel: self,
+                                                       preset: .preMeal,
+                                                       didSave: dismiss)
+                            .environment(\.dismiss, dismiss))
             }
         case .workoutCorrectionRangeOverride:
             return { dismiss in
-                AnyView(CorrectionRangeOverridesEditor(viewModel: self, preset: .workout, didSave: dismiss).environment(\.dismiss, dismiss))
+                AnyView(CorrectionRangeOverridesEditor(therapySettingsViewModel: self, preset: .workout, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .basalRate:
             precondition(self.pumpSupportedIncrements?() != nil)
