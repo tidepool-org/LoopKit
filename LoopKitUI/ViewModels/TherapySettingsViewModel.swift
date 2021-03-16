@@ -133,7 +133,7 @@ extension TherapySettingsViewModel {
             }
         case .glucoseTargetRange:
             return { dismiss in
-                AnyView(CorrectionRangeScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
+                AnyView(CorrectionRangeScheduleEditor(therapySettingsViewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .preMealCorrectionRangeOverride:
             return { dismiss in
@@ -146,25 +146,25 @@ extension TherapySettingsViewModel {
         case .basalRate:
             precondition(self.pumpSupportedIncrements?() != nil)
             return { dismiss in
-                AnyView(BasalRateScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
+                AnyView(BasalRateScheduleEditor(therapySettingsViewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .deliveryLimits:
             precondition(self.pumpSupportedIncrements?() != nil)
             return { dismiss in
-                AnyView(DeliveryLimitsEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
+                AnyView(DeliveryLimitsEditor(therapySettingsViewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .insulinModel:
             precondition(self.therapySettings.insulinModelSettings != nil)
             return { dismiss in
-                AnyView(InsulinModelSelection(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
+                AnyView(InsulinModelSelection(therapySettingsViewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .carbRatio:
             return { dismiss in
-                AnyView(CarbRatioScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
+                AnyView(CarbRatioScheduleEditor(therapySettingsViewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .insulinSensitivity:
             return { dismiss in
-                return AnyView(InsulinSensitivityScheduleEditor(viewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
+                return AnyView(InsulinSensitivityScheduleEditor(therapySettingsViewModel: self, didSave: dismiss).environment(\.dismiss, dismiss))
             }
         case .none:
             break
