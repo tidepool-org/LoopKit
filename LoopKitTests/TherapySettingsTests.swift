@@ -179,14 +179,19 @@ class TherapySettingsTests: XCTestCase {
         }
       },
       "correctionRangeOverrides" : {
-        "bloodGlucoseUnit" : "mg/dL",
         "preMealRange" : {
-          "maxValue" : 90,
-          "minValue" : 80
+          "bloodGlucoseUnit" : "mg/dL",
+          "range" : {
+            "maxValue" : 90,
+            "minValue" : 80
+          }
         },
         "workoutRange" : {
-          "maxValue" : 140,
-          "minValue" : 130
+          "bloodGlucoseUnit" : "mg/dL",
+          "range" : {
+            "maxValue" : 140,
+            "minValue" : 130
+          }
         }
       },
       "glucoseTargetRangeSchedule" : {
