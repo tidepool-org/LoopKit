@@ -132,18 +132,17 @@ public extension DailyQuantitySchedule where T == Double {
     var quantities: [RepeatingScheduleValue<HKQuantity>] {
         return self.items.map {
             RepeatingScheduleValue<HKQuantity>(startTime: $0.startTime,
-                                   value: HKQuantity(unit: unit, doubleValue: $0.value))
+                                               value: HKQuantity(unit: unit, doubleValue: $0.value))
         }
     }
-
-    //TODO is this being used?
+    
     func quantities(using unit: HKUnit) -> [RepeatingScheduleValue<HKQuantity>] {
         return self.items.map {
             RepeatingScheduleValue<HKQuantity>(startTime: $0.startTime,
-                                   value: HKQuantity(unit: unit, doubleValue: $0.value))
+                                               value: HKQuantity(unit: unit, doubleValue: $0.value))
         }
     }
-
+    
     init?(unit: HKUnit,
           dailyQuantities: [RepeatingScheduleValue<HKQuantity>],
           timeZone: TimeZone? = nil)
@@ -156,7 +155,7 @@ public extension DailyQuantitySchedule where T == Double {
         {
             return nil
         }
-
+        
         self.unit = unit
         self.valueSchedule = valueSchedule
     }

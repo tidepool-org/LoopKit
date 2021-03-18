@@ -25,7 +25,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
     var description: Text
     var initialScheduleItems: [RepeatingScheduleValue<HKQuantity>]
     @State var scheduleItems: [RepeatingScheduleValue<HKQuantity>]
-    var scheduleDisplayUnit: HKUnit
+    var unit: HKUnit
     var selectableValues: [Double]
     var quantitySelectionMode: QuantitySelectionMode
     var guardrail: Guardrail<HKQuantity>
@@ -51,7 +51,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
             valueContent: { value, isEditing in
                 GuardrailConstrainedQuantityView(
                     value: value,
-                    unit: scheduleDisplayUnit,
+                    unit: unit,
                     guardrail: guardrail,
                     isEditing: isEditing
                 )
@@ -60,7 +60,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                 if quantitySelectionMode == .whole {
                     QuantityPicker(
                         value: item.value.animation(),
-                        unit: scheduleDisplayUnit,
+                        unit: unit,
                         guardrail: guardrail,
                         selectableValues: selectableValues,
                         guidanceColors: guidanceColors
@@ -72,7 +72,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                 } else {
                     FractionalQuantityPicker(
                         value: item.value.animation(),
-                        unit: scheduleDisplayUnit,
+                        unit: unit,
                         guardrail: guardrail,
                         selectableValues: selectableValues,
                         usageContext: .component(availableWidth: availableWidth)
@@ -84,7 +84,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
                 guardrailWarningIfNecessary
             },
             savingMechanism: savingMechanism.pullback { quantities in
-                DailyQuantitySchedule(unit: scheduleDisplayUnit, dailyQuantities: quantities)!
+                DailyQuantitySchedule(unit: unit, dailyQuantities: quantities)!
             },
             mode: mode,
             therapySettingType: settingType
@@ -102,7 +102,7 @@ struct QuantityScheduleEditor<ActionAreaContent: View>: View {
 
     private var unitLabelWidth: CGFloat {
         let attributedUnitString = NSAttributedString(
-            string: scheduleDisplayUnit.shortLocalizedUnitString(),
+            string: unit.shortLocalizedUnitString(),
             attributes: [.font: UIFont.preferredFont(forTextStyle: .body)]
         )
         return attributedUnitString.size().width
@@ -160,7 +160,7 @@ extension QuantityScheduleEditor {
         title: Text,
         description: Text,
         schedule: DailyQuantitySchedule<Double>?,
-        scheduleDisplayUnit: HKUnit,
+        unit: HKUnit,
         selectableValues: [Double],
         guardrail: Guardrail<HKQuantity>,
         quantitySelectionMode: QuantitySelectionMode = .whole,
@@ -174,9 +174,9 @@ extension QuantityScheduleEditor {
     ) {
         self.title = title
         self.description = description
-        self.initialScheduleItems = schedule?.quantities(using: scheduleDisplayUnit) ?? []
-        self._scheduleItems = State(initialValue: schedule?.quantities(using: scheduleDisplayUnit) ?? [])
-        self.scheduleDisplayUnit = scheduleDisplayUnit
+        self.initialScheduleItems = schedule?.quantities(using: unit) ?? []
+        self._scheduleItems = State(initialValue: schedule?.quantities(using: unit) ?? [])
+        self.unit = unit
         self.quantitySelectionMode = quantitySelectionMode
         self.selectableValues = selectableValues
         self.guardrail = guardrail
@@ -193,7 +193,7 @@ extension QuantityScheduleEditor {
         title: Text,
         description: Text,
         schedule: DailyQuantitySchedule<Double>?,
-        scheduleDisplayUnit: HKUnit,
+        unit: HKUnit,
         guardrail: Guardrail<HKQuantity>,
         selectableValueStride: HKQuantity,
         quantitySelectionMode: QuantitySelectionMode = .whole,
@@ -205,12 +205,12 @@ extension QuantityScheduleEditor {
         mode: SettingsPresentationMode = .settings,
         settingType: TherapySetting = .none
     ) {
-        let selectableValues = guardrail.allValues(stridingBy: selectableValueStride, unit: scheduleDisplayUnit)
+        let selectableValues = guardrail.allValues(stridingBy: selectableValueStride, unit: unit)
         self.init(
             title: title,
             description: description,
             schedule: schedule,
-            scheduleDisplayUnit: scheduleDisplayUnit,
+            unit: unit,
             selectableValues: selectableValues,
             guardrail: guardrail,
             quantitySelectionMode: quantitySelectionMode,
