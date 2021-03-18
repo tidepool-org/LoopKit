@@ -58,7 +58,7 @@ public struct CarbRatioScheduleEditor: View {
             title: Text(TherapySetting.carbRatio.title),
             description: description,
             schedule: schedule,
-            unit: .realCarbRatioScheduleUnit,
+            scheduleDisplayUnit: .realCarbRatioScheduleUnit,
             guardrail: .carbRatio,
             selectableValueStride: HKQuantity(unit: .realCarbRatioScheduleUnit, doubleValue: 0.1),
             quantitySelectionMode: .fractional,

@@ -79,7 +79,7 @@ public struct BasalRateScheduleEditor: View {
             title: Text(TherapySetting.basalRate.title),
             description: description,
             schedule: schedule,
-            unit: .internationalUnitsPerHour,
+            scheduleDisplayUnit: .internationalUnitsPerHour,
             selectableValues: supportedBasalRates,
             guardrail: guardrail,
             quantitySelectionMode: .fractional,

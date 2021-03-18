@@ -9,11 +9,18 @@
 import Foundation
 import HealthKit
 
-
 public typealias GlucoseSchedule = SingleQuantitySchedule
+
 public typealias InsulinSensitivitySchedule = GlucoseSchedule
 
 public extension InsulinSensitivitySchedule {
+    init?(sensitivityUnit: HKUnit, dailyItems: [RepeatingScheduleValue<T>], timeZone: TimeZone? = nil) {
+        precondition(sensitivityUnit == HKUnit.milligramsPerDeciliter.unitDivided(by: .internationalUnit()) ||
+                        sensitivityUnit == HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()))
+        self.init(unit: sensitivityUnit, dailyItems: dailyItems, timeZone: timeZone)
+    }
+
+    // TODO is this being used?
     func convertTo(unit: HKUnit) -> InsulinSensitivitySchedule? {
         guard unit != self.unit else {
             return self
@@ -30,8 +37,11 @@ public extension InsulinSensitivitySchedule {
                                           timeZone: timeZone)
     }
 
+    // TODO replace by new `quantities` in `DailyQuantitySchedule`
     func schedule(for glucoseUnit: HKUnit) -> InsulinSensitivitySchedule? {
         // InsulinSensitivitySchedule stores only the glucose unit.
+        precondition(glucoseUnit == .millimolesPerLiter ||
+                        glucoseUnit == .milligramsPerDeciliter)
         return self.convertTo(unit: glucoseUnit)
     }
 }

@@ -166,7 +166,10 @@ public extension HKUnit {
     }
 
     var preferredFractionDigits: Int {
-        if self == HKUnit.millimolesPerLiter || self == HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()) || self == HKUnit.millimolesPerLiter.unitDivided(by: .minute()) {
+        if self == HKUnit.millimolesPerLiter ||
+            self == HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()) ||
+            self == HKUnit.millimolesPerLiter.unitDivided(by: .minute()) ||
+            self == HKUnit.gramsPerUnit {
             return 1
         } else {
             return 0

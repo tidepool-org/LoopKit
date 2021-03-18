@@ -35,7 +35,7 @@ public struct InsulinSensitivityScheduleEditor: View {
             title: Text(TherapySetting.insulinSensitivity.title),
             description: description,
             schedule: viewModel.insulinSensitivitySchedule?.schedule(for: displayGlucoseUnit),
-            unit: sensitivityUnit,
+            scheduleDisplayUnit: sensitivityUnit,
             guardrail: .insulinSensitivity,
             selectableValueStride: stride,
             defaultFirstScheduleItemValue: Guardrail.insulinSensitivity.startingSuggestion ?? Guardrail.insulinSensitivity.recommendedBounds.upperBound,
