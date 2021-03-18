@@ -41,7 +41,15 @@ public struct InsulinSensitivityScheduleEditor: View {
             defaultFirstScheduleItemValue: Guardrail.insulinSensitivity.startingSuggestion ?? Guardrail.insulinSensitivity.recommendedBounds.upperBound,
             confirmationAlertContent: confirmationAlertContent,
             guardrailWarning: InsulinSensitivityGuardrailWarning.init(crossedThresholds:),
-            onSave: viewModel.saveInsulinSensitivitySchedule,
+            onSave: { insulinSensitivitySchedulePerU in
+                // the sensitivity units are passed as the units to display `/U`
+                // need to go back to displayGlucoseUnit. This does not affect the value
+                // force unwrapping since dailyItems are already validated
+                let insulinSensitivitySchedule = InsulinSensitivitySchedule(unit: displayGlucoseUnit,
+                                                                            dailyItems: insulinSensitivitySchedulePerU.items,
+                                                                            timeZone: insulinSensitivitySchedulePerU.timeZone)!
+                viewModel.saveInsulinSensitivitySchedule(insulinSensitivitySchedule)
+            },
             mode: viewModel.mode,
             settingType: .insulinSensitivity
         )
