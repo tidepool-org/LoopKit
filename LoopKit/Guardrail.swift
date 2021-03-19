@@ -84,6 +84,6 @@ extension Guardrail where Value == HKQuantity {
             from: absoluteBounds.lowerBound.doubleValue(for: unit, withRounding: true),
             through: absoluteBounds.upperBound.doubleValue(for: unit, withRounding: true),
             by: increment.doubleValue(for: unit, withRounding: true)
-        ).map { unit.round(value: $0) })
+        ))
     }
 }
