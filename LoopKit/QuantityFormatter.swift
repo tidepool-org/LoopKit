@@ -200,6 +200,10 @@ public extension HKUnit {
         }
     }
 
+    func round(value: Double) -> Double {
+        return roundForPreferredDigits(value: value)
+    }
+
     func roundForPreferredDigits(value: Double) -> Double {
         return round(value: value, fractionalDigits: preferredFractionDigits)
     }
