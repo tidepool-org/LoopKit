@@ -423,7 +423,7 @@ struct SectionWithTapToEdit<Header, Content, NavigationDestination>: View where 
          title: String,
          descriptiveText: String,
          destination: @escaping (@escaping () -> Void) -> NavigationDestination,
-         @ViewBuilder content: () -> Content)
+         content: () -> Content)
     {
         self.isEnabled = isEnabled
         self.header = header
