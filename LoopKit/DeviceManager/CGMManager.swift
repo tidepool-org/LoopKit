@@ -22,7 +22,7 @@ public enum CGMReadingResult {
 public struct CGMManagerStatus {
     // Return false if no sensor active, or in a state where no future data is expected without user intervention
     public var hasValidSensorSession: Bool
-    
+
     public init(hasValidSensorSession: Bool) {
         self.hasValidSensorSession = hasValidSensorSession
     }
@@ -115,7 +115,7 @@ public protocol CGMManager: DeviceManager {
     /// Requests that the manager completes its deletion process
     ///
     /// - Parameter completion: Action to take after the CGM manager is deleted
-    func deleteCGMManager(completion: @escaping () -> Void)
+    func delete(completion: @escaping () -> Void)
 }
 
 
@@ -144,7 +144,7 @@ public extension CGMManager {
     }
 
     /// Override this default behaviour if the CGM Manager needs to complete tasks before being deleted
-    func deleteCGMManager(completion: @escaping () -> Void) {
+    func delete(completion: @escaping () -> Void) {
         notifyDelegateOfDeletion(completion: completion)
     }
 }
