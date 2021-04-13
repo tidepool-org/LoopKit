@@ -114,6 +114,11 @@ public protocol CGMManager: DeviceManager {
     ///
     /// - Parameter observer: The observing object
     func removeStatusObserver(_ observer: CGMManagerStatusObserver)
+
+    /// Requests that the manager completes its deletion process
+    ///
+    /// - Parameter completion: Action to take after the CGM manager is deleted
+    func delete(completion: @escaping () -> Void)
 }
 
 
@@ -139,5 +144,10 @@ public extension CGMManager {
 
     func removeStatusObserver(_ observer: CGMManagerStatusObserver) {
         // optional since a CGM manager may not support status observers
+    }
+
+    /// Override this default behaviour if the CGM Manager needs to complete tasks before being deleted
+    func delete(completion: @escaping () -> Void) {
+        notifyDelegateOfDeletion(completion: completion)
     }
 }
