@@ -8,6 +8,10 @@
 
 import Foundation
 
+public enum GlucoseRangeCategoryColor: String {
+    case label, critical, warning, glucose
+}
+
 public enum GlucoseRangeCategory: Int, CaseIterable {
     case belowRange
     case urgentLow
@@ -15,4 +19,28 @@ public enum GlucoseRangeCategory: Int, CaseIterable {
     case normal
     case high
     case aboveRange
+}
+
+extension GlucoseRangeCategory {
+    public var glucoseCategoryColor: GlucoseRangeCategoryColor {
+        switch self {
+        case .normal, .high, .low:
+            return .label
+        case .urgentLow, .belowRange:
+            return .critical
+        case .aboveRange:
+            return .warning
+        }
+    }
+    
+    public var trendCategoryColor: GlucoseRangeCategoryColor {
+        switch self {
+        case .normal:
+            return .glucose
+        case .urgentLow, .belowRange:
+            return .critical
+        case .low, .high, .aboveRange:
+            return .warning
+        }
+    }
 }

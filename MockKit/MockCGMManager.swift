@@ -240,12 +240,17 @@ public struct MockCGMStatusBadge: DeviceStatusBadge {
         case lowBattery
         case calibrationRequested
         
+        private static func image(for frameworkImage: String, _ accessibilityIdentifier: String? = nil) -> UIImage? {
+            let result = UIImage(frameworkImage: frameworkImage)
+            result?.accessibilityIdentifier = accessibilityIdentifier ?? frameworkImage
+            return result
+        }
         var image: UIImage? {
             switch self {
             case .lowBattery:
-                return UIImage(frameworkImage: "battery.circle.fill")
+                return Self.image(for: "battery.circle.fill", "battery")
             case .calibrationRequested:
-                return UIImage(frameworkImage: "drop.circle.fill")
+                return Self.image(for: "drop.circle.fill", "calibration")
             }
         }
     }
@@ -472,6 +477,8 @@ public final class MockCGMManager: TestingCGMManager {
         self.delegate.notify { delegate in
             delegate?.cgmManager(self, hasNew: result)
         }
+        
+        self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
     }
     
     public func glucoseRangeCategory(for glucose: GlucoseSampleValue) -> GlucoseRangeCategory? {
@@ -628,6 +635,8 @@ extension MockCGMManager {
             // restore signal loss status highlight
             issueSignalLossAlert()
         }
+        
+        self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
     }
     
     private func registerBackgroundTask() {
