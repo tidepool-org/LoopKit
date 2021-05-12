@@ -47,15 +47,6 @@ class PumpManagerStatusCodableTests: XCTestCase {
     "udiDeviceIdentifier" : "U0D1I2"
   },
   "pumpBatteryChargeRemaining" : 0.75,
-  "pumpLifecycleProgress" : {
-    "percentComplete" : 0.5,
-    "progressState" : "warning"
-  },
-  "pumpStatusHighlight" : {
-    "imageName" : "test.image",
-    "localizedMessage" : "Test message",
-    "state" : "normalPump"
-  },
   "timeZone" : {
     "identifier" : "America/Los_Angeles"
   }
