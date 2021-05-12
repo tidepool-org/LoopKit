@@ -939,6 +939,13 @@
 			remoteGlobalIDString = 89D2047121CC7BD7001238CC;
 			remoteInfo = MockKit;
 		};
+		C1E0280B264C47C900EC4DF1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D8FDC21C728FDF0073BE78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43BA7153201E484D0058961E;
+			remoteInfo = LoopKitUI;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -2955,6 +2962,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				C1E0280C264C47C900EC4DF1 /* PBXTargetDependency */,
 				43CACE1422483B6100F90AF5 /* PBXTargetDependency */,
 				43CACE1622483B6100F90AF5 /* PBXTargetDependency */,
 			);
@@ -4181,6 +4189,11 @@
 			isa = PBXTargetDependency;
 			target = 89D2047121CC7BD7001238CC /* MockKit */;
 			targetProxy = B4CEE2E6257129780093111B /* PBXContainerItemProxy */;
+		};
+		C1E0280C264C47C900EC4DF1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43BA7153201E484D0058961E /* LoopKitUI */;
+			targetProxy = C1E0280B264C47C900EC4DF1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
