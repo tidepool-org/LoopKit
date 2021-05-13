@@ -112,14 +112,14 @@ public enum MockPumpStatusBadge: DeviceStatusBadge {
     public var image: UIImage? {
         switch self {
         case .timeSyncNeeded:
-            return UIImage(frameworkImage: "clock.fill")
+            return UIImage(systemName: "clock.fill")
         }
     }
     
     public var state: DeviceStatusBadgeState {
         switch self {
         case .timeSyncNeeded:
-            return .normalPump
+            return .warning
         }
     }
 }
@@ -136,6 +136,6 @@ extension MockPumpManager {
     }
 
     public var pumpStatusBadge: DeviceStatusBadge? {
-        return nil        
+        return isClockOffset ? MockPumpStatusBadge.timeSyncNeeded : nil
     }
 }

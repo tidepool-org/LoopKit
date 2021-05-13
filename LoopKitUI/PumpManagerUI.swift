@@ -38,7 +38,7 @@ public protocol PumpStatusIndicator {
     /// the completed percent of the progress bar to display in the status bar
     var pumpLifecycleProgress: DeviceLifecycleProgress? { get }
 
-    /// a badge from the cgm that needs to be brought to the user's attention in the status bar
+    /// a badge from the pump that needs to be brought to the user's attention in the status bar
     var pumpStatusBadge: DeviceStatusBadge? { get }
 }
 

@@ -198,10 +198,15 @@ public final class MockPumpManager: TestingPumpManager {
         return PumpManagerStatus.PumpLifecycleProgress(percentComplete: progressPercentComplete,
                                                        progressState: progressState)
     }
+    
+    public var isClockOffset: Bool {
+        let now = Date()
+        return TimeZone.current.secondsFromGMT(for: now) != state.timeZone.secondsFromGMT(for: now)
+    }
 
     private func status(for state: MockPumpManagerState) -> PumpManagerStatus {
         return PumpManagerStatus(
-            timeZone: .currentFixed,
+            timeZone: state.timeZone,
             device: MockPumpManager.device,
             pumpBatteryChargeRemaining: state.pumpBatteryChargeRemaining,
             basalDeliveryState: basalDeliveryState(for: state),

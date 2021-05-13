@@ -143,8 +143,6 @@ extension PumpManagerStatus: Codable {
         case pumpBatteryChargeRemaining
         case basalDeliveryState
         case bolusState
-        case pumpStatusHighlight
-        case pumpLifecycleProgress
         case deliveryIsUncertain
     }
 }
