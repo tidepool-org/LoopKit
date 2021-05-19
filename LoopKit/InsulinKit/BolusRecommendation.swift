@@ -25,8 +25,13 @@ extension BolusRecommendationNotice: Codable {
             self = .currentGlucoseBelowTarget(glucose: currentGlucoseBelowTarget.glucose)
         } else if let predictedGlucoseBelowTarget = try container.decodeIfPresent(PredictedGlucoseBelowTarget.self, forKey: .predictedGlucoseBelowTarget) {
             self = .predictedGlucoseBelowTarget(minGlucose: predictedGlucoseBelowTarget.minGlucose)
-        } else if let predictedGlucoseInRange = try container.decodeIfPresent(BolusRecommendationNotice.self, forKey: .predictedGlucoseInRange) {
-            self = predictedGlucoseInRange
+        } else if let string = try? decoder.singleValueContainer().decode(String.self) {
+            switch string {
+            case CodableKeys.predictedGlucoseInRange.rawValue:
+                self = .predictedGlucoseInRange
+            default:
+                throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "invalid enumeration"))
+            }
         } else {
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "invalid enumeration"))
         }
