@@ -13,6 +13,7 @@ public enum BolusRecommendationNotice {
     case glucoseBelowSuspendThreshold(minGlucose: GlucoseValue)
     case currentGlucoseBelowTarget(glucose: GlucoseValue)
     case predictedGlucoseBelowTarget(minGlucose: GlucoseValue)
+    case predictedGlucoseInRange
 }
 
 extension BolusRecommendationNotice: Codable {
@@ -24,6 +25,8 @@ extension BolusRecommendationNotice: Codable {
             self = .currentGlucoseBelowTarget(glucose: currentGlucoseBelowTarget.glucose)
         } else if let predictedGlucoseBelowTarget = try container.decodeIfPresent(PredictedGlucoseBelowTarget.self, forKey: .predictedGlucoseBelowTarget) {
             self = .predictedGlucoseBelowTarget(minGlucose: predictedGlucoseBelowTarget.minGlucose)
+        } else if let predictedGlucoseInRange = try container.decodeIfPresent(BolusRecommendationNotice.self, forKey: .predictedGlucoseInRange) {
+            self = predictedGlucoseInRange
         } else {
             throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "invalid enumeration"))
         }
@@ -40,6 +43,9 @@ extension BolusRecommendationNotice: Codable {
         case .predictedGlucoseBelowTarget(let minGlucose):
             var container = encoder.container(keyedBy: CodableKeys.self)
             try container.encode(PredictedGlucoseBelowTarget(minGlucose: SimpleGlucoseValue(minGlucose)), forKey: .predictedGlucoseBelowTarget)
+        case .predictedGlucoseInRange:
+            var container = encoder.singleValueContainer()
+            try container.encode(CodableKeys.predictedGlucoseInRange.rawValue)
         }
     }
 
@@ -59,6 +65,7 @@ extension BolusRecommendationNotice: Codable {
         case glucoseBelowSuspendThreshold
         case currentGlucoseBelowTarget
         case predictedGlucoseBelowTarget
+        case predictedGlucoseInRange
     }
 }
 
