@@ -18,14 +18,7 @@ public enum BolusRecommendationNotice {
 
 extension BolusRecommendationNotice: Codable {
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodableKeys.self)
-        if let glucoseBelowSuspendThreshold = try container.decodeIfPresent(GlucoseBelowSuspendThreshold.self, forKey: .glucoseBelowSuspendThreshold) {
-            self = .glucoseBelowSuspendThreshold(minGlucose: glucoseBelowSuspendThreshold.minGlucose)
-        } else if let currentGlucoseBelowTarget = try container.decodeIfPresent(CurrentGlucoseBelowTarget.self, forKey: .currentGlucoseBelowTarget) {
-            self = .currentGlucoseBelowTarget(glucose: currentGlucoseBelowTarget.glucose)
-        } else if let predictedGlucoseBelowTarget = try container.decodeIfPresent(PredictedGlucoseBelowTarget.self, forKey: .predictedGlucoseBelowTarget) {
-            self = .predictedGlucoseBelowTarget(minGlucose: predictedGlucoseBelowTarget.minGlucose)
-        } else if let string = try? decoder.singleValueContainer().decode(String.self) {
+        if let string = try? decoder.singleValueContainer().decode(String.self) {
             switch string {
             case CodableKeys.predictedGlucoseInRange.rawValue:
                 self = .predictedGlucoseInRange
@@ -33,7 +26,16 @@ extension BolusRecommendationNotice: Codable {
                 throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "invalid enumeration"))
             }
         } else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "invalid enumeration"))
+            let container = try decoder.container(keyedBy: CodableKeys.self)
+            if let glucoseBelowSuspendThreshold = try container.decodeIfPresent(GlucoseBelowSuspendThreshold.self, forKey: .glucoseBelowSuspendThreshold) {
+                self = .glucoseBelowSuspendThreshold(minGlucose: glucoseBelowSuspendThreshold.minGlucose)
+            } else if let currentGlucoseBelowTarget = try container.decodeIfPresent(CurrentGlucoseBelowTarget.self, forKey: .currentGlucoseBelowTarget) {
+                self = .currentGlucoseBelowTarget(glucose: currentGlucoseBelowTarget.glucose)
+            } else if let predictedGlucoseBelowTarget = try container.decodeIfPresent(PredictedGlucoseBelowTarget.self, forKey: .predictedGlucoseBelowTarget) {
+                self = .predictedGlucoseBelowTarget(minGlucose: predictedGlucoseBelowTarget.minGlucose)
+            } else {
+                throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "invalid enumeration"))
+            }
         }
     }
 
