@@ -10,6 +10,7 @@ import HealthKit
 /// Describes the result of CGM manager operations to fetch and report sensor readings.
 ///
 /// - noData: No new data was available or retrieved
+/// - unreliableData: New glucose data was received, but is not reliable enough to use for therapy
 /// - newData: New glucose data was received and stored
 /// - error: An error occurred while receiving or store data
 public enum CGMReadingResult {
@@ -94,6 +95,8 @@ public protocol CGMManager: DeviceManager {
     var cgmManagerStatus: CGMManagerStatus { get }
 
     /// Performs a manual fetch of glucose data from the device, if necessary
+    /// If no new data is avaliable to report and the last data reported was .unrealiableData,
+    /// report .unreliableData. Otherwise .noData
     ///
     /// - Parameters:
     ///   - completion: A closure called when operation has completed
