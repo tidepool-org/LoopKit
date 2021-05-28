@@ -94,9 +94,14 @@ public protocol CGMManager: DeviceManager {
     /// The current status of the cgm manager
     var cgmManagerStatus: CGMManagerStatus { get }
 
-    /// Performs a manual fetch of glucose data from the device, if necessary
-    /// If no new data is avaliable to report and the last data reported was .unrealiableData,
-    /// report .unreliableData. Otherwise .noData
+
+    /// Implementations of this function must call the `completion` block, with the appropriate `CGMReadingResult`
+    /// according to the current available data.
+    /// - If there is new unreliable data, return `.unreliableData`
+    /// - If there is no new data and the current data is unreliable, return `.unreliableData`
+    /// - If there is new reliable data, return `.newData` with the data samples
+    /// - If there is no new data and the current data is reliable, return `.noData`
+    /// - If there is an error, return `.error` with the appropriate error.
     ///
     /// - Parameters:
     ///   - completion: A closure called when operation has completed
