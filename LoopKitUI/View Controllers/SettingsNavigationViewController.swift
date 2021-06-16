@@ -7,6 +7,7 @@
 //
 
 import HealthKit
+import LoopKit
 
 open class SettingsNavigationViewController: UINavigationController, CompletionNotifying {
 
@@ -32,8 +33,8 @@ open class PumpManagerSettingsNavigationViewController: SettingsNavigationViewCo
 
     open weak var pumpManagerOnboardingDelegate: PumpManagerOnboardingDelegate?
 
-    open func notifySetup(pumpManager: PumpManagerUI, withFinalSettings settings: PumpManagerSetupSettings) {
-        pumpManagerOnboardingDelegate?.pumpManagerOnboarding(didOnboardPumpManager: pumpManager, withFinalSettings: settings)
+    open func notifySetup(pumpManager: PumpManagerUI, basalSchedule: BasalRateSchedule) {
+        pumpManagerOnboardingDelegate?.pumpManagerOnboarding(didOnboardPumpManager: pumpManager)
     }
 
 }

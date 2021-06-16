@@ -110,7 +110,7 @@ public protocol PumpManagerProvider: AnyObject {
     /// - Parameters:
     ///     - identifier: The identifier of the pump manager to onboard.
     /// - Returns: Either a conforming view controller to onboard the pump manager, a newly onboarded pump manager, or an error.
-    func onboardPumpManager(withIdentifier identifier: String, initialSettings settings: PumpManagerSetupSettings) -> Result<OnboardingResult<PumpManagerViewController, PumpManager>, Error>
+    func onboardPumpManager(withIdentifier identifier: String, basalSchedule: BasalRateSchedule) -> Result<OnboardingResult<PumpManagerViewController, PumpManager>, Error>
 }
 
 public protocol ServiceProvider: AnyObject {
