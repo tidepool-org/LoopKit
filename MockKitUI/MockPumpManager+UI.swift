@@ -22,9 +22,14 @@ extension MockPumpManager: PumpManagerUI {
 
     public var smallImage: UIImage? { return UIImage(named: "Pump Simulator", in: Bundle(for: MockPumpManagerSettingsViewController.self), compatibleWith: nil) }
     
-    public static func setupViewController(basalSchedule: BasalRateSchedule, bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette, allowDebugFeatures: Bool) -> SetupUIResult<PumpManagerViewController, PumpManagerUI> {
+    public static func setupViewController(initialSettings settings: PumpManagerSetupSettings, bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette, allowDebugFeatures: Bool) -> SetupUIResult<PumpManagerViewController, PumpManagerUI> {
         let mockPumpManager = MockPumpManager()
-        mockPumpManager.syncBasalRateSchedule(items: basalSchedule.items, completion: { _ in })
+        if let maxBasalRateUnitsPerHour = settings.maxBasalRateUnitsPerHour {
+            mockPumpManager.setMaximumTempBasalRate(maxBasalRateUnitsPerHour)
+        }
+        if let basalSchedule = settings.basalSchedule {
+            mockPumpManager.syncBasalRateSchedule(items: basalSchedule.items, completion: { _ in })
+        }
         return .createdAndOnboarded(mockPumpManager)
     }
 

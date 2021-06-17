@@ -19,6 +19,18 @@ public struct PumpManagerDescriptor {
     }
 }
 
+public struct PumpManagerSetupSettings {
+    public var maxBasalRateUnitsPerHour: Double?
+    public var maxBolusUnits: Double?
+    public var basalSchedule: BasalRateSchedule?
+
+    public init(maxBasalRateUnitsPerHour: Double?, maxBolusUnits: Double?, basalSchedule: BasalRateSchedule?) {
+        self.maxBasalRateUnitsPerHour = maxBasalRateUnitsPerHour
+        self.maxBolusUnits = maxBolusUnits
+        self.basalSchedule = basalSchedule
+    }
+}
+
 public protocol PumpStatusIndicator {
     /// a message from the pump that needs to be brought to the user's attention in the status bar
     var pumpStatusHighlight: DeviceStatusHighlight? { get }
@@ -40,7 +52,7 @@ public protocol PumpManagerUI: DeviceManagerUI, PumpStatusIndicator, PumpManager
     ///     - bluetoothProvider: The provider of Bluetooth functionality.
     ///     - colorPalette: Color palette to use for any UI.
     /// - Returns: Either a conforming view controller to create and onboard the pump manager or a newly created and onboarded pump manager.
-    static func setupViewController(basalSchedule: BasalRateSchedule, bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette, allowDebugFeatures: Bool) -> SetupUIResult<PumpManagerViewController, PumpManagerUI>
+    static func setupViewController(initialSettings settings: PumpManagerSetupSettings, bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette, allowDebugFeatures: Bool) -> SetupUIResult<PumpManagerViewController, PumpManagerUI>
 
     /// Configure settings for an existing pump manager.
     ///
