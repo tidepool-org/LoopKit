@@ -48,7 +48,7 @@ public protocol PumpManagerUI: DeviceManagerUI, PumpStatusIndicator, PumpManager
     /// Create and onboard a new pump manager.
     ///
     /// - Parameters:
-    ///     - basalSchedule: Basal schedule to use for setting up the pump.
+    ///     - settings: Settings used to configure the pump manager.
     ///     - bluetoothProvider: The provider of Bluetooth functionality.
     ///     - colorPalette: Color palette to use for any UI.
     /// - Returns: Either a conforming view controller to create and onboard the pump manager or a newly created and onboarded pump manager.
