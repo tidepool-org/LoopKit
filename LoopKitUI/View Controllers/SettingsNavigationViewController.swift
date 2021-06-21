@@ -23,18 +23,10 @@ open class CGMManagerSettingsNavigationViewController: SettingsNavigationViewCon
 
     open weak var cgmManagerOnboardingDelegate: CGMManagerOnboardingDelegate?
 
-    open func notifySetup(cgmManager: CGMManagerUI) {
-        cgmManagerOnboardingDelegate?.cgmManagerOnboarding(didOnboardCGMManager: cgmManager)
-    }
-
 }
 
 open class PumpManagerSettingsNavigationViewController: SettingsNavigationViewController, PumpManagerOnboarding {
 
     open weak var pumpManagerOnboardingDelegate: PumpManagerOnboardingDelegate?
-
-    open func notifySetup(pumpManager: PumpManagerUI, basalSchedule: BasalRateSchedule) {
-        pumpManagerOnboardingDelegate?.pumpManagerOnboarding(didOnboardPumpManager: pumpManager)
-    }
-
+    
 }
