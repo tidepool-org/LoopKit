@@ -52,7 +52,7 @@ public struct InsulinModelSelection: View {
     public init(
         value: InsulinModelSettings,
         insulinSensitivitySchedule: InsulinSensitivitySchedule?,
-        supportedModelSettings: SupportedInsulinModelSettings,
+        supportedInsulinModelSettings: SupportedInsulinModelSettings,
         chartColors: ChartColorPalette,
         onSave save: @escaping (_ insulinModelSettings: InsulinModelSettings) -> Void,
         mode: SettingsPresentationMode
@@ -61,7 +61,7 @@ public struct InsulinModelSelection: View {
         self.initialValue = value
         self.insulinSensitivitySchedule = insulinSensitivitySchedule ?? Self.defaultInsulinSensitivitySchedule
         self.saveInsulinModelSelection = save
-        self.supportedInsulinModelSettings = supportedModelSettings
+        self.supportedInsulinModelSettings = supportedInsulinModelSettings
         self.mode = mode
 
         let chartManager = ChartsManager(
@@ -90,7 +90,7 @@ public struct InsulinModelSelection: View {
         self.init(
             value: therapySettingsViewModel.therapySettings.insulinModelSettings ?? InsulinModelSettings.exponentialPreset(.humalogNovologAdult),
             insulinSensitivitySchedule: therapySettingsViewModel.therapySettings.insulinSensitivitySchedule,
-            supportedModelSettings: therapySettingsViewModel.supportedInsulinModelSettings,
+            supportedInsulinModelSettings: therapySettingsViewModel.supportedInsulinModelSettings,
             chartColors: chartColors,
             onSave: { [weak therapySettingsViewModel] insulinModelSettings in
                 therapySettingsViewModel?.saveInsulinModel(insulinModelSettings: insulinModelSettings)
@@ -103,10 +103,10 @@ public struct InsulinModelSelection: View {
     public var body: some View {
         switch mode {
         case .acceptanceFlow:
-            return AnyView(content)
+            content
         case .settings:
-            return AnyView(contentWithCancel
-                .navigationBarTitleDisplayMode(.inline))
+            contentWithCancel
+                .navigationBarTitleDisplayMode(.inline)
         }
     }
     
