@@ -23,7 +23,7 @@ public struct InsulinModelSelection: View {
     private let insulinSensitivitySchedule: InsulinSensitivitySchedule
     private let supportedInsulinModelSettings: SupportedInsulinModelSettings
     private let mode: SettingsPresentationMode
-    private let saveInsulinModelSelection: (_ insulinModelSettings: InsulinModelSettings) -> Void
+    private let save: (_ insulinModelSettings: InsulinModelSettings) -> Void
 
     static let defaultInsulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue<Double>(startTime: 0, value: 40)])!
     
@@ -60,7 +60,7 @@ public struct InsulinModelSelection: View {
         self._value = State(initialValue: value)
         self.initialValue = value
         self.insulinSensitivitySchedule = insulinSensitivitySchedule ?? Self.defaultInsulinSensitivitySchedule
-        self.saveInsulinModelSelection = save
+        self.save = save
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
         self.mode = mode
 
@@ -306,7 +306,7 @@ public struct InsulinModelSelection: View {
     }
     
     private func continueSaving() {
-        saveInsulinModelSelection(value)
+        save(value)
     }
 
     var dismissButton: some View {
