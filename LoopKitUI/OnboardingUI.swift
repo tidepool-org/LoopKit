@@ -184,6 +184,9 @@ public protocol OnboardingUI: AnyObject {
     /// The current, serializable state of the onboarding.
     var rawState: RawState { get }
 
+    /// Is the onboarding suspended?
+    var isSuspended: Bool { get }
+
     /// Is the onboarding complete?
     var isOnboarded: Bool { get }
 
