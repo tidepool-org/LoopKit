@@ -46,6 +46,29 @@ class CachedGlucoseObject: NSManagedObject {
 
 extension CachedGlucoseObject {
     var quantity: HKQuantity { HKQuantity(unit: HKUnit(from: unitString), doubleValue: value) }
+
+    var quantitySample: HKQuantitySample {
+        var metadata: [String: Any] = [
+            HKMetadataKeySyncIdentifier: syncIdentifier as Any,
+            HKMetadataKeySyncVersion: syncVersion as Any,
+        ]
+        
+        if isDisplayOnly {
+            metadata[MetadataKeyGlucoseIsDisplayOnly] = true
+        }
+        if wasUserEntered {
+            metadata[HKMetadataKeyWasUserEntered] = true
+        }
+        
+        return HKQuantitySample(
+            type: HKQuantityType.quantityType(forIdentifier: .bloodGlucose)!,
+            quantity: quantity,
+            start: startDate,
+            end: startDate,
+            device: nil, // ??? XXX This could be an issue: we don't store the HKDevice in CoreData, so it gets lost when we try to put it back into HealthKit
+            metadata: metadata
+        )
+    }
 }
 
 // MARK: - Operations
@@ -85,7 +108,6 @@ extension CachedGlucoseObject {
 
 extension CachedGlucoseObject {
     func update(from sample: StoredGlucoseSample) {
-        self.uuid = sample.uuid
         self.provenanceIdentifier = sample.provenanceIdentifier
         self.syncIdentifier = sample.syncIdentifier
         self.syncVersion = sample.syncVersion
