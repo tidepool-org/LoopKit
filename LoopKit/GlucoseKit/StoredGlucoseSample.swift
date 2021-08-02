@@ -8,6 +8,8 @@
 import HealthKit
 
 public struct StoredGlucoseSample: GlucoseSampleValue, Equatable {
+    public let uuid: UUID?  // Note this is the UUID from HealthKit.  Nil if not (yet) stored in HealthKit.
+
     // MARK: - HealthKit Sync Support
 
     public let provenanceIdentifier: String
@@ -27,6 +29,7 @@ public struct StoredGlucoseSample: GlucoseSampleValue, Equatable {
 
     public init(sample: HKQuantitySample) {
         self.init(
+            uuid: sample.uuid,
             provenanceIdentifier: sample.provenanceIdentifier,
             syncIdentifier: sample.syncIdentifier,
             syncVersion: sample.syncVersion,
@@ -38,6 +41,7 @@ public struct StoredGlucoseSample: GlucoseSampleValue, Equatable {
     }
 
     public init(
+        uuid: UUID?,
         provenanceIdentifier: String,
         syncIdentifier: String?,
         syncVersion: Int?,
@@ -46,6 +50,7 @@ public struct StoredGlucoseSample: GlucoseSampleValue, Equatable {
         isDisplayOnly: Bool,
         wasUserEntered: Bool,
         device: HKDevice?) {
+        self.uuid = uuid
         self.provenanceIdentifier = provenanceIdentifier
         self.syncIdentifier = syncIdentifier
         self.syncVersion = syncVersion
@@ -60,6 +65,7 @@ public struct StoredGlucoseSample: GlucoseSampleValue, Equatable {
 extension StoredGlucoseSample {
     init(managedObject: CachedGlucoseObject) {
         self.init(
+            uuid: managedObject.uuid,
             provenanceIdentifier: managedObject.provenanceIdentifier,
             syncIdentifier: managedObject.syncIdentifier,
             syncVersion: managedObject.syncVersion,
