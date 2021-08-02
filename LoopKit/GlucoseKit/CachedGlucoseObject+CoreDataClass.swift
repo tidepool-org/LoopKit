@@ -21,7 +21,20 @@ class CachedGlucoseObject: NSManagedObject {
         set {
             willChangeValue(forKey: "syncVersion")
             defer { didChangeValue(forKey: "syncVersion") }
-            primitiveSyncVersion = newValue != nil ? NSNumber(value: newValue!) : nil
+            primitiveSyncVersion = newValue.map { NSNumber(value: $0) }
+        }
+    }
+    
+    var device: HKDevice? {
+        get {
+            willAccessValue(forKey: "device")
+            defer { didAccessValue(forKey: "device") }
+            return primitiveDevice.flatMap { try? NSKeyedUnarchiver.unarchivedObject(ofClass: HKDevice.self, from: $0) }
+        }
+        set {
+            willChangeValue(forKey: "device")
+            defer { didChangeValue(forKey: "device") }
+            primitiveDevice = newValue.flatMap { try? NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: false) }
         }
     }
 
@@ -65,7 +78,7 @@ extension CachedGlucoseObject {
             quantity: quantity,
             start: startDate,
             end: startDate,
-            device: nil, // ??? XXX This could be an issue: we don't store the HKDevice in CoreData, so it gets lost when we try to put it back into HealthKit
+            device: device,
             metadata: metadata
         )
     }
@@ -86,6 +99,7 @@ extension CachedGlucoseObject {
         self.startDate = sample.date
         self.isDisplayOnly = sample.isDisplayOnly
         self.wasUserEntered = sample.wasUserEntered
+        self.device = sample.device
     }
 
     // HealthKit
@@ -101,6 +115,7 @@ extension CachedGlucoseObject {
         self.startDate = sample.startDate
         self.isDisplayOnly = sample.isDisplayOnly
         self.wasUserEntered = sample.wasUserEntered
+        self.device = sample.device
     }
 }
 
@@ -116,5 +131,6 @@ extension CachedGlucoseObject {
         self.startDate = sample.startDate
         self.isDisplayOnly = sample.isDisplayOnly
         self.wasUserEntered = sample.wasUserEntered
+        self.device = sample.device
     }
 }
