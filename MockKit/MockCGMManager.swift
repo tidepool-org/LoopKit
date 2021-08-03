@@ -450,7 +450,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public let shouldSyncToRemoteService = false
     
-    public static let healthKitStorageDelay: TimeInterval = .minutes(5)
+    public static let healthKitStorageDelay: TimeInterval = .minutes(2)
     
     private func logDeviceCommunication(_ message: String, type: DeviceLogEntryType = .send) {
         self.delegate.notify { (delegate) in

@@ -60,21 +60,3 @@ extension CachedGlucoseObject: Encodable {
         case device
     }
 }
-
-extension HKDevice: Encodable {
-    private enum CodingKeys: String, CodingKey {
-       case name, manufacturer, model, hardwareVersion, firmwareVersion, softwareVersion, localIdentifier, udiDeviceIdentifier
-    }
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(name, forKey: .name)
-        try container.encodeIfPresent(manufacturer, forKey: .manufacturer)
-        try container.encodeIfPresent(model, forKey: .model)
-        try container.encodeIfPresent(hardwareVersion, forKey: .hardwareVersion)
-        try container.encodeIfPresent(firmwareVersion, forKey: .firmwareVersion)
-        try container.encodeIfPresent(softwareVersion, forKey: .softwareVersion)
-        try container.encodeIfPresent(localIdentifier, forKey: .localIdentifier)
-        try container.encodeIfPresent(udiDeviceIdentifier, forKey: .udiDeviceIdentifier)
-    }
-}
-

@@ -348,7 +348,7 @@ extension GlucoseStore {
                     }
 
                     // Note: because we cannot guarantee that we are allowed to store samples in HealthKit, we
-                    // don't update/store the UUID in StoredGlucoseSample anymore.
+                    // don't update the UUID in StoredGlucoseSample here anymore.
                     storedSamples = objects.map { StoredGlucoseSample(managedObject: $0) }
                 } catch let coreDataError {
                     error = coreDataError
@@ -402,10 +402,10 @@ extension GlucoseStore {
                 if let e = self.cacheStore.save() {
                     self.log.error("Error updating CachedGlucoseObjects after saving HealthKit objects: %@", String(describing: error))
                     stored.forEach { $0.uuid = nil }
-                    error = e
-                } else {
-                    self.log.default("Stored %d eligible glucose samples to HealthKit", stored.count)
+                    throw e
                 }
+                
+                self.log.default("Stored %d eligible glucose samples to HealthKit", stored.count)
             } catch let e {
                 error = e
             }
