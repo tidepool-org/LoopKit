@@ -80,12 +80,14 @@ extension CachedGlucoseObject {
         ]
         
         if isDisplayOnly {
-            metadata[MetadataKeyGlucoseIsDisplayOnly] = true
+            metadata[MetadataKeyGlucoseIsDisplayOnly] = isDisplayOnly
         }
         if wasUserEntered {
             metadata[HKMetadataKeyWasUserEntered] = true
         }
-        metadata[MetadataKeyGlucoseTrend] = trend?.rawValue
+        if let trend = trend {
+            metadata[MetadataKeyGlucoseTrend] = trend.rawValue
+        }
         
         return HKQuantitySample(
             type: HKQuantityType.quantityType(forIdentifier: .bloodGlucose)!,
