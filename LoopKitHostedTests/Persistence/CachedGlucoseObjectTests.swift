@@ -15,6 +15,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
         cacheStore.managedObjectContext.performAndWait {
             let startDate = dateFormatter.date(from: "2020-01-02T03:04:05Z")!
             let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 123.4)
+            let device = HKDevice(name: "NAME", manufacturer: "MANUFACTURER", model: "MODEL", hardwareVersion: "HARDWAREVERSION", firmwareVersion: "FIRMWAREVERSION", softwareVersion: "SOFTWAREVERSION", localIdentifier: "LOCALIDENTIFIER", udiDeviceIdentifier: "UDIDEVICEIDENTIFIER")
             let newGlucoseSample = NewGlucoseSample(date: startDate,
                                                     quantity: quantity,
                                                     trend: .flat,
@@ -22,7 +23,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
                                                     wasUserEntered: false,
                                                     syncIdentifier: "F4C094AA-9EBE-4804-8F02-90C7B613BDEC",
                                                     syncVersion: 2,
-                                                    device: nil)
+                                                    device: device)
             let object = CachedGlucoseObject(context: cacheStore.managedObjectContext)
             object.create(from: newGlucoseSample, provenanceIdentifier: "06173C6A-4945-4139-A77D-E3ABC3221EA9")
             XCTAssertNil(object.uuid)
@@ -36,6 +37,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             XCTAssertEqual(object.wasUserEntered, false)
             XCTAssertEqual(object.trend, .flat)
             XCTAssertEqual(object.modificationCounter, 1)
+            XCTAssertEqual(object.device, device)
         }
     }
 
@@ -44,6 +46,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             let type = HKQuantityType.quantityType(forIdentifier: .bloodGlucose)!
             let startDate = dateFormatter.date(from: "2020-02-03T04:05:06Z")!
             let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 123.4)
+            let device = HKDevice(name: "NAME", manufacturer: "MANUFACTURER", model: "MODEL", hardwareVersion: "HARDWAREVERSION", firmwareVersion: "FIRMWAREVERSION", softwareVersion: "SOFTWAREVERSION", localIdentifier: "LOCALIDENTIFIER", udiDeviceIdentifier: "UDIDEVICEIDENTIFIER")
             let metadata: [String: Any] = [
                 HKMetadataKeySyncIdentifier: "0B2353CD-7F98-4297-81E2-8D6FCDD02655",
                 HKMetadataKeySyncVersion: 2,
@@ -51,7 +54,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
                 HKMetadataKeyWasUserEntered: true,
                 MetadataKeyGlucoseTrend: 4
             ]
-            let quantitySample = HKQuantitySample(type: type, quantity: quantity, start: startDate, end: startDate, metadata: metadata)
+            let quantitySample = HKQuantitySample(type: type, quantity: quantity, start: startDate, end: startDate, device: device, metadata: metadata)
             let object = CachedGlucoseObject(context: cacheStore.managedObjectContext)
             object.create(from: quantitySample)
             XCTAssertNotNil(object.uuid)
@@ -65,6 +68,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             XCTAssertEqual(object.wasUserEntered, true)
             XCTAssertEqual(object.trend, .flat)
             XCTAssertEqual(object.modificationCounter, 1)
+            XCTAssertEqual(object.device, device)
         }
     }
 
