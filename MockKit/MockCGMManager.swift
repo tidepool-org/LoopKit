@@ -548,9 +548,20 @@ public final class MockCGMManager: TestingCGMManager {
 
     public func injectGlucoseSamples(_ samples: [NewGlucoseSample]) {
         guard !samples.isEmpty else { return }
-        var samples = samples
-        samples.mutateEach { $0.device = device }
-        sendCGMReadingResult(CGMReadingResult.newData(samples))
+        sendCGMReadingResult(CGMReadingResult.newData(samples.map { NewGlucoseSample($0, device: device) } ))
+    }
+}
+
+fileprivate extension NewGlucoseSample {
+    init(_ other: NewGlucoseSample, device: HKDevice?) {
+        self.init(date: other.date,
+                  quantity: other.quantity,
+                  trend: other.trend,
+                  isDisplayOnly: other.isDisplayOnly,
+                  wasUserEntered: other.wasUserEntered,
+                  syncIdentifier: other.syncIdentifier,
+                  syncVersion: other.syncVersion,
+                  device: device)
     }
 }
 

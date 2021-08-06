@@ -17,6 +17,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 123.4)
             let newGlucoseSample = NewGlucoseSample(date: startDate,
                                                     quantity: quantity,
+                                                    trend: .flat,
                                                     isDisplayOnly: true,
                                                     wasUserEntered: false,
                                                     syncIdentifier: "F4C094AA-9EBE-4804-8F02-90C7B613BDEC",
@@ -33,6 +34,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             XCTAssertEqual(object.startDate, startDate)
             XCTAssertEqual(object.isDisplayOnly, true)
             XCTAssertEqual(object.wasUserEntered, false)
+            XCTAssertEqual(object.trend, .flat)
             XCTAssertEqual(object.modificationCounter, 1)
         }
     }
@@ -46,7 +48,8 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
                 HKMetadataKeySyncIdentifier: "0B2353CD-7F98-4297-81E2-8D6FCDD02655",
                 HKMetadataKeySyncVersion: 2,
                 MetadataKeyGlucoseIsDisplayOnly: false,
-                HKMetadataKeyWasUserEntered: true
+                HKMetadataKeyWasUserEntered: true,
+                MetadataKeyGlucoseTrend: 4
             ]
             let quantitySample = HKQuantitySample(type: type, quantity: quantity, start: startDate, end: startDate, metadata: metadata)
             let object = CachedGlucoseObject(context: cacheStore.managedObjectContext)
@@ -60,6 +63,7 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             XCTAssertEqual(object.startDate, startDate)
             XCTAssertEqual(object.isDisplayOnly, false)
             XCTAssertEqual(object.wasUserEntered, true)
+            XCTAssertEqual(object.trend, .flat)
             XCTAssertEqual(object.modificationCounter, 1)
         }
     }

@@ -37,6 +37,19 @@ class CachedGlucoseObject: NSManagedObject {
             primitiveDevice = newValue.flatMap { try? NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: false) }
         }
     }
+    
+    var trend: GlucoseTrend? {
+        get {
+            willAccessValue(forKey: "trend")
+            defer { didAccessValue(forKey: "trend") }
+            return primitiveTrend.flatMap { GlucoseTrend(rawValue: $0.intValue) }
+        }
+        set {
+            willChangeValue(forKey: "trend")
+            defer { didChangeValue(forKey: "trend") }
+            primitiveTrend = newValue.map { NSNumber(value: $0.rawValue) }
+        }
+    }
 
     var hasUpdatedModificationCounter: Bool { changedValues().keys.contains("modificationCounter") }
 
