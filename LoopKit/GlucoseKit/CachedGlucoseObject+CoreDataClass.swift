@@ -113,6 +113,7 @@ extension CachedGlucoseObject {
         self.isDisplayOnly = sample.isDisplayOnly
         self.wasUserEntered = sample.wasUserEntered
         self.device = sample.device
+        self.trend = sample.trend
     }
 
     // HealthKit
@@ -129,6 +130,7 @@ extension CachedGlucoseObject {
         self.isDisplayOnly = sample.isDisplayOnly
         self.wasUserEntered = sample.wasUserEntered
         self.device = sample.device
+        self.trend = sample.trend
     }
 }
 
@@ -145,5 +147,6 @@ extension CachedGlucoseObject {
         self.isDisplayOnly = sample.isDisplayOnly
         self.wasUserEntered = sample.wasUserEntered
         self.device = sample.device
+        self.trend = sample.trend
     }
 }
