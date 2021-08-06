@@ -21,7 +21,6 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CachedGlucoseObject" representedClassName=".CachedGlucoseObject" syncable="YES">
-        <attribute name="device" optional="YES" attributeType="Binary"/>
         <attribute name="isDisplayOnly" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="provenanceIdentifier" attributeType="String"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
@@ -136,7 +135,7 @@
     </entity>
     <elements>
         <element name="CachedCarbObject" positionX="-63" positionY="72" width="128" height="195"/>
-        <element name="CachedGlucoseObject" positionX="-63" positionY="99" width="128" height="179"/>
+        <element name="CachedGlucoseObject" positionX="-63" positionY="99" width="128" height="164"/>
         <element name="CachedInsulinDeliveryObject" positionX="-63" positionY="108" width="128" height="210"/>
         <element name="DeletedCarbObject" positionX="-63" positionY="90" width="128" height="90"/>
         <element name="PumpEvent" positionX="-63" positionY="18" width="128" height="225"/>
