@@ -85,6 +85,7 @@ extension CachedGlucoseObject {
         if wasUserEntered {
             metadata[HKMetadataKeyWasUserEntered] = true
         }
+        metadata[MetadataKeyGlucoseTrend] = trend?.rawValue
         
         return HKQuantitySample(
             type: HKQuantityType.quantityType(forIdentifier: .bloodGlucose)!,
