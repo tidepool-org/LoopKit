@@ -80,7 +80,7 @@ extension CachedGlucoseObject {
         ]
         
         if isDisplayOnly {
-            metadata[MetadataKeyGlucoseIsDisplayOnly] = isDisplayOnly
+            metadata[MetadataKeyGlucoseIsDisplayOnly] = true
         }
         if wasUserEntered {
             metadata[HKMetadataKeyWasUserEntered] = true
