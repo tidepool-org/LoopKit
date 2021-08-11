@@ -11,15 +11,16 @@ import HealthKit
 import XCTest
 @testable import LoopKit
 
-class CoreDataMigrationTests: XCTestCase {
+class CoreDataV1MigrationTests: XCTestCase {
     
     var cacheStore: PersistenceController!
     let fileManager = FileManager()
-    static let v1ModelURL = Bundle(for: CoreDataMigrationTests.self).bundleURL
+    static let bundleURL = Bundle(for: CoreDataV1MigrationTests.self).bundleURL
 
     override func setUpWithError() throws {
-        try fileManager.copyItem(at: CoreDataMigrationTests.v1ModelURL.appendingPathComponent("Model.sqlite.original"),
-                                 to: CoreDataMigrationTests.v1ModelURL.appendingPathComponent("Model.sqlite"))
+        try? fileManager.removeItem(at: Self.bundleURL.appendingPathComponent("Model.sqlite"))
+        try fileManager.copyItem(at: Self.bundleURL.appendingPathComponent("Model.sqlite.v1.original"),
+                                 to: Self.bundleURL.appendingPathComponent("Model.sqlite"))
     }
 
     override func tearDownWithError() throws {
@@ -29,18 +30,18 @@ class CoreDataMigrationTests: XCTestCase {
             try cacheStore.managedObjectContext.persistentStoreCoordinator?.remove(store)
         }
         
-        try fileManager.removeItem(at: CoreDataMigrationTests.v1ModelURL.appendingPathComponent("Model.sqlite"))
+        try fileManager.removeItem(at: Self.bundleURL.appendingPathComponent("Model.sqlite"))
         cacheStore = nil
     }
 
-    func testMigration() throws {
+    func testV1Migration() throws {
         let e = expectation(description: #function)
-        cacheStore = PersistenceController.init(directoryURL: CoreDataMigrationTests.v1ModelURL)
+        cacheStore = PersistenceController.init(directoryURL: Self.bundleURL)
         var error: Error?
         cacheStore.onReady {
             if let err = $0 {
                 error = err
-                XCTFail("Error opening \(CoreDataMigrationTests.v1ModelURL): \(err)")
+                XCTFail("Error opening \(Self.bundleURL): \(err)")
             }
             e.fulfill()
         }
