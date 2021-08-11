@@ -26,7 +26,6 @@
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="syncIdentifier" attributeType="String"/>
         <attribute name="syncVersion" attributeType="Integer 32" defaultValueString="1" usesScalarValueType="YES"/>
-        <attribute name="trend" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="unitString" attributeType="String"/>
         <attribute name="uploadState" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO"/>
         <attribute name="uuid" attributeType="UUID" usesScalarValueType="NO"/>
@@ -136,7 +135,7 @@
     </entity>
     <elements>
         <element name="CachedCarbObject" positionX="-63" positionY="72" width="128" height="195"/>
-        <element name="CachedGlucoseObject" positionX="-63" positionY="99" width="128" height="194"/>
+        <element name="CachedGlucoseObject" positionX="-63" positionY="99" width="128" height="164"/>
         <element name="CachedInsulinDeliveryObject" positionX="-63" positionY="108" width="128" height="210"/>
         <element name="DeletedCarbObject" positionX="-63" positionY="90" width="128" height="90"/>
         <element name="PumpEvent" positionX="-63" positionY="18" width="128" height="225"/>

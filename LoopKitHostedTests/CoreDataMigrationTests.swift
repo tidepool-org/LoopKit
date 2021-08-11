@@ -65,18 +65,22 @@ class CoreDataV1MigrationTests: XCTestCase {
         print("entries = \(entries.map { $0.quantity })")
         XCTAssertEqual(1, entries.count)
         
-        // Do a spot check: make sure "CachedGlucoseObject" has a "device" field.
+        // Do some spot checks.
+        XCTAssertTrue(entityHasAttribute(entityName: "CachedGlucoseObject", attributeName: "device"))
+        XCTAssertTrue(entityHasAttribute(entityName: "CachedGlucoseObject", attributeName: "trend"))
+    }
+    
+    func entityHasAttribute(entityName: String, attributeName: String) -> Bool {
         XCTAssertNotNil(cacheStore.managedObjectContext.persistentStoreCoordinator?.managedObjectModel.entities)
-        var found = false
         if let entities = cacheStore.managedObjectContext.persistentStoreCoordinator?.managedObjectModel.entities {
             for entity in entities {
-                if entity.name == "CachedGlucoseObject", entity.attributesByName.contains(where: { (key: String, value: NSAttributeDescription) in
-                    key == "device"
+                if entity.name == entityName, entity.attributesByName.contains(where: { (key: String, value: NSAttributeDescription) in
+                    key == attributeName
                 }) {
-                    found = true
+                    return true
                 }
             }
         }
-        XCTAssertTrue(found)
+        return false
     }
 }
