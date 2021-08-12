@@ -101,37 +101,43 @@ extension MockGlucoseProvider {
         precondition(amplitude.is(compatibleWith: unit))
         let baseGlucoseValue = baseGlucose.doubleValue(for: unit)
         let amplitudeValue = amplitude.doubleValue(for: unit)
-
-        func sine(_ t: TimeInterval) -> Double {
-            return baseGlucoseValue + amplitudeValue * sin(2 * .pi / period * t)
-        }
+        let chanceOfNilTrend = 1.0/20.0
         
         return MockGlucoseProvider { date, completion in
             let timeOffset = date.timeIntervalSince1970 - referenceDate.timeIntervalSince1970
-            let glucoseValue = sine(timeOffset)
-            let prevTimeOffset = timeOffset - period
-            let prevGlucoseValue = sine(prevTimeOffset)
-            let trend: GlucoseTrend? = {
-                switch glucoseValue - prevGlucoseValue {
-                case -0.01...0.01:
+            func sine(_ t: TimeInterval) -> Double {
+                return baseGlucoseValue + amplitudeValue * sin(2 * .pi / period * t)
+            }
+            func derivative(_ t: TimeInterval) -> Double {
+                return 2 * .pi * amplitudeValue * cos(2 * .pi / period * t) / period
+            }
+            func trend() -> GlucoseTrend? {
+                let smallDelta = 0.005
+                let mediumDelta = smallDelta * 2
+                let largeDelta = mediumDelta * 4
+                let d = derivative(timeOffset)
+                switch d {
+                case -smallDelta ... smallDelta:
                     return .flat
-                case -2 ..< -0.01:
+                case -mediumDelta ..< -smallDelta:
                     return .down
-                case -5 ..< -2:
+                case -largeDelta ..< -mediumDelta:
                     return .downDown
-                case -Double.greatestFiniteMagnitude ..< -5:
+                case -Double.greatestFiniteMagnitude ..< -largeDelta:
                     return .downDownDown
-                case 0.01...2:
+                case smallDelta...mediumDelta:
                     return .up
-                case 2...5:
+                case mediumDelta...largeDelta:
                     return .upUp
-                case 5...Double.greatestFiniteMagnitude:
+                case largeDelta...Double.greatestFiniteMagnitude:
                     return .upUpUp
                 default:
                     return nil
                 }
-            }()
-            let sample = glucoseSample(at: date, quantity: HKQuantity(unit: unit, doubleValue: glucoseValue), trend: trend)
+            }
+            let glucoseValue = sine(timeOffset)
+            let sample = glucoseSample(at: date, quantity: HKQuantity(unit: unit, doubleValue: glucoseValue),
+                                       trend: coinFlip(withChanceOfHeads: chanceOfNilTrend, ifHeads: nil, ifTails: trend()))
             completion(.newData([sample]))
         }
     }
