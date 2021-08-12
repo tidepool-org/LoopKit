@@ -35,7 +35,7 @@ class CoreDataV1MigrationTests: XCTestCase {
     }
 
     func testV1Migration() throws {
-        let e = expectation(description: #function)
+        let e = expectation(description: "\(#function): init")
         cacheStore = PersistenceController.init(directoryURL: Self.bundleURL)
         var error: Error?
         cacheStore.onReady {
@@ -45,12 +45,10 @@ class CoreDataV1MigrationTests: XCTestCase {
             }
             e.fulfill()
         }
-        wait(for: [e], timeout: 10.0)
-        if let error = error { throw error }
-//        print("\(String(describing: cacheStore.managedObjectContext.persistentStoreCoordinator?.managedObjectModel.entities))")
-        
+        wait(for: [e], timeout: 3.0)
+        if let error = error { throw error }        
         var entries: [CachedCarbObject]!
-        let e0 = expectation(description: #function)
+        let e0 = expectation(description: "\(#function): fetch")
         cacheStore.managedObjectContext.performAndWait {
             do {
                 entries = try cacheStore.managedObjectContext.fetch(CachedCarbObject.fetchRequest())
@@ -61,8 +59,6 @@ class CoreDataV1MigrationTests: XCTestCase {
         }
         wait(for: [e0], timeout: 1.0)
         if let error = error { throw error }
-        print("entries.count = \(entries.count)")
-        print("entries = \(entries.map { $0.quantity })")
         XCTAssertEqual(1, entries.count)
     }
 }
