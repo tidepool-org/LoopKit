@@ -68,18 +68,21 @@ struct CorrectionRangeOverrideInformationView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             CorrectionRangeOverrideInformationView(preset: .preMeal)
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .milligramsPerDeciliter))
         }
         .colorScheme(.light)
         .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
         .previewDisplayName("Pre-Meal SE light")
         NavigationView {
             CorrectionRangeOverrideInformationView(preset: .workout)
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .milligramsPerDeciliter))
         }
         .colorScheme(.light)
         .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
         .previewDisplayName("Workout SE light")
         NavigationView {
             CorrectionRangeOverrideInformationView(preset: .preMeal)
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .millimolesPerLiter))
         }
         .preferredColorScheme(.dark)
         .colorScheme(.dark)
@@ -87,6 +90,7 @@ struct CorrectionRangeOverrideInformationView_Previews: PreviewProvider {
         .previewDisplayName("Pre-Meal 11 Pro dark")
         NavigationView {
             CorrectionRangeOverrideInformationView(preset: .workout)
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .millimolesPerLiter))
         }
         .preferredColorScheme(.dark)
         .colorScheme(.dark)

@@ -13,7 +13,6 @@ import LoopKit
 public struct SuspendThresholdInformationView: View {
     var onExit: (() -> Void)?
     var mode: SettingsPresentationMode
-    var preferredUnit: HKUnit = HKUnit.milligramsPerDeciliter
     
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.appName) var appName
@@ -28,7 +27,6 @@ public struct SuspendThresholdInformationView: View {
     
     public var body: some View {
         GlucoseTherapySettingInformationView(therapySetting: .suspendThreshold,
-                                             preferredUnit: preferredUnit,
                                              onExit: onExit,
                                              mode: mode,
                                              appName: appName)
@@ -39,12 +37,14 @@ struct SuspendThresholdInformationView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             SuspendThresholdInformationView()
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .milligramsPerDeciliter))
         }
         .colorScheme(.light)
         .previewDevice(PreviewDevice(rawValue: "iPhone SE 2"))
         .previewDisplayName("SE light")
         NavigationView {
             SuspendThresholdInformationView()
+                .environmentObject(DisplayGlucoseUnitObservable(displayGlucoseUnit: .millimolesPerLiter))
         }
         .preferredColorScheme(.dark)
         .colorScheme(.dark)

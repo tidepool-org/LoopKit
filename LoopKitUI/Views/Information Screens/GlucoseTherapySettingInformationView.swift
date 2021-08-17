@@ -15,21 +15,23 @@ public struct GlucoseTherapySettingInformationView: View {
     let onExit: (() -> Void)?
     let mode: SettingsPresentationMode
     let therapySetting: TherapySetting
-    let preferredUnit: HKUnit
     let appName: String
     
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
+
+    private var displayGlucoseUnit: HKUnit {
+        displayGlucoseUnitObservable.displayGlucoseUnit
+    }
 
     public init(
         therapySetting: TherapySetting,
-        preferredUnit: HKUnit? = nil,
         onExit: (() -> Void)?,
         mode: SettingsPresentationMode = .acceptanceFlow,
         appName: String,
         text: AnyView? = nil
     ){
         self.therapySetting = therapySetting
-        self.preferredUnit = preferredUnit ?? .milligramsPerDeciliter
         self.onExit = onExit
         self.mode = mode
         self.appName = appName
@@ -58,7 +60,7 @@ public struct GlucoseTherapySettingInformationView: View {
     private var bodyText: some View {
         VStack(alignment: .leading, spacing: 25) {
             text ?? AnyView(Text(therapySetting.descriptiveText(appName: appName)))
-            Text(therapySetting.guardrailInformationText)
+            Text(therapySetting.guardrailInformationText(displayGlucoseUnit: displayGlucoseUnit))
         }
         .accentColor(.secondary)
         .foregroundColor(.accentColor)
@@ -66,33 +68,32 @@ public struct GlucoseTherapySettingInformationView: View {
     }
     
     private var illustrationImageName: String {
-        return "\(therapySetting) \(preferredUnit.description.replacingOccurrences(of: "/", with: ""))"
+        return "\(therapySetting) \(displayGlucoseUnit.description.replacingOccurrences(of: "/", with: ""))"
     }
 }
 
 fileprivate extension TherapySetting {
-    // TODO: pass in preferredUnit instead of having both units.
-    var guardrailInformationText: String {
+    func guardrailInformationText(displayGlucoseUnit: HKUnit) -> String {
         switch self {
         case .glucoseTargetRange:
-            return lowHighText(for: Guardrail.correctionRange)
+            return lowHighText(for: Guardrail.correctionRange, displayGlucoseUnit: displayGlucoseUnit)
         case .preMealCorrectionRangeOverride:
             return lowHighText(lowerBoundString: LocalizedString("your Glucose Safety Limit", comment: "Lower bound pre-meal information text"),
-                               upperBoundString: Guardrail.premealCorrectionRangeMaximum.bothUnitsString)
+                               upperBoundString: Guardrail.premealCorrectionRangeMaximum.stringForGlucoseUnit(displayGlucoseUnit))
         case .workoutCorrectionRangeOverride:
             return lowHighText(
-                lowerBoundString: String(format: LocalizedString("%1$@ or your Glucose Safety Limit, whichever is higher", comment: "Lower bound workout information text format (1: app name)"), Guardrail.unconstrainedWorkoutCorrectionRange.absoluteBounds.lowerBound.bothUnitsString),
-                upperBoundString: Guardrail.unconstrainedWorkoutCorrectionRange.absoluteBounds.upperBound.bothUnitsString)
+                lowerBoundString: String(format: LocalizedString("%1$@ or your Glucose Safety Limit, whichever is higher", comment: "Lower bound workout information text format (1: app name)"), Guardrail.unconstrainedWorkoutCorrectionRange.absoluteBounds.lowerBound.stringForGlucoseUnit(displayGlucoseUnit)),
+                upperBoundString: Guardrail.unconstrainedWorkoutCorrectionRange.absoluteBounds.upperBound.stringForGlucoseUnit(displayGlucoseUnit))
         case .suspendThreshold:
-            return lowHighText(for: Guardrail.suspendThreshold)
+            return lowHighText(for: Guardrail.suspendThreshold, displayGlucoseUnit: displayGlucoseUnit)
         case .basalRate, .deliveryLimits, .insulinModel, .carbRatio, .insulinSensitivity, .none:
             fatalError("Unexpected")
         }
     }
        
-    func lowHighText(for guardrail: Guardrail<HKQuantity>) -> String {
-        return lowHighText(lowerBoundString: guardrail.absoluteBounds.lowerBound.bothUnitsString,
-                           upperBoundString: guardrail.absoluteBounds.upperBound.bothUnitsString)
+    func lowHighText(for guardrail: Guardrail<HKQuantity>, displayGlucoseUnit: HKUnit) -> String {
+        return lowHighText(lowerBoundString: guardrail.absoluteBounds.lowerBound.stringForGlucoseUnit(displayGlucoseUnit),
+                           upperBoundString: guardrail.absoluteBounds.upperBound.stringForGlucoseUnit(displayGlucoseUnit))
     }
 
     func lowHighText(lowerBoundString: String, upperBoundString: String) -> String {

@@ -23,4 +23,26 @@ extension HKQuantity {
                mgdLFormatter.string(from: self, for: .milligramsPerDeciliter)!,
                mmolLFormatter.string(from: self, for: .millimolesPerLiter)!)
     }
+
+    public func stringForGlucoseUnit(_ glucoseUnit: HKUnit) -> String {
+        if glucoseUnit == HKUnit.milligramsPerDeciliter {
+            return mgdLFormatter.string(from: self, for: .milligramsPerDeciliter)!
+        } else {
+            return mmolLFormatter.string(from: self, for: .millimolesPerLiter)!
+        }
+    }
+}
+
+extension ClosedRange where Bound == HKQuantity {
+    public func stringForGlucoseUnit(_ glucoseUnit: HKUnit) -> String {
+        let formatter: QuantityFormatter
+        if glucoseUnit == HKUnit.milligramsPerDeciliter {
+            formatter = mgdLFormatter
+        } else {
+            formatter = mmolLFormatter
+        }
+        return String(format: "%1$@-%2$@",
+                      formatter.string(from: self.lowerBound, for: glucoseUnit, includeUnit: false)!,
+                      formatter.string(from: self.upperBound, for: glucoseUnit, includeUnit: true)!)
+    }
 }
