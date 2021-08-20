@@ -105,7 +105,7 @@ extension CachedGlucoseObject {
 extension CachedGlucoseObject {
 
     // Loop
-    func create(from sample: NewGlucoseSample, provenanceIdentifier: String) {
+    func create(from sample: NewGlucoseSample, provenanceIdentifier: String, healthKitStorageDelay: TimeInterval?) {
         self.uuid = nil
         self.provenanceIdentifier = provenanceIdentifier
         self.syncIdentifier = sample.syncIdentifier
@@ -117,6 +117,7 @@ extension CachedGlucoseObject {
         self.wasUserEntered = sample.wasUserEntered
         self.device = sample.device
         self.trend = sample.trend
+        self.healthKitEligibleDate = healthKitStorageDelay.map { sample.date.addingTimeInterval($0) }
     }
 
     // HealthKit
@@ -134,6 +135,9 @@ extension CachedGlucoseObject {
         self.wasUserEntered = sample.wasUserEntered
         self.device = sample.device
         self.trend = sample.trend
+        // The assumption here is that if this is created from a HKQuantitySample, it is coming out of HealthKit, and
+        // therefore, by definition, eligible.
+        self.healthKitEligibleDate = nil
     }
 }
 
@@ -151,5 +155,6 @@ extension CachedGlucoseObject {
         self.wasUserEntered = sample.wasUserEntered
         self.device = sample.device
         self.trend = sample.trend
+        self.healthKitEligibleDate = sample.healthKitEligibleDate
     }
 }
