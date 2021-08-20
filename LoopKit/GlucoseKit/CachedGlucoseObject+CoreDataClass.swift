@@ -145,6 +145,7 @@ extension CachedGlucoseObject {
 
 extension CachedGlucoseObject {
     func update(from sample: StoredGlucoseSample) {
+        self.uuid = sample.uuid
         self.provenanceIdentifier = sample.provenanceIdentifier
         self.syncIdentifier = sample.syncIdentifier
         self.syncVersion = sample.syncVersion
