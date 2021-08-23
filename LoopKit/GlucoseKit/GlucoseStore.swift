@@ -384,8 +384,8 @@ extension GlucoseStore {
                 }
                 
                 if stored.contains(where: { $0.uuid != nil }) {
-                    self.log.error("Invalid data! Found CachedGlucoseObjects with non-nil uuid. Should never happen!")
-                    // Note the UUIDs will be overwritten below...hopefully that's ok?
+                    self.log.error("Found CachedGlucoseObjects with non-nil uuid. Should never happen, but HealthKit should be able to resolve it.")
+                    // Note the UUIDs will be overwritten below...HealthKit should resolve this by "replacing" these items since the syncIdentifiers match
                 }
                     
                 let quantitySamples = stored.map { $0.quantitySample }
