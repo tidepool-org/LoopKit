@@ -372,11 +372,9 @@ extension GlucoseStore {
         dispatchPrecondition(condition: .onQueue(queue))
         var error: Error? = nil
         
-        // Search for Glucose data that hasn't been stored in HealthKit yet (uuid = nil), which are
-        // "eligible" for storing in HealthKit (i.e. are not too "recent" according to `healthKitStorageDelay`
         cacheStore.managedObjectContext.performAndWait {
             let request: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
-            request.predicate = NSPredicate(format: "healthKitEligibleDate != nil AND healthKitEligibleDate <= %@", Date() as NSDate)
+            request.predicate = NSPredicate(format: "healthKitEligibleDate <= %@", Date() as NSDate)
             do {
                 let stored = try self.cacheStore.managedObjectContext.fetch(request)
                 guard !stored.isEmpty else {
