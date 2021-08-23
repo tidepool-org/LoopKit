@@ -277,6 +277,47 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         XCTAssertEqual([sample1.quantitySample.description], hkobjects.map { $0.description })
     }
     
+    func testGetGlucoseSamplesDeniedHealthKitStorage() {
+        glucoseStore.healthKitStorageDelay = .minutes(5)
+        // Note error should not cause failure
+        healthStore.saveError = Error.arbitrary
+        healthStore.authorizationStatus = .sharingDenied
+        var hkobjects = [HKObject]()
+        healthStore.setSaveHandler { o, _, _ in hkobjects = o }
+        let addGlucoseSamplesCompletion = expectation(description: "addGlucoseSamples")
+        glucoseStore.addGlucoseSamples([sample1, sample2, sample3]) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let samples):
+                XCTAssertEqual(samples.count, 3)
+            }
+            addGlucoseSamplesCompletion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let getGlucoseSamples1Completion = expectation(description: "getGlucoseSamples1")
+        glucoseStore.getGlucoseSamples() { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let samples):
+                XCTAssertEqual(samples.count, 3)
+                // HealthKit storage is denied, so all UUIDs are nil
+                XCTAssertNil(samples[0].uuid)
+                assertEqualSamples(samples[0], self.sample1)
+                XCTAssertNil(samples[1].uuid)
+                assertEqualSamples(samples[1], self.sample3)
+                XCTAssertNil(samples[2].uuid)
+                assertEqualSamples(samples[2], self.sample2)
+            }
+            getGlucoseSamples1Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        XCTAssertTrue(hkobjects.isEmpty)
+    }
+    
     func testLatestGlucose() {
         XCTAssertNil(glucoseStore.latestGlucose)
 

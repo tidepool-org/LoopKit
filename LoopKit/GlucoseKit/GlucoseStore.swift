@@ -338,7 +338,10 @@ extension GlucoseStore {
 
                     let objects: [CachedGlucoseObject] = samples.map { sample in
                         let object = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
-                        object.create(from: sample, provenanceIdentifier: self.provenanceIdentifier, healthKitStorageDelay: self.healthKitStorageDelay)
+                        object.create(from: sample,
+                                      provenanceIdentifier: self.provenanceIdentifier,
+                                      // If HealthKit sharing is denied, a `nil` here will prevent later storage there
+                                      healthKitStorageDelay: self.sharingDenied ? nil : self.healthKitStorageDelay)
                         return object
                     }
 
