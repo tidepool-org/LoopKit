@@ -97,6 +97,9 @@ public final class GlucoseStore: HealthKitSampleStore {
 
     public var healthKitStorageDelay: TimeInterval = 0
     
+    // If HealthKit sharing is denied, a `nil` here will prevent later storage there
+    var healthKitStorageDelayIfAuthorized: TimeInterval? { sharingDenied ? nil : healthKitStorageDelay }
+    
     static let healthKitQueryAnchorMetadataKey = "com.loopkit.GlucoseStore.hkQueryAnchor"
 
     public init(
@@ -340,8 +343,7 @@ extension GlucoseStore {
                         let object = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
                         object.create(from: sample,
                                       provenanceIdentifier: self.provenanceIdentifier,
-                                      // If HealthKit sharing is denied, a `nil` here will prevent later storage there
-                                      healthKitStorageDelay: self.sharingDenied ? nil : self.healthKitStorageDelay)
+                                      healthKitStorageDelay: self.healthKitStorageDelayIfAuthorized)
                         return object
                     }
 
@@ -852,7 +854,7 @@ extension GlucoseStore {
             self.cacheStore.managedObjectContext.performAndWait {
                 for sample in samples {
                     let object = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
-                    object.create(from: sample, provenanceIdentifier: self.provenanceIdentifier, healthKitStorageDelay: self.healthKitStorageDelay)
+                    object.create(from: sample, provenanceIdentifier: self.provenanceIdentifier, healthKitStorageDelay: self.healthKitStorageDelayIfAuthorized)
                 }
                 error = self.cacheStore.save()
             }

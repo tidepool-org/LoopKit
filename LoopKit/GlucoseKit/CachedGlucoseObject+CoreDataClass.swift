@@ -104,7 +104,11 @@ extension CachedGlucoseObject {
 
 extension CachedGlucoseObject {
 
-    // Loop
+    /// Creates (initializes) a `CachedGlucoseObject` from a new CGM sample from Loop.
+    /// - parameters:
+    ///   - sample: A new glucose (CGM) sample to copy data from.
+    ///   - provenanceIdentifier: A string uniquely identifying the provenance (origin) of the sample.
+    ///   - healthKitStorageDelay: The amount of time (seconds) to delay writing this sample to HealthKit.  A `nil` here means this sample is not eligible (i.e. authorized) to be written to HealthKit.
     func create(from sample: NewGlucoseSample, provenanceIdentifier: String, healthKitStorageDelay: TimeInterval?) {
         self.uuid = nil
         self.provenanceIdentifier = provenanceIdentifier
@@ -136,7 +140,7 @@ extension CachedGlucoseObject {
         self.device = sample.device
         self.trend = sample.trend
         // The assumption here is that if this is created from a HKQuantitySample, it is coming out of HealthKit, and
-        // therefore, by definition, eligible.
+        // therefore does not need to be written to HealthKit.
         self.healthKitEligibleDate = nil
     }
 }
