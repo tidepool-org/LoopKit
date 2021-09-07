@@ -18,7 +18,9 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             let device = HKDevice(name: "NAME", manufacturer: "MANUFACTURER", model: "MODEL", hardwareVersion: "HARDWAREVERSION", firmwareVersion: "FIRMWAREVERSION", softwareVersion: "SOFTWAREVERSION", localIdentifier: "LOCALIDENTIFIER", udiDeviceIdentifier: "UDIDEVICEIDENTIFIER")
             let newGlucoseSample = NewGlucoseSample(date: startDate,
                                                     quantity: quantity,
+                                                    condition: .belowRange(threshold: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 130.0)),
                                                     trend: .flat,
+                                                    trendRate: HKQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: 0.1),
                                                     isDisplayOnly: true,
                                                     wasUserEntered: false,
                                                     syncIdentifier: "F4C094AA-9EBE-4804-8F02-90C7B613BDEC",
@@ -35,7 +37,12 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             XCTAssertEqual(object.startDate, startDate)
             XCTAssertEqual(object.isDisplayOnly, true)
             XCTAssertEqual(object.wasUserEntered, false)
+            XCTAssertEqual(object.conditionTitle, "belowRange")
+            XCTAssertEqual(object.conditionThresholdUnit, HKUnit.milligramsPerDeciliter.unitString)
+            XCTAssertEqual(object.conditionThresholdValue, 130.0)
             XCTAssertEqual(object.trend, .flat)
+            XCTAssertEqual(object.trendRateUnit, HKUnit.milligramsPerDeciliterPerMinute.unitString)
+            XCTAssertEqual(object.trendRateValue, 0.1)
             XCTAssertEqual(object.modificationCounter, 1)
             XCTAssertEqual(object.device, device)
             XCTAssertEqual(object.healthKitEligibleDate, startDate.addingTimeInterval(.minutes(1)))
@@ -53,7 +60,12 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
                 HKMetadataKeySyncVersion: 2,
                 MetadataKeyGlucoseIsDisplayOnly: false,
                 HKMetadataKeyWasUserEntered: true,
-                MetadataKeyGlucoseTrend: 4
+                MetadataKeyGlucoseConditionTitle: "belowRange",
+                MetadataKeyGlucoseConditionThresholdUnit: HKUnit.milligramsPerDeciliter.unitString,
+                MetadataKeyGlucoseConditionThresholdValue: 130.0,
+                MetadataKeyGlucoseTrend: 4,
+                MetadataKeyGlucoseTrendRateUnit: HKUnit.milligramsPerDeciliterPerMinute.unitString,
+                MetadataKeyGlucoseTrendRateValue: 0.1
             ]
             let quantitySample = HKQuantitySample(type: type, quantity: quantity, start: startDate, end: startDate, device: device, metadata: metadata)
             let object = CachedGlucoseObject(context: cacheStore.managedObjectContext)
@@ -67,7 +79,12 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             XCTAssertEqual(object.startDate, startDate)
             XCTAssertEqual(object.isDisplayOnly, false)
             XCTAssertEqual(object.wasUserEntered, true)
+            XCTAssertEqual(object.conditionTitle, "belowRange")
+            XCTAssertEqual(object.conditionThresholdUnit, HKUnit.milligramsPerDeciliter.unitString)
+            XCTAssertEqual(object.conditionThresholdValue, 130.0)
             XCTAssertEqual(object.trend, .flat)
+            XCTAssertEqual(object.trendRateUnit, HKUnit.milligramsPerDeciliterPerMinute.unitString)
+            XCTAssertEqual(object.trendRateValue, 0.1)
             XCTAssertEqual(object.modificationCounter, 1)
             XCTAssertEqual(object.device, device)
             XCTAssertEqual(object.healthKitEligibleDate, nil)
@@ -85,7 +102,12 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
                 HKMetadataKeySyncVersion: 2,
                 MetadataKeyGlucoseIsDisplayOnly: true,
                 HKMetadataKeyWasUserEntered: true,
-                MetadataKeyGlucoseTrend: 4
+                MetadataKeyGlucoseConditionTitle: "belowRange",
+                MetadataKeyGlucoseConditionThresholdUnit: HKUnit.milligramsPerDeciliter.unitString,
+                MetadataKeyGlucoseConditionThresholdValue: 130.0,
+                MetadataKeyGlucoseTrend: 4,
+                MetadataKeyGlucoseTrendRateUnit: HKUnit.milligramsPerDeciliterPerMinute.unitString,
+                MetadataKeyGlucoseTrendRateValue: 0.1
             ]
             let quantitySample = HKQuantitySample(type: type, quantity: quantity, start: startDate, end: startDate, device: device, metadata: metadata)
             let object = CachedGlucoseObject(context: cacheStore.managedObjectContext)
@@ -93,7 +115,9 @@ class CachedGlucoseObjectOperationsTests: PersistenceControllerTestCase {
             XCTAssertEqual(quantitySample.description, object.quantitySample.description)
             XCTAssertEqual(quantitySample.quantity, object.quantitySample.quantity)
             XCTAssertEqual(quantitySample.quantityType, object.quantitySample.quantityType)
+            XCTAssertEqual(quantitySample.condition, object.quantitySample.condition)
             XCTAssertEqual(quantitySample.trend, object.quantitySample.trend)
+            XCTAssertEqual(quantitySample.trendRate, object.quantitySample.trendRate)
             XCTAssertEqual(quantitySample.provenanceIdentifier, object.quantitySample.provenanceIdentifier)
             XCTAssertEqual(quantitySample.absorptionTime, object.quantitySample.absorptionTime)
             XCTAssertEqual(quantitySample.automaticallyIssued, object.quantitySample.automaticallyIssued)
