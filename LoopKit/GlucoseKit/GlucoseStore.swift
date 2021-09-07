@@ -398,6 +398,7 @@ extension GlucoseStore {
                 }
                 dispatchGroup.wait()
 
+                // If there is an error writing to HealthKit, then do not persist uuids and retry later
                 guard error == nil else {
                     return
                 }
