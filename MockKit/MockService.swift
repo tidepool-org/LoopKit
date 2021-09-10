@@ -23,6 +23,8 @@ public final class MockService: Service {
     
     public var analytics: Bool
     
+    public var versionUpdate: VersionUpdate = .noneNeeded
+    
     public let maxHistoryItems = 1000
     
     private var lockedHistory = Locked<[String]>([])
@@ -150,4 +152,11 @@ extension MockService: RemoteDataService {
         completion(.success(false))
     }
     
+}
+
+extension MockService: VersionCheckService {
+    public func checkVersion(currentVersion: String, completion: @escaping (Result<VersionUpdate, Error>) -> Void) {
+        record("[VersionCheckService] Version checked \(currentVersion)")
+        completion(.success(versionUpdate))
+    }
 }
