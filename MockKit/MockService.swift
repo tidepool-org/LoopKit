@@ -23,8 +23,27 @@ public final class MockService: Service {
     
     public var analytics: Bool
     
-    public var versionUpdate: VersionUpdate = .noneNeeded
+    public var versionInfo = LoopVersionInfo()
     
+    public var minimumSupported: String? {
+        get {
+            return versionInfo.minimumSupported
+        }
+        set {
+            versionInfo = LoopVersionInfo(minimumSupported: newValue,
+                                          criticalUpdateNeeded: versionInfo.criticalUpdateNeeded)
+        }
+    }
+    public var criticalUpdateNeeded: [String]? {
+        get {
+            return versionInfo.criticalUpdateNeeded
+        }
+        set {
+            versionInfo = LoopVersionInfo(minimumSupported: versionInfo.minimumSupported,
+                                          criticalUpdateNeeded: newValue)
+        }
+    }
+
     public let maxHistoryItems = 1000
     
     private var lockedHistory = Locked<[String]>([])
@@ -45,13 +64,15 @@ public final class MockService: Service {
         self.remoteData = rawState["remoteData"] as? Bool ?? false
         self.logging = rawState["logging"] as? Bool ?? false
         self.analytics = rawState["analytics"] as? Bool ?? false
+        self.versionInfo = (rawState["versionInfo"] as? String).flatMap({ LoopVersionInfo.fromJSON($0) }) ?? LoopVersionInfo()
     }
     
     public var rawState: RawStateValue {
         return [
             "remoteData": remoteData,
             "logging": logging,
-            "analytics": analytics
+            "analytics": analytics,
+            "versionInfo": versionInfo.toJSON()
         ]
     }
     
@@ -157,6 +178,6 @@ extension MockService: RemoteDataService {
 extension MockService: VersionCheckService {
     public func checkVersion(currentVersion: String, completion: @escaping (Result<VersionUpdate, Error>) -> Void) {
         record("[VersionCheckService] Version checked \(currentVersion)")
-        completion(.success(versionUpdate))
+        completion(.success(versionInfo.getVersionUpdateNeeded(currentVersion: currentVersion)))
     }
 }

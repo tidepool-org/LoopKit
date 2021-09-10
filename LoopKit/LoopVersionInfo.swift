@@ -29,12 +29,12 @@ public struct LoopVersionInfo {
     public let minimumSupported: String?
     public let criticalUpdateNeeded: [String]?
     
-    public init(minimumSupported: String?, criticalUpdateNeeded: [String]?) {
+    public init(minimumSupported: String? = nil, criticalUpdateNeeded: [String]? = nil) {
         self.minimumSupported = minimumSupported
         self.criticalUpdateNeeded = criticalUpdateNeeded
     }
     
-    public func needsVersionUpdate(currentVersion version: String) -> VersionUpdate {
+    public func getVersionUpdateNeeded(currentVersion version: String) -> VersionUpdate {
         if needsCriticalUpdate(version: version) {
             return .criticalNeeded
         }
@@ -55,5 +55,16 @@ public struct LoopVersionInfo {
             return false
         }
         return thisVersion < minimumSupportedVersion
+    }
+}
+
+extension LoopVersionInfo: Codable {
+    public func toJSON() -> String {
+        let encoder = JSONEncoder()
+        return String(data: try! encoder.encode(self), encoding: .utf8)!
+    }
+    public static func fromJSON(_ str: String) -> LoopVersionInfo? {
+        let decoder = JSONDecoder()
+        return str.data(using: .utf8).flatMap { try? decoder.decode(LoopVersionInfo.self, from: $0) }
     }
 }

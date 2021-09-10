@@ -17,6 +17,14 @@ final class MockServiceTableViewController: UITableViewController {
         case create
         case update
     }
+    
+    private class TextFieldCellDelegate: TextFieldTableViewCellDelegate {
+        var callback: (String?) -> Void
+        init(_ callback: @escaping (String?) -> Void) { self.callback = callback }
+        func textFieldTableViewCellDidBeginEditing(_ cell: TextFieldTableViewCell) { }
+        func textFieldTableViewCellDidEndEditing(_ cell: TextFieldTableViewCell) { callback(cell.textField.text) }
+    }
+    private var delegates = [VersionCheck: TextFieldCellDelegate]()
 
     private let service: MockService
 
@@ -39,6 +47,7 @@ final class MockServiceTableViewController: UITableViewController {
         tableView.register(SettingsTableViewCell.self, forCellReuseIdentifier: SettingsTableViewCell.className)
         tableView.register(SwitchTableViewCell.self, forCellReuseIdentifier: SwitchTableViewCell.className)
         tableView.register(TextButtonTableViewCell.self, forCellReuseIdentifier: TextButtonTableViewCell.className)
+        tableView.register(LabeledTextFieldTableViewCell.nib(), forCellReuseIdentifier: LabeledTextFieldTableViewCell.className)
 
         title = service.localizedTitle
 
@@ -96,6 +105,11 @@ final class MockServiceTableViewController: UITableViewController {
         case analytics
     }
     
+    private enum VersionCheck: Int, CaseIterable {
+        case supportedMinimumVersion
+        case criticalUpdateVersions
+    }
+
     private enum History: Int, CaseIterable {
         case viewHistory
         case clearHistory
@@ -117,7 +131,7 @@ final class MockServiceTableViewController: UITableViewController {
         case .source:
             return Source.allCases.count
         case .versionCheck:
-            return 1
+            return VersionCheck.allCases.count
         case .history:
             return History.allCases.count
         case .deleteService:
@@ -167,9 +181,25 @@ final class MockServiceTableViewController: UITableViewController {
             }
             return cell
         case .versionCheck:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
-            cell.textLabel?.text = service.versionUpdate.localizedDescription
-            return cell
+            let versionCheckRow = VersionCheck(rawValue: indexPath.row)!
+            switch versionCheckRow {
+            case .supportedMinimumVersion:
+                let cell = tableView.dequeueReusableCell(withIdentifier: LabeledTextFieldTableViewCell.className, for: indexPath) as! LabeledTextFieldTableViewCell
+                cell.titleLabel?.text = "Supported Minimum Version"
+                let delegate = TextFieldCellDelegate { [weak self] in self?.service.minimumSupported = $0 }
+                cell.delegate = delegate
+                delegates[versionCheckRow] = delegate
+                cell.textField.text = service.versionInfo.minimumSupported
+                return cell
+            case .criticalUpdateVersions:
+                let cell = tableView.dequeueReusableCell(withIdentifier: LabeledTextFieldTableViewCell.className, for: indexPath) as! LabeledTextFieldTableViewCell
+                cell.titleLabel?.text = "Critical Update Version(s)"
+                let delegate = TextFieldCellDelegate { [weak self] in self?.service.criticalUpdateNeeded = $0.splitTrimmed(separator: ",") }
+                cell.delegate = delegate
+                delegates[versionCheckRow] = delegate
+                cell.textField.text = service.versionInfo.criticalUpdateNeeded?.joined(separator: ",")
+                return cell
+            }
         case .history:
             switch History(rawValue: indexPath.row)! {
             case .viewHistory:
@@ -211,13 +241,7 @@ final class MockServiceTableViewController: UITableViewController {
         case .source:
             break
         case .versionCheck:
-            let alert = UIAlertController(versionCheckHandler: {
-                self.service.versionUpdate = $0
-                tableView.reloadData()
-            })
-            present(alert, animated: true) {
-                tableView.deselectRow(at: indexPath, animated: true)
-            }
+            break
         case .history:
             switch History(rawValue: indexPath.row)! {
             case .viewHistory:
@@ -237,6 +261,28 @@ final class MockServiceTableViewController: UITableViewController {
         }
     }
 
+}
+
+extension MockServiceTableViewController: TextFieldTableViewCellDelegate {
+    func textFieldTableViewCellDidBeginEditing(_ cell: TextFieldTableViewCell) {
+        
+    }
+    
+    func textFieldTableViewCellDidEndEditing(_ cell: TextFieldTableViewCell) {
+
+        print("*** \(cell.textField.text!)")
+    }
+}
+
+fileprivate extension Optional where Wrapped == String {
+    func splitTrimmed(separator: String) -> [String]? {
+        return self.map {
+            $0.split(separator: ",")
+                .map {
+                    String($0).trimmingCharacters(in: .whitespaces)
+                }
+        }
+    }
 }
 
 fileprivate class MockServiceHistoryViewController: UIViewController {
