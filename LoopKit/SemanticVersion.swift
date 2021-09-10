@@ -10,35 +10,38 @@ import Foundation
 
 struct SemanticVersion: Comparable {
     static let versionRegex = "[0-9]+.[0-9]+.[0-9]+"
-    let value: String
+    let major: Int
+    let minor: Int
+    let patch: Int
     init?(_ value: String) {
         guard value.matches(SemanticVersion.versionRegex) else { return nil }
-        self.value = value
+        let split = value.split(separator: ".")
+        guard split.count == 3 else { return nil }
+        guard let major = Int(split[0]),
+              let minor = Int(split[1]),
+              let patch = Int(split[2]) else {
+            return nil
+        }
+        assert(major >= 0)
+        assert(minor >= 0)
+        assert(patch >= 0)
+        self.major = major
+        self.minor = minor
+        self.patch = patch
     }
     static func < (lhs: SemanticVersion, rhs: SemanticVersion) -> Bool {
-        let lhsParts = lhs.value.split(separator: ".")
-        let rhsParts = rhs.value.split(separator: ".")
-        switch lhsParts[0].compare(rhsParts[0], options: String.CompareOptions.numeric) {
-        case .orderedAscending:
-            return true
-        case .orderedSame:
-            switch lhsParts[1].compare(rhsParts[1], options: String.CompareOptions.numeric) {
-            case .orderedAscending:
-                return true
-            case .orderedSame:
-                switch lhsParts[2].compare(rhsParts[2], options: String.CompareOptions.numeric) {
-                case .orderedAscending:
-                    return true
-                case .orderedSame:
+        if lhs.major == rhs.major {
+            if lhs.minor == rhs.minor {
+                if lhs.patch == rhs.patch {
                     return false
-                case .orderedDescending:
-                    return false
+                } else {
+                    return lhs.patch < rhs.patch
                 }
-            case .orderedDescending:
-                return false
+            } else {
+                return lhs.minor < rhs.minor
             }
-        case .orderedDescending:
-            return false
+        } else {
+            return lhs.major < rhs.major
         }
     }
 }
