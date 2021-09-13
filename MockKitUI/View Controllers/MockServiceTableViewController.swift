@@ -24,7 +24,6 @@ final class MockServiceTableViewController: UITableViewController {
         func textFieldTableViewCellDidBeginEditing(_ cell: TextFieldTableViewCell) { }
         func textFieldTableViewCellDidEndEditing(_ cell: TextFieldTableViewCell) { callback(cell.textField.text) }
     }
-    private var delegates = [VersionCheck: TextFieldCellDelegate]()
 
     private let service: MockService
 
@@ -47,7 +46,6 @@ final class MockServiceTableViewController: UITableViewController {
         tableView.register(SettingsTableViewCell.self, forCellReuseIdentifier: SettingsTableViewCell.className)
         tableView.register(SwitchTableViewCell.self, forCellReuseIdentifier: SwitchTableViewCell.className)
         tableView.register(TextButtonTableViewCell.self, forCellReuseIdentifier: TextButtonTableViewCell.className)
-        tableView.register(ValuePickerTableViewCell<VersionUpdate>.self, forCellReuseIdentifier: ValuePickerTableViewCell<VersionUpdate>.className)
 
         title = service.localizedTitle
 
@@ -105,10 +103,6 @@ final class MockServiceTableViewController: UITableViewController {
         case analytics
     }
     
-    private enum VersionCheck: Int, CaseIterable {
-        case versionUpdate
-    }
-
     private enum History: Int, CaseIterable {
         case viewHistory
         case clearHistory
@@ -130,7 +124,7 @@ final class MockServiceTableViewController: UITableViewController {
         case .source:
             return Source.allCases.count
         case .versionCheck:
-            return VersionCheck.allCases.count
+            return 1
         case .history:
             return History.allCases.count
         case .deleteService:
@@ -180,14 +174,10 @@ final class MockServiceTableViewController: UITableViewController {
             }
             return cell
         case .versionCheck:
-            let versionCheckRow = VersionCheck(rawValue: indexPath.row)!
-            switch versionCheckRow {
-            case .versionUpdate:
-                let cell = tableView.dequeueReusableCell(withIdentifier: ValuePickerTableViewCell<VersionUpdate>.className, for: indexPath) as! ValuePickerTableViewCell<VersionUpdate>
-                cell.values = VersionUpdate.allCases
-                cell.onSelected { [weak self] in self?.service.versionUpdate = VersionUpdate(rawValue: $0.rawValue) ?? .noneNeeded }
-                return cell
-            }
+            let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
+            cell.textLabel?.text = service.versionUpdate.localizedDescription
+            cell.tintColor = service.versionUpdate.tintColor
+            return cell
         case .history:
             switch History(rawValue: indexPath.row)! {
             case .viewHistory:
@@ -229,7 +219,13 @@ final class MockServiceTableViewController: UITableViewController {
         case .source:
             break
         case .versionCheck:
-            break
+            let alert = UIAlertController(versionCheckHandler: {
+                self.service.versionUpdate = $0
+                tableView.reloadData()
+            })
+            present(alert, animated: true) {
+                tableView.deselectRow(at: indexPath, animated: true)
+            }
         case .history:
             switch History(rawValue: indexPath.row)! {
             case .viewHistory:
@@ -374,9 +370,25 @@ fileprivate extension UIAlertController {
         let cancel = NSLocalizedString("Cancel", comment: "The title of the cancel action in an action sheet")
         addAction(UIAlertAction(title: cancel, style: .cancel, handler: nil))
     }
+    
+    convenience init(versionCheckHandler handler: @escaping (VersionUpdate) -> Void) {
+        self.init(title: "Version Check Response",
+                  message: "How should the simulator respond to a version check?",
+                  preferredStyle: .actionSheet
+        )
+
+        addAction(UIAlertAction(title: "No Update Needed", style: .default, handler: { _ in handler(.noneNeeded) }))
+        addAction(UIAlertAction(title: "Supported Update Needed", style: .default, handler: { _ in handler(.supportedNeeded) }))
+        addAction(UIAlertAction(title: "Critical Update Needed", style: .destructive, handler: { _ in handler(.criticalNeeded) }))
+        addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+    }
 }
 
-extension VersionUpdate: CaseIterable, CustomStringConvertible {
-    public static var allCases = [ VersionUpdate.noneNeeded, VersionUpdate.supportedNeeded, VersionUpdate.criticalNeeded]
-    public var description: String { return self.localizedDescription }
+extension VersionUpdate {
+    var tintColor: UIColor {
+        switch self {
+        case .criticalNeeded: return .red
+        default: return .label
+        }
+    }
 }
