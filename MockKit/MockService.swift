@@ -45,7 +45,7 @@ public final class MockService: Service {
         self.remoteData = rawState["remoteData"] as? Bool ?? false
         self.logging = rawState["logging"] as? Bool ?? false
         self.analytics = rawState["analytics"] as? Bool ?? false
-        self.versionUpdate = (rawState["versionUpdate"] as? String).map { VersionUpdate(rawValue: $0) ?? .noneNeeded } ?? .noneNeeded
+        self.versionUpdate = (rawState["versionUpdate"] as? String).flatMap { VersionUpdate(rawValue: $0) } ?? .noneNeeded
     }
     
     public var rawState: RawStateValue {
