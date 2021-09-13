@@ -53,7 +53,7 @@ public final class MockService: Service {
             "remoteData": remoteData,
             "logging": logging,
             "analytics": analytics,
-            "versionInfo": versionUpdate.rawValue
+            "versionUpdate": versionUpdate.rawValue
         ]
     }
     
