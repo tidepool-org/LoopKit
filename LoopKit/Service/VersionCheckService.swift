@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum VersionUpdate: Comparable {
+public enum VersionUpdate: Comparable, CaseIterable {
     /// No version update needed (i.e. running the latest version).
     case noneNeeded
     /// The version is unsupported; the app needs to be updated to the latest "supported" version.  Not a critical update.

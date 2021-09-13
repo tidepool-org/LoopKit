@@ -17,13 +17,6 @@ final class MockServiceTableViewController: UITableViewController {
         case create
         case update
     }
-    
-    private class TextFieldCellDelegate: TextFieldTableViewCellDelegate {
-        var callback: (String?) -> Void
-        init(_ callback: @escaping (String?) -> Void) { self.callback = callback }
-        func textFieldTableViewCellDidBeginEditing(_ cell: TextFieldTableViewCell) { }
-        func textFieldTableViewCellDidEndEditing(_ cell: TextFieldTableViewCell) { callback(cell.textField.text) }
-    }
 
     private let service: MockService
 
@@ -376,15 +369,20 @@ fileprivate extension UIAlertController {
                   message: "How should the simulator respond to a version check?",
                   preferredStyle: .actionSheet
         )
-
-        addAction(UIAlertAction(title: "No Update Needed", style: .default, handler: { _ in handler(.noneNeeded) }))
-        addAction(UIAlertAction(title: "Supported Update Needed", style: .default, handler: { _ in handler(.supportedNeeded) }))
-        addAction(UIAlertAction(title: "Critical Update Needed", style: .destructive, handler: { _ in handler(.criticalNeeded) }))
+        for versionUpdate in VersionUpdate.allCases {
+            addAction(UIAlertAction(title: versionUpdate.localizedDescription, style: versionUpdate.actionStyle, handler: { _ in handler(versionUpdate) }))
+        }
         addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
     }
 }
 
 extension VersionUpdate {
+    var actionStyle: UIAlertAction.Style {
+        switch self {
+        case .criticalNeeded: return .destructive
+        default: return .default
+        }
+    }
     var tintColor: UIColor {
         switch self {
         case .criticalNeeded: return .red
