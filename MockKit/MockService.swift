@@ -176,7 +176,7 @@ extension MockService: RemoteDataService {
 }
 
 extension MockService: VersionCheckService {
-    public func checkVersion(currentVersion: String, completion: @escaping (Result<VersionUpdate, Error>) -> Void) {
+    public func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate, Error>) -> Void) {
         record("[VersionCheckService] Version checked \(currentVersion)")
         completion(.success(versionInfo.getVersionUpdateNeeded(currentVersion: currentVersion)))
     }

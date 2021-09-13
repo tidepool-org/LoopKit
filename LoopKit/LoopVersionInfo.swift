@@ -9,7 +9,12 @@
 import Foundation
 
 public enum VersionUpdate: Comparable {
-    case noneNeeded, supportedNeeded, criticalNeeded
+    /// No version update needed (i.e. running the latest version).
+    case noneNeeded
+    /// The version is unsupported; the app needs to be updated to the latest "supported" version.  Not a critical update.
+    case supportedNeeded
+    /// The version is bad and may be risky; the app must be updated immediately to avoid harm.
+    case criticalNeeded
 }
 
 extension VersionUpdate {

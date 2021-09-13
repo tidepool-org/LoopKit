@@ -10,5 +10,12 @@ import Foundation
 
 public protocol VersionCheckService: Service {
 
-    func checkVersion(currentVersion: String, completion: @escaping (Result<VersionUpdate, Error>) -> Void)
+    /**
+     Check whether the given app version for the given `bundleIdentifier` needs an update.
+
+     - Parameter bundleIdentifier: The calling app's `bundleIdentifier` (a.k.a. `CFBundleIdentifier`) string.
+     - Parameter currentVersion: The current version to check.
+     - Parameter completion: The completion function to call with any success result or failure.
+     */
+    func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate, Error>) -> Void)
 }
