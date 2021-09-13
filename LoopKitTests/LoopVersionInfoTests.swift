@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import LoopKit
+@testable import TidepoolServiceKit
 
 class LoopVersionInfoTests: XCTestCase {
 
@@ -36,30 +36,5 @@ class LoopVersionInfoTests: XCTestCase {
         XCTAssertEqual(.criticalNeeded, info.getVersionUpdateNeeded(currentVersion: "0.3.1"))
         XCTAssertEqual(.criticalNeeded, info.getVersionUpdateNeeded(currentVersion: "1.1.0"))
         XCTAssertEqual(.supportedNeeded, info.getVersionUpdateNeeded(currentVersion: "1.1.99"))
-    }
-}
-
-class SemanticVersionTests: XCTestCase {
-    
-    func testInvalid() {
-        XCTAssertNil(SemanticVersion("abc123"))
-        XCTAssertNil(SemanticVersion("foopyNoopy"))
-        XCTAssertNil(SemanticVersion("1.2.3.4"))
-        XCTAssertNil(SemanticVersion("-1.2.3.4"))
-        XCTAssertNotNil(SemanticVersion("1.2.3"))
-        XCTAssertNotNil(SemanticVersion("1.0.3"))
-        XCTAssertNotNil(SemanticVersion("00.00.00"))
-    }
-    
-    func testComparable() {
-        XCTAssertEqual(SemanticVersion("1.2.3"), SemanticVersion("1.2.3"))
-        XCTAssertEqual(SemanticVersion("01.2.3"), SemanticVersion("1.2.3"))
-        XCTAssertEqual(SemanticVersion("00.00.00"), SemanticVersion("0.0.0"))
-        XCTAssertGreaterThan(SemanticVersion("1.2.3")!, SemanticVersion("1.2.2")!)
-        XCTAssertLessThan(SemanticVersion("1.2.1")!, SemanticVersion("1.2.2")!)
-        XCTAssertGreaterThan(SemanticVersion("1.3.2")!, SemanticVersion("1.2.2")!)
-        XCTAssertLessThan(SemanticVersion("1.1.1")!, SemanticVersion("1.2.1")!)
-        XCTAssertGreaterThan(SemanticVersion("2.2.3")!, SemanticVersion("1.2.3")!)
-        XCTAssertLessThan(SemanticVersion("1.2.3")!, SemanticVersion("2.2.3")!)
     }
 }

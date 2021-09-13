@@ -47,7 +47,7 @@ final class MockServiceTableViewController: UITableViewController {
         tableView.register(SettingsTableViewCell.self, forCellReuseIdentifier: SettingsTableViewCell.className)
         tableView.register(SwitchTableViewCell.self, forCellReuseIdentifier: SwitchTableViewCell.className)
         tableView.register(TextButtonTableViewCell.self, forCellReuseIdentifier: TextButtonTableViewCell.className)
-        tableView.register(LabeledTextFieldTableViewCell.nib(), forCellReuseIdentifier: LabeledTextFieldTableViewCell.className)
+        tableView.register(ValuePickerTableViewCell<VersionUpdate>.self, forCellReuseIdentifier: ValuePickerTableViewCell<VersionUpdate>.className)
 
         title = service.localizedTitle
 
@@ -106,8 +106,7 @@ final class MockServiceTableViewController: UITableViewController {
     }
     
     private enum VersionCheck: Int, CaseIterable {
-        case supportedMinimumVersion
-        case criticalUpdateVersions
+        case versionUpdate
     }
 
     private enum History: Int, CaseIterable {
@@ -183,21 +182,10 @@ final class MockServiceTableViewController: UITableViewController {
         case .versionCheck:
             let versionCheckRow = VersionCheck(rawValue: indexPath.row)!
             switch versionCheckRow {
-            case .supportedMinimumVersion:
-                let cell = tableView.dequeueReusableCell(withIdentifier: LabeledTextFieldTableViewCell.className, for: indexPath) as! LabeledTextFieldTableViewCell
-                cell.titleLabel?.text = "Supported Minimum Version"
-                let delegate = TextFieldCellDelegate { [weak self] in self?.service.minimumSupported = $0 }
-                cell.delegate = delegate
-                delegates[versionCheckRow] = delegate
-                cell.textField.text = service.versionInfo.minimumSupported
-                return cell
-            case .criticalUpdateVersions:
-                let cell = tableView.dequeueReusableCell(withIdentifier: LabeledTextFieldTableViewCell.className, for: indexPath) as! LabeledTextFieldTableViewCell
-                cell.titleLabel?.text = "Critical Update Version(s)"
-                let delegate = TextFieldCellDelegate { [weak self] in self?.service.criticalUpdateNeeded = $0.splitTrimmed(separator: ",") }
-                cell.delegate = delegate
-                delegates[versionCheckRow] = delegate
-                cell.textField.text = service.versionInfo.criticalUpdateNeeded?.joined(separator: ",")
+            case .versionUpdate:
+                let cell = tableView.dequeueReusableCell(withIdentifier: ValuePickerTableViewCell<VersionUpdate>.className, for: indexPath) as! ValuePickerTableViewCell<VersionUpdate>
+                cell.values = VersionUpdate.allCases
+                cell.onSelected { [weak self] in self?.service.versionUpdate = VersionUpdate(rawValue: $0.rawValue) ?? .noneNeeded }
                 return cell
             }
         case .history:
@@ -261,28 +249,6 @@ final class MockServiceTableViewController: UITableViewController {
         }
     }
 
-}
-
-extension MockServiceTableViewController: TextFieldTableViewCellDelegate {
-    func textFieldTableViewCellDidBeginEditing(_ cell: TextFieldTableViewCell) {
-        
-    }
-    
-    func textFieldTableViewCellDidEndEditing(_ cell: TextFieldTableViewCell) {
-
-        print("*** \(cell.textField.text!)")
-    }
-}
-
-fileprivate extension Optional where Wrapped == String {
-    func splitTrimmed(separator: String) -> [String]? {
-        return self.map {
-            $0.split(separator: ",")
-                .map {
-                    String($0).trimmingCharacters(in: .whitespaces)
-                }
-        }
-    }
 }
 
 fileprivate class MockServiceHistoryViewController: UIViewController {
@@ -408,17 +374,9 @@ fileprivate extension UIAlertController {
         let cancel = NSLocalizedString("Cancel", comment: "The title of the cancel action in an action sheet")
         addAction(UIAlertAction(title: cancel, style: .cancel, handler: nil))
     }
+}
 
-    convenience init(versionCheckHandler handler: @escaping (VersionUpdate) -> Void) {
-        self.init(title: "Version Check Response",
-                  message: "How should the simulator respond to a version check?",
-                  preferredStyle: .actionSheet
-        )
-
-        addAction(UIAlertAction(title: "No Update Needed", style: .default, handler: { _ in handler(.noneNeeded) }))
-        addAction(UIAlertAction(title: "Supported Update Needed", style: .default, handler: { _ in handler(.supportedNeeded) }))
-        addAction(UIAlertAction(title: "Critical Update Needed", style: .destructive, handler: { _ in handler(.criticalNeeded) }))
-        addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-    }
-
+extension VersionUpdate: CaseIterable, CustomStringConvertible {
+    public static var allCases = [ VersionUpdate.noneNeeded, VersionUpdate.supportedNeeded, VersionUpdate.criticalNeeded]
+    public var description: String { return self.localizedDescription }
 }
