@@ -376,7 +376,7 @@ fileprivate extension UIAlertController {
     }
 }
 
-extension VersionUpdate {
+fileprivate extension VersionUpdate {
     var actionStyle: UIAlertAction.Style {
         switch self {
         case .criticalNeeded: return .destructive

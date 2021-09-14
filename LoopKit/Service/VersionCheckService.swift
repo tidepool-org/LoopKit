@@ -10,11 +10,11 @@ import Foundation
 
 // Note: order is important for VersionUpdate.  Later version updates are more critical than earlier ones.  Do not reorder!
 public enum VersionUpdate: Comparable, CaseIterable {
-    /// No version update needed (i.e. running the latest version).
+    /// No version update needed.
     case noneNeeded
     /// The version is unsupported; the app needs to be updated to the latest "supported" version.  Not a critical update.
     case supportedNeeded
-    /// The version is bad and may be risky; the app must be updated immediately to avoid harm.
+    /// The app must be updated immediately.
     case criticalNeeded
 }
 
@@ -38,7 +38,7 @@ public protocol VersionCheckService: Service {
 
      - Parameter bundleIdentifier: The calling app's `bundleIdentifier` (a.k.a. `CFBundleIdentifier`) string.
      - Parameter currentVersion: The current version to check.
-     - Parameter completion: The completion function to call with any success result or failure.
+     - Parameter completion: The completion function to call with any success result (or `nil` if not known) or failure.  
      */
-    func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate, Error>) -> Void)
+    func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate?, Error>) -> Void)
 }

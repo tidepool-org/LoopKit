@@ -1,5 +1,5 @@
 //
-//  VersionUpdateTests.swift
+//  VersionCheckServiceTests.swift
 //  LoopKitTests
 //
 //  Created by Rick Pasetto on 9/13/21.
@@ -9,7 +9,7 @@
 import XCTest
 @testable import LoopKit
 
-class VersionUpdateTests: XCTestCase {
+class VersionCheckServiceTests: XCTestCase {
 
     func testVersionUpdateOrder() throws {
         // Comparable order is important for VersionUpdate.  Do not reorder!
