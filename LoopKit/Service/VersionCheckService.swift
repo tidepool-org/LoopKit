@@ -8,6 +8,7 @@
 
 import Foundation
 
+// Note: order is important for VersionUpdate.  Later version updates are more critical than earlier ones.  Do not reorder!
 public enum VersionUpdate: Comparable, CaseIterable {
     /// No version update needed (i.e. running the latest version).
     case noneNeeded
