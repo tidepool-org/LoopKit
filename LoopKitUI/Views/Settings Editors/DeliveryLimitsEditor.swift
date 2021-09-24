@@ -20,12 +20,18 @@ public struct DeliveryLimitsEditor: View {
     let selectableBolusVolumes: [Double]
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: SettingsPresentationMode
-    
+    var enactTempBasal: PumpManager.EnactTempBasal?
+
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
     @State var settingBeingEdited: DeliveryLimits.Setting?
 
     @State var showingConfirmationAlert = false
+    @State var cancelTempBasalError: Error? = nil
+    var showingCancelTempBasalErrorAlert: Binding<Bool> { Binding(
+        get: { cancelTempBasalError != nil },
+        set: { _ in}
+    )}
     @Environment(\.dismissAction) var dismiss
     @Environment(\.authenticate) var authenticate
     @Environment(\.appName) var appName
@@ -38,6 +44,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         lowestCarbRatio: Double?,
+        enactTempBasal: PumpManager.EnactTempBasal?,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
@@ -51,6 +58,7 @@ public struct DeliveryLimitsEditor: View {
         self.save = save
         self.mode = mode
         self.lowestCarbRatio = lowestCarbRatio
+        self.enactTempBasal = enactTempBasal
     }
     
     public init(
@@ -74,6 +82,7 @@ public struct DeliveryLimitsEditor: View {
             scheduledBasalRange: therapySettingsViewModel.therapySettings.basalRateSchedule?.valueRange(),
             supportedBolusVolumes: therapySettingsViewModel.pumpSupportedIncrements!()!.bolusVolumes,
             lowestCarbRatio: therapySettingsViewModel.therapySettings.carbRatioSchedule?.lowestValue(),
+            enactTempBasal: therapySettingsViewModel.enactTempBasal?(),
             onSave: { [weak therapySettingsViewModel] newLimits in
                 therapySettingsViewModel?.saveDeliveryLimits(limits: newLimits)
                 didSave?()
@@ -132,6 +141,7 @@ public struct DeliveryLimitsEditor: View {
             }
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .alert(isPresented: showingCancelTempBasalErrorAlert, content: cancelTempBasalAlert)
         .simultaneousGesture(TapGesture().onEnded {
             withAnimation {
                 self.userDidTap = true
@@ -309,6 +319,14 @@ public struct DeliveryLimitsEditor: View {
         )
     }
 
+    private func cancelTempBasalAlert() -> SwiftUI.Alert {
+        SwiftUI.Alert(
+            title: Text(LocalizedString("Failed to cancel temp basal (\(cancelTempBasalError?.localizedDescription ?? ""))", comment: "Alert title for confirming delivery limits outside the recommended range")),
+            message: Text(TherapySetting.deliveryLimits.guardrailSaveWarningCaption),
+            dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
+        )
+    }
+
     private func startSaving() {
         guard mode == .settings else {
             self.continueSaving()
@@ -321,9 +339,18 @@ public struct DeliveryLimitsEditor: View {
             }
         }
     }
-    
+
     private func continueSaving() {
-        self.save(self.value)
+        precondition(self.enactTempBasal != nil)
+        self.enactTempBasal!(0, 0) { error in
+            if let error = error {
+                cancelTempBasalError = error
+            } else {
+                DispatchQueue.main.async {
+                    self.save(self.value)
+                }
+            }
+        }
     }
 }
 

@@ -20,21 +20,24 @@ public class TherapySettingsViewModel: ObservableObject {
 
     private let initialTherapySettings: TherapySettings
     let pumpSupportedIncrements: (() -> PumpSupportedIncrements?)?
-    let syncPumpSchedule: (() -> PumpManager.SyncSchedule?)?
+    let syncBasalRateSchedule: (() -> PumpManager.SyncBasalRateSchedule?)?
+    let enactTempBasal: (() -> PumpManager.EnactTempBasal?)?
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
 
     public init(therapySettings: TherapySettings,
                 supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
-                syncPumpSchedule: (() -> PumpManager.SyncSchedule?)? = nil,
+                syncBasalRateSchedule: (() -> PumpManager.SyncBasalRateSchedule?)? = nil,
+                enactTempBasal: (() -> PumpManager.EnactTempBasal?)? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
                 didSave: SaveCompletion? = nil) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.pumpSupportedIncrements = pumpSupportedIncrements
-        self.syncPumpSchedule = syncPumpSchedule
+        self.syncBasalRateSchedule = syncBasalRateSchedule
+        self.enactTempBasal = enactTempBasal
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.prescription = prescription
         self.supportedInsulinModelSettings = supportedInsulinModelSettings

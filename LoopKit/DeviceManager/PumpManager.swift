@@ -147,11 +147,13 @@ public protocol PumpManager: DeviceManager {
     ///   - result: A DoseEntry containing the actual delivery amount of the canceled bolus, nil if canceled bolus information is not available, or an error describing why the command failed.
     func cancelBolus(completion: @escaping (_ result: PumpManagerResult<DoseEntry?>) -> Void)
 
+    typealias EnactTempBasal = (_ unitsPerHour: Double, _ duration: TimeInterval, _ completion: @escaping (_ error: PumpManagerError?) -> Void) -> Void
+
     /// Send a temporary basal rate command and handle the result
     ///
     /// - Parameters:
     ///   - unitsPerHour: The temporary basal rate to set
-    ///   - duration: The duration of the temporary basal rate.
+    ///   - duration: The duration of the temporary basal rate.  If you pass in a duration of 0, that cancels the Temp Basal.
     ///   - completion: A closure called after the command is complete
     ///   - error: An optional error describing why the command failed
     func enactTempBasal(unitsPerHour: Double, for duration: TimeInterval, completion: @escaping (_ error: PumpManagerError?) -> Void)
@@ -170,7 +172,7 @@ public protocol PumpManager: DeviceManager {
     ///   - error: An error describing why the command failed
     func resumeDelivery(completion: @escaping (_ error: Error?) -> Void)
     
-    typealias SyncSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
+    typealias SyncBasalRateSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
 
     /// Sync the schedule of basal rates to the pump, annotating the result with the proper time zone.
     ///
