@@ -20,7 +20,7 @@ public struct DeliveryLimitsEditor: View {
     let selectableBolusVolumes: [Double]
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: SettingsPresentationMode
-    var enactTempBasal: PumpManager.EnactTempBasal?
+    var validateTempBasal: PumpManager.ValidateTempBasal?
 
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
@@ -44,7 +44,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         lowestCarbRatio: Double?,
-        enactTempBasal: PumpManager.EnactTempBasal?,
+        validateTempBasal: PumpManager.ValidateTempBasal?,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
@@ -58,7 +58,7 @@ public struct DeliveryLimitsEditor: View {
         self.save = save
         self.mode = mode
         self.lowestCarbRatio = lowestCarbRatio
-        self.enactTempBasal = enactTempBasal
+        self.validateTempBasal = validateTempBasal
     }
     
     public init(
@@ -82,7 +82,7 @@ public struct DeliveryLimitsEditor: View {
             scheduledBasalRange: therapySettingsViewModel.therapySettings.basalRateSchedule?.valueRange(),
             supportedBolusVolumes: therapySettingsViewModel.pumpSupportedIncrements!()!.bolusVolumes,
             lowestCarbRatio: therapySettingsViewModel.therapySettings.carbRatioSchedule?.lowestValue(),
-            enactTempBasal: therapySettingsViewModel.enactTempBasal?(),
+            validateTempBasal: therapySettingsViewModel.validateTempBasal?(),
             onSave: { [weak therapySettingsViewModel] newLimits in
                 therapySettingsViewModel?.saveDeliveryLimits(limits: newLimits)
                 didSave?()
@@ -342,28 +342,23 @@ public struct DeliveryLimitsEditor: View {
 
     private func continueSaving() {
         maybeCancelTempBasal {
-            DispatchQueue.main.async {
-                self.save(self.value)
-            }
+            self.save(self.value)
         }
     }
     
     private func maybeCancelTempBasal(completionIfContinue: @escaping () -> Void) {
-        // Should this policy be *here*, in the *Editor*??
-        if let initial = initialValue.maximumBasalRate,
-           let newValue = value.maximumBasalRate,
-           newValue < initial {
-            precondition(self.enactTempBasal != nil)
-            // A duration of 0 means "cancel temp basal"
-            enactTempBasal!(/*unitsPerHour*/0, /*duration*/0) { error in
+        precondition(self.validateTempBasal != nil)
+        guard let maximumBasalRate = value.maximumBasalRate, let validateTempBasal = self.validateTempBasal else {
+            return
+        }
+        validateTempBasal(maximumBasalRate.doubleValue(for: .internationalUnitsPerHour)) { error in
+            DispatchQueue.main.async {
                 if let error = error {
                     cancelTempBasalError = error
                 } else {
                     completionIfContinue()
                 }
             }
-        } else {
-            completionIfContinue()
         }
     }
 }

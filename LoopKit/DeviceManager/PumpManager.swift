@@ -147,13 +147,19 @@ public protocol PumpManager: DeviceManager {
     ///   - result: A DoseEntry containing the actual delivery amount of the canceled bolus, nil if canceled bolus information is not available, or an error describing why the command failed.
     func cancelBolus(completion: @escaping (_ result: PumpManagerResult<DoseEntry?>) -> Void)
 
-    typealias EnactTempBasal = (_ unitsPerHour: Double, _ duration: TimeInterval, _ completion: @escaping (_ error: PumpManagerError?) -> Void) -> Void
+    /// This method type describes a way to check if a proposed basal value and duration is "valid" for the pump manager.
+    ///
+    /// - Parameters:
+    ///   - unitsPerHour: The temporary basal rate proposed to validate, in international units per hour
+    ///   - completion: A closure called after the command is complete
+    ///   - error: An optional error describing why the command failed
+    typealias ValidateTempBasal = (_ unitsPerHour: Double, _ completion: @escaping (_ error: Error?) -> Void) -> Void
 
     /// Send a temporary basal rate command and handle the result
     ///
     /// - Parameters:
     ///   - unitsPerHour: The temporary basal rate to set
-    ///   - duration: The duration of the temporary basal rate.  If you pass in a duration of 0, that cancels the Temp Basal.
+    ///   - duration: The duration of the temporary basal rate.  If you pass in a duration of 0, that cancels the Temp Basal
     ///   - completion: A closure called after the command is complete
     ///   - error: An optional error describing why the command failed
     func enactTempBasal(unitsPerHour: Double, for duration: TimeInterval, completion: @escaping (_ error: PumpManagerError?) -> Void)
