@@ -321,8 +321,8 @@ public struct DeliveryLimitsEditor: View {
 
     private func cancelTempBasalAlert() -> SwiftUI.Alert {
         SwiftUI.Alert(
-            title: Text(LocalizedString("Failed to cancel temp basal (\(cancelTempBasalError?.localizedDescription ?? ""))", comment: "Alert title for confirming delivery limits outside the recommended range")),
-            message: Text(TherapySetting.deliveryLimits.guardrailSaveWarningCaption),
+            title: Text(LocalizedString("Failed to cancel temp basal", comment: "Alert title for confirming delivery limits outside the recommended range")),
+            message: Text(cancelTempBasalError?.localizedDescription ?? ""),
             dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
         )
     }
@@ -341,15 +341,29 @@ public struct DeliveryLimitsEditor: View {
     }
 
     private func continueSaving() {
-        precondition(self.enactTempBasal != nil)
-        self.enactTempBasal!(0, 0) { error in
-            if let error = error {
-                cancelTempBasalError = error
-            } else {
-                DispatchQueue.main.async {
-                    self.save(self.value)
+        maybeCancelTempBasal {
+            DispatchQueue.main.async {
+                self.save(self.value)
+            }
+        }
+    }
+    
+    private func maybeCancelTempBasal(completionIfContinue: @escaping () -> Void) {
+        // Should this policy be *here*, in the *Editor*??
+        if let initial = initialValue.maximumBasalRate,
+           let newValue = value.maximumBasalRate,
+           newValue < initial {
+            precondition(self.enactTempBasal != nil)
+            // A duration of 0 means "cancel temp basal"
+            enactTempBasal!(/*unitsPerHour*/0, /*duration*/0) { error in
+                if let error = error {
+                    cancelTempBasalError = error
+                } else {
+                    completionIfContinue()
                 }
             }
+        } else {
+            completionIfContinue()
         }
     }
 }
