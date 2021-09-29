@@ -37,7 +37,6 @@ class StoredGlucoseSampleInitializerTests: XCTestCase {
         let uuid = UUID()
         let startDate = dateFormatter.date(from: "2020-02-03T04:05:06Z")!
         let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 134.5)
-        let condition = GlucoseCondition.aboveRange(threshold: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 134.5))
         let trendRate = HKQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: 0.0)
         let device = HKDevice(name: "NAME", manufacturer: "MANUFACTURER", model: "MODEL", hardwareVersion: "HARDWAREVERSION", firmwareVersion: "FIRMWAREVERSION", softwareVersion: "SOFTWAREVERSION", localIdentifier: "LOCALIDENTIFIER", udiDeviceIdentifier: "UDIDEVICEIDENTIFIER")
         let sample = StoredGlucoseSample(uuid: uuid,
@@ -46,7 +45,7 @@ class StoredGlucoseSampleInitializerTests: XCTestCase {
                                          syncVersion: 3,
                                          startDate: startDate,
                                          quantity: quantity,
-                                         condition: condition,
+                                         condition: .aboveRange,
                                          trend: .flat,
                                          trendRate: trendRate,
                                          isDisplayOnly: true,
@@ -59,7 +58,7 @@ class StoredGlucoseSampleInitializerTests: XCTestCase {
         XCTAssertEqual(sample.syncVersion, 3)
         XCTAssertEqual(sample.startDate, startDate)
         XCTAssertEqual(sample.quantity, quantity)
-        XCTAssertEqual(sample.condition, condition)
+        XCTAssertEqual(sample.condition, .aboveRange)
         XCTAssertEqual(sample.trend, .flat)
         XCTAssertEqual(sample.trendRate, trendRate)
         XCTAssertEqual(sample.isDisplayOnly, true)
@@ -119,9 +118,7 @@ class StoredGlucoseSampleManagedObjectInitializerTests: PersistenceControllerTes
             managedObject.isDisplayOnly = true
             managedObject.wasUserEntered = true
             managedObject.device = device
-            managedObject.conditionTitle = "aboveRange"
-            managedObject.conditionThresholdUnit = HKUnit.milligramsPerDeciliter.unitString
-            managedObject.conditionThresholdValue = 140.0
+            managedObject.condition = .aboveRange
             managedObject.trend = .downDownDown
             managedObject.trendRateUnit = HKUnit.milligramsPerDeciliterPerMinute.unitString
             managedObject.trendRateValue = -4.0
@@ -136,7 +133,7 @@ class StoredGlucoseSampleManagedObjectInitializerTests: PersistenceControllerTes
             XCTAssertEqual(sample.isDisplayOnly, true)
             XCTAssertEqual(sample.wasUserEntered, true)
             XCTAssertEqual(sample.device, device)
-            XCTAssertEqual(sample.condition, .aboveRange(threshold: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 140.0)))
+            XCTAssertEqual(sample.condition, .aboveRange)
             XCTAssertEqual(sample.trend, .downDownDown)
             XCTAssertEqual(sample.trendRate, HKQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: -4.0))
             XCTAssertEqual(sample.healthKitEligibleDate, startDate.addingTimeInterval(.hours(3)))

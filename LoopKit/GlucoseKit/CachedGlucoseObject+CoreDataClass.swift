@@ -38,6 +38,19 @@ class CachedGlucoseObject: NSManagedObject {
         }
     }
     
+    var condition: GlucoseCondition? {
+        get {
+            willAccessValue(forKey: "condition")
+            defer { didAccessValue(forKey: "condition") }
+            return primitiveCondition.flatMap { GlucoseCondition(rawValue: $0) }
+        }
+        set {
+            willChangeValue(forKey: "condition")
+            defer { didChangeValue(forKey: "condition") }
+            primitiveCondition = newValue.map { $0.rawValue }
+        }
+    }
+
     var trend: GlucoseTrend? {
         get {
             willAccessValue(forKey: "trend")
@@ -83,10 +96,8 @@ extension CachedGlucoseObject {
         if wasUserEntered {
             metadata[HKMetadataKeyWasUserEntered] = true
         }
-        metadata[MetadataKeyGlucoseConditionTitle] = conditionTitle
-        metadata[MetadataKeyGlucoseConditionThresholdUnit] = conditionThresholdUnit
-        metadata[MetadataKeyGlucoseConditionThresholdValue] = conditionThresholdValue
-        metadata[MetadataKeyGlucoseTrend] = trend?.rawValue
+        metadata[MetadataKeyGlucoseCondition] = condition?.rawValue
+        metadata[MetadataKeyGlucoseTrend] = trend?.symbol
         metadata[MetadataKeyGlucoseTrendRateUnit] = trendRateUnit
         metadata[MetadataKeyGlucoseTrendRateValue] = trendRateValue
 
@@ -98,45 +109,6 @@ extension CachedGlucoseObject {
             device: device,
             metadata: metadata
         )
-    }
-
-    var condition: GlucoseCondition? {
-        get {
-            guard let conditionTitle = conditionTitle else {
-                return nil
-            }
-            return GlucoseCondition(title: conditionTitle, threshold: conditionThreshold)
-        }
-
-        set {
-            if let newValue = newValue {
-                conditionTitle = newValue.title
-                conditionThreshold = newValue.threshold
-            } else {
-                conditionTitle = nil
-                conditionThreshold = nil
-            }
-        }
-    }
-
-    private var conditionThreshold: HKQuantity? {
-        get {
-            guard let conditionThresholdUnit = conditionThresholdUnit, let conditionThresholdValue = conditionThresholdValue else {
-                return nil
-            }
-            return HKQuantity(unit: HKUnit(from: conditionThresholdUnit), doubleValue: conditionThresholdValue.doubleValue)
-        }
-
-        set {
-            if let newValue = newValue {
-                let unit = HKUnit(from: unitString)
-                conditionThresholdUnit = unit.unitString
-                conditionThresholdValue = NSNumber(value: newValue.doubleValue(for: unit))
-            } else {
-                conditionThresholdUnit = nil
-                conditionThresholdValue = nil
-            }
-        }
     }
 
     var trendRate: HKQuantity? {

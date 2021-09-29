@@ -29,9 +29,7 @@ extension CachedGlucoseObject {
     @NSManaged public var wasUserEntered: Bool
     @NSManaged public var modificationCounter: Int64
     @NSManaged public var primitiveDevice: Data?
-    @NSManaged public var conditionTitle: String?
-    @NSManaged public var conditionThresholdUnit: String?
-    @NSManaged public var conditionThresholdValue: NSNumber?
+    @NSManaged public var primitiveCondition: String?
     @NSManaged public var primitiveTrend: NSNumber?
     @NSManaged public var trendRateUnit: String?
     @NSManaged public var trendRateValue: NSNumber?
@@ -56,9 +54,7 @@ extension CachedGlucoseObject: Encodable {
         try container.encode(wasUserEntered, forKey: .wasUserEntered)
         try container.encode(modificationCounter, forKey: .modificationCounter)
         try container.encodeIfPresent(device, forKey: .device)
-        try container.encodeIfPresent(conditionTitle, forKey: .conditionTitle)
-        try container.encodeIfPresent(conditionThresholdUnit, forKey: .conditionThresholdUnit)
-        try container.encodeIfPresent(conditionThresholdValue?.doubleValue, forKey: .conditionThresholdValue)
+        try container.encodeIfPresent(condition, forKey: .condition)
         try container.encodeIfPresent(trend, forKey: .trend)
         try container.encodeIfPresent(trendRateUnit, forKey: .trendRateUnit)
         try container.encodeIfPresent(trendRateValue?.doubleValue, forKey: .trendRateValue)
@@ -77,9 +73,7 @@ extension CachedGlucoseObject: Encodable {
         case wasUserEntered
         case modificationCounter
         case device
-        case conditionTitle
-        case conditionThresholdUnit
-        case conditionThresholdValue
+        case condition
         case trend
         case trendRateUnit
         case trendRateValue

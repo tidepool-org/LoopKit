@@ -14,7 +14,6 @@ class NewGlucoseSampleTests: XCTestCase {
     func testQuantitySample() {
         let date = Date()
         let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 145.3)
-        let condition = GlucoseCondition.aboveRange(threshold: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 140.0))
         let trendRate = HKQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: 1.1)
         let device = HKDevice(name: "Device Name",
                               manufacturer: "Device Manufacturer",
@@ -27,7 +26,7 @@ class NewGlucoseSampleTests: XCTestCase {
         let syncIdentifier = UUID().uuidString
         let newGlucoseSample = NewGlucoseSample(date: date,
                                                 quantity: quantity,
-                                                condition: condition,
+                                                condition: .aboveRange,
                                                 trend: .up,
                                                 trendRate: trendRate,
                                                 isDisplayOnly: false,
@@ -43,10 +42,8 @@ class NewGlucoseSampleTests: XCTestCase {
         XCTAssertEqual(quantitySample.device, device)
         XCTAssertEqual(quantitySample.metadata?[HKMetadataKeySyncIdentifier] as? String, syncIdentifier)
         XCTAssertEqual(quantitySample.metadata?[HKMetadataKeySyncVersion] as? Int, 3)
-        XCTAssertEqual(quantitySample.metadata?[MetadataKeyGlucoseConditionTitle] as? String, "aboveRange")
-        XCTAssertEqual(quantitySample.metadata?[MetadataKeyGlucoseConditionThresholdUnit] as? String, HKUnit.milligramsPerDeciliter.unitString)
-        XCTAssertEqual(quantitySample.metadata?[MetadataKeyGlucoseConditionThresholdValue] as? Double, 140.0)
-        XCTAssertEqual(quantitySample.metadata?[MetadataKeyGlucoseTrend] as? Int, GlucoseTrend.up.rawValue)
+        XCTAssertEqual(quantitySample.metadata?[MetadataKeyGlucoseCondition] as? String, "aboveRange")
+        XCTAssertEqual(quantitySample.metadata?[MetadataKeyGlucoseTrend] as? String, GlucoseTrend.up.symbol)
         XCTAssertEqual(quantitySample.metadata?[MetadataKeyGlucoseTrendRateUnit] as? String, HKUnit.milligramsPerDeciliterPerMinute.unitString)
         XCTAssertEqual(quantitySample.metadata?[MetadataKeyGlucoseTrendRateValue] as? Double, 1.1)
         XCTAssertNil(quantitySample.metadata?[MetadataKeyGlucoseIsDisplayOnly])

@@ -60,14 +60,8 @@ extension NewGlucoseSample {
             HKMetadataKeySyncVersion: syncVersion,
         ]
 
-        if let condition = condition {
-            metadata[MetadataKeyGlucoseConditionTitle] = condition.title
-            if let threshold = condition.threshold {
-                metadata[MetadataKeyGlucoseConditionThresholdUnit] = HKUnit.milligramsPerDeciliter.unitString
-                metadata[MetadataKeyGlucoseConditionThresholdValue] = threshold.doubleValue(for: .milligramsPerDeciliter)
-            }
-        }
-        metadata[MetadataKeyGlucoseTrend] = trend?.rawValue
+        metadata[MetadataKeyGlucoseCondition] = condition?.rawValue
+        metadata[MetadataKeyGlucoseTrend] = trend?.symbol
         if let trendRate = trendRate {
             metadata[MetadataKeyGlucoseTrendRateUnit] = HKUnit.milligramsPerDeciliterPerMinute.unitString
             metadata[MetadataKeyGlucoseTrendRateValue] = trendRate.doubleValue(for: .milligramsPerDeciliterPerMinute)
