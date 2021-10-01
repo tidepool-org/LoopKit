@@ -168,8 +168,8 @@ final class MockServiceTableViewController: UITableViewController {
             return cell
         case .versionCheck:
             let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
-            cell.textLabel?.text = service.versionUpdate.localizedDescription
-            cell.tintColor = service.versionUpdate.tintColor
+            cell.textLabel?.text = service.versionUpdate.value.localizedDescription
+            cell.tintColor = service.versionUpdate.value.tintColor
             return cell
         case .history:
             switch History(rawValue: indexPath.row)! {
@@ -212,8 +212,10 @@ final class MockServiceTableViewController: UITableViewController {
         case .source:
             break
         case .versionCheck:
-            let alert = UIAlertController(versionCheckHandler: {
-                self.service.versionUpdate = $0
+            let alert = UIAlertController(versionCheckHandler: { newValue in
+                self.service.versionUpdate.mutate { value in
+                    value = newValue
+                }
                 tableView.reloadData()
             })
             present(alert, animated: true) {

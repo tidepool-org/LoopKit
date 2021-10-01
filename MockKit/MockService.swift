@@ -23,7 +23,7 @@ public final class MockService: Service {
     
     public var analytics: Bool
     
-    public var versionUpdate = VersionUpdate.noneNeeded
+    public var versionUpdate = Locked<VersionUpdate>(.noneNeeded)
     
     public let maxHistoryItems = 1000
     
@@ -45,7 +45,7 @@ public final class MockService: Service {
         self.remoteData = rawState["remoteData"] as? Bool ?? false
         self.logging = rawState["logging"] as? Bool ?? false
         self.analytics = rawState["analytics"] as? Bool ?? false
-        self.versionUpdate = (rawState["versionUpdate"] as? String).flatMap { VersionUpdate(rawValue: $0) } ?? .noneNeeded
+        self.versionUpdate.value = (rawState["versionUpdate"] as? String).flatMap { VersionUpdate(rawValue: $0) } ?? .noneNeeded
     }
     
     public var rawState: RawStateValue {
@@ -53,7 +53,7 @@ public final class MockService: Service {
             "remoteData": remoteData,
             "logging": logging,
             "analytics": analytics,
-            "versionUpdate": versionUpdate.rawValue
+            "versionUpdate": versionUpdate.value.rawValue
         ]
     }
     
@@ -159,7 +159,7 @@ extension MockService: RemoteDataService {
 extension MockService: VersionCheckService {
     public func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate?, Error>) -> Void) {
         record("[VersionCheckService] Version checked \(currentVersion)")
-        completion(.success(versionUpdate))
+        completion(.success(versionUpdate.value))
     }
 }
 

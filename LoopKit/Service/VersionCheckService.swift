@@ -19,6 +19,10 @@ public enum VersionUpdate: Comparable, CaseIterable {
 }
 
 extension VersionUpdate {
+    public static let `default` = VersionUpdate.noneNeeded
+}
+
+extension VersionUpdate {
     public var localizedDescription: String {
         switch self {
         case .noneNeeded:
