@@ -20,7 +20,7 @@ public struct DeliveryLimitsEditor: View {
     let selectableBolusVolumes: [Double]
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: SettingsPresentationMode
-    var validateTempBasal: PumpManager.ValidateTempBasal?
+    var validateTempBasal: TherapySettingsViewModel.ValidateTempBasal?
 
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
@@ -44,7 +44,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         lowestCarbRatio: Double?,
-        validateTempBasal: PumpManager.ValidateTempBasal?,
+        validateTempBasal: TherapySettingsViewModel.ValidateTempBasal?,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
@@ -321,8 +321,10 @@ public struct DeliveryLimitsEditor: View {
 
     private func cancelTempBasalAlert() -> SwiftUI.Alert {
         SwiftUI.Alert(
-            title: Text(LocalizedString("Failed to cancel temp basal", comment: "Alert title for confirming delivery limits outside the recommended range")),
-            message: Text(cancelTempBasalError?.localizedDescription ?? ""),
+            title: Text(LocalizedString("Failed to cancel temp basal", comment: "Alert title for failing to cancel temp basal")),
+            message: Text(String(format: LocalizedString("Caution: Tidepool Loop was not able to cancel your current temporary basal rate, which is higher than the new Max Basal limit that you have set. This may result in higher insulin delivery than desired. Consider suspending insulin delivery manually and then immediately restarting delivery to enact basal delivery with the new limit in place. (%@)",
+                comment: "Alert text for failing to cancel temp basal (1: error description)"),
+                                 cancelTempBasalError?.localizedDescription ?? "")),
             dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
         )
     }

@@ -13,23 +13,34 @@ import SwiftUI
 
 public class TherapySettingsViewModel: ObservableObject {
     public typealias SaveCompletion = (TherapySetting, TherapySettings) -> Void
+   
+    /// This method type describes a way to "precheck" before saving max temp basal.  The host app is going to supply a closure for this, and based on the
+    /// response, either proceed with saving max temp, or display an error.
+    ///
+    /// - Parameters:
+    ///   - unitsPerHour: The temporary basal rate proposed to validate, in international units per hour
+    ///   - completion: A closure called after the command is complete
+    ///   - error: An optional error describing why the command failed
+    public typealias ValidateTempBasal = (_ unitsPerHour: Double, _ completion: @escaping (_ error: Error?) -> Void) -> Void
     
+    public typealias SyncBasalRateSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
+
     @Published public var therapySettings: TherapySettings
     public var supportedInsulinModelSettings: SupportedInsulinModelSettings
     private let didSave: SaveCompletion?
 
     private let initialTherapySettings: TherapySettings
     let pumpSupportedIncrements: (() -> PumpSupportedIncrements?)?
-    let syncBasalRateSchedule: (() -> PumpManager.SyncBasalRateSchedule?)?
-    let validateTempBasal: (() -> PumpManager.ValidateTempBasal?)?
+    let syncBasalRateSchedule: (() -> SyncBasalRateSchedule?)?
+    let validateTempBasal: (() -> ValidateTempBasal?)?
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
 
     public init(therapySettings: TherapySettings,
                 supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
-                syncBasalRateSchedule: (() -> PumpManager.SyncBasalRateSchedule?)? = nil,
-                validateTempBasal: (() -> PumpManager.ValidateTempBasal?)? = nil,
+                syncBasalRateSchedule: (() -> SyncBasalRateSchedule?)? = nil,
+                validateTempBasal: (() -> ValidateTempBasal?)? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
                 didSave: SaveCompletion? = nil) {

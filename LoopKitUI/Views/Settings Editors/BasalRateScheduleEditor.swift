@@ -16,7 +16,7 @@ public struct BasalRateScheduleEditor: View {
     var supportedBasalRates: [Double]
     var guardrail: Guardrail<HKQuantity>
     var maximumScheduleEntryCount: Int
-    var syncBasalRateSchedule: PumpManager.SyncBasalRateSchedule?
+    var syncBasalRateSchedule: TherapySettingsViewModel.SyncBasalRateSchedule?
     var save: (BasalRateSchedule) -> Void
     let mode: SettingsPresentationMode
     @Environment(\.appName) private var appName
@@ -27,7 +27,7 @@ public struct BasalRateScheduleEditor: View {
         supportedBasalRates: [Double],
         maximumBasalRate: Double?,
         maximumScheduleEntryCount: Int,
-        syncBasalRateSchedule: PumpManager.SyncBasalRateSchedule?,
+        syncBasalRateSchedule: TherapySettingsViewModel.SyncBasalRateSchedule?,
         onSave save: @escaping (BasalRateSchedule) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
