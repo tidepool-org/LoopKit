@@ -182,6 +182,16 @@ public protocol PumpManager: DeviceManager {
     ///   - completion: A closure called after the command is complete
     ///   - result: A BasalRateSchedule or an error describing why the command failed
     func syncBasalRateSchedule(items scheduleItems: [RepeatingScheduleValue<Double>], completion: @escaping (_ result: Result<BasalRateSchedule, Error>) -> Void)
+
+    typealias SyncDeliveryLimits = (_ deliveryLimits: DeliveryLimits, _ completion: @escaping (_ result: Result<DeliveryLimits, Error>) -> Void) -> Void
+
+    /// Sync the delivery limits for basal rate and bolus
+    ///
+    /// - Parameters:
+    ///   - deliveryLimits: The delivery limits
+    ///   - completion: A closure called after the command is complete
+    ///   - result: The delivery limits set or an error describing why the command failed
+    func syncDeliveryLimits(limits deliveryLimits: DeliveryLimits, completion: @escaping (_ result: Result<DeliveryLimits, Error>) -> Void)
 }
 
 
