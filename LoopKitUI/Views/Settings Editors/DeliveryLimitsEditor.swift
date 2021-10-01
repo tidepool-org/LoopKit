@@ -20,7 +20,7 @@ public struct DeliveryLimitsEditor: View {
     let selectableBolusVolumes: [Double]
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: SettingsPresentationMode
-    var validateTempBasal: TherapySettingsViewModel.ValidateTempBasal?
+    var validateMaxTempBasal: TherapySettingsViewModel.ValidateMaxTempBasal?
 
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
@@ -44,7 +44,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         lowestCarbRatio: Double?,
-        validateTempBasal: TherapySettingsViewModel.ValidateTempBasal?,
+        validateMaxTempBasal: TherapySettingsViewModel.ValidateMaxTempBasal?,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
@@ -58,7 +58,7 @@ public struct DeliveryLimitsEditor: View {
         self.save = save
         self.mode = mode
         self.lowestCarbRatio = lowestCarbRatio
-        self.validateTempBasal = validateTempBasal
+        self.validateMaxTempBasal = validateMaxTempBasal
     }
     
     public init(
@@ -82,7 +82,7 @@ public struct DeliveryLimitsEditor: View {
             scheduledBasalRange: therapySettingsViewModel.therapySettings.basalRateSchedule?.valueRange(),
             supportedBolusVolumes: therapySettingsViewModel.pumpSupportedIncrements!()!.bolusVolumes,
             lowestCarbRatio: therapySettingsViewModel.therapySettings.carbRatioSchedule?.lowestValue(),
-            validateTempBasal: therapySettingsViewModel.validateTempBasal?(),
+            validateMaxTempBasal: therapySettingsViewModel.validateMaxTempBasal?(),
             onSave: { [weak therapySettingsViewModel] newLimits in
                 therapySettingsViewModel?.saveDeliveryLimits(limits: newLimits)
                 didSave?()
@@ -349,11 +349,11 @@ public struct DeliveryLimitsEditor: View {
     }
     
     private func maybeCancelTempBasal(completionIfContinue: @escaping () -> Void) {
-        precondition(self.validateTempBasal != nil)
-        guard let maximumBasalRate = value.maximumBasalRate, let validateTempBasal = self.validateTempBasal else {
+        precondition(self.validateMaxTempBasal != nil)
+        guard let maximumBasalRate = value.maximumBasalRate, let validateMaxTempBasal = self.validateMaxTempBasal else {
             return
         }
-        validateTempBasal(maximumBasalRate.doubleValue(for: .internationalUnitsPerHour)) { error in
+        validateMaxTempBasal(maximumBasalRate.doubleValue(for: .internationalUnitsPerHour)) { error in
             DispatchQueue.main.async {
                 if let error = error {
                     cancelTempBasalError = error

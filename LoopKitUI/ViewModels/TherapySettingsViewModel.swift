@@ -21,7 +21,7 @@ public class TherapySettingsViewModel: ObservableObject {
     ///   - unitsPerHour: The temporary basal rate proposed to validate, in international units per hour
     ///   - completion: A closure called after the command is complete
     ///   - error: An optional error describing why the command failed
-    public typealias ValidateTempBasal = (_ unitsPerHour: Double, _ completion: @escaping (_ error: Error?) -> Void) -> Void
+    public typealias ValidateMaxTempBasal = (_ unitsPerHour: Double, _ completion: @escaping (_ error: Error?) -> Void) -> Void
     
     public typealias SyncBasalRateSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
 
@@ -32,7 +32,7 @@ public class TherapySettingsViewModel: ObservableObject {
     private let initialTherapySettings: TherapySettings
     let pumpSupportedIncrements: (() -> PumpSupportedIncrements?)?
     let syncBasalRateSchedule: (() -> SyncBasalRateSchedule?)?
-    let validateTempBasal: (() -> ValidateTempBasal?)?
+    let validateMaxTempBasal: (() -> ValidateMaxTempBasal?)?
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
 
@@ -40,7 +40,7 @@ public class TherapySettingsViewModel: ObservableObject {
                 supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
                 syncBasalRateSchedule: (() -> SyncBasalRateSchedule?)? = nil,
-                validateTempBasal: (() -> ValidateTempBasal?)? = nil,
+                validateMaxTempBasal: (() -> ValidateMaxTempBasal?)? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
                 didSave: SaveCompletion? = nil) {
@@ -48,7 +48,7 @@ public class TherapySettingsViewModel: ObservableObject {
         self.initialTherapySettings = therapySettings
         self.pumpSupportedIncrements = pumpSupportedIncrements
         self.syncBasalRateSchedule = syncBasalRateSchedule
-        self.validateTempBasal = validateTempBasal
+        self.validateMaxTempBasal = validateMaxTempBasal
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.prescription = prescription
         self.supportedInsulinModelSettings = supportedInsulinModelSettings
