@@ -321,14 +321,24 @@ public struct DeliveryLimitsEditor: View {
 
     private func cancelTempBasalAlert() -> SwiftUI.Alert {
         SwiftUI.Alert(
-            title: Text(LocalizedString("Failed to cancel temp basal", comment: "Alert title for failing to cancel temp basal")),
-            message: Text(String(format: LocalizedString("Caution: Tidepool Loop was not able to cancel your current temporary basal rate, which is higher than the new Max Basal limit that you have set. This may result in higher insulin delivery than desired. Consider suspending insulin delivery manually and then immediately restarting delivery to enact basal delivery with the new limit in place. (%@)",
-                comment: "Alert text for failing to cancel temp basal (1: error description)"),
-                                 cancelTempBasalError?.localizedDescription ?? "")),
+            title: Text(LocalizedString("Failed to Cancel Temp Basal", comment: "Alert title for failing to cancel temp basal")),
+            message: Text(String(format: LocalizedString("Tidepool Loop was unable to cancel your current temporary basal rate, which is higher than the new Max Basal limit you have set. This may result in higher insulin delivery than desired.\n\nConsider suspending insulin delivery manually and then immediately resuming to enact basal delivery with the new limit in place.\n\n(%@)",
+                                                         comment: "Alert text for failing to cancel temp basal (1: error description)"),
+                                 cancelTempBasalErrorAlertBody)),
             dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
         )
     }
-
+    
+    private var cancelTempBasalErrorAlertBody: String {
+        if let localizedError = cancelTempBasalError as? LocalizedError {
+            let errors = [localizedError.errorDescription, localizedError.failureReason, localizedError.recoverySuggestion].compactMap { $0 }
+            if !errors.isEmpty {
+                return errors.joined(separator: ", ")
+            }
+        }
+        return cancelTempBasalError?.localizedDescription ?? ""
+    }
+    
     private func startSaving() {
         guard mode == .settings else {
             self.continueSaving()
