@@ -31,16 +31,16 @@ public class TherapySettingsViewModel: ObservableObject {
 
     private let initialTherapySettings: TherapySettings
     let pumpSupportedIncrements: (() -> PumpSupportedIncrements?)?
-    let syncBasalRateSchedule: (() -> SyncBasalRateSchedule?)?
-    let maxTempBasalSavePreflight: (() -> MaxTempBasalSavePreflight?)?
+    let syncBasalRateSchedule: SyncBasalRateSchedule?
+    let maxTempBasalSavePreflight: MaxTempBasalSavePreflight?
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
 
     public init(therapySettings: TherapySettings,
                 supportedInsulinModelSettings: SupportedInsulinModelSettings = SupportedInsulinModelSettings(fiaspModelEnabled: true, walshModelEnabled: true),
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
-                syncBasalRateSchedule: (() -> SyncBasalRateSchedule?)? = nil,
-                maxTempBasalSavePreflight: (() -> MaxTempBasalSavePreflight?)? = nil,
+                syncBasalRateSchedule: SyncBasalRateSchedule? = nil,
+                maxTempBasalSavePreflight: MaxTempBasalSavePreflight? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
                 didSave: SaveCompletion? = nil) {
