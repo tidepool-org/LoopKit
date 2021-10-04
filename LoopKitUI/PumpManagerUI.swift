@@ -44,7 +44,12 @@ public protocol PumpStatusIndicator {
 
 public typealias PumpManagerViewController = (UIViewController & PumpManagerOnboarding & CompletionNotifying)
 
-public protocol PumpManagerUI: DeviceManagerUI, PumpStatusIndicator, PumpManager, DeliveryLimitSettingsTableViewControllerSyncSource, BasalScheduleTableViewControllerSyncSource {
+public typealias SyncSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
+
+public typealias SyncDeliveryLimits = (_ deliveryLimits: DeliveryLimits, _ completion: @escaping (_ result: Result<DeliveryLimits, Error>) -> Void) -> Void
+
+public protocol PumpManagerUI: DeviceManagerUI, PumpStatusIndicator, PumpManager { //}, DeliveryLimitSettingsTableViewControllerSyncSource, BasalScheduleTableViewControllerSyncSource {
+
     /// Create and onboard a new pump manager.
     ///
     /// - Parameters:

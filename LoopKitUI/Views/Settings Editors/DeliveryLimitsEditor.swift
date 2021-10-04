@@ -23,7 +23,7 @@ public struct DeliveryLimitsEditor: View {
     let scheduledBasalRange: ClosedRange<Double>?
     let supportedBolusVolumes: [Double]
     let selectableBolusVolumes: [Double]
-    let syncDeliveryLimits: PumpManager.SyncDeliveryLimits?
+    let syncDeliveryLimits: SyncDeliveryLimits?
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: SettingsPresentationMode
     
@@ -46,7 +46,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         lowestCarbRatio: Double?,
-        syncDeliveryLimits: PumpManager.SyncDeliveryLimits?,
+        syncDeliveryLimits: SyncDeliveryLimits?,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {

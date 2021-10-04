@@ -19,15 +19,15 @@ public class TherapySettingsViewModel: ObservableObject {
 
     private let initialTherapySettings: TherapySettings
     let pumpSupportedIncrements: (() -> PumpSupportedIncrements?)?
-    let syncPumpSchedule: (() -> PumpManager.SyncSchedule?)?
-    let syncDeliveryLimits: (() -> PumpManager.SyncDeliveryLimits?)?
+    let syncPumpSchedule: (() -> SyncSchedule?)?
+    let syncDeliveryLimits: (() -> SyncDeliveryLimits?)?
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
 
     public init(therapySettings: TherapySettings,
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
-                syncPumpSchedule: (() -> PumpManager.SyncSchedule?)? = nil,
-                syncDeliveryLimits: (() -> PumpManager.SyncDeliveryLimits?)? = nil,
+                syncPumpSchedule: (() -> SyncSchedule?)? = nil,
+                syncDeliveryLimits: (() -> SyncDeliveryLimits?)? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
                 didSave: SaveCompletion? = nil) {
