@@ -11,6 +11,9 @@ import LoopKit
 import HealthKit
 import SwiftUI
 
+public typealias SyncSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Swift.Result<BasalRateSchedule, Error>) -> Void) -> Void
+public typealias SyncDeliveryLimits = (_ deliveryLimits: DeliveryLimits, _ completion: @escaping (_ result: Swift.Result<DeliveryLimits, Error>) -> Void) -> Void
+
 public class TherapySettingsViewModel: ObservableObject {
     public typealias SaveCompletion = (TherapySetting, TherapySettings) -> Void
     
