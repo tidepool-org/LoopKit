@@ -20,7 +20,7 @@ public struct DeliveryLimitsEditor: View {
     let selectableBolusVolumes: [Double]
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: SettingsPresentationMode
-    var validateMaxTempBasal: TherapySettingsViewModel.ValidateMaxTempBasal?
+    var maxTempBasalSavePreflight: TherapySettingsViewModel.MaxTempBasalSavePreflight?
 
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
@@ -44,7 +44,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         lowestCarbRatio: Double?,
-        validateMaxTempBasal: TherapySettingsViewModel.ValidateMaxTempBasal?,
+        maxTempBasalSavePreflight: TherapySettingsViewModel.MaxTempBasalSavePreflight?,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
@@ -58,7 +58,7 @@ public struct DeliveryLimitsEditor: View {
         self.save = save
         self.mode = mode
         self.lowestCarbRatio = lowestCarbRatio
-        self.validateMaxTempBasal = validateMaxTempBasal
+        self.maxTempBasalSavePreflight = maxTempBasalSavePreflight
     }
     
     public init(
@@ -82,7 +82,7 @@ public struct DeliveryLimitsEditor: View {
             scheduledBasalRange: therapySettingsViewModel.therapySettings.basalRateSchedule?.valueRange(),
             supportedBolusVolumes: therapySettingsViewModel.pumpSupportedIncrements!()!.bolusVolumes,
             lowestCarbRatio: therapySettingsViewModel.therapySettings.carbRatioSchedule?.lowestValue(),
-            validateMaxTempBasal: therapySettingsViewModel.validateMaxTempBasal?(),
+            maxTempBasalSavePreflight: therapySettingsViewModel.maxTempBasalSavePreflight?(),
             onSave: { [weak therapySettingsViewModel] newLimits in
                 therapySettingsViewModel?.saveDeliveryLimits(limits: newLimits)
                 didSave?()
@@ -349,11 +349,11 @@ public struct DeliveryLimitsEditor: View {
     }
     
     private func maybeCancelTempBasal(completionIfContinue: @escaping () -> Void) {
-        precondition(self.validateMaxTempBasal != nil)
-        guard let maximumBasalRate = value.maximumBasalRate, let validateMaxTempBasal = self.validateMaxTempBasal else {
+        precondition(self.maxTempBasalSavePreflight != nil)
+        guard let maximumBasalRate = value.maximumBasalRate, let maxTempBasalSavePreflight = self.maxTempBasalSavePreflight else {
             return
         }
-        validateMaxTempBasal(maximumBasalRate.doubleValue(for: .internationalUnitsPerHour)) { error in
+        maxTempBasalSavePreflight(maximumBasalRate.doubleValue(for: .internationalUnitsPerHour)) { error in
             DispatchQueue.main.async {
                 if let error = error {
                     cancelTempBasalError = error
