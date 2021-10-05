@@ -12,6 +12,8 @@ import Foundation
 public enum VersionUpdate: Comparable, CaseIterable {
     /// No version update needed.
     case noneNeeded
+    /// A update is needed, but it is just informational (supported update).
+    case updateNeeded
     /// The version is unsupported; the app needs to be updated to the latest "supported" version.  Not a critical update.
     case supportedNeeded
     /// The app must be updated immediately.
@@ -26,11 +28,13 @@ extension VersionUpdate {
     public var localizedDescription: String {
         switch self {
         case .noneNeeded:
-            return NSLocalizedString("No Update Needed", comment: "Description of no software update needed")
+            return NSLocalizedString("No Update", comment: "Description of no software update needed")
+        case .updateNeeded:
+            return NSLocalizedString("Update Available", comment: "Description of informational software update needed")
         case .supportedNeeded:
-            return NSLocalizedString("Supported Update Needed", comment: "Description of supported software update needed")
+            return NSLocalizedString("Recommended Update", comment: "Description of supported software update needed")
         case .criticalNeeded:
-            return NSLocalizedString("Critical Update Needed", comment: "Description of critical software update needed")
+            return NSLocalizedString("Critical Update", comment: "Description of critical software update needed")
         }
     }
 }
