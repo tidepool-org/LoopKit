@@ -11,34 +11,48 @@ import LoopKit
 import HealthKit
 import SwiftUI
 
-public typealias SyncSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Swift.Result<BasalRateSchedule, Error>) -> Void) -> Void
-public typealias SyncDeliveryLimits = (_ deliveryLimits: DeliveryLimits, _ completion: @escaping (_ result: Swift.Result<DeliveryLimits, Error>) -> Void) -> Void
-
 public class TherapySettingsViewModel: ObservableObject {
     public typealias SaveCompletion = (TherapySetting, TherapySettings) -> Void
+   
+    /// This method type describes a way to "precheck" before saving max temp basal.  The host app is going to supply a closure for this, and based on the
+    /// response, either proceed with saving max temp, or display an error.
+    ///
+    /// - Parameters:
+    ///   - unitsPerHour: The temporary basal rate proposed to validate, in international units per hour
+    ///   - completion: A closure called after the command is complete
+    ///   - error: An optional error describing why the command failed
+    public typealias MaxTempBasalSavePreflight = (_ unitsPerHour: Double, _ completion: @escaping (_ error: Error?) -> Void) -> Void
     
+    public typealias SyncBasalRateSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
+
+    public typealias SyncDeliveryLimits = (_ deliveryLimits: DeliveryLimits, _ completion: @escaping (_ result: Swift.Result<DeliveryLimits, Error>) -> Void) -> Void
+
+
     @Published public var therapySettings: TherapySettings
     private let didSave: SaveCompletion?
 
     private let initialTherapySettings: TherapySettings
     let pumpSupportedIncrements: (() -> PumpSupportedIncrements?)?
-    let syncPumpSchedule: (() -> SyncSchedule?)?
-    let syncDeliveryLimits: (() -> SyncDeliveryLimits?)?
+    let syncBasalRateSchedule: SyncBasalRateSchedule?
+    let syncDeliveryLimits: SyncDeliveryLimits?
+    let maxTempBasalSavePreflight: MaxTempBasalSavePreflight?
     let sensitivityOverridesEnabled: Bool
     public var prescription: Prescription?
 
     public init(therapySettings: TherapySettings,
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
-                syncPumpSchedule: (() -> SyncSchedule?)? = nil,
-                syncDeliveryLimits: (() -> SyncDeliveryLimits?)? = nil,
+                syncBasalRateSchedule: SyncBasalRateSchedule? = nil,
+                syncDeliveryLimits: SyncDeliveryLimits? = nil,
+                maxTempBasalSavePreflight: MaxTempBasalSavePreflight? = nil,
                 sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
                 didSave: SaveCompletion? = nil) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.pumpSupportedIncrements = pumpSupportedIncrements
-        self.syncPumpSchedule = syncPumpSchedule
+        self.syncBasalRateSchedule = syncBasalRateSchedule
         self.syncDeliveryLimits = syncDeliveryLimits
+        self.maxTempBasalSavePreflight = maxTempBasalSavePreflight
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.prescription = prescription
         self.didSave = didSave
