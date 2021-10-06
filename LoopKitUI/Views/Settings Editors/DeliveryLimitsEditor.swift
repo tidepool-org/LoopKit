@@ -322,7 +322,7 @@ public struct DeliveryLimitsEditor: View {
     private func cancelTempBasalAlert() -> SwiftUI.Alert {
         SwiftUI.Alert(
             title: Text(LocalizedString("Failed to Cancel Temp Basal", comment: "Alert title for failing to cancel temp basal")),
-            message: Text(String(format: LocalizedString("Tidepool Loop was unable to cancel your current temporary basal rate, which is higher than the new Max Basal limit you have set. This may result in higher insulin delivery than desired.\n\nConsider suspending insulin delivery manually and then immediately resuming to enact basal delivery with the new limit in place.\n\n(%@)",
+            message: Text(String(format: LocalizedString("%@Tidepool Loop was unable to cancel your current temporary basal rate, which is higher than the new Max Basal limit you have set. This may result in higher insulin delivery than desired.\n\nConsider suspending insulin delivery manually and then immediately resuming to enact basal delivery with the new limit in place.",
                                                          comment: "Alert text for failing to cancel temp basal (1: error description)"),
                                  cancelTempBasalErrorAlertBody)),
             dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
@@ -333,10 +333,10 @@ public struct DeliveryLimitsEditor: View {
         if let localizedError = cancelTempBasalError as? LocalizedError {
             let errors = [localizedError.errorDescription, localizedError.failureReason, localizedError.recoverySuggestion].compactMap { $0 }
             if !errors.isEmpty {
-                return errors.joined(separator: ", ")
+                return errors.joined(separator: ". ") + ".\n"
             }
         }
-        return cancelTempBasalError?.localizedDescription ?? ""
+        return cancelTempBasalError.map { $0.localizedDescription + ".\n" } ?? ""
     }
     
     private func startSaving() {
