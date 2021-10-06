@@ -20,12 +20,18 @@ public struct DeliveryLimitsEditor: View {
     let selectableBolusVolumes: [Double]
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: SettingsPresentationMode
-    
+    var maxTempBasalSavePreflight: TherapySettingsViewModel.MaxTempBasalSavePreflight?
+
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
     @State var settingBeingEdited: DeliveryLimits.Setting?
 
     @State var showingConfirmationAlert = false
+    @State var cancelTempBasalError: Error? = nil
+    var showingCancelTempBasalErrorAlert: Binding<Bool> { Binding(
+        get: { cancelTempBasalError != nil },
+        set: { _ in}
+    )}
     @Environment(\.dismissAction) var dismiss
     @Environment(\.authenticate) var authenticate
     @Environment(\.appName) var appName
@@ -38,6 +44,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedBolusVolumes: [Double],
         lowestCarbRatio: Double?,
+        maxTempBasalSavePreflight: TherapySettingsViewModel.MaxTempBasalSavePreflight?,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
@@ -51,6 +58,7 @@ public struct DeliveryLimitsEditor: View {
         self.save = save
         self.mode = mode
         self.lowestCarbRatio = lowestCarbRatio
+        self.maxTempBasalSavePreflight = maxTempBasalSavePreflight
     }
     
     public init(
@@ -74,6 +82,7 @@ public struct DeliveryLimitsEditor: View {
             scheduledBasalRange: therapySettingsViewModel.therapySettings.basalRateSchedule?.valueRange(),
             supportedBolusVolumes: therapySettingsViewModel.pumpSupportedIncrements!()!.bolusVolumes,
             lowestCarbRatio: therapySettingsViewModel.therapySettings.carbRatioSchedule?.lowestValue(),
+            maxTempBasalSavePreflight: therapySettingsViewModel.maxTempBasalSavePreflight,
             onSave: { [weak therapySettingsViewModel] newLimits in
                 therapySettingsViewModel?.saveDeliveryLimits(limits: newLimits)
                 didSave?()
@@ -132,6 +141,7 @@ public struct DeliveryLimitsEditor: View {
             }
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
+        .alert(isPresented: showingCancelTempBasalErrorAlert, content: cancelTempBasalAlert)
         .simultaneousGesture(TapGesture().onEnded {
             withAnimation {
                 self.userDidTap = true
@@ -309,6 +319,26 @@ public struct DeliveryLimitsEditor: View {
         )
     }
 
+    private func cancelTempBasalAlert() -> SwiftUI.Alert {
+        SwiftUI.Alert(
+            title: Text(LocalizedString("Failed to Cancel Temp Basal", comment: "Alert title for failing to cancel temp basal")),
+            message: Text(String(format: LocalizedString("%@Tidepool Loop was unable to cancel your current temporary basal rate, which is higher than the new Max Basal limit you have set. This may result in higher insulin delivery than desired.\n\nConsider suspending insulin delivery manually and then immediately resuming to enact basal delivery with the new limit in place.",
+                                                         comment: "Alert text for failing to cancel temp basal (1: error description)"),
+                                 cancelTempBasalErrorAlertBody)),
+            dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
+        )
+    }
+    
+    private var cancelTempBasalErrorAlertBody: String {
+        if let localizedError = cancelTempBasalError as? LocalizedError {
+            let errors = [localizedError.errorDescription, localizedError.failureReason, localizedError.recoverySuggestion].compactMap { $0 }
+            if !errors.isEmpty {
+                return errors.joined(separator: ". ") + ".\n"
+            }
+        }
+        return cancelTempBasalError.map { $0.localizedDescription + ".\n" } ?? ""
+    }
+    
     private func startSaving() {
         guard mode == .settings else {
             self.continueSaving()
@@ -321,9 +351,27 @@ public struct DeliveryLimitsEditor: View {
             }
         }
     }
-    
+
     private func continueSaving() {
-        self.save(self.value)
+        maybeCancelTempBasal {
+            self.save(self.value)
+        }
+    }
+    
+    private func maybeCancelTempBasal(completionIfContinue: @escaping () -> Void) {
+        precondition(self.maxTempBasalSavePreflight != nil)
+        guard let maximumBasalRate = value.maximumBasalRate, let maxTempBasalSavePreflight = self.maxTempBasalSavePreflight else {
+            return
+        }
+        maxTempBasalSavePreflight(maximumBasalRate.doubleValue(for: .internationalUnitsPerHour)) { error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    cancelTempBasalError = error
+                } else {
+                    completionIfContinue()
+                }
+            }
+        }
     }
 }
 

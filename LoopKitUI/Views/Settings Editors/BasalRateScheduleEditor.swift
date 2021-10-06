@@ -16,7 +16,7 @@ public struct BasalRateScheduleEditor: View {
     var supportedBasalRates: [Double]
     var guardrail: Guardrail<HKQuantity>
     var maximumScheduleEntryCount: Int
-    var syncSchedule: PumpManager.SyncSchedule?
+    var syncBasalRateSchedule: TherapySettingsViewModel.SyncBasalRateSchedule?
     var save: (BasalRateSchedule) -> Void
     let mode: SettingsPresentationMode
     @Environment(\.appName) private var appName
@@ -27,7 +27,7 @@ public struct BasalRateScheduleEditor: View {
         supportedBasalRates: [Double],
         maximumBasalRate: Double?,
         maximumScheduleEntryCount: Int,
-        syncSchedule: PumpManager.SyncSchedule?,
+        syncBasalRateSchedule: TherapySettingsViewModel.SyncBasalRateSchedule?,
         onSave save: @escaping (BasalRateSchedule) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
@@ -47,7 +47,7 @@ public struct BasalRateScheduleEditor: View {
 
         self.guardrail = Guardrail.basalRate(supportedBasalRates: supportedBasalRates)
         self.maximumScheduleEntryCount = maximumScheduleEntryCount
-        self.syncSchedule = syncSchedule
+        self.syncBasalRateSchedule = syncBasalRateSchedule
         self.save = save
         self.mode = mode
         
@@ -66,7 +66,7 @@ public struct BasalRateScheduleEditor: View {
             supportedBasalRates: therapySettingsViewModel.pumpSupportedIncrements!()!.basalRates ,
             maximumBasalRate: therapySettingsViewModel.therapySettings.maximumBasalRatePerHour,
             maximumScheduleEntryCount: therapySettingsViewModel.pumpSupportedIncrements!()!.maximumBasalScheduleEntryCount,
-            syncSchedule: therapySettingsViewModel.syncPumpSchedule?(),
+            syncBasalRateSchedule: therapySettingsViewModel.syncBasalRateSchedule,
             onSave: { [weak therapySettingsViewModel] newBasalRates in
                 therapySettingsViewModel?.saveBasalRates(basalRates: newBasalRates)
                 didSave?()
@@ -114,8 +114,8 @@ public struct BasalRateScheduleEditor: View {
         switch mode {
         case .settings:
             return .asynchronous { quantitySchedule, completion in
-                precondition(self.syncSchedule != nil)
-                self.syncSchedule?(quantitySchedule.items) { result in
+                precondition(self.syncBasalRateSchedule != nil)
+                self.syncBasalRateSchedule?(quantitySchedule.items) { result in
                     switch result {
                     case .success(let syncedSchedule):
                         DispatchQueue.main.async {
