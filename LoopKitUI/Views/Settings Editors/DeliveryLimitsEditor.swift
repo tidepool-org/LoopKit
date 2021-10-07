@@ -392,37 +392,11 @@ public struct DeliveryLimitsEditor: View {
                 )
             )
         case .saveError(let error):
-            switch error {
-            case SaveTherapySettingsError.cancelTempBasalError(let error):
-                return cancelTempBasalAlert(error)
-            default:
-                return SwiftUI.Alert(
-                    title: Text(LocalizedString("Unable to Save", comment: "Alert title when error occurs while saving a schedule")),
-                    message: Text(error.localizedDescription)
-                )
-            }
+            return SwiftUI.Alert(
+                title: Text(LocalizedString("Unable to Save", comment: "Alert title when error occurs while saving a schedule")),
+                message: Text(error.localizedDescription)
+            )
         }
-    }
-
-    private func cancelTempBasalAlert(_ error: Error?) -> SwiftUI.Alert {
-        Alert(
-            title: Text(LocalizedString("Failed to Cancel Temp Basal", comment: "Alert title for failing to cancel temp basal")),
-            message: Text(String(format: LocalizedString("%@Tidepool Loop was unable to cancel your current temporary basal rate, which is higher than the new Max Basal limit you have set. This may result in higher insulin delivery than desired.\n\nConsider suspending insulin delivery manually and then immediately resuming to enact basal delivery with the new limit in place.",
-                                                         comment: "Alert text for failing to cancel temp basal (1: error description)"),
-                                 cancelTempBasalErrorAlertBody(error))),
-            dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
-        )
-    }
-    
-    private func cancelTempBasalErrorAlertBody(_ error: Error?) -> String {
-        let paragraphEnd = ".\n\n"
-        if let localizedError = error as? LocalizedError {
-            let errors = [localizedError.errorDescription, localizedError.failureReason, localizedError.recoverySuggestion].compactMap { $0 }
-            if !errors.isEmpty {
-                return errors.joined(separator: ". ") + paragraphEnd
-            }
-        }
-        return error.map { $0.localizedDescription + paragraphEnd } ?? ""
     }
     
     private var confirmationAlertContent: AlertContent {

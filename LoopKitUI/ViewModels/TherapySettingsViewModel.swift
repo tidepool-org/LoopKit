@@ -11,11 +11,6 @@ import LoopKit
 import HealthKit
 import SwiftUI
 
-public enum SaveTherapySettingsError: Error {
-    case cancelTempBasalError(Error)
-    case missingPumpManager
-}
-
 public protocol TherapySettingsViewModelDelegate: AnyObject {
     func syncBasalRateSchedule(items: [RepeatingScheduleValue<Double>], completion: @escaping (Result<BasalRateSchedule, Error>) -> Void)
     func syncDeliveryLimits(deliveryLimits: DeliveryLimits, completion: @escaping (Result<DeliveryLimits, Error>) -> Void)
