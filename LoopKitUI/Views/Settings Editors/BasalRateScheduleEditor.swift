@@ -10,13 +10,14 @@ import SwiftUI
 import HealthKit
 import LoopKit
 
+public typealias SyncBasalRateSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
 
 public struct BasalRateScheduleEditor: View {
     var schedule: DailyQuantitySchedule<Double>?
     var supportedBasalRates: [Double]
     var guardrail: Guardrail<HKQuantity>
     var maximumScheduleEntryCount: Int
-    var syncBasalRateSchedule: TherapySettingsViewModel.SyncBasalRateSchedule?
+    var syncBasalRateSchedule: SyncBasalRateSchedule?
     var save: (BasalRateSchedule) -> Void
     let mode: SettingsPresentationMode
     @Environment(\.appName) private var appName
@@ -27,7 +28,7 @@ public struct BasalRateScheduleEditor: View {
         supportedBasalRates: [Double],
         maximumBasalRate: Double?,
         maximumScheduleEntryCount: Int,
-        syncBasalRateSchedule: TherapySettingsViewModel.SyncBasalRateSchedule?,
+        syncBasalRateSchedule: SyncBasalRateSchedule?,
         onSave save: @escaping (BasalRateSchedule) -> Void,
         mode: SettingsPresentationMode = .settings
     ) {
@@ -63,9 +64,9 @@ public struct BasalRateScheduleEditor: View {
     ) {
         self.init(
             schedule: therapySettingsViewModel.therapySettings.basalRateSchedule,
-            supportedBasalRates: therapySettingsViewModel.pumpSupportedIncrements!()!.basalRates ,
+            supportedBasalRates: therapySettingsViewModel.pumpSupportedIncrements()?.basalRates ?? [],
             maximumBasalRate: therapySettingsViewModel.therapySettings.maximumBasalRatePerHour,
-            maximumScheduleEntryCount: therapySettingsViewModel.pumpSupportedIncrements!()!.maximumBasalScheduleEntryCount,
+            maximumScheduleEntryCount: therapySettingsViewModel.pumpSupportedIncrements()?.maximumBasalScheduleEntryCount ?? 0,
             syncBasalRateSchedule: therapySettingsViewModel.syncBasalRateSchedule,
             onSave: { [weak therapySettingsViewModel] newBasalRates in
                 therapySettingsViewModel?.saveBasalRates(basalRates: newBasalRates)
