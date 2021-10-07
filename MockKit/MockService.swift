@@ -170,7 +170,7 @@ extension VersionUpdate: RawRepresentable {
         case "noneNeeded": self = .noneNeeded
         case "supportedNeeded": self = .supportedNeeded
         case "criticalNeeded": self = .criticalNeeded
-        case "updateNeeded": self = .updateNeeded
+        case "updateNeeded": self = .updateAvailable
         default: return nil
         }
     }
@@ -179,7 +179,7 @@ extension VersionUpdate: RawRepresentable {
         case .noneNeeded: return "noneNeeded"
         case .supportedNeeded: return "supportedNeeded"
         case .criticalNeeded: return "criticalNeeded"
-        case .updateNeeded:  return "updateNeeded"
+        case .updateAvailable:  return "updateNeeded"
         }
     }
 }
