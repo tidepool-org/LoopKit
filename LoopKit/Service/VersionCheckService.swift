@@ -11,29 +11,31 @@ import Foundation
 // Note: order is important for VersionUpdate.  Later version updates are more critical than earlier ones.  Do not reorder!
 public enum VersionUpdate: Comparable, CaseIterable {
     /// No version update needed.
-    case noneNeeded
+    case none
     /// A update is available, but it is just informational (supported update).
-    case updateAvailable
+    case available
     /// The version is unsupported; the app needs to be updated to the latest "supported" version.  Not a critical update.
-    case supportedNeeded
+    case recommended
     /// The app must be updated immediately.
-    case criticalNeeded
+    case required
 }
 
 extension VersionUpdate {
-    public static let `default` = VersionUpdate.noneNeeded
+    public static let `default` = VersionUpdate.none
+
+    public var softwareUpdateAvailable: Bool { self > .none }
 }
 
 extension VersionUpdate {
     public var localizedDescription: String {
         switch self {
-        case .noneNeeded:
+        case .none:
             return NSLocalizedString("No Update", comment: "Description of no software update needed")
-        case .updateAvailable:
+        case .available:
             return NSLocalizedString("Update Available", comment: "Description of informational software update needed")
-        case .supportedNeeded:
+        case .recommended:
             return NSLocalizedString("Recommended Update", comment: "Description of supported software update needed")
-        case .criticalNeeded:
+        case .required:
             return NSLocalizedString("Critical Update", comment: "Description of critical software update needed")
         }
     }
@@ -49,4 +51,8 @@ public protocol VersionCheckService: Service {
      - Parameter completion: The completion function to call with any success result (or `nil` if not known) or failure.  
      */
     func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate?, Error>) -> Void)
+}
+
+public extension Notification.Name {
+    static let SoftwareUpdateAvailable = Notification.Name(rawValue: "com.loopkit.Loop.SoftwareUpdateAvailable")
 }

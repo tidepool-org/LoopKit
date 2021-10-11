@@ -381,13 +381,13 @@ fileprivate extension UIAlertController {
 fileprivate extension VersionUpdate {
     var actionStyle: UIAlertAction.Style {
         switch self {
-        case .criticalNeeded: return .destructive
+        case .required: return .destructive
         default: return .default
         }
     }
     var tintColor: UIColor {
         switch self {
-        case .criticalNeeded: return .red
+        case .required: return .red
         default: return .label
         }
     }

@@ -29,3 +29,9 @@ extension MockService: ServiceUI {
         return nil
     }
 }
+
+extension MockService: VersionCheckServiceUI {
+    public func softwareUpdateView(guidanceColors: GuidanceColors, bundleIdentifier: String, currentVersion: String, openAppStoreHook: (() -> Void)?) -> AnyView? {
+        return AnyView(Text("versionUpdate: \(versionUpdate.value.localizedDescription)\n\nbundleIdentifier: \(bundleIdentifier)\n\ncurrentVersion: \(currentVersion)"))
+    }
+}

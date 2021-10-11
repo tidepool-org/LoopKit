@@ -23,7 +23,7 @@ public final class MockService: Service {
     
     public var analytics: Bool
     
-    public var versionUpdate = Locked<VersionUpdate>(.noneNeeded)
+    public var versionUpdate = Locked<VersionUpdate>(.default)
     
     public let maxHistoryItems = 1000
     
@@ -45,7 +45,7 @@ public final class MockService: Service {
         self.remoteData = rawState["remoteData"] as? Bool ?? false
         self.logging = rawState["logging"] as? Bool ?? false
         self.analytics = rawState["analytics"] as? Bool ?? false
-        self.versionUpdate.value = (rawState["versionUpdate"] as? String).flatMap { VersionUpdate(rawValue: $0) } ?? .noneNeeded
+        self.versionUpdate.value = (rawState["versionUpdate"] as? String).flatMap { VersionUpdate(rawValue: $0) } ?? .default
     }
     
     public var rawState: RawStateValue {
@@ -167,19 +167,19 @@ extension VersionUpdate: RawRepresentable {
     public typealias RawValue = String
     public init?(rawValue: RawValue) {
         switch rawValue {
-        case "noneNeeded": self = .noneNeeded
-        case "supportedNeeded": self = .supportedNeeded
-        case "criticalNeeded": self = .criticalNeeded
-        case "updateNeeded": self = .updateAvailable
+        case "none": self = .none
+        case "available": self = .available
+        case "recommended": self = .recommended
+        case "required": self = .required
         default: return nil
         }
     }
     public var rawValue: RawValue {
         switch self {
-        case .noneNeeded: return "noneNeeded"
-        case .supportedNeeded: return "supportedNeeded"
-        case .criticalNeeded: return "criticalNeeded"
-        case .updateAvailable:  return "updateNeeded"
+        case .none: return "none"
+        case .available: return "available"
+        case .recommended: return "recommended"
+        case .required:  return "required"
         }
     }
 }
