@@ -20,6 +20,27 @@ public enum VersionUpdate: Comparable, CaseIterable {
     case required
 }
 
+extension VersionUpdate: RawRepresentable {
+    public typealias RawValue = String
+    public init?(rawValue: RawValue) {
+        switch rawValue {
+        case "none": self = .none
+        case "available": self = .available
+        case "recommended": self = .recommended
+        case "required": self = .required
+        default: return nil
+        }
+    }
+    public var rawValue: RawValue {
+        switch self {
+        case .none: return "none"
+        case .available: return "available"
+        case .recommended: return "recommended"
+        case .required:  return "required"
+        }
+    }
+}
+
 extension VersionUpdate {
     public static let `default` = VersionUpdate.none
 
@@ -44,7 +65,7 @@ extension VersionUpdate {
 public protocol VersionCheckService: Service {
 
     /**
-     Check whether the given app version for the given `bundleIdentifier` needs an update.
+     Check whether the given app version for the given `bundleIdentifier` needs an update.  Services should return their last result, if known.
 
      - Parameter bundleIdentifier: The calling app's `bundleIdentifier` (a.k.a. `CFBundleIdentifier`) string.
      - Parameter currentVersion: The current version to check.

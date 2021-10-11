@@ -11,6 +11,8 @@ import LoopKit
 
 public protocol VersionCheckServiceUI: VersionCheckService {
     
+    func setAlertIssuer(alertIssuer: AlertIssuer?)
+    
     /// Provides screen for software update UI.
     ///
     /// - Returns: A view that will be opened when a software update is available from this service.
