@@ -36,7 +36,7 @@
 		1D1FCE2B24BE704A000300A8 /* TherapySetting+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1FCE2A24BE704A000300A8 /* TherapySetting+Settings.swift */; };
 		1D24A8D524C896E100AB8DB9 /* Prescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D24A8D424C896E100AB8DB9 /* Prescription.swift */; };
 		1D25C22E246A2A1A00E87FA0 /* critical.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1D25C22D246A2A1A00E87FA0 /* critical.caf */; };
-		1D3528CC2710E8B90065697A /* VersionCheckServiceUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D3528CB2710E8B80065697A /* VersionCheckServiceUI.swift */; };
+		1D3528CC2710E8B90065697A /* VersionCheckUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D3528CB2710E8B80065697A /* VersionCheckUI.swift */; };
 		1D498E4724D892B0000627F2 /* Environment+Authenticate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D498E4624D892B0000627F2 /* Environment+Authenticate.swift */; };
 		1D60355E24D39ED10095DC2A /* Environment+AppName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D60355D24D39ED10095DC2A /* Environment+AppName.swift */; };
 		1D63DEA326E94FDF00F46FA5 /* VersionCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D63DEA226E94FDF00F46FA5 /* VersionCheckService.swift */; };
@@ -1003,7 +1003,7 @@
 		1D1FCE2A24BE704A000300A8 /* TherapySetting+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TherapySetting+Settings.swift"; sourceTree = "<group>"; };
 		1D24A8D424C896E100AB8DB9 /* Prescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prescription.swift; sourceTree = "<group>"; };
 		1D25C22D246A2A1A00E87FA0 /* critical.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = critical.caf; sourceTree = "<group>"; };
-		1D3528CB2710E8B80065697A /* VersionCheckServiceUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCheckServiceUI.swift; sourceTree = "<group>"; };
+		1D3528CB2710E8B80065697A /* VersionCheckUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCheckUI.swift; sourceTree = "<group>"; };
 		1D498E4624D892B0000627F2 /* Environment+Authenticate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+Authenticate.swift"; sourceTree = "<group>"; };
 		1D60355D24D39ED10095DC2A /* Environment+AppName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Environment+AppName.swift"; sourceTree = "<group>"; };
 		1D63DEA226E94FDF00F46FA5 /* VersionCheckService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCheckService.swift; sourceTree = "<group>"; };
@@ -2186,7 +2186,7 @@
 				B4D4C20B25F95A6700DA809D /* ViewModels */,
 				4369F090208B0D68000E3E45 /* Views */,
 				E9086B2E24B3A5080062F5C8 /* ChartColorPalette.swift */,
-				1D3528CB2710E8B80065697A /* VersionCheckServiceUI.swift */,
+				1D3528CB2710E8B80065697A /* VersionCheckUI.swift */,
 			);
 			path = LoopKitUI;
 			sourceTree = "<group>";
@@ -3608,7 +3608,7 @@
 				892A5D9E2231E122008961AB /* StateColorPalette.swift in Sources */,
 				895FE08022011F0C00FCF18A /* EmojiDataSource.swift in Sources */,
 				432CF86920D76B320066B889 /* SetupButton.swift in Sources */,
-				1D3528CC2710E8B90065697A /* VersionCheckServiceUI.swift in Sources */,
+				1D3528CC2710E8B90065697A /* VersionCheckUI.swift in Sources */,
 				E9DFB93024E8CA8500468917 /* LegacyInsulinDeliveryTableViewController.swift in Sources */,
 				C1DE4C2125A253BD007065F8 /* Color.swift in Sources */,
 				898E6E702241EDB70019E459 /* PercentageTextFieldTableViewController.swift in Sources */,

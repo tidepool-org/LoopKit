@@ -1,5 +1,5 @@
 //
-//  VersionCheckServiceUI.swift
+//  VersionCheckUI.swift
 //  LoopKitUI
 //
 //  Created by Rick Pasetto on 10/8/21.
@@ -9,7 +9,7 @@
 import SwiftUI
 import LoopKit
 
-public protocol VersionCheckServiceUI: VersionCheckService {
+public protocol VersionCheckUI: AnyObject {
     
     func setAlertIssuer(alertIssuer: AlertIssuer?)
     

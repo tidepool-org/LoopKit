@@ -30,7 +30,7 @@ extension MockService: ServiceUI {
     }
 }
 
-extension MockService: VersionCheckServiceUI {
+extension MockService: VersionCheckUI {
     public func setAlertIssuer(alertIssuer: AlertIssuer?) {
         self.alertIssuer = alertIssuer
     }
