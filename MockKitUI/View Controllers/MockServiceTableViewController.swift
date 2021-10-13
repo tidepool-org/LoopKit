@@ -85,7 +85,6 @@ final class MockServiceTableViewController: UITableViewController {
 
     private enum Section: Int, CaseIterable {
         case source
-        case versionCheck
         case history
         case deleteService
     }
@@ -116,8 +115,6 @@ final class MockServiceTableViewController: UITableViewController {
         switch Section(rawValue: section)! {
         case .source:
             return Source.allCases.count
-        case .versionCheck:
-            return 1
         case .history:
             return History.allCases.count
         case .deleteService:
@@ -131,8 +128,6 @@ final class MockServiceTableViewController: UITableViewController {
             return "Source"
         case .history:
             return "History"
-        case .versionCheck:
-            return "Version Check"
         case .deleteService:
             return " " // Use an empty string for more dramatic spacing
         }
@@ -165,11 +160,6 @@ final class MockServiceTableViewController: UITableViewController {
                 cell.switch?.isOn = service.analytics
                 cell.switch?.addTarget(self, action: #selector(analyticsChanged(_:)), for: .valueChanged)
             }
-            return cell
-        case .versionCheck:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
-            cell.textLabel?.text = service.versionUpdate.value.localizedDescription
-            cell.tintColor = service.versionUpdate.value.tintColor
             return cell
         case .history:
             switch History(rawValue: indexPath.row)! {
@@ -211,16 +201,6 @@ final class MockServiceTableViewController: UITableViewController {
         switch Section(rawValue: indexPath.section)! {
         case .source:
             break
-        case .versionCheck:
-            let alert = UIAlertController(versionCheckHandler: { newValue in
-                self.service.versionUpdate.mutate { value in
-                    value = newValue
-                }
-                tableView.reloadData()
-            })
-            present(alert, animated: true) {
-                tableView.deselectRow(at: indexPath, animated: true)
-            }
         case .history:
             switch History(rawValue: indexPath.row)! {
             case .viewHistory:
@@ -359,8 +339,7 @@ fileprivate extension UIAlertController {
             style: .destructive,
             handler: { _ in
                 handler()
-        }
-        ))
+        }))
 
         let cancel = NSLocalizedString("Cancel", comment: "The title of the cancel action in an action sheet")
         addAction(UIAlertAction(title: cancel, style: .cancel, handler: nil))

@@ -22,9 +22,7 @@ public final class MockService: Service {
     public var logging: Bool
     
     public var analytics: Bool
-    
-    public var versionUpdate = Locked<VersionUpdate>(.default)
-    
+        
     public let maxHistoryItems = 1000
     
     private var lockedHistory = Locked<[String]>([])
@@ -34,10 +32,6 @@ public final class MockService: Service {
     }
     
     private var dateFormatter = ISO8601DateFormatter()
-
-    public var alertIssuer: AlertIssuer?
-    static private var alertCadence = TimeInterval.minutes(1)
-    public var lastVersionCheckAlertDate: Date?
     
     public init() {
         self.remoteData = true
@@ -49,8 +43,6 @@ public final class MockService: Service {
         self.remoteData = rawState["remoteData"] as? Bool ?? false
         self.logging = rawState["logging"] as? Bool ?? false
         self.analytics = rawState["analytics"] as? Bool ?? false
-        self.versionUpdate.value = (rawState["versionUpdate"] as? String).flatMap { VersionUpdate(rawValue: $0) } ?? .default
-        self.lastVersionCheckAlertDate = rawState["lastVersionCheckAlertDate"] as? Date
     }
     
     public var rawState: RawStateValue {
@@ -58,8 +50,6 @@ public final class MockService: Service {
         rawValue["remoteData"] = remoteData
         rawValue["logging"] = logging
         rawValue["analytics"] = analytics
-        rawValue["versionUpdate"] = versionUpdate.value.rawValue
-        rawValue["lastVersionCheckAlertDate"] = lastVersionCheckAlertDate
         return rawValue
     }
     
@@ -158,57 +148,6 @@ extension MockService: RemoteDataService {
             record("[RemoteDataService] Upload settings data (stored: \(stored.count))")
         }
         completion(.success(false))
-    }
-    
-}
-
-extension MockService: VersionCheckService {
-    public func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate?, Error>) -> Void) {
-        record("[VersionCheckService] Version checked \(currentVersion)")
-        maybeIssueAlert(versionUpdate.value)
-        completion(.success(versionUpdate.value))
-    }
-
-    private func maybeIssueAlert(_ versionUpdate: VersionUpdate) {
-        guard versionUpdate >= .recommended else {
-            noAlertNecessary()
-            return
-        }
-        
-        let alertIdentifier = Alert.Identifier(managerIdentifier: serviceIdentifier, alertIdentifier: versionUpdate.rawValue)
-        let alertContent: LoopKit.Alert.Content
-        if firstAlert {
-            alertContent = Alert.Content(title: versionUpdate.localizedDescription,
-                                         body: NSLocalizedString("""
-                                                Your app is out of date. It will continue to work, but we recommend updating to the latest version.
-                                                """, comment: "Alert content body for first software update alert"),
-                                         acknowledgeActionButtonLabel: NSLocalizedString("OK", comment: "default acknowledgement"),
-                                         isCritical: versionUpdate == .required)
-        } else if let lastVersionCheckAlertDate = lastVersionCheckAlertDate,
-                  abs(lastVersionCheckAlertDate.timeIntervalSinceNow) > Self.alertCadence {
-            alertContent = Alert.Content(title: NSLocalizedString("Update Reminder", comment: "Recurring software update alert title"),
-                                         body: NSLocalizedString("""
-                                                Your app is still out of date. It will continue to work, but we recommend updating to the latest version.
-                                                """, comment: "Alert content body for recurring software update alert"),
-                                         acknowledgeActionButtonLabel: NSLocalizedString("OK", comment: "default acknowledgement"),
-                                         isCritical: versionUpdate == .required)
-        } else {
-            return
-        }
-        alertIssuer?.issueAlert(Alert(identifier: alertIdentifier, foregroundContent: alertContent, backgroundContent: alertContent, trigger: .immediate))
-        recordLastAlertDate()
-    }
-    
-    private func noAlertNecessary() {
-        lastVersionCheckAlertDate = nil
-    }
-    
-    private var firstAlert: Bool {
-        return lastVersionCheckAlertDate == nil
-    }
-    
-    private func recordLastAlertDate() {
-        lastVersionCheckAlertDate = Date()
     }
     
 }

@@ -25,21 +25,5 @@ extension MockService: ServiceUI {
       return ServiceNavigationController(rootViewController: MockServiceTableViewController(service: self, for: .update))
     }
     
-    public func supportMenuItem(supportInfoProvider: SupportInfoProvider, urlHandler: @escaping (URL) -> Void) -> AnyView? {
-        return nil
-    }
 }
 
-extension MockService: VersionCheckUI {
-    public func setAlertIssuer(alertIssuer: AlertIssuer?) {
-        self.alertIssuer = alertIssuer
-    }
-    
-    public func softwareUpdateView(guidanceColors: GuidanceColors, bundleIdentifier: String, currentVersion: String, openAppStoreHook: (() -> Void)?) -> AnyView? {
-        return AnyView(
-            Button("versionUpdate: \(versionUpdate.value.localizedDescription)\n\nbundleIdentifier: \(bundleIdentifier)\n\ncurrentVersion: \(currentVersion)") {
-                openAppStoreHook?()
-            }
-        )
-    }
-}

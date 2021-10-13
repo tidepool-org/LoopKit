@@ -28,4 +28,30 @@ public protocol SupportUI {
     ///   - urlHandler: A handler to open any URLs.
     /// - Returns: A view that will be used in a support menu for providing user support.
     func supportMenuItem(supportInfoProvider: SupportInfoProvider, urlHandler: @escaping (URL) -> Void) -> AnyView?
+
+    ///
+    /// Check whether the given app version for the given `bundleIdentifier` needs an update.  Services should return their last result, if known.
+    ///
+    /// - Parameters:
+    ///    - bundleIdentifier: The host app's `bundleIdentifier` (a.k.a. `CFBundleIdentifier`) string.
+    ///    - currentVersion: The host app's current version (i.e. `CFBundleVersion`).
+    ///    - completion: The completion function to call with any success result (or `nil` if not known) or failure.
+    func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate?, Error>) -> Void)
+
+    /// Hand this support an `AlertIssuer` so it may be able to issue alerts.
+    func setAlertIssuer(alertIssuer: AlertIssuer?)
+    
+    /// Provides screen for software update UI.
+    ///
+    /// - Parameters:
+    ///    - guidanceColors: Colors to use for warnings, etc.
+    ///    - bundleIdentifier: The host app's bundle identifier (e.g. `Bundle.main.bundleIdentifier`).
+    ///    - currentVersion: The host app's current version (i.e. `CFBundleVersion`).
+    ///    - openAppStoreHook: Hook function to open up the App Store for the host app.
+    /// - Returns: A view that will be opened when a software update is available from this service.
+    func softwareUpdateView(guidanceColors: GuidanceColors,
+                            bundleIdentifier: String,
+                            currentVersion: String,
+                            openAppStoreHook: (() -> Void)?
+    ) -> AnyView?
 }

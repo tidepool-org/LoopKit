@@ -1,0 +1,130 @@
+//
+//  MockSupport.swift
+//  MockKitUI
+//
+//  Created by Rick Pasetto on 10/13/21.
+//  Copyright © 2021 LoopKit Authors. All rights reserved.
+//
+
+import Foundation
+import LoopKit
+import LoopKitUI
+import SwiftUI
+
+public class MockSupport: SupportUI {
+   
+    public let supportIdentifier = "MockSupport"
+    
+    let defaults: UserDefaults
+    var versionUpdate: VersionUpdate? {
+        defaults.mockVersionUpdate
+    }
+    var alertIssuer: AlertIssuer?
+    var lastVersionCheckAlertDate: Date? {
+        get {
+            defaults.lastVersionCheckAlertDate
+        }
+        set {
+            defaults.lastVersionCheckAlertDate = newValue
+        }
+    }
+
+    public init(defaults: UserDefaults) {
+        self.defaults = defaults
+    }
+
+    public func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate?, Error>) -> Void) {
+        maybeIssueAlert(versionUpdate ?? .none)
+        completion(.success(versionUpdate))
+    }
+    
+    public func setAlertIssuer(alertIssuer: AlertIssuer?) {
+        self.alertIssuer = alertIssuer
+    }
+    
+    public func supportMenuItem(supportInfoProvider: SupportInfoProvider, urlHandler: @escaping (URL) -> Void) -> AnyView? {
+        return AnyView(
+            Text("supportMenuItem")
+        )
+    }
+    
+    public func softwareUpdateView(guidanceColors: GuidanceColors, bundleIdentifier: String, currentVersion: String, openAppStoreHook: (() -> Void)?) -> AnyView? {
+        return AnyView(
+            Button("versionUpdate: \(versionUpdate!.localizedDescription)\n\nbundleIdentifier: \(bundleIdentifier)\n\ncurrentVersion: \(currentVersion)") {
+                openAppStoreHook?()
+            }
+        )
+    }
+}
+
+extension MockSupport {
+    
+    var alertCadence: TimeInterval {
+        return TimeInterval.minutes(1)
+    }
+
+    private func maybeIssueAlert(_ versionUpdate: VersionUpdate) {
+        guard versionUpdate >= .recommended else {
+            noAlertNecessary()
+            return
+        }
+        
+        let alertIdentifier = Alert.Identifier(managerIdentifier: supportIdentifier, alertIdentifier: versionUpdate.rawValue)
+        let alertContent: LoopKit.Alert.Content
+        if firstAlert {
+            alertContent = Alert.Content(title: versionUpdate.localizedDescription,
+                                         body: NSLocalizedString("""
+                                                Your app is out of date. It will continue to work, but we recommend updating to the latest version.
+                                                """, comment: "Alert content body for first software update alert"),
+                                         acknowledgeActionButtonLabel: NSLocalizedString("OK", comment: "default acknowledgement"),
+                                         isCritical: versionUpdate == .required)
+        } else if let lastVersionCheckAlertDate = lastVersionCheckAlertDate,
+                  abs(lastVersionCheckAlertDate.timeIntervalSinceNow) > alertCadence {
+            alertContent = Alert.Content(title: NSLocalizedString("Update Reminder", comment: "Recurring software update alert title"),
+                                         body: NSLocalizedString("""
+                                                Your app is still out of date. It will continue to work, but we recommend updating to the latest version.
+                                                """, comment: "Alert content body for recurring software update alert"),
+                                         acknowledgeActionButtonLabel: NSLocalizedString("OK", comment: "default acknowledgement"),
+                                         isCritical: versionUpdate == .required)
+        } else {
+            return
+        }
+        alertIssuer!.issueAlert(Alert(identifier: alertIdentifier, foregroundContent: alertContent, backgroundContent: alertContent, trigger: .immediate))
+        recordLastAlertDate()
+    }
+    
+    private func noAlertNecessary() {
+        lastVersionCheckAlertDate = nil
+    }
+    
+    private var firstAlert: Bool {
+        return lastVersionCheckAlertDate == nil
+    }
+    
+    private func recordLastAlertDate() {
+        lastVersionCheckAlertDate = Date()
+    }
+    
+}
+
+extension UserDefaults {
+    
+    private enum Key: String {
+        case mockVersionUpdate = "com.loopkit.MockKitUI.mockVersionUpdate"
+        case lastVersionCheckAlertDate = "com.loopkit.MockKit.lastVersionCheckAlertDate"
+    }
+
+    var mockVersionUpdate: VersionUpdate? {
+        bool(forKey: Key.mockVersionUpdate.rawValue) ? .recommended : VersionUpdate.none
+    }
+
+    var lastVersionCheckAlertDate: Date? {
+        get {
+            return object(forKey: Key.lastVersionCheckAlertDate.rawValue) as? Date
+        }
+        set {
+            set(newValue, forKey: Key.lastVersionCheckAlertDate.rawValue)
+        }
+    }
+
+}
