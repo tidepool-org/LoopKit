@@ -18,8 +18,10 @@ public protocol SupportInfoProvider {
 }
 
 public protocol SupportUI {
+    typealias RawStateValue = [String: Any]
+
     /// The unique identifier of this type of support.
-    var supportIdentifier: String { get }
+    static var supportIdentifier: String { get }
 
     /// Provides support menu item.
     ///
@@ -54,4 +56,19 @@ public protocol SupportUI {
                             currentVersion: String,
                             openAppStoreHook: (() -> Void)?
     ) -> AnyView?
+
+    /// Initializes the support with the previously-serialized state.
+    ///
+    /// - Parameters:
+    ///     - rawState: The previously-serialized state of the support.
+    init?(rawState: RawStateValue)
+
+    /// The current, serializable state of the support.
+    var rawState: RawStateValue { get }
+}
+
+extension SupportUI {
+    public var identifier: String {
+        return Self.supportIdentifier
+    }
 }

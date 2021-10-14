@@ -12,27 +12,32 @@ import LoopKitUI
 import SwiftUI
 
 public class MockSupport: SupportUI {
-   
-    public let supportIdentifier = "MockSupport"
+    public static let supportIdentifier = "MockSupport"
     
     let defaults: UserDefaults
-    var versionUpdate: VersionUpdate? {
-        defaults.mockVersionUpdate
-    }
+    var versionUpdate: VersionUpdate?
     var alertIssuer: AlertIssuer?
-    var lastVersionCheckAlertDate: Date? {
-        get {
-            defaults.lastVersionCheckAlertDate
-        }
-        set {
-            defaults.lastVersionCheckAlertDate = newValue
-        }
+    var lastVersionCheckAlertDate: Date?
+
+    private let defaultsSuiteName: String?
+    public init(defaultsSuiteName: String) {
+        self.defaultsSuiteName = defaultsSuiteName
+        self.defaults = UserDefaults(suiteName: defaultsSuiteName) ?? UserDefaults.standard
     }
 
-    public init(defaults: UserDefaults) {
-        self.defaults = defaults
+    public required init?(rawState: RawStateValue) {
+        self.defaultsSuiteName = rawState["defaultsSuiteName"] as? String
+        self.defaults = UserDefaults(suiteName: defaultsSuiteName) ?? UserDefaults.standard
+        lastVersionCheckAlertDate = rawState["lastVersionCheckAlertDate"] as? Date
     }
-
+    
+    public var rawState: RawStateValue {
+        var rawValue: RawStateValue = [:]
+        rawValue["lastVersionCheckAlertDate"] = lastVersionCheckAlertDate
+        rawValue["defaultsSuiteName"] = defaultsSuiteName
+        return rawValue
+    }
+   
     public func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate?, Error>) -> Void) {
         maybeIssueAlert(versionUpdate ?? .none)
         completion(.success(versionUpdate))
@@ -43,9 +48,8 @@ public class MockSupport: SupportUI {
     }
     
     public func supportMenuItem(supportInfoProvider: SupportInfoProvider, urlHandler: @escaping (URL) -> Void) -> AnyView? {
-        return AnyView(
-            Text("supportMenuItem")
-        )
+        return AnyView(SupportMenuItem { self.versionUpdate = $0 }
+                       clearLastVersionCheckAlertDateHook: { self.lastVersionCheckAlertDate = nil } )
     }
     
     public func softwareUpdateView(guidanceColors: GuidanceColors, bundleIdentifier: String, currentVersion: String, openAppStoreHook: (() -> Void)?) -> AnyView? {
@@ -69,7 +73,7 @@ extension MockSupport {
             return
         }
         
-        let alertIdentifier = Alert.Identifier(managerIdentifier: supportIdentifier, alertIdentifier: versionUpdate.rawValue)
+        let alertIdentifier = Alert.Identifier(managerIdentifier: MockSupport.supportIdentifier, alertIdentifier: versionUpdate.rawValue)
         let alertContent: LoopKit.Alert.Content
         if firstAlert {
             alertContent = Alert.Content(title: versionUpdate.localizedDescription,
@@ -107,24 +111,39 @@ extension MockSupport {
     
 }
 
-extension UserDefaults {
+struct SupportMenuItem : View {
     
-    private enum Key: String {
-        case mockVersionUpdate = "com.loopkit.MockKitUI.mockVersionUpdate"
-        case lastVersionCheckAlertDate = "com.loopkit.MockKit.lastVersionCheckAlertDate"
+    var setVersionUpdateHook: (VersionUpdate) -> Void
+    var clearLastVersionCheckAlertDateHook: () -> Void
+
+    @State var showActionSheet: Bool = false
+    
+    private var buttons: [ActionSheet.Button] {
+        VersionUpdate.allCases.map { versionUpdate in
+            switch versionUpdate {
+            case .required: return ActionSheet.Button.destructive(Text(versionUpdate.localizedDescription)) { setVersionUpdateHook(versionUpdate) }
+            default: return ActionSheet.Button.default(Text(versionUpdate.localizedDescription)) { setVersionUpdateHook(versionUpdate) }
+            }
+        } +
+        [.cancel(Text("Cancel"))]
     }
 
-    var mockVersionUpdate: VersionUpdate? {
-        bool(forKey: Key.mockVersionUpdate.rawValue) ? .recommended : VersionUpdate.none
+    private var actionSheet: ActionSheet {
+        ActionSheet(title: Text("Version Check Response"), message: Text("How should the simulator respond to a version check?"), buttons: buttons)
     }
 
-    var lastVersionCheckAlertDate: Date? {
-        get {
-            return object(forKey: Key.lastVersionCheckAlertDate.rawValue) as? Date
+    var body: some View {
+        Button(action: {
+            self.showActionSheet.toggle()
+        }) {
+            Text("Mock Version Check")
         }
-        set {
-            set(newValue, forKey: Key.lastVersionCheckAlertDate.rawValue)
+        .actionSheet(isPresented: $showActionSheet, content: {
+            self.actionSheet
+        })
+        
+        Button(action: clearLastVersionCheckAlertDateHook) {
+            Text("Clear Last Version Check Alert Date")
         }
     }
-
 }

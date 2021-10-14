@@ -344,17 +344,6 @@ fileprivate extension UIAlertController {
         let cancel = NSLocalizedString("Cancel", comment: "The title of the cancel action in an action sheet")
         addAction(UIAlertAction(title: cancel, style: .cancel, handler: nil))
     }
-    
-    convenience init(versionCheckHandler handler: @escaping (VersionUpdate) -> Void) {
-        self.init(title: "Version Check Response",
-                  message: "How should the simulator respond to a version check?",
-                  preferredStyle: .actionSheet
-        )
-        for versionUpdate in VersionUpdate.allCases {
-            addAction(UIAlertAction(title: versionUpdate.localizedDescription, style: versionUpdate.actionStyle, handler: { _ in handler(versionUpdate) }))
-        }
-        addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-    }
 }
 
 fileprivate extension VersionUpdate {
