@@ -17,7 +17,7 @@ public protocol SupportInfoProvider {
     func generateIssueReport(completion: @escaping (String) -> Void)
 }
 
-public protocol SupportUI {
+public protocol SupportUI: AnyObject {
     typealias RawStateValue = [String: Any]
 
     /// The unique identifier of this type of support.
