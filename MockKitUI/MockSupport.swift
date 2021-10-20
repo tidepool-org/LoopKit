@@ -15,7 +15,9 @@ public class MockSupport: SupportUI {
     public static let supportIdentifier = "MockSupport"
     
     var versionUpdate: VersionUpdate?
-    var alertIssuer: AlertIssuer?
+    var alertIssuer: AlertIssuer? {
+        return self.delegate
+    }
     var lastVersionCheckAlertDate: Date?
 
     public init() { }
@@ -35,18 +37,16 @@ public class MockSupport: SupportUI {
         completion(.success(versionUpdate))
     }
     
-    public func setAlertIssuer(alertIssuer: AlertIssuer?) {
-        self.alertIssuer = alertIssuer
-    }
+    public weak var delegate: SupportUIDelegate?
     
     public func supportMenuItem(supportInfoProvider: SupportInfoProvider, urlHandler: @escaping (URL) -> Void) -> AnyView? {
         return AnyView(SupportMenuItem(mockSupport: self))
     }
     
-    public func softwareUpdateView(guidanceColors: GuidanceColors, bundleIdentifier: String, currentVersion: String, openAppStoreHook: (() -> Void)?) -> AnyView? {
+    public func softwareUpdateView(bundleIdentifier: String, currentVersion: String, guidanceColors: GuidanceColors, openAppStore: (() -> Void)?) -> AnyView? {
         return AnyView(
             Button("versionUpdate: \(versionUpdate!.localizedDescription)\n\nbundleIdentifier: \(bundleIdentifier)\n\ncurrentVersion: \(currentVersion)") {
-                openAppStoreHook?()
+                openAppStore?()
             }
         )
     }
@@ -71,7 +71,7 @@ extension MockSupport {
                                          body: NSLocalizedString("""
                                                 Your app is out of date. It will continue to work, but we recommend updating to the latest version.
                                                 """, comment: "Alert content body for first software update alert"),
-                                         acknowledgeActionButtonLabel: NSLocalizedString("OK", comment: "default acknowledgement"),
+                                         acknowledgeActionButtonLabel: NSLocalizedString("OK", comment: "Default acknowledgement"),
                                          isCritical: versionUpdate == .required)
         } else if let lastVersionCheckAlertDate = lastVersionCheckAlertDate,
                   abs(lastVersionCheckAlertDate.timeIntervalSinceNow) > alertCadence {
@@ -79,12 +79,12 @@ extension MockSupport {
                                          body: NSLocalizedString("""
                                                 Your app is still out of date. It will continue to work, but we recommend updating to the latest version.
                                                 """, comment: "Alert content body for recurring software update alert"),
-                                         acknowledgeActionButtonLabel: NSLocalizedString("OK", comment: "default acknowledgement"),
+                                         acknowledgeActionButtonLabel: NSLocalizedString("OK", comment: "Default acknowledgement"),
                                          isCritical: versionUpdate == .required)
         } else {
             return
         }
-        alertIssuer!.issueAlert(Alert(identifier: alertIdentifier, foregroundContent: alertContent, backgroundContent: alertContent, trigger: .immediate))
+        alertIssuer?.issueAlert(Alert(identifier: alertIdentifier, foregroundContent: alertContent, backgroundContent: alertContent, trigger: .immediate))
         recordLastAlertDate()
     }
     
@@ -112,8 +112,10 @@ struct SupportMenuItem : View {
         VersionUpdate.allCases.map { versionUpdate in
             let setter = { mockSupport.versionUpdate = versionUpdate }
             switch versionUpdate {
-            case .required: return ActionSheet.Button.destructive(Text(versionUpdate.localizedDescription), action: setter)
-            default: return ActionSheet.Button.default(Text(versionUpdate.localizedDescription), action: setter)
+            case .required:
+                return ActionSheet.Button.destructive(Text(versionUpdate.localizedDescription), action: setter)
+            default:
+                return ActionSheet.Button.default(Text(versionUpdate.localizedDescription), action: setter)
             }
         } +
         [.cancel(Text("Cancel"))]

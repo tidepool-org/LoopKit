@@ -345,18 +345,3 @@ fileprivate extension UIAlertController {
         addAction(UIAlertAction(title: cancel, style: .cancel, handler: nil))
     }
 }
-
-fileprivate extension VersionUpdate {
-    var actionStyle: UIAlertAction.Style {
-        switch self {
-        case .required: return .destructive
-        default: return .default
-        }
-    }
-    var tintColor: UIColor {
-        switch self {
-        case .required: return .red
-        default: return .label
-        }
-    }
-}

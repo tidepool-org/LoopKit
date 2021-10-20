@@ -17,6 +17,10 @@ public protocol SupportInfoProvider {
     func generateIssueReport(completion: @escaping (String) -> Void)
 }
 
+public protocol SupportUIDelegate: AlertIssuer {
+    
+}
+
 public protocol SupportUI: AnyObject {
     typealias RawStateValue = [String: Any]
 
@@ -39,22 +43,19 @@ public protocol SupportUI: AnyObject {
     ///    - currentVersion: The host app's current version (i.e. `CFBundleVersion`).
     ///    - completion: The completion function to call with any success result (or `nil` if not known) or failure.
     func checkVersion(bundleIdentifier: String, currentVersion: String, completion: @escaping (Result<VersionUpdate?, Error>) -> Void)
-
-    /// Hand this support an `AlertIssuer` so it may be able to issue alerts.
-    func setAlertIssuer(alertIssuer: AlertIssuer?)
     
     /// Provides screen for software update UI.
     ///
     /// - Parameters:
-    ///    - guidanceColors: Colors to use for warnings, etc.
     ///    - bundleIdentifier: The host app's bundle identifier (e.g. `Bundle.main.bundleIdentifier`).
     ///    - currentVersion: The host app's current version (i.e. `CFBundleVersion`).
-    ///    - openAppStoreHook: Hook function to open up the App Store for the host app.
+    ///    - guidanceColors: Colors to use for warnings, etc.
+    ///    - openAppStore: Function to open up the App Store for the host app.
     /// - Returns: A view that will be opened when a software update is available from this service.
-    func softwareUpdateView(guidanceColors: GuidanceColors,
-                            bundleIdentifier: String,
+    func softwareUpdateView(bundleIdentifier: String,
                             currentVersion: String,
-                            openAppStoreHook: (() -> Void)?
+                            guidanceColors: GuidanceColors,
+                            openAppStore: (() -> Void)?
     ) -> AnyView?
 
     /// Initializes the support with the previously-serialized state.
@@ -65,6 +66,9 @@ public protocol SupportUI: AnyObject {
 
     /// The current, serializable state of the support.
     var rawState: RawStateValue { get }
+ 
+    /// A delegate for SupportUI to use (see `SupportUIDelegate`).
+    var delegate: SupportUIDelegate? { get set }
 }
 
 extension SupportUI {
