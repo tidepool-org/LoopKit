@@ -32,6 +32,10 @@ public struct Alert: Equatable {
         case delayed(interval: TimeInterval)
         /// Delay triggering the alert by `repeatInterval`, and repeat at that interval until cancelled or unscheduled.
         case repeating(repeatInterval: TimeInterval)
+        /// Delay triggering until specific time of day, and no repeat
+        case dailyOnce(at: DateComponents)
+        /// Delay triggering until specific time of day, and repeat daily
+        case dailyRepeat(at: DateComponents)
     }
     /// Content of the alert, either for foreground or background alerts
     public struct Content: Equatable  {
@@ -121,13 +125,17 @@ extension Alert.Identifier: Codable { }
 // The code below follows a pattern described by https://medium.com/@hllmandel/codable-enum-with-associated-values-swift-4-e7d75d6f4370
 extension Alert.Trigger: Codable {
     private enum CodingKeys: String, CodingKey {
-      case immediate, delayed, repeating
+      case immediate, delayed, repeating, daily
     }
     private struct Delayed: Codable {
         let delayInterval: TimeInterval
     }
     private struct Repeating: Codable {
         let repeatInterval: TimeInterval
+    }
+    private struct Daily: Codable {
+        let time: DateComponents
+        let repeats: Bool
     }
     public init(from decoder: Decoder) throws {
         if let singleValue = try? decoder.singleValueContainer().decode(CodingKeys.RawValue.self) {
@@ -143,6 +151,12 @@ extension Alert.Trigger: Codable {
                 self = .delayed(interval: delayInterval.delayInterval)
             } else if let repeatInterval = try? container.decode(Repeating.self, forKey: .repeating) {
                 self = .repeating(repeatInterval: repeatInterval.repeatInterval)
+            } else if let daily = try? container.decode(Daily.self, forKey: .daily) {
+                if daily.repeats {
+                    self = .dailyRepeat(at: daily.time)
+                } else {
+                    self = .dailyOnce(at: daily.time)
+                }
             } else {
                 throw decoder.enumDecodingError
             }
@@ -160,6 +174,12 @@ extension Alert.Trigger: Codable {
         case .repeating(let repeatInterval):
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(Repeating(repeatInterval: repeatInterval), forKey: .repeating)
+        case .dailyOnce(let date):
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(Daily(time: date, repeats: false), forKey: .daily)
+        case .dailyRepeat(let date):
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(Daily(time: date, repeats: true), forKey: .daily)
         }
     }
 }
