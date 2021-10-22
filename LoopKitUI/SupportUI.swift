@@ -17,9 +17,7 @@ public protocol SupportInfoProvider {
     func generateIssueReport(completion: @escaping (String) -> Void)
 }
 
-public protocol SupportUIDelegate: AlertIssuer {
-    
-}
+public protocol SupportUIDelegate: AlertIssuer { }
 
 public protocol SupportUI: AnyObject {
     typealias RawStateValue = [String: Any]
