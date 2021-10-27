@@ -27,11 +27,8 @@ public struct DeliveryLimitsEditor: View {
     @State var settingBeingEdited: DeliveryLimits.Setting?
 
     @State var showingConfirmationAlert = false
-    @State var cancelTempBasalError: Error? = nil
-    var showingCancelTempBasalErrorAlert: Binding<Bool> { Binding(
-        get: { cancelTempBasalError != nil },
-        set: { _ in}
-    )}
+    @State private var cancelTempBasalError: Error? = nil
+    @State var showingCancelTempBasalErrorAlert = false
     @Environment(\.dismissAction) var dismiss
     @Environment(\.authenticate) var authenticate
     @Environment(\.appName) var appName
@@ -141,7 +138,7 @@ public struct DeliveryLimitsEditor: View {
             }
         )
         .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
-        .alert(isPresented: showingCancelTempBasalErrorAlert, content: cancelTempBasalAlert)
+        .alert(isPresented: $showingCancelTempBasalErrorAlert, content: cancelTempBasalAlert)
         .simultaneousGesture(TapGesture().onEnded {
             withAnimation {
                 self.userDidTap = true
@@ -367,6 +364,7 @@ public struct DeliveryLimitsEditor: View {
             DispatchQueue.main.async {
                 if let error = error {
                     cancelTempBasalError = error
+                    showingCancelTempBasalErrorAlert = true
                 } else {
                     completionIfContinue()
                 }
