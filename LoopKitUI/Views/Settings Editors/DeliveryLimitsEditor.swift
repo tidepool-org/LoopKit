@@ -12,23 +12,23 @@ import LoopKit
 
 
 public struct DeliveryLimitsEditor: View {
-    let initialValue: DeliveryLimits
-    let supportedBasalRates: [Double]
-    let selectableMaxBasalRates: [Double]
-    let scheduledBasalRange: ClosedRange<Double>?
-    let supportedBolusVolumes: [Double]
-    let selectableBolusVolumes: [Double]
-    let save: (_ deliveryLimits: DeliveryLimits) -> Void
-    let mode: SettingsPresentationMode
-    var maxTempBasalSavePreflight: TherapySettingsViewModel.MaxTempBasalSavePreflight?
+    private let initialValue: DeliveryLimits
+    private let supportedBasalRates: [Double]
+    private let selectableMaxBasalRates: [Double]
+    private let scheduledBasalRange: ClosedRange<Double>?
+    private let supportedBolusVolumes: [Double]
+    private let selectableBolusVolumes: [Double]
+    private let save: (_ deliveryLimits: DeliveryLimits) -> Void
+    private let mode: SettingsPresentationMode
+    private var maxTempBasalSavePreflight: TherapySettingsViewModel.MaxTempBasalSavePreflight?
 
-    @State var value: DeliveryLimits
+    @State private var value: DeliveryLimits
     @State private var userDidTap: Bool = false
-    @State var settingBeingEdited: DeliveryLimits.Setting?
+    @State private var settingBeingEdited: DeliveryLimits.Setting?
 
-    @State var showingConfirmationAlert = false
+    @State private var showingConfirmationAlert = false
     @State private var cancelTempBasalError: Error? = nil
-    @State var showingCancelTempBasalErrorAlert = false
+    @State private var showingCancelTempBasalErrorAlert = false
     @Environment(\.dismissAction) var dismiss
     @Environment(\.authenticate) var authenticate
     @Environment(\.appName) var appName
