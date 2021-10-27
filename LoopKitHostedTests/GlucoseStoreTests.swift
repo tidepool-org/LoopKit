@@ -14,23 +14,29 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
     private static let device = HKDevice(name: "NAME", manufacturer: "MANUFACTURER", model: "MODEL", hardwareVersion: "HARDWAREVERSION", firmwareVersion: "FIRMWAREVERSION", softwareVersion: "SOFTWAREVERSION", localIdentifier: "LOCALIDENTIFIER", udiDeviceIdentifier: "UDIDEVICEIDENTIFIER")
     private let sample1 = NewGlucoseSample(date: Date(timeIntervalSinceNow: -.minutes(6)),
                                            quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 123.4),
+                                           condition: nil,
                                            trend: nil,
+                                           trendRate: nil,
                                            isDisplayOnly: true,
                                            wasUserEntered: false,
                                            syncIdentifier: "1925558F-E98F-442F-BBA6-F6F75FB4FD91",
                                            syncVersion: 2,
                                            device: device)
     private let sample2 = NewGlucoseSample(date: Date(timeIntervalSinceNow: -.minutes(2)),
-                                           quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 134.5),
+                                           quantity: HKQuantity(unit: .millimolesPerLiter, doubleValue: 7.4),
+                                           condition: nil,
                                            trend: .flat,
+                                           trendRate: HKQuantity(unit: .millimolesPerLiterPerMinute, doubleValue: 0.0),
                                            isDisplayOnly: false,
                                            wasUserEntered: true,
                                            syncIdentifier: "535F103C-3DFE-48F2-B15A-47313191E7B7",
                                            syncVersion: 3,
                                            device: device)
     private let sample3 = NewGlucoseSample(date: Date(timeIntervalSinceNow: -.minutes(4)),
-                                           quantity: HKQuantity(unit: .millimolesPerLiter, doubleValue: 7.65),
+                                           quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 400.0),
+                                           condition: .aboveRange,
                                            trend: .upUpUp,
+                                           trendRate: HKQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: 4.2),
                                            isDisplayOnly: false,
                                            wasUserEntered: false,
                                            syncIdentifier: "E1624D2B-A971-41B8-B8A0-3A8212AC3D71",
@@ -52,6 +58,7 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         semaphore.wait()
 
         healthStore = HKHealthStoreMock()
+        healthStore.authorizationStatus = .sharingAuthorized
         glucoseStore = GlucoseStore(healthStore: healthStore,
                                     cacheStore: cacheStore,
                                     cacheLength: .hours(1),
@@ -191,10 +198,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
             case .success(let samples):
                 XCTAssertEqual(samples.count, 3)
                 XCTAssertNotNil(samples[0].uuid)
+                XCTAssertNil(samples[0].healthKitEligibleDate)
                 assertEqualSamples(samples[0], self.sample1)
                 XCTAssertNotNil(samples[1].uuid)
+                XCTAssertNil(samples[1].healthKitEligibleDate)
                 assertEqualSamples(samples[1], self.sample3)
                 XCTAssertNotNil(samples[2].uuid)
+                XCTAssertNil(samples[2].healthKitEligibleDate)
                 assertEqualSamples(samples[2], self.sample2)
             }
             getGlucoseSamples1Completion.fulfill()
@@ -209,6 +219,7 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
             case .success(let samples):
                 XCTAssertEqual(samples.count, 1)
                 XCTAssertNotNil(samples[0].uuid)
+                XCTAssertNil(samples[0].healthKitEligibleDate)
                 assertEqualSamples(samples[0], self.sample3)
             }
             getGlucoseSamples2Completion.fulfill()
@@ -239,8 +250,6 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
 
     func testGetGlucoseSamplesDelayedHealthKitStorage() {
         glucoseStore.healthKitStorageDelay = .minutes(5)
-        // Note error should not cause failure
-        healthStore.saveError = Error.arbitrary
         var hkobjects = [HKObject]()
         healthStore.setSaveHandler { o, _, _ in hkobjects = o }
         let addGlucoseSamplesCompletion = expectation(description: "addGlucoseSamples")
@@ -264,10 +273,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(samples.count, 3)
                 // HealthKit storage is deferred, so the second 2 UUIDs are nil
                 XCTAssertNotNil(samples[0].uuid)
+                XCTAssertNil(samples[0].healthKitEligibleDate)
                 assertEqualSamples(samples[0], self.sample1)
                 XCTAssertNil(samples[1].uuid)
+                XCTAssertNotNil(samples[1].healthKitEligibleDate)
                 assertEqualSamples(samples[1], self.sample3)
                 XCTAssertNil(samples[2].uuid)
+                XCTAssertNotNil(samples[2].healthKitEligibleDate)
                 assertEqualSamples(samples[2], self.sample2)
             }
             getGlucoseSamples1Completion.fulfill()
@@ -277,10 +289,48 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
         XCTAssertEqual([sample1.quantitySample.description], hkobjects.map { $0.description })
     }
     
-    func testGetGlucoseSamplesDeniedHealthKitStorage() {
-        glucoseStore.healthKitStorageDelay = .minutes(5)
-        // Note error should not cause failure
+    func testGetGlucoseSamplesErrorHealthKitStorage() {
         healthStore.saveError = Error.arbitrary
+        var hkobjects = [HKObject]()
+        healthStore.setSaveHandler { o, _, _ in hkobjects = o }
+        let addGlucoseSamplesCompletion = expectation(description: "addGlucoseSamples")
+        glucoseStore.addGlucoseSamples([sample1, sample2, sample3]) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let samples):
+                XCTAssertEqual(samples.count, 3)
+            }
+            addGlucoseSamplesCompletion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let getGlucoseSamples1Completion = expectation(description: "getGlucoseSamples1")
+        glucoseStore.getGlucoseSamples() { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let samples):
+                XCTAssertEqual(samples.count, 3)
+                // HealthKit storage is deferred, so the second 2 UUIDs are nil
+                XCTAssertNil(samples[0].uuid)
+                XCTAssertNotNil(samples[0].healthKitEligibleDate)
+                assertEqualSamples(samples[0], self.sample1)
+                XCTAssertNil(samples[1].uuid)
+                XCTAssertNotNil(samples[1].healthKitEligibleDate)
+                assertEqualSamples(samples[1], self.sample3)
+                XCTAssertNil(samples[2].uuid)
+                XCTAssertNotNil(samples[2].healthKitEligibleDate)
+                assertEqualSamples(samples[2], self.sample2)
+            }
+            getGlucoseSamples1Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        XCTAssertEqual(3, hkobjects.count)
+    }
+
+    func testGetGlucoseSamplesDeniedHealthKitStorage() {
         healthStore.authorizationStatus = .sharingDenied
         var hkobjects = [HKObject]()
         healthStore.setSaveHandler { o, _, _ in hkobjects = o }
@@ -305,10 +355,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(samples.count, 3)
                 // HealthKit storage is denied, so all UUIDs are nil
                 XCTAssertNil(samples[0].uuid)
+                XCTAssertNil(samples[0].healthKitEligibleDate)
                 assertEqualSamples(samples[0], self.sample1)
                 XCTAssertNil(samples[1].uuid)
+                XCTAssertNil(samples[1].healthKitEligibleDate)
                 assertEqualSamples(samples[1], self.sample3)
                 XCTAssertNil(samples[2].uuid)
+                XCTAssertNil(samples[2].healthKitEligibleDate)
                 assertEqualSamples(samples[2], self.sample2)
             }
             getGlucoseSamples1Completion.fulfill()
@@ -377,10 +430,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
             case .success(let samples):
                 XCTAssertEqual(samples.count, 3)
                 XCTAssertNotNil(samples[0].uuid)
+                XCTAssertNil(samples[0].healthKitEligibleDate)
                 assertEqualSamples(samples[0], self.sample1)
                 XCTAssertNotNil(samples[1].uuid)
+                XCTAssertNil(samples[1].healthKitEligibleDate)
                 assertEqualSamples(samples[1], self.sample3)
                 XCTAssertNil(samples[2].uuid)
+                XCTAssertNil(samples[2].healthKitEligibleDate)
                 assertEqualSamples(samples[2], self.sample2)
             }
             getGlucoseSamples1Completion.fulfill()
@@ -436,10 +492,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
                 XCTAssertEqual(samples.count, 3)
                 // Note: the HealthKit UUID is no longer updated before being returned as a result of addGlucoseSamples.
                 XCTAssertNil(samples[0].uuid)
+                XCTAssertNotNil(samples[0].healthKitEligibleDate)
                 assertEqualSamples(samples[0], self.sample1)
                 XCTAssertNil(samples[1].uuid)
+                XCTAssertNotNil(samples[1].healthKitEligibleDate)
                 assertEqualSamples(samples[1], self.sample2)
                 XCTAssertNil(samples[2].uuid)
+                XCTAssertNotNil(samples[2].healthKitEligibleDate)
                 assertEqualSamples(samples[2], self.sample3)
             }
             addGlucoseSamples1Completion.fulfill()
@@ -454,10 +513,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
             case .success(let samples):
                 XCTAssertEqual(samples.count, 3)
                 XCTAssertNotNil(samples[0].uuid)
+                XCTAssertNil(samples[0].healthKitEligibleDate)
                 assertEqualSamples(samples[0], self.sample1)
                 XCTAssertNotNil(samples[1].uuid)
+                XCTAssertNil(samples[1].healthKitEligibleDate)
                 assertEqualSamples(samples[1], self.sample3)
                 XCTAssertNotNil(samples[2].uuid)
+                XCTAssertNil(samples[2].healthKitEligibleDate)
                 assertEqualSamples(samples[2], self.sample2)
             }
             getGlucoseSamples1Completion.fulfill()
@@ -484,10 +546,13 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
             case .success(let samples):
                 XCTAssertEqual(samples.count, 3)
                 XCTAssertNotNil(samples[0].uuid)
+                XCTAssertNil(samples[0].healthKitEligibleDate)
                 assertEqualSamples(samples[0], self.sample1)
                 XCTAssertNotNil(samples[1].uuid)
+                XCTAssertNil(samples[1].healthKitEligibleDate)
                 assertEqualSamples(samples[1], self.sample3)
                 XCTAssertNotNil(samples[2].uuid)
+                XCTAssertNil(samples[2].healthKitEligibleDate)
                 assertEqualSamples(samples[2], self.sample2)
             }
             getGlucoseSamples2Completion.fulfill()
@@ -685,7 +750,9 @@ class GlucoseStoreTests: PersistenceControllerTestCase, GlucoseStoreDelegate {
     func testPurgeExpiredGlucoseObjects() {
         let expiredSample = NewGlucoseSample(date: Date(timeIntervalSinceNow: -.hours(2)),
                                              quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 198.7),
+                                             condition: nil,
                                              trend: nil,
+                                             trendRate: nil,
                                              isDisplayOnly: false,
                                              wasUserEntered: false,
                                              syncIdentifier: "6AB8C7F3-A2CE-442F-98C4-3D0514626B5F",
@@ -829,5 +896,7 @@ fileprivate func assertEqualSamples(_ storedGlucoseSample: StoredGlucoseSample,
     XCTAssertEqual(storedGlucoseSample.isDisplayOnly, newGlucoseSample.isDisplayOnly, file: file, line: line)
     XCTAssertEqual(storedGlucoseSample.wasUserEntered, newGlucoseSample.wasUserEntered, file: file, line: line)
     XCTAssertEqual(storedGlucoseSample.device, newGlucoseSample.device, file: file, line: line)
+    XCTAssertEqual(storedGlucoseSample.condition, newGlucoseSample.condition, file: file, line: line)
     XCTAssertEqual(storedGlucoseSample.trend, newGlucoseSample.trend, file: file, line: line)
+    XCTAssertEqual(storedGlucoseSample.trendRate, newGlucoseSample.trendRate, file: file, line: line)
 }

@@ -94,7 +94,7 @@ final class MockServiceTableViewController: UITableViewController {
         case logging
         case analytics
     }
-
+    
     private enum History: Int, CaseIterable {
         case viewHistory
         case clearHistory
@@ -339,11 +339,9 @@ fileprivate extension UIAlertController {
             style: .destructive,
             handler: { _ in
                 handler()
-        }
-        ))
+        }))
 
         let cancel = NSLocalizedString("Cancel", comment: "The title of the cancel action in an action sheet")
         addAction(UIAlertAction(title: cancel, style: .cancel, handler: nil))
     }
-
 }

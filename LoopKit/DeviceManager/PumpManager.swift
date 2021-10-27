@@ -35,15 +35,14 @@ public protocol PumpManagerDelegate: DeviceManagerDelegate, PumpManagerStatusObs
     /// Reports an error that should be surfaced to the user
     func pumpManager(_ pumpManager: PumpManager, didError error: PumpManagerError)
 
-    func pumpManager(_ pumpManager: PumpManager, hasNewPumpEvents events: [NewPumpEvent], lastReconciliation: Date?, completion: @escaping (_ error: Error?) -> Void)
+    /// This should be called any time the PumpManager synchronizes with the pump, even if there are no new events in the log.
+    func pumpManager(_ pumpManager: PumpManager, hasNewPumpEvents events: [NewPumpEvent], lastSync: Date?, completion: @escaping (_ error: Error?) -> Void)
 
     func pumpManager(_ pumpManager: PumpManager, didReadReservoirValue units: Double, at date: Date, completion: @escaping (_ result: Result<(newValue: ReservoirValue, lastValue: ReservoirValue?, areStoredValuesContinuous: Bool), Error>) -> Void)
 
     func pumpManager(_ pumpManager: PumpManager, didAdjustPumpClockBy adjustment: TimeInterval)
 
     func pumpManagerDidUpdateState(_ pumpManager: PumpManager)
-
-    func pumpManagerRecommendsLoop(_ pumpManager: PumpManager)
 
     func startDateToFilterNewPumpEvents(for manager: PumpManager) -> Date
 }
@@ -98,8 +97,8 @@ public protocol PumpManager: DeviceManager {
     /// The maximum reservoir volume of the pump
     var pumpReservoirCapacity: Double { get }
 
-    /// The time of the last reconciliation with the pump's event history
-    var lastReconciliation: Date? { get }
+    /// The time of the last sync with the pump's event history, or last status check if pump does not provide history.
+    var lastSync: Date? { get }
     
     /// The most-recent status
     var status: PumpManagerStatus { get }
@@ -121,10 +120,8 @@ public protocol PumpManager: DeviceManager {
     func removeStatusObserver(_ observer: PumpManagerStatusObserver)
     
     /// Ensure that the pump's data (reservoir/events) is up to date.  If not, fetch it.
-    /// After a successful fetch, the PumpManager should call the completion block.
-    /// Then, it must call the delegate method `pumpManagerRecommendsLoop(_:)` if it has an accurate and up to date understanding of insulin delivery
-    /// and has reported it via the appropriate status observer and delegate calls.
-    func ensureCurrentPumpData(completion: (() -> Void)?)
+    /// The PumpManager should call the completion block with the date of last sync with the pump, nil if no sync has occurred
+    func ensureCurrentPumpData(completion: ((_ lastSync: Date?) -> Void)?)
     
     /// Loop calls this method when the current environment requires the pump to provide its own periodic
     /// scheduling via BLE.
@@ -154,7 +151,7 @@ public protocol PumpManager: DeviceManager {
     ///
     /// - Parameters:
     ///   - unitsPerHour: The temporary basal rate to set
-    ///   - duration: The duration of the temporary basal rate.
+    ///   - duration: The duration of the temporary basal rate.  If you pass in a duration of 0, that cancels any currently running Temp Basal
     ///   - completion: A closure called after the command is complete
     ///   - error: An optional error describing why the command failed
     func enactTempBasal(unitsPerHour: Double, for duration: TimeInterval, completion: @escaping (_ error: PumpManagerError?) -> Void)
@@ -173,8 +170,6 @@ public protocol PumpManager: DeviceManager {
     ///   - error: An error describing why the command failed
     func resumeDelivery(completion: @escaping (_ error: Error?) -> Void)
     
-    typealias SyncSchedule = (_ items: [RepeatingScheduleValue<Double>], _ completion: @escaping (Result<BasalRateSchedule, Error>) -> Void) -> Void
-
     /// Sync the schedule of basal rates to the pump, annotating the result with the proper time zone.
     ///
     /// - Precondition:
@@ -185,6 +180,14 @@ public protocol PumpManager: DeviceManager {
     ///   - completion: A closure called after the command is complete
     ///   - result: A BasalRateSchedule or an error describing why the command failed
     func syncBasalRateSchedule(items scheduleItems: [RepeatingScheduleValue<Double>], completion: @escaping (_ result: Result<BasalRateSchedule, Error>) -> Void)
+
+    /// Sync the delivery limits for basal rate and bolus. If the pump does not support setting max bolus or max basal rates, the completion should be called with success including the provided delivery limits.
+    ///
+    /// - Parameters:
+    ///   - deliveryLimits: The delivery limits
+    ///   - completion: A closure called after the command is complete
+    ///   - result: The delivery limits set or an error describing why the command failed
+    func syncDeliveryLimits(limits deliveryLimits: DeliveryLimits, completion: @escaping (_ result: Result<DeliveryLimits, Error>) -> Void)
 }
 
 

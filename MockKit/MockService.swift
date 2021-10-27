@@ -22,7 +22,7 @@ public final class MockService: Service {
     public var logging: Bool
     
     public var analytics: Bool
-    
+        
     public let maxHistoryItems = 1000
     
     private var lockedHistory = Locked<[String]>([])
@@ -46,15 +46,15 @@ public final class MockService: Service {
     }
     
     public var rawState: RawStateValue {
-        return [
-            "remoteData": remoteData,
-            "logging": logging,
-            "analytics": analytics
-        ]
+        var rawValue: RawStateValue = [:]
+        rawValue["remoteData"] = remoteData
+        rawValue["logging"] = logging
+        rawValue["analytics"] = analytics
+        return rawValue
     }
     
     public let isOnboarded = true   // No distinction between created and onboarded
-
+    
     public func completeCreate() {}
     
     public func completeUpdate() {
@@ -120,7 +120,7 @@ extension MockService: RemoteDataService {
         }
         completion(.success(false))
     }
-
+    
     public func uploadDosingDecisionData(_ stored: [StoredDosingDecision], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
             let errored = stored.filter { $0.errors?.isEmpty == false }
@@ -128,7 +128,7 @@ extension MockService: RemoteDataService {
         }
         completion(.success(false))
     }
-
+    
     public func uploadGlucoseData(_ stored: [StoredGlucoseSample], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
             record("[RemoteDataService] Upload glucose data (stored: \(stored.count))")
