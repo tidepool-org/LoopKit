@@ -12,6 +12,11 @@ import LoopKit
 
 
 public struct DeliveryLimitsEditor: View {
+    fileprivate enum PresentedAlert: Error {
+        case saveConfirmation(AlertContent)
+        case saveError(Error)
+    }
+    
     private let initialValue: DeliveryLimits
     private let supportedBasalRates: [Double]
     private let selectableMaxBasalRates: [Double]
@@ -26,9 +31,8 @@ public struct DeliveryLimitsEditor: View {
     @State private var userDidTap: Bool = false
     @State private var settingBeingEdited: DeliveryLimits.Setting?
 
-    @State private var showingConfirmationAlert = false
-    @State private var cancelTempBasalError: Error? = nil
-    @State private var showingCancelTempBasalErrorAlert = false
+    @State private var presentedAlert: PresentedAlert?
+
     @Environment(\.dismissAction) var dismiss
     @Environment(\.authenticate) var authenticate
     @Environment(\.appName) var appName
@@ -133,12 +137,11 @@ public struct DeliveryLimitsEditor: View {
                 if self.crossedThresholds.isEmpty {
                     self.startSaving()
                 } else {
-                    self.showingConfirmationAlert = true
+                    self.presentedAlert = .saveConfirmation(confirmationAlertContent)
                 }
             }
         )
-        .alert(isPresented: $showingConfirmationAlert, content: confirmationAlert)
-        .alert(isPresented: $showingCancelTempBasalErrorAlert, content: cancelTempBasalAlert)
+        .alert(item: $presentedAlert, content: alert(for:))
         .simultaneousGesture(TapGesture().onEnded {
             withAnimation {
                 self.userDidTap = true
@@ -304,38 +307,6 @@ public struct DeliveryLimitsEditor: View {
         return crossedThresholds
     }
 
-    private func confirmationAlert() -> SwiftUI.Alert {
-        SwiftUI.Alert(
-            title: Text(LocalizedString("Save Delivery Limits?", comment: "Alert title for confirming delivery limits outside the recommended range")),
-            message: Text(TherapySetting.deliveryLimits.guardrailSaveWarningCaption),
-            primaryButton: .cancel(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert"))),
-            secondaryButton: .default(
-                Text(LocalizedString("Continue", comment: "Text for continue action on confirmation alert")),
-                action: startSaving
-            )
-        )
-    }
-
-    private func cancelTempBasalAlert() -> SwiftUI.Alert {
-        SwiftUI.Alert(
-            title: Text(LocalizedString("Failed to Cancel Temp Basal", comment: "Alert title for failing to cancel temp basal")),
-            message: Text(String(format: LocalizedString("%@Tidepool Loop was unable to cancel your current temporary basal rate, which is higher than the new Max Basal limit you have set. This may result in higher insulin delivery than desired.\n\nConsider suspending insulin delivery manually and then immediately resuming to enact basal delivery with the new limit in place.",
-                                                         comment: "Alert text for failing to cancel temp basal (1: error description)"),
-                                 cancelTempBasalErrorAlertBody)),
-            dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
-        )
-    }
-    
-    private var cancelTempBasalErrorAlertBody: String {
-        if let localizedError = cancelTempBasalError as? LocalizedError {
-            let errors = [localizedError.errorDescription, localizedError.failureReason, localizedError.recoverySuggestion].compactMap { $0 }
-            if !errors.isEmpty {
-                return errors.joined(separator: ". ") + ".\n"
-            }
-        }
-        return cancelTempBasalError.map { $0.localizedDescription + ".\n" } ?? ""
-    }
-    
     private func startSaving() {
         guard mode == .settings else {
             self.continueSaving()
@@ -363,13 +334,45 @@ public struct DeliveryLimitsEditor: View {
         maxTempBasalSavePreflight(maximumBasalRate.doubleValue(for: .internationalUnitsPerHour)) { error in
             DispatchQueue.main.async {
                 if let error = error {
-                    cancelTempBasalError = error
-                    showingCancelTempBasalErrorAlert = true
+                    self.presentedAlert = (error as? PresentedAlert) ?? .saveError(error)
                 } else {
                     completionIfContinue()
                 }
             }
         }
+    }
+    
+    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
+        switch presentedAlert {
+        case .saveConfirmation(let content):
+            return SwiftUI.Alert(
+                title: content.title,
+                message: content.message,
+                primaryButton: .cancel(
+                    content.cancel ??
+                    Text(LocalizedString("Go Back", comment: "Button text to return to editing a schedule after from alert popup when some schedule values are outside the recommended range"))),
+                secondaryButton: .default(
+                    content.ok ??
+                    Text(LocalizedString("Continue", comment: "Button text to confirm saving from alert popup when some schedule values are outside the recommended range")),
+                    action: startSaving
+                )
+            )
+        case .saveError(let error):
+            return SwiftUI.Alert(
+                title: Text(LocalizedString("Unable to Save", comment: "Alert title when error occurs while saving a schedule")),
+                message: Text(error.localizedDescription)
+            )
+        }
+    }
+    
+    private var confirmationAlertContent: AlertContent {
+        AlertContent(
+            title: Text(LocalizedString("Save Delivery Limits?", comment: "Alert title for confirming delivery limits outside the recommended range")),
+            message: Text(TherapySetting.deliveryLimits.guardrailSaveWarningCaption),
+            cancel: Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")),
+            ok: Text(LocalizedString("Continue", comment: "Text for continue action on confirmation alert")
+            )
+        )
     }
 }
 
@@ -409,6 +412,17 @@ struct DeliveryLimitsGuardrailWarning: View {
                 thresholds: Array(crossedThresholds.values))
         default:
             preconditionFailure("Unreachable: only two delivery limit settings exist")
+        }
+    }
+}
+
+extension DeliveryLimitsEditor.PresentedAlert: Identifiable {
+    var id: Int {
+        switch self {
+        case .saveConfirmation:
+            return 0
+        case .saveError:
+            return 1
         }
     }
 }
