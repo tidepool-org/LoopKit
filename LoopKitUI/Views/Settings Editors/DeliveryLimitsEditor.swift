@@ -15,6 +15,7 @@ public struct DeliveryLimitsEditor: View {
     fileprivate enum PresentedAlert: Error {
         case saveConfirmation(AlertContent)
         case saveError(Error)
+        case cancelTempBasalFailed(Error)
     }
     
     private let initialValue: DeliveryLimits
@@ -334,7 +335,7 @@ public struct DeliveryLimitsEditor: View {
         maxTempBasalSavePreflight(maximumBasalRate.doubleValue(for: .internationalUnitsPerHour)) { error in
             DispatchQueue.main.async {
                 if let error = error {
-                    self.presentedAlert = (error as? PresentedAlert) ?? .saveError(error)
+                    self.presentedAlert = PresentedAlert.cancelTempBasalFailed(error)
                 } else {
                     completionIfContinue()
                 }
@@ -362,6 +363,8 @@ public struct DeliveryLimitsEditor: View {
                 title: Text(LocalizedString("Unable to Save", comment: "Alert title when error occurs while saving a schedule")),
                 message: Text(error.localizedDescription)
             )
+        case .cancelTempBasalFailed(let error):
+            return cancelTempBasalAlert(error)
         }
     }
     
@@ -374,6 +377,27 @@ public struct DeliveryLimitsEditor: View {
             )
         )
     }
+    
+    private func cancelTempBasalAlert(_ error: Error) -> SwiftUI.Alert {
+        SwiftUI.Alert(
+            title: Text(LocalizedString("Failed to Cancel Temp Basal", comment: "Alert title for failing to cancel temp basal")),
+            message: Text(String(format: LocalizedString("%@Tidepool Loop was unable to cancel your current temporary basal rate, which is higher than the new Max Basal limit you have set. This may result in higher insulin delivery than desired.\n\nConsider suspending insulin delivery manually and then immediately resuming to enact basal delivery with the new limit in place.",
+                                                         comment: "Alert text for failing to cancel temp basal (1: error description)"),
+                                 cancelTempBasalErrorAlertBody(error))),
+            dismissButton: .default(Text(LocalizedString("Go Back", comment: "Text for go back action on confirmation alert")))
+        )
+    }
+    
+    private func cancelTempBasalErrorAlertBody(_ error: Error) -> String {
+        if let localizedError = error as? LocalizedError {
+            let errors = [localizedError.errorDescription, localizedError.failureReason, localizedError.recoverySuggestion].compactMap { $0 }
+            if !errors.isEmpty {
+                return errors.joined(separator: ". ") + ".\n"
+            }
+        }
+        return error.localizedDescription + ".\n"
+    }
+    
 }
 
 
@@ -423,6 +447,8 @@ extension DeliveryLimitsEditor.PresentedAlert: Identifiable {
             return 0
         case .saveError:
             return 1
+        case .cancelTempBasalFailed:
+            return 2
         }
     }
 }
