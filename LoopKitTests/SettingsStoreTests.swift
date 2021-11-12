@@ -178,6 +178,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
       "modelType" : "rapidAdult",
       "peakActivity" : 10800
     },
+    "deviceToken" : "Device Token String",
     "dosingEnabled" : true,
     "glucoseTargetRangeSchedule" : {
       "override" : {
@@ -776,6 +777,7 @@ class StoredSettingsCodableTests: XCTestCase {
     "modelType" : "rapidAdult",
     "peakActivity" : 10800
   },
+  "deviceToken" : "Device Token String",
   "dosingEnabled" : true,
   "glucoseTargetRangeSchedule" : {
     "override" : {
@@ -1037,6 +1039,7 @@ fileprivate extension StoredSettings {
         let maximumBasalRatePerHour = 3.5
         let maximumBolus = 10.0
         let suspendThreshold = GlucoseThreshold(unit: .milligramsPerDeciliter, value: 75.0)
+        let deviceToken = "Device Token String"
         let defaultRapidActingModel = StoredInsulinModel(modelType: .rapidAdult, delay: .minutes(10), actionDuration: .hours(6), peakActivity: .hours(3))
         let basalRateSchedule = BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0),
                                                                RepeatingScheduleValue(startTime: .hours(6), value: 1.5),
@@ -1098,6 +1101,7 @@ fileprivate extension StoredSettings {
                               maximumBasalRatePerHour: maximumBasalRatePerHour,
                               maximumBolus: maximumBolus,
                               suspendThreshold: suspendThreshold,
+                              deviceToken: deviceToken,
                               defaultRapidActingModel: defaultRapidActingModel,
                               basalRateSchedule: basalRateSchedule,
                               insulinSensitivitySchedule: insulinSensitivitySchedule,
