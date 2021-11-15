@@ -115,9 +115,6 @@ public protocol CGMManager: DeviceManager {
     var shouldSyncToRemoteService: Bool { get }
 
     var glucoseDisplay: GlucoseDisplayable? { get }
-    
-    /// The representation of the device for use in HealthKit
-    var device: HKDevice? { get }
 
     /// The current status of the cgm manager
     var cgmManagerStatus: CGMManagerStatus { get }
