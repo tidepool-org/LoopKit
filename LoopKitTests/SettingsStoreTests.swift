@@ -247,6 +247,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
         }
       }
     },
+    "insulinType" : 1,
     "maximumBasalRatePerHour" : 3.5,
     "maximumBolus" : 10,
     "notificationSettings" : {
@@ -846,6 +847,7 @@ class StoredSettingsCodableTests: XCTestCase {
       }
     }
   },
+  "insulinType" : 1,
   "maximumBasalRatePerHour" : 3.5,
   "maximumBolus" : 10,
   "notificationSettings" : {
@@ -1040,6 +1042,7 @@ fileprivate extension StoredSettings {
         let maximumBolus = 10.0
         let suspendThreshold = GlucoseThreshold(unit: .milligramsPerDeciliter, value: 75.0)
         let deviceToken = "Device Token String"
+        let insulinType = InsulinType.humalog
         let defaultRapidActingModel = StoredInsulinModel(modelType: .rapidAdult, delay: .minutes(10), actionDuration: .hours(6), peakActivity: .hours(3))
         let basalRateSchedule = BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0),
                                                                RepeatingScheduleValue(startTime: .hours(6), value: 1.5),
@@ -1102,6 +1105,7 @@ fileprivate extension StoredSettings {
                               maximumBolus: maximumBolus,
                               suspendThreshold: suspendThreshold,
                               deviceToken: deviceToken,
+                              insulinType: insulinType,
                               defaultRapidActingModel: defaultRapidActingModel,
                               basalRateSchedule: basalRateSchedule,
                               insulinSensitivitySchedule: insulinSensitivitySchedule,

@@ -240,6 +240,7 @@ public struct StoredSettings {
     public let maximumBolus: Double?
     public let suspendThreshold: GlucoseThreshold?
     public let deviceToken: String?
+    public let insulinType: InsulinType?
     public let defaultRapidActingModel: StoredInsulinModel?
     public let basalRateSchedule: BasalRateSchedule?
     public let insulinSensitivitySchedule: InsulinSensitivitySchedule?
@@ -263,6 +264,7 @@ public struct StoredSettings {
                 maximumBolus: Double? = nil,
                 suspendThreshold: GlucoseThreshold? = nil,
                 deviceToken: String? = nil,
+                insulinType: InsulinType? = nil,
                 defaultRapidActingModel: StoredInsulinModel? = nil,
                 basalRateSchedule: BasalRateSchedule? = nil,
                 insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
@@ -285,6 +287,7 @@ public struct StoredSettings {
         self.maximumBolus = maximumBolus
         self.suspendThreshold = suspendThreshold
         self.deviceToken = deviceToken
+        self.insulinType = insulinType
         self.defaultRapidActingModel = defaultRapidActingModel
         self.basalRateSchedule = basalRateSchedule
         self.insulinSensitivitySchedule = insulinSensitivitySchedule
@@ -316,6 +319,7 @@ extension StoredSettings: Codable {
                   maximumBolus: try container.decodeIfPresent(Double.self, forKey: .maximumBolus),
                   suspendThreshold: try container.decodeIfPresent(GlucoseThreshold.self, forKey: .suspendThreshold),
                   deviceToken: try container.decodeIfPresent(String.self, forKey: .deviceToken),
+                  insulinType: try container.decodeIfPresent(InsulinType.self, forKey: .insulinType),
                   defaultRapidActingModel: try container.decodeIfPresent(StoredInsulinModel.self, forKey: .defaultRapidActingModel),
                   basalRateSchedule: try container.decodeIfPresent(BasalRateSchedule.self, forKey: .basalRateSchedule),
                   insulinSensitivitySchedule: try container.decodeIfPresent(InsulinSensitivitySchedule.self, forKey: .insulinSensitivitySchedule),
@@ -342,6 +346,7 @@ extension StoredSettings: Codable {
         try container.encodeIfPresent(maximumBasalRatePerHour, forKey: .maximumBasalRatePerHour)
         try container.encodeIfPresent(maximumBolus, forKey: .maximumBolus)
         try container.encodeIfPresent(suspendThreshold, forKey: .suspendThreshold)
+        try container.encodeIfPresent(insulinType, forKey: .insulinType)
         try container.encodeIfPresent(deviceToken, forKey: .deviceToken)
         try container.encodeIfPresent(defaultRapidActingModel, forKey: .defaultRapidActingModel)
         try container.encodeIfPresent(basalRateSchedule, forKey: .basalRateSchedule)
@@ -384,6 +389,7 @@ extension StoredSettings: Codable {
         case maximumBolus
         case suspendThreshold
         case deviceToken
+        case insulinType
         case defaultRapidActingModel
         case basalRateSchedule
         case insulinSensitivitySchedule
