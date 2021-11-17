@@ -58,6 +58,9 @@ public protocol PumpManager: DeviceManager {
     /// All user-selectable bolus volumes, in Units. Must be non-empty. Used during onboarding by therapy settings.
     static var onboardingSupportedBolusVolumes: [Double] { get }
 
+    /// All user-selectable maximum bolus volumes, in Units. Must be non-empty. Used during onboarding by therapy settings.
+    static var onboardingSupportedMaximumBolusVolumes: [Double] { get }
+
     /// Rounds a basal rate in U/hr to a rate supported by this pump.
     ///
     /// - Parameters:
@@ -77,6 +80,9 @@ public protocol PumpManager: DeviceManager {
 
     /// All user-selectable bolus volumes, in Units. Must be non-empty.
     var supportedBolusVolumes: [Double] { get }
+
+    /// All user-selectable bolus volumes for setting the maximum allowed bolus, in Units. Must be non-empty.
+    var supportedMaximumBolusVolumes: [Double] { get }
 
     /// The maximum number of scheduled basal rates in a single day supported by the pump
     var maximumBasalScheduleEntryCount: Int { get }
