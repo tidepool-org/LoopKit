@@ -10,7 +10,7 @@ import SwiftUI
 import HealthKit
 import LoopKit
 
-
+// Also known as "Glucose Safety Limit"
 public struct SuspendThresholdEditor: View {
     @EnvironmentObject private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
 

@@ -10,13 +10,12 @@ import SwiftUI
 import UIKit
 
 struct SizeablePicker<SelectionValue>: UIViewRepresentable where SelectionValue: CustomStringConvertible & Hashable {
-    let selection: Binding<SelectionValue>
-    // TODO: Would be nice if we could just use `ForEach` and Content, but for now, this'll do
-    let data: [SelectionValue]
-    let formatter: (SelectionValue) -> String
-    let colorer: (SelectionValue) -> Color
-
+    private let selection: Binding<SelectionValue>
     private var selectedRow: Int = 0
+    // TODO: Would be nice if we could just use `ForEach` and Content, but for now, this'll do
+    private let data: [SelectionValue]
+    private let formatter: (SelectionValue) -> String
+    private let colorer: (SelectionValue) -> Color
 
     public init(selection: Binding<SelectionValue>,
                 data: [SelectionValue],
@@ -80,7 +79,7 @@ struct SizeablePicker<SelectionValue>: UIViewRepresentable where SelectionValue:
                 result = UILabel()
             }
             result.text = text
-            result.font = UIFont.preferredFont(forTextStyle: .title3)
+            result.font = UIFont.preferredFont(forTextStyle: .title2)
             result.textAlignment = .center
             result.textColor = UIColor(self.parent.colorer(self.parent.data[row]))
             result.accessibilityHint = text
@@ -98,6 +97,6 @@ struct SizeablePicker<SelectionValue>: UIViewRepresentable where SelectionValue:
 class UIPickerViewResizeable: UIPickerView {
     
     override var intrinsicContentSize: CGSize {
-        return CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
+        return CGSize(width: UIView.noIntrinsicMetric, height: super.intrinsicContentSize.height)
     }
 }
