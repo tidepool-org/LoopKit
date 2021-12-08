@@ -9,10 +9,9 @@
 import SwiftUI
 import UIKit
 
-struct SizeablePicker</*Label, */SelectionValue/*, Content*/>: UIViewRepresentable where /*Label: View, */SelectionValue: CustomStringConvertible & Hashable/*, Content: View*/ {
-//    let label: Label
+struct SizeablePicker<SelectionValue>: UIViewRepresentable where SelectionValue: CustomStringConvertible & Hashable {
     let selection: Binding<SelectionValue>
-//    let content: Content
+    // TODO: Would be nice if we could just use `ForEach` and Content, but for now, this'll do
     let data: [SelectionValue]
     let formatter: (SelectionValue) -> String
     let colorer: (SelectionValue) -> Color
@@ -71,7 +70,7 @@ struct SizeablePicker</*Label, */SelectionValue/*, Content*/>: UIViewRepresentab
             self.parent.data.count
         }
 
-        // TODO: Will need to use this to generate Content
+        //pickerView(_:viewForRow:forComponent:reusing:)
         func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
             let text = self.parent.formatter(self.parent.data[row])
             let result: UILabel
