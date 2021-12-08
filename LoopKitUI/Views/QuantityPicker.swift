@@ -101,20 +101,32 @@ public struct QuantityPicker: View {
     }
 
     public var body: some View {
-        Picker("Quantity", selection: selectedValue) {
-            ForEach(selectableValues, id: \.self) { value in
-                Text(self.formatter.string(from: value) ?? "\(value)")
-                    .foregroundColor(self.colorForValue(value))
-                    .anchorPreference(key: PickerValueBoundsKey.self, value: .bounds, transform: { [$0] })
-                    .accessibility(identifier: self.formatter.string(from: value) ?? "\(value)")
-            }
-        }
-        .labelsHidden()
-        .pickerStyle(WheelPickerStyle())
-        .overlayPreferenceValue(PickerValueBoundsKey.self, unitLabel(positionedFrom:))
-        .accessibility(identifier: "quantity_picker")
+        picker
+            .labelsHidden()
+            .pickerStyle(WheelPickerStyle())
+            .overlayPreferenceValue(PickerValueBoundsKey.self, unitLabel(positionedFrom:))
+            .accessibility(identifier: "quantity_picker")
     }
 
+    @ViewBuilder
+    private var picker: some View {
+        if #available(iOS 15.1, *) {
+            SizeablePicker(selection: selectedValue,
+                           data: selectableValues,
+                           formatter: { self.formatter.string(from: $0) ?? "\($0)" },
+                           colorer: colorForValue)
+        } else {
+            Picker("Quantity", selection: selectedValue) {
+                ForEach(selectableValues, id: \.self) { value in
+                    Text(self.formatter.string(from: value) ?? "\(value)")
+                        .foregroundColor(self.colorForValue(value))
+                        .anchorPreference(key: PickerValueBoundsKey.self, value: .bounds, transform: { [$0] })
+                        .accessibility(identifier: self.formatter.string(from: value) ?? "\(value)")
+                }
+            }
+        }
+    }
+    
     private func unitLabel(positionedFrom pickerValueBounds: [Anchor<CGRect>]) -> some View {
         GeometryReader { geometry in
             if self.isUnitLabelVisible && !pickerValueBounds.isEmpty {
