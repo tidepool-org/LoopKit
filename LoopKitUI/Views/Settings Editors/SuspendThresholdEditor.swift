@@ -109,9 +109,7 @@ public struct SuspendThresholdEditor: View {
                                 bounds: viewModel.guardrail.absoluteBounds.lowerBound...viewModel.maxSuspendThresholdValue
                             )
                             // Prevent the picker from expanding the card's width on small devices
-                            .frame(maxWidth: UIScreen.main.bounds.width - 48)
-                            .clipped()
-                            .compositingGroup()
+                            .frame(maxWidth: 220)
                         }
                     )
                 }
