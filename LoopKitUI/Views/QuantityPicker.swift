@@ -110,11 +110,12 @@ public struct QuantityPicker: View {
 
     @ViewBuilder
     private var picker: some View {
-        if #available(iOS 15.1, *) {
+        if useSizeablePicker {
             SizeablePicker(selection: selectedValue,
                            data: selectableValues,
                            formatter: { self.formatter.string(from: $0) ?? "\($0)" },
                            colorer: colorForValue)
+                .anchorPreference(key: PickerValueBoundsKey.self, value: .bounds, transform: { [$0] })
         } else {
             Picker("Quantity", selection: selectedValue) {
                 ForEach(selectableValues, id: \.self) { value in
@@ -139,7 +140,21 @@ public struct QuantityPicker: View {
         }
     }
 
-    private var unitLabelSpacing: CGFloat { 8 }
+    private var unitLabelSpacing: CGFloat {
+        if useSizeablePicker {
+            return 0
+        } else {
+            return 8
+        }
+    }
+    
+    private var useSizeablePicker: Bool {
+        if #available(iOS 15.1, *) {
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 extension Sequence where Element == Anchor<CGRect> {

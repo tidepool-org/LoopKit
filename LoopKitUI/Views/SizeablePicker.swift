@@ -80,7 +80,7 @@ struct SizeablePicker<SelectionValue>: UIViewRepresentable where SelectionValue:
                 result = UILabel()
             }
             result.text = text
-            result.font = UIFont.preferredFont(forTextStyle: .title2)
+            result.font = UIFont.preferredFont(forTextStyle: .title3)
             result.textAlignment = .center
             result.textColor = UIColor(self.parent.colorer(self.parent.data[row]))
             result.accessibilityHint = text
