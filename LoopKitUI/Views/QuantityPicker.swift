@@ -110,22 +110,16 @@ public struct QuantityPicker: View {
 
     @ViewBuilder
     private var picker: some View {
-        if useSizeablePicker {
-            SizeablePicker(selection: selectedValue,
-                           data: selectableValues,
-                           formatter: { self.formatter.string(from: $0) ?? "\($0)" },
-                           colorer: colorForValue)
-                .anchorPreference(key: PickerValueBoundsKey.self, value: .bounds, transform: { [$0] })
-        } else {
-            Picker("Quantity", selection: selectedValue) {
-                ForEach(selectableValues, id: \.self) { value in
-                    Text(self.formatter.string(from: value) ?? "\(value)")
-                        .foregroundColor(self.colorForValue(value))
-                        .anchorPreference(key: PickerValueBoundsKey.self, value: .bounds, transform: { [$0] })
-                        .accessibility(identifier: self.formatter.string(from: value) ?? "\(value)")
-                }
-            }
-        }
+        // NOTE: iOS 15.1 introduced an issue where SwiftUI Pickers would not obey the `.clipped()`
+        // directive when it comes to touchable area.  I have submitted a bug (Feedback) to Apple (FB9788944).
+        // This uses a custom Picker that works around the issue, but not perfectly (it isn't a 1 to 1 match).
+        // If they ever do fix this, consider restoring the code from the commit prior to this change.
+        // See LOOP-3870 for more details.
+        ResizeablePicker(selection: selectedValue,
+                         data: selectableValues,
+                         formatter: { self.formatter.string(from: $0) ?? "\($0)" },
+                         colorer: colorForValue)
+            .anchorPreference(key: PickerValueBoundsKey.self, value: .bounds, transform: { [$0] })
     }
     
     private func unitLabel(positionedFrom pickerValueBounds: [Anchor<CGRect>]) -> some View {
@@ -134,25 +128,9 @@ public struct QuantityPicker: View {
                 Text(self.unit.shortLocalizedUnitString())
                     .foregroundColor(.gray)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                    .offset(x: pickerValueBounds.union(in: geometry).maxX + self.unitLabelSpacing)
+                    .offset(x: pickerValueBounds.union(in: geometry).maxX)
                     .animation(.default)
             }
-        }
-    }
-
-    private var unitLabelSpacing: CGFloat {
-        if useSizeablePicker {
-            return 0
-        } else {
-            return 8
-        }
-    }
-    
-    private var useSizeablePicker: Bool {
-        if #available(iOS 15.1, *) {
-            return true
-        } else {
-            return false
         }
     }
 }
