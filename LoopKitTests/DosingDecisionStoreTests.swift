@@ -200,7 +200,7 @@ class DosingDecisionStorePersistenceTests: PersistenceControllerTestCase, Dosing
           "referenceTimeInterval" : 0,
           "repeatInterval" : 86400,
           "timeZone" : {
-            "identifier" : "America/Los_Angeles"
+            "identifier" : "GMT-0700"
           }
         }
       }
@@ -317,7 +317,7 @@ class DosingDecisionStorePersistenceTests: PersistenceControllerTestCase, Dosing
       "insulinType" : 0,
       "pumpBatteryChargeRemaining" : 0.75,
       "timeZone" : {
-        "identifier" : "America/Los_Angeles"
+        "identifier" : "GMT-0700"
       }
     },
     "reason" : "test",
@@ -347,7 +347,7 @@ class DosingDecisionStorePersistenceTests: PersistenceControllerTestCase, Dosing
     },
     "syncIdentifier" : "2A67A303-5203-4CB8-8263-79498265368E",
     "timeZone" : {
-      "identifier" : "America/Los_Angeles"
+      "identifier" : "America/Phoenix"
     },
     "warnings" : [
       {
@@ -814,7 +814,7 @@ class StoredDosingDecisionCodableTests: XCTestCase {
         "referenceTimeInterval" : 0,
         "repeatInterval" : 86400,
         "timeZone" : {
-          "identifier" : "America/Los_Angeles"
+          "identifier" : "GMT-0700"
         }
       }
     }
@@ -931,7 +931,7 @@ class StoredDosingDecisionCodableTests: XCTestCase {
     "insulinType" : 0,
     "pumpBatteryChargeRemaining" : 0.75,
     "timeZone" : {
-      "identifier" : "America/Los_Angeles"
+      "identifier" : "GMT-0700"
     }
   },
   "reason" : "test",
@@ -961,7 +961,7 @@ class StoredDosingDecisionCodableTests: XCTestCase {
   },
   "syncIdentifier" : "2A67A303-5203-4CB8-8263-79498265368E",
   "timeZone" : {
-    "identifier" : "America/Los_Angeles"
+    "identifier" : "America/Phoenix"
   },
   "warnings" : [
     {
@@ -1049,7 +1049,8 @@ extension ManualBolusRecommendation: Equatable {
 
 fileprivate extension StoredDosingDecision {
     static var test: StoredDosingDecision {
-        let timeZone = TimeZone(identifier: "America/Los_Angeles")!
+        let timeZone = TimeZone(identifier: "America/Phoenix")!
+        let scheduleTimeZone = TimeZone(secondsFromGMT: timeZone.secondsFromGMT())!
         let reason = "test"
         let settings = StoredDosingDecision.Settings(syncIdentifier: UUID(uuidString: "2B03D96C-99CD-4140-99CD-80C3E64D6011")!)
         let scheduleOverride = TemporaryScheduleOverride(context: .preMeal,
@@ -1063,7 +1064,7 @@ fileprivate extension StoredDosingDecision {
                                                          syncIdentifier: UUID(uuidString: "394818CF-99CD-4B12-99CD-0E678414986B")!)
         let controllerStatus = StoredDosingDecision.ControllerStatus(batteryState: .charging,
                                                                      batteryLevel: 0.5)
-        let pumpManagerStatus = PumpManagerStatus(timeZone: timeZone,
+        let pumpManagerStatus = PumpManagerStatus(timeZone: scheduleTimeZone,
                                                   device: HKDevice(name: "Pump Name",
                                                                    manufacturer: "Pump Manufacturer",
                                                                    model: "Pump Model",
@@ -1144,7 +1145,7 @@ fileprivate extension StoredDosingDecision {
                                                                                                    dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
                                                                                                                 RepeatingScheduleValue(startTime: .hours(7), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
                                                                                                                 RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
-                                                                                                   timeZone: timeZone)!,
+                                                                                                   timeZone: scheduleTimeZone)!,
                                                               override: GlucoseRangeSchedule.Override(value: DoubleRange(minValue: 105.0, maxValue: 115.0),
                                                                                                       start: dateFormatter.date(from: "2020-05-14T21:12:17Z")!,
                                                                                                       end: dateFormatter.date(from: "2020-05-14T23:12:17Z")!))

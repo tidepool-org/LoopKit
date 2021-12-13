@@ -126,7 +126,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
       "referenceTimeInterval" : 0,
       "repeatInterval" : 86400,
       "timeZone" : {
-        "identifier" : "America/Los_Angeles"
+        "identifier" : "GMT-0700"
       }
     },
     "bloodGlucoseUnit" : "mg/dL",
@@ -150,7 +150,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
         "referenceTimeInterval" : 0,
         "repeatInterval" : 86400,
         "timeZone" : {
-          "identifier" : "America/Los_Angeles"
+          "identifier" : "GMT-0700"
         }
       }
     },
@@ -218,7 +218,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
           "referenceTimeInterval" : 0,
           "repeatInterval" : 86400,
           "timeZone" : {
-            "identifier" : "America/Los_Angeles"
+            "identifier" : "GMT-0700"
           }
         }
       }
@@ -243,7 +243,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
         "referenceTimeInterval" : 0,
         "repeatInterval" : 86400,
         "timeZone" : {
-          "identifier" : "America/Los_Angeles"
+          "identifier" : "GMT-0700"
         }
       }
     },
@@ -345,7 +345,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
     },
     "syncIdentifier" : "2A67A303-1234-4CB8-1234-79498265368E",
     "timeZone" : {
-      "identifier" : "America/Los_Angeles"
+      "identifier" : "America/Phoenix"
     },
     "workoutTargetRange" : {
       "maxValue" : 160,
@@ -729,7 +729,7 @@ class StoredSettingsCodableTests: XCTestCase {
     "referenceTimeInterval" : 0,
     "repeatInterval" : 86400,
     "timeZone" : {
-      "identifier" : "America/Los_Angeles"
+      "identifier" : "GMT-0700"
     }
   },
   "bloodGlucoseUnit" : "mg/dL",
@@ -753,7 +753,7 @@ class StoredSettingsCodableTests: XCTestCase {
       "referenceTimeInterval" : 0,
       "repeatInterval" : 86400,
       "timeZone" : {
-        "identifier" : "America/Los_Angeles"
+        "identifier" : "GMT-0700"
       }
     }
   },
@@ -821,7 +821,7 @@ class StoredSettingsCodableTests: XCTestCase {
         "referenceTimeInterval" : 0,
         "repeatInterval" : 86400,
         "timeZone" : {
-          "identifier" : "America/Los_Angeles"
+          "identifier" : "GMT-0700"
         }
       }
     }
@@ -846,7 +846,7 @@ class StoredSettingsCodableTests: XCTestCase {
       "referenceTimeInterval" : 0,
       "repeatInterval" : 86400,
       "timeZone" : {
-        "identifier" : "America/Los_Angeles"
+        "identifier" : "GMT-0700"
       }
     }
   },
@@ -948,7 +948,7 @@ class StoredSettingsCodableTests: XCTestCase {
   },
   "syncIdentifier" : "2A67A303-1234-4CB8-1234-79498265368E",
   "timeZone" : {
-    "identifier" : "America/Los_Angeles"
+    "identifier" : "America/Phoenix"
   },
   "workoutTargetRange" : {
     "maxValue" : 160,
@@ -1011,13 +1011,14 @@ extension StoredSettings: Equatable {
 
 fileprivate extension StoredSettings {
     static var test: StoredSettings {
-        let timeZone = TimeZone(identifier: "America/Los_Angeles")!
+        let timeZone = TimeZone(identifier: "America/Phoenix")!
+        let scheduleTimeZone = TimeZone(secondsFromGMT: timeZone.secondsFromGMT())!
         let dosingEnabled = true
         let glucoseTargetRangeSchedule = GlucoseRangeSchedule(rangeSchedule: DailyQuantitySchedule(unit: .milligramsPerDeciliter,
                                                                                                    dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
                                                                                                                 RepeatingScheduleValue(startTime: .hours(7), value: DoubleRange(minValue: 90.0, maxValue: 100.0)),
                                                                                                                 RepeatingScheduleValue(startTime: .hours(21), value: DoubleRange(minValue: 110.0, maxValue: 120.0))],
-                                                                                                   timeZone: timeZone)!,
+                                                                                                   timeZone: scheduleTimeZone)!,
                                                               override: GlucoseRangeSchedule.Override(value: DoubleRange(minValue: 105.0, maxValue: 115.0),
                                                                                                       start: dateFormatter.date(from: "2020-05-14T12:48:15Z")!,
                                                                                                       end: dateFormatter.date(from: "2020-05-14T14:48:15Z")!))
@@ -1055,17 +1056,17 @@ fileprivate extension StoredSettings {
         let basalRateSchedule = BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0),
                                                                RepeatingScheduleValue(startTime: .hours(6), value: 1.5),
                                                                RepeatingScheduleValue(startTime: .hours(18), value: 1.25)],
-                                                  timeZone: timeZone)
+                                                  timeZone: scheduleTimeZone)
         let insulinSensitivitySchedule = InsulinSensitivitySchedule(unit: .milligramsPerDeciliter,
                                                                     dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 45.0),
                                                                                  RepeatingScheduleValue(startTime: .hours(3), value: 40.0),
                                                                                  RepeatingScheduleValue(startTime: .hours(15), value: 50.0)],
-                                                                    timeZone: timeZone)
+                                                                    timeZone: scheduleTimeZone)
         let carbRatioSchedule = CarbRatioSchedule(unit: .gram(),
                                                   dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 15.0),
                                                                RepeatingScheduleValue(startTime: .hours(9), value: 14.0),
                                                                RepeatingScheduleValue(startTime: .hours(20), value: 18.0)],
-                                                  timeZone: timeZone)
+                                                  timeZone: scheduleTimeZone)
         let notificationSettings = NotificationSettings(authorizationStatus: .authorized,
                                                         soundSetting: .enabled,
                                                         badgeSetting: .enabled,
