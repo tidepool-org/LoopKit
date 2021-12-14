@@ -171,6 +171,9 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
       "systemName" : "Controller System Name",
       "systemVersion" : "Controller System Version"
     },
+    "controllerTimeZone" : {
+      "identifier" : "America/Los_Angeles"
+    },
     "date" : "2020-05-14T22:48:15Z",
     "defaultRapidActingModel" : {
       "actionDuration" : 21600,
@@ -344,9 +347,6 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
       "value" : 75
     },
     "syncIdentifier" : "2A67A303-1234-4CB8-1234-79498265368E",
-    "timeZone" : {
-      "identifier" : "America/Phoenix"
-    },
     "workoutTargetRange" : {
       "maxValue" : 160,
       "minValue" : 150
@@ -625,11 +625,11 @@ class SettingsStoreCriticalEventLogTests: PersistenceControllerTestCase {
     override func setUp() {
         super.setUp()
 
-        let settings = [StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:08:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "18CF3948-0B3D-4B12-8BFE-14986B0E6784")!),
-                        StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:10:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "C86DEB61-68E9-464E-9DD5-96A9CB445FD3")!),
-                        StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:04:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "2B03D96C-6F5D-4140-99CD-80C3E64D6010")!),
-                        StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:06:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "FF1C4F01-3558-4FB2-957E-FA1522C4735E")!),
-                        StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:02:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "71B699D7-0E8F-4B13-B7A1-E7751EB78E74")!)]
+        let settings = [StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:08:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "18CF3948-0B3D-4B12-8BFE-14986B0E6784")!),
+                        StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:10:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "C86DEB61-68E9-464E-9DD5-96A9CB445FD3")!),
+                        StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:04:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "2B03D96C-6F5D-4140-99CD-80C3E64D6010")!),
+                        StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:06:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "FF1C4F01-3558-4FB2-957E-FA1522C4735E")!),
+                        StoredSettings(date: dateFormatter.date(from: "2100-01-02T03:02:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, syncIdentifier: UUID(uuidString: "71B699D7-0E8F-4B13-B7A1-E7751EB78E74")!)]
 
         settingsStore = SettingsStore(store: cacheStore, expireAfter: .hours(1))
 
@@ -678,9 +678,9 @@ class SettingsStoreCriticalEventLogTests: PersistenceControllerTestCase {
                                           progress: progress))
         XCTAssertEqual(outputStream.string, """
 [
-{"data":{"bloodGlucoseUnit":"mg/dL","date":"2100-01-02T03:08:00.000Z","dosingEnabled":false,"syncIdentifier":"18CF3948-0B3D-4B12-8BFE-14986B0E6784","timeZone":{"identifier":"America/Los_Angeles"}},"date":"2100-01-02T03:08:00.000Z","modificationCounter":1},
-{"data":{"bloodGlucoseUnit":"mg/dL","date":"2100-01-02T03:04:00.000Z","dosingEnabled":false,"syncIdentifier":"2B03D96C-6F5D-4140-99CD-80C3E64D6010","timeZone":{"identifier":"America/Los_Angeles"}},"date":"2100-01-02T03:04:00.000Z","modificationCounter":3},
-{"data":{"bloodGlucoseUnit":"mg/dL","date":"2100-01-02T03:06:00.000Z","dosingEnabled":false,"syncIdentifier":"FF1C4F01-3558-4FB2-957E-FA1522C4735E","timeZone":{"identifier":"America/Los_Angeles"}},"date":"2100-01-02T03:06:00.000Z","modificationCounter":4}
+{"data":{"bloodGlucoseUnit":"mg/dL","controllerTimeZone":{"identifier":"America/Los_Angeles"},"date":"2100-01-02T03:08:00.000Z","dosingEnabled":false,"syncIdentifier":"18CF3948-0B3D-4B12-8BFE-14986B0E6784"},"date":"2100-01-02T03:08:00.000Z","modificationCounter":1},
+{"data":{"bloodGlucoseUnit":"mg/dL","controllerTimeZone":{"identifier":"America/Los_Angeles"},"date":"2100-01-02T03:04:00.000Z","dosingEnabled":false,"syncIdentifier":"2B03D96C-6F5D-4140-99CD-80C3E64D6010"},"date":"2100-01-02T03:04:00.000Z","modificationCounter":3},
+{"data":{"bloodGlucoseUnit":"mg/dL","controllerTimeZone":{"identifier":"America/Los_Angeles"},"date":"2100-01-02T03:06:00.000Z","dosingEnabled":false,"syncIdentifier":"FF1C4F01-3558-4FB2-957E-FA1522C4735E"},"date":"2100-01-02T03:06:00.000Z","modificationCounter":4}
 ]
 """
         )
@@ -773,6 +773,9 @@ class StoredSettingsCodableTests: XCTestCase {
     "name" : "Controller Name",
     "systemName" : "Controller System Name",
     "systemVersion" : "Controller System Version"
+  },
+  "controllerTimeZone" : {
+    "identifier" : "America/Los_Angeles"
   },
   "date" : "2020-05-14T22:48:15Z",
   "defaultRapidActingModel" : {
@@ -947,9 +950,6 @@ class StoredSettingsCodableTests: XCTestCase {
     "value" : 75
   },
   "syncIdentifier" : "2A67A303-1234-4CB8-1234-79498265368E",
-  "timeZone" : {
-    "identifier" : "America/Phoenix"
-  },
   "workoutTargetRange" : {
     "maxValue" : 160,
     "minValue" : 150
@@ -985,7 +985,7 @@ class StoredSettingsCodableTests: XCTestCase {
 extension StoredSettings: Equatable {
     public static func == (lhs: StoredSettings, rhs: StoredSettings) -> Bool {
         return lhs.date == rhs.date &&
-            lhs.timeZone == rhs.timeZone &&
+            lhs.controllerTimeZone == rhs.controllerTimeZone &&
             lhs.dosingEnabled == rhs.dosingEnabled &&
             lhs.glucoseTargetRangeSchedule == rhs.glucoseTargetRangeSchedule &&
             lhs.preMealTargetRange == rhs.preMealTargetRange &&
@@ -1011,8 +1011,8 @@ extension StoredSettings: Equatable {
 
 fileprivate extension StoredSettings {
     static var test: StoredSettings {
-        let timeZone = TimeZone(identifier: "America/Phoenix")!
-        let scheduleTimeZone = TimeZone(secondsFromGMT: timeZone.secondsFromGMT())!
+        let controllerTimeZone = TimeZone(identifier: "America/Los_Angeles")!
+        let scheduleTimeZone = TimeZone(secondsFromGMT: TimeZone(identifier: "America/Phoenix")!.secondsFromGMT())!
         let dosingEnabled = true
         let glucoseTargetRangeSchedule = GlucoseRangeSchedule(rangeSchedule: DailyQuantitySchedule(unit: .milligramsPerDeciliter,
                                                                                                    dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: DoubleRange(minValue: 100.0, maxValue: 110.0)),
@@ -1103,7 +1103,7 @@ fileprivate extension StoredSettings {
         let bloodGlucoseUnit = HKUnit.milligramsPerDeciliter
 
         return StoredSettings(date: dateFormatter.date(from: "2020-05-14T22:48:15Z")!,
-                              timeZone: timeZone,
+                              controllerTimeZone: controllerTimeZone,
                               dosingEnabled: dosingEnabled,
                               glucoseTargetRangeSchedule: glucoseTargetRangeSchedule,
                               preMealTargetRange: preMealTargetRange,

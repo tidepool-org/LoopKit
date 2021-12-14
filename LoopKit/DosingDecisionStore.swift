@@ -200,7 +200,7 @@ public typealias HistoricalGlucoseValue = PredictedGlucoseValue
 
 public struct StoredDosingDecision {
     public var date: Date
-    public var timeZone: TimeZone
+    public var controllerTimeZone: TimeZone
     public var reason: String
     public var settings: Settings?
     public var scheduleOverride: TemporaryScheduleOverride?
@@ -224,7 +224,7 @@ public struct StoredDosingDecision {
     public var syncIdentifier: UUID
 
     public init(date: Date = Date(),
-                timeZone: TimeZone = TimeZone.current,
+                controllerTimeZone: TimeZone = TimeZone.current,
                 reason: String,
                 settings: Settings? = nil,
                 scheduleOverride: TemporaryScheduleOverride? = nil,
@@ -247,7 +247,7 @@ public struct StoredDosingDecision {
                 errors: [Issue] = [],
                 syncIdentifier: UUID = UUID()) {
         self.date = date
-        self.timeZone = timeZone
+        self.controllerTimeZone = controllerTimeZone
         self.reason = reason
         self.settings = settings
         self.scheduleOverride = scheduleOverride
@@ -331,7 +331,7 @@ extension StoredDosingDecision: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.init(date: try container.decode(Date.self, forKey: .date),
-                  timeZone: try container.decode(TimeZone.self, forKey: .timeZone),
+                  controllerTimeZone: try container.decode(TimeZone.self, forKey: .controllerTimeZone),
                   reason: try container.decode(String.self, forKey: .reason),
                   settings: try container.decodeIfPresent(Settings.self, forKey: .settings),
                   scheduleOverride: try container.decodeIfPresent(TemporaryScheduleOverride.self, forKey: .scheduleOverride),
@@ -358,7 +358,7 @@ extension StoredDosingDecision: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(date, forKey: .date)
-        try container.encode(timeZone, forKey: .timeZone)
+        try container.encode(controllerTimeZone, forKey: .controllerTimeZone)
         try container.encode(reason, forKey: .reason)
         try container.encodeIfPresent(settings, forKey: .settings)
         try container.encodeIfPresent(scheduleOverride, forKey: .scheduleOverride)
@@ -384,7 +384,7 @@ extension StoredDosingDecision: Codable {
 
     private enum CodingKeys: String, CodingKey {
         case date
-        case timeZone
+        case controllerTimeZone
         case reason
         case settings
         case scheduleOverride

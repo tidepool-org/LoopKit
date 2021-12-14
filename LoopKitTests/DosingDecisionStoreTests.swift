@@ -150,6 +150,9 @@ class DosingDecisionStorePersistenceTests: PersistenceControllerTestCase, Dosing
       "batteryLevel" : 0.5,
       "batteryState" : "charging"
     },
+    "controllerTimeZone" : {
+      "identifier" : "America/Los_Angeles"
+    },
     "date" : "2020-05-14T22:38:14Z",
     "errors" : [
       {
@@ -346,9 +349,6 @@ class DosingDecisionStorePersistenceTests: PersistenceControllerTestCase, Dosing
       "syncIdentifier" : "2B03D96C-99CD-4140-99CD-80C3E64D6011"
     },
     "syncIdentifier" : "2A67A303-5203-4CB8-8263-79498265368E",
-    "timeZone" : {
-      "identifier" : "America/Phoenix"
-    },
     "warnings" : [
       {
         "id" : "one"
@@ -634,11 +634,11 @@ class DosingDecisionStoreCriticalEventLogTests: PersistenceControllerTestCase {
     override func setUp() {
         super.setUp()
 
-        let dosingDecisions = [StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:08:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "18CF3948-0B3D-4B12-8BFE-14986B0E6784")!),
-                               StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:10:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "C86DEB61-68E9-464E-9DD5-96A9CB445FD3")!),
-                               StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:04:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "2B03D96C-6F5D-4140-99CD-80C3E64D6010")!),
-                               StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:06:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "FF1C4F01-3558-4FB2-957E-FA1522C4735E")!),
-                               StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:02:00Z")!, timeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "71B699D7-0E8F-4B13-B7A1-E7751EB78E74")!)]
+        let dosingDecisions = [StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:08:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "18CF3948-0B3D-4B12-8BFE-14986B0E6784")!),
+                               StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:10:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "C86DEB61-68E9-464E-9DD5-96A9CB445FD3")!),
+                               StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:04:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "2B03D96C-6F5D-4140-99CD-80C3E64D6010")!),
+                               StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:06:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "FF1C4F01-3558-4FB2-957E-FA1522C4735E")!),
+                               StoredDosingDecision(date: dateFormatter.date(from: "2100-01-02T03:02:00Z")!, controllerTimeZone: TimeZone(identifier: "America/Los_Angeles")!, reason: "test", syncIdentifier: UUID(uuidString: "71B699D7-0E8F-4B13-B7A1-E7751EB78E74")!)]
 
         dosingDecisionStore = DosingDecisionStore(store: cacheStore, expireAfter: .hours(1))
 
@@ -687,9 +687,9 @@ class DosingDecisionStoreCriticalEventLogTests: PersistenceControllerTestCase {
                                                 progress: progress))
         XCTAssertEqual(outputStream.string, """
 [
-{"data":{"date":"2100-01-02T03:08:00.000Z","reason":"test","syncIdentifier":"18CF3948-0B3D-4B12-8BFE-14986B0E6784","timeZone":{"identifier":"America/Los_Angeles"}},"date":"2100-01-02T03:08:00.000Z","modificationCounter":1},
-{"data":{"date":"2100-01-02T03:04:00.000Z","reason":"test","syncIdentifier":"2B03D96C-6F5D-4140-99CD-80C3E64D6010","timeZone":{"identifier":"America/Los_Angeles"}},"date":"2100-01-02T03:04:00.000Z","modificationCounter":3},
-{"data":{"date":"2100-01-02T03:06:00.000Z","reason":"test","syncIdentifier":"FF1C4F01-3558-4FB2-957E-FA1522C4735E","timeZone":{"identifier":"America/Los_Angeles"}},"date":"2100-01-02T03:06:00.000Z","modificationCounter":4}
+{"data":{"controllerTimeZone":{"identifier":"America/Los_Angeles"},"date":"2100-01-02T03:08:00.000Z","reason":"test","syncIdentifier":"18CF3948-0B3D-4B12-8BFE-14986B0E6784"},"date":"2100-01-02T03:08:00.000Z","modificationCounter":1},
+{"data":{"controllerTimeZone":{"identifier":"America/Los_Angeles"},"date":"2100-01-02T03:04:00.000Z","reason":"test","syncIdentifier":"2B03D96C-6F5D-4140-99CD-80C3E64D6010"},"date":"2100-01-02T03:04:00.000Z","modificationCounter":3},
+{"data":{"controllerTimeZone":{"identifier":"America/Los_Angeles"},"date":"2100-01-02T03:06:00.000Z","reason":"test","syncIdentifier":"FF1C4F01-3558-4FB2-957E-FA1522C4735E"},"date":"2100-01-02T03:06:00.000Z","modificationCounter":4}
 ]
 """
         )
@@ -763,6 +763,9 @@ class StoredDosingDecisionCodableTests: XCTestCase {
   "controllerStatus" : {
     "batteryLevel" : 0.5,
     "batteryState" : "charging"
+  },
+  "controllerTimeZone" : {
+    "identifier" : "America/Los_Angeles"
   },
   "date" : "2020-05-14T22:38:14Z",
   "errors" : [
@@ -960,9 +963,6 @@ class StoredDosingDecisionCodableTests: XCTestCase {
     "syncIdentifier" : "2B03D96C-99CD-4140-99CD-80C3E64D6011"
   },
   "syncIdentifier" : "2A67A303-5203-4CB8-8263-79498265368E",
-  "timeZone" : {
-    "identifier" : "America/Phoenix"
-  },
   "warnings" : [
     {
       "id" : "one"
@@ -1005,7 +1005,7 @@ class StoredDosingDecisionCodableTests: XCTestCase {
 extension StoredDosingDecision: Equatable {
     public static func == (lhs: StoredDosingDecision, rhs: StoredDosingDecision) -> Bool {
         return lhs.date == rhs.date &&
-            lhs.timeZone == rhs.timeZone &&
+            lhs.controllerTimeZone == rhs.controllerTimeZone &&
             lhs.reason == rhs.reason &&
             lhs.settings == rhs.settings &&
             lhs.controllerStatus == rhs.controllerStatus &&
@@ -1049,8 +1049,8 @@ extension ManualBolusRecommendation: Equatable {
 
 fileprivate extension StoredDosingDecision {
     static var test: StoredDosingDecision {
-        let timeZone = TimeZone(identifier: "America/Phoenix")!
-        let scheduleTimeZone = TimeZone(secondsFromGMT: timeZone.secondsFromGMT())!
+        let controllerTimeZone = TimeZone(identifier: "America/Los_Angeles")!
+        let scheduleTimeZone = TimeZone(secondsFromGMT: TimeZone(identifier: "America/Phoenix")!.secondsFromGMT())!
         let reason = "test"
         let settings = StoredDosingDecision.Settings(syncIdentifier: UUID(uuidString: "2B03D96C-99CD-4140-99CD-80C3E64D6011")!)
         let scheduleOverride = TemporaryScheduleOverride(context: .preMeal,
@@ -1170,7 +1170,7 @@ fileprivate extension StoredDosingDecision {
                                Issue(id: "bravo", details: ["size": "tiny"])]
 
         return StoredDosingDecision(date: dateFormatter.date(from: "2020-05-14T22:38:14Z")!,
-                                    timeZone: timeZone,
+                                    controllerTimeZone: controllerTimeZone,
                                     reason: reason,
                                     settings: settings,
                                     scheduleOverride: scheduleOverride,
