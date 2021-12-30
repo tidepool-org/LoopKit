@@ -33,7 +33,7 @@ public struct Alert: Equatable {
         /// Delay triggering the alert by `repeatInterval`, and repeat at that interval until cancelled or unscheduled.
         case repeating(repeatInterval: TimeInterval)
     }
-    /// The interruption level of the alert.  Note that these follow the same definitiions as defined by https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel
+    /// The interruption level of the alert.  Note that these follow the same definitions as defined by https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel
     /// Handlers will determine how that is manifested.
     public enum InterruptionLevel: String {
         /// The system presents the notification immediately, lights up the screen, and can play a sound.  These alerts may be deferred if the user chooses.
