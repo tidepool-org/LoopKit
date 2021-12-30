@@ -33,20 +33,29 @@ public struct Alert: Equatable {
         /// Delay triggering the alert by `repeatInterval`, and repeat at that interval until cancelled or unscheduled.
         case repeating(repeatInterval: TimeInterval)
     }
+    /// The interruption level of the alert.  Note that these follow the same definitiions as defined by https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel
+    /// Handlers will determine how that is manifested.
+    public enum InterruptionLevel: String {
+        /// The system presents the notification immediately, lights up the screen, and can play a sound.  These alerts may be deferred if the user chooses.
+        case active
+        /// The system presents the notification immediately, lights up the screen, and can play a sound.  These alerts may not be deferred.
+        case timeSensitive
+        /// The system makes every attempt at alerting the user, including (possibly) ignoring the mute switch, or the user's notification settings.
+        case critical
+    }
     /// Content of the alert, either for foreground or background alerts
     public struct Content: Equatable  {
         public let title: String
         public let body: String
-        /// Should this alert be deemed "critical" for the User?  Handlers will determine how that is manifested.
-        public let isCritical: Bool
+        public let interruptionLevel: InterruptionLevel
         // TODO: when we have more complicated actions.  For now, all we have is "acknowledge".
 //        let actions: [UserAlertAction]
         public let acknowledgeActionButtonLabel: String
-        public init(title: String, body: String, acknowledgeActionButtonLabel: String, isCritical: Bool = false) {
+        public init(title: String, body: String, acknowledgeActionButtonLabel: String, interruptionLevel: InterruptionLevel = .active) {
             self.title = title
             self.body = body
             self.acknowledgeActionButtonLabel = acknowledgeActionButtonLabel
-            self.isCritical = isCritical
+            self.interruptionLevel = interruptionLevel
         }
     }
     public struct Identifier: Equatable, Hashable {
@@ -117,6 +126,7 @@ public protocol AlertSoundVendor {
 extension Alert: Codable { }
 extension Alert.Content: Codable { }
 extension Alert.Identifier: Codable { }
+extension Alert.InterruptionLevel: Codable { }
 // These Codable implementations of enums with associated values cannot be synthesized (yet) in Swift.
 // The code below follows a pattern described by https://medium.com/@hllmandel/codable-enum-with-associated-values-swift-4-e7d75d6f4370
 extension Alert.Trigger: Codable {

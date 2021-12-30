@@ -319,8 +319,8 @@ public final class MockCGMManager: TestingCGMManager {
                                             foregroundContent: Alert.Content(title: "Alert: FG Title", body: "Alert: Foreground Body", acknowledgeActionButtonLabel: "FG OK"),
                                             backgroundContent: Alert.Content(title: "Alert: BG Title", body: "Alert: Background Body", acknowledgeActionButtonLabel: "BG OK"))
     public static let critical = MockAlert(sound: .sound(name: "critical.caf"), identifier: "critical",
-                                           foregroundContent: Alert.Content(title: "Critical Alert: FG Title", body: "Critical Alert: Foreground Body", acknowledgeActionButtonLabel: "Critical FG OK", isCritical: true),
-                                           backgroundContent: Alert.Content(title: "Critical Alert: BG Title", body: "Critical Alert: Background Body", acknowledgeActionButtonLabel: "Critical BG OK", isCritical: true))
+                                           foregroundContent: Alert.Content(title: "Critical Alert: FG Title", body: "Critical Alert: Foreground Body", acknowledgeActionButtonLabel: "Critical FG OK", interruptionLevel: .critical),
+                                           backgroundContent: Alert.Content(title: "Critical Alert: BG Title", body: "Critical Alert: Background Body", acknowledgeActionButtonLabel: "Critical BG OK", interruptionLevel: .critical))
     public static let buzz = MockAlert(sound: .vibrate, identifier: "buzz",
                                        foregroundContent: Alert.Content(title: "Alert: FG Title", body: "FG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
                                        backgroundContent: Alert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"))
@@ -675,16 +675,20 @@ extension MockCGMManager {
 
         let alertTitle: String
         let glucoseAlertIdentifier: String
+        let interruptionLevel: Alert.InterruptionLevel
         switch glucose.quantity {
         case ...mockSensorState.urgentLowGlucoseThreshold:
             alertTitle = "Urgent Low Glucose Alert"
             glucoseAlertIdentifier = "glucose.value.low.urgent"
+            interruptionLevel = .critical
         case mockSensorState.urgentLowGlucoseThreshold..<mockSensorState.lowGlucoseThreshold:
             alertTitle = "Low Glucose Alert"
             glucoseAlertIdentifier = "glucose.value.low"
+            interruptionLevel = .timeSensitive
         case mockSensorState.highGlucoseThreshold...:
             alertTitle = "High Glucose Alert"
             glucoseAlertIdentifier = "glucose.value.high"
+            interruptionLevel = .timeSensitive
         default:
             return
         }
@@ -693,7 +697,8 @@ extension MockCGMManager {
                                                alertIdentifier: glucoseAlertIdentifier)
         let alertContent = Alert.Content(title: alertTitle,
                                          body: "The glucose measurement received triggered this alert",
-                                         acknowledgeActionButtonLabel: "Dismiss")
+                                         acknowledgeActionButtonLabel: "Dismiss",
+                                         interruptionLevel: interruptionLevel)
         let alert = Alert(identifier: alertIdentifier,
                           foregroundContent: alertContent,
                           backgroundContent: alertContent,
