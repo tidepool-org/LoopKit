@@ -310,6 +310,7 @@ public final class MockCGMManager: TestingCGMManager {
         public let identifier: Alert.AlertIdentifier
         public let foregroundContent: Alert.Content
         public let backgroundContent: Alert.Content
+        public let interruptionLevel: Alert.InterruptionLevel
     }
     let alerts: [Alert.AlertIdentifier: MockAlert] = [
         submarine.identifier: submarine, buzz.identifier: buzz, critical.identifier: critical, signalLoss.identifier: signalLoss
@@ -317,17 +318,20 @@ public final class MockCGMManager: TestingCGMManager {
     
     public static let submarine = MockAlert(sound: .sound(name: "sub.caf"), identifier: "submarine",
                                             foregroundContent: Alert.Content(title: "Alert: FG Title", body: "Alert: Foreground Body", acknowledgeActionButtonLabel: "FG OK"),
-                                            backgroundContent: Alert.Content(title: "Alert: BG Title", body: "Alert: Background Body", acknowledgeActionButtonLabel: "BG OK"))
+                                            backgroundContent: Alert.Content(title: "Alert: BG Title", body: "Alert: Background Body", acknowledgeActionButtonLabel: "BG OK"),
+                                            interruptionLevel: .timeSensitive)
     public static let critical = MockAlert(sound: .sound(name: "critical.caf"), identifier: "critical",
-                                           foregroundContent: Alert.Content(title: "Critical Alert: FG Title", body: "Critical Alert: Foreground Body", acknowledgeActionButtonLabel: "Critical FG OK", interruptionLevel: .critical),
-                                           backgroundContent: Alert.Content(title: "Critical Alert: BG Title", body: "Critical Alert: Background Body", acknowledgeActionButtonLabel: "Critical BG OK", interruptionLevel: .critical))
+                                           foregroundContent: Alert.Content(title: "Critical Alert: FG Title", body: "Critical Alert: Foreground Body", acknowledgeActionButtonLabel: "Critical FG OK"),
+                                           backgroundContent: Alert.Content(title: "Critical Alert: BG Title", body: "Critical Alert: Background Body", acknowledgeActionButtonLabel: "Critical BG OK"),
+                                           interruptionLevel: .critical)
     public static let buzz = MockAlert(sound: .vibrate, identifier: "buzz",
                                        foregroundContent: Alert.Content(title: "Alert: FG Title", body: "FG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
-                                       backgroundContent: Alert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"))
+                                       backgroundContent: Alert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"), interruptionLevel: .active)
     public static let signalLoss = MockAlert(sound: .sound(name: "critical.caf"),
                                              identifier: "signalLoss",
                                              foregroundContent: Alert.Content(title: "Signal Loss", body: "CGM simulator signal loss", acknowledgeActionButtonLabel: "Dismiss"),
-                                             backgroundContent: Alert.Content(title: "Signal Loss", body: "CGM simulator signal loss", acknowledgeActionButtonLabel: "Dismiss"))
+                                             backgroundContent: Alert.Content(title: "Signal Loss", body: "CGM simulator signal loss", acknowledgeActionButtonLabel: "Dismiss"),
+                                             interruptionLevel: .critical)
 
     private let lockedMockSensorState = Locked(MockCGMState(isStateValid: true))
     public var mockSensorState: MockCGMState {
@@ -609,6 +613,7 @@ extension MockCGMManager {
                                        foregroundContent: alert.foregroundContent,
                                        backgroundContent: alert.backgroundContent,
                                        trigger: trigger,
+                                       interruptionLevel: alert.interruptionLevel,
                                        sound: alert.sound))
         }
 
@@ -697,12 +702,12 @@ extension MockCGMManager {
                                                alertIdentifier: glucoseAlertIdentifier)
         let alertContent = Alert.Content(title: alertTitle,
                                          body: "The glucose measurement received triggered this alert",
-                                         acknowledgeActionButtonLabel: "Dismiss",
-                                         interruptionLevel: interruptionLevel)
+                                         acknowledgeActionButtonLabel: "Dismiss")
         let alert = Alert(identifier: alertIdentifier,
                           foregroundContent: alertContent,
                           backgroundContent: alertContent,
-                          trigger: .immediate)
+                          trigger: .immediate,
+                          interruptionLevel: interruptionLevel)
 
         delegate.notify { delegate in
             delegate?.issueAlert(alert)

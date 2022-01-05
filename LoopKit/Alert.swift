@@ -47,15 +47,13 @@ public struct Alert: Equatable {
     public struct Content: Equatable  {
         public let title: String
         public let body: String
-        public let interruptionLevel: InterruptionLevel
         // TODO: when we have more complicated actions.  For now, all we have is "acknowledge".
 //        let actions: [UserAlertAction]
         public let acknowledgeActionButtonLabel: String
-        public init(title: String, body: String, acknowledgeActionButtonLabel: String, interruptionLevel: InterruptionLevel = .active) {
+        public init(title: String, body: String, acknowledgeActionButtonLabel: String) {
             self.title = title
             self.body = body
             self.acknowledgeActionButtonLabel = acknowledgeActionButtonLabel
-            self.interruptionLevel = interruptionLevel
         }
     }
     public struct Identifier: Equatable, Hashable {
@@ -82,6 +80,8 @@ public struct Alert: Equatable {
     public let backgroundContent: Content?
     /// Trigger for the alert.
     public let trigger: Trigger
+    /// Interruption level for the alert.  See `InterruptionLevel` above.
+    public let interruptionLevel: InterruptionLevel
 
     /// An alert's "identifier" is a tuple of `managerIdentifier` and `alertIdentifier`.  It's purpose is to uniquely identify an alert so we can
     /// find which device issued it, and send acknowledgment of that alert to the proper device manager.
@@ -95,11 +95,13 @@ public struct Alert: Equatable {
     }
     public let sound: Sound?
     
-    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger, sound: Sound? = nil) {
+    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger,
+                interruptionLevel: InterruptionLevel = .timeSensitive, sound: Sound? = nil) {
         self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger
+        self.interruptionLevel = interruptionLevel
         self.sound = sound
     }
 }
