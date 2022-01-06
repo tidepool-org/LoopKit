@@ -326,7 +326,8 @@ public final class MockCGMManager: TestingCGMManager {
                                            interruptionLevel: .critical)
     public static let buzz = MockAlert(sound: .vibrate, identifier: "buzz",
                                        foregroundContent: Alert.Content(title: "Alert: FG Title", body: "FG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
-                                       backgroundContent: Alert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"), interruptionLevel: .active)
+                                       backgroundContent: Alert.Content(title: "Alert: BG Title", body: "BG bzzzt", acknowledgeActionButtonLabel: "Buzz"),
+                                       interruptionLevel: .active)
     public static let signalLoss = MockAlert(sound: .sound(name: "critical.caf"),
                                              identifier: "signalLoss",
                                              foregroundContent: Alert.Content(title: "Signal Loss", body: "CGM simulator signal loss", acknowledgeActionButtonLabel: "Dismiss"),
