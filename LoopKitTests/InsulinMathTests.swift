@@ -74,7 +74,7 @@ class InsulinMathTests: XCTestCase {
         print(String(data: try! JSONSerialization.data(
             withJSONObject: doses.map({ (value) -> [String: Any] in
                 var obj: [String: Any] = [
-                    "type": value.type.pumpEventType!.rawValue,
+                    "type": value.type.pumpEventType.rawValue,
                     "start_at": ISO8601DateFormatter.localTimeDate(timeZone: fixtureTimeZone).string(from: value.startDate),
                     "end_at": ISO8601DateFormatter.localTimeDate(timeZone: fixtureTimeZone).string(from: value.endDate),
                     "amount": value.value,
@@ -737,7 +737,7 @@ class InsulinMathTests: XCTestCase {
         }
 
         let doses = [
-            DoseEntry(type: .tempBasal, startDate: f("2018-07-11 05:02:15 +0000"), endDate: f("2018-07-11 05:32:15 +0000"), value: 0.0, unit: .unitsPerHour,     scheduledBasalRate: nil),
+            DoseEntry(type: .tempBasal, startDate: f("2018-07-11 05:02:15 +0000"), endDate: f("2018-07-11 05:32:15 +0000"), value: 0.0, unit: .unitsPerHour),
             DoseEntry(type: .basal,     startDate: f("2018-07-11 05:01:14 +0000"), endDate: f("2018-07-12 05:01:14 +0000"), value: 1.2, unit: .unitsPerHour),
             DoseEntry(type: .resume,    startDate: f("2018-07-11 05:01:14 +0000"), endDate: f("2018-07-11 05:01:14 +0000"), value: 0.0, unit: .units),
             DoseEntry(type: .suspend,   startDate: f("2018-07-11 04:31:55 +0000"), endDate: f("2018-07-11 04:31:55 +0000"), value: 0.0, unit: .units),
@@ -748,12 +748,12 @@ class InsulinMathTests: XCTestCase {
         ]
 
         let reconciled = [
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:00:00 +0000"), endDate: f("2018-07-11 04:07:15 +0000"), value: 1.2,   unit: .unitsPerHour, deliveredUnits: 0.145),
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:00:00 +0000"), endDate: f("2018-07-11 04:07:15 +0000"), value: 1.2, unit: .unitsPerHour, deliveredUnits: 0.145),
             DoseEntry(type: .tempBasal, startDate: f("2018-07-11 04:07:15 +0000"), endDate: f("2018-07-11 04:12:15 +0000"), value: 0.675, unit: .unitsPerHour, deliveredUnits: 0.05),
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:12:15 +0000"), endDate: f("2018-07-11 04:31:55 +0000"), value: 1.2,   unit: .unitsPerHour, deliveredUnits: 0.3933333333333333),
-            DoseEntry(type: .suspend,   startDate: f("2018-07-11 04:31:55 +0000"), endDate: f("2018-07-11 05:01:14 +0000"), value: 0.0,   unit: .units,        deliveredUnits: 0.0),
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 05:01:14 +0000"), endDate: f("2018-07-11 05:02:15 +0000"), value: 1.2,   unit: .unitsPerHour, deliveredUnits: 0.02033333333333333),
-            DoseEntry(type: .tempBasal, startDate: f("2018-07-11 05:02:15 +0000"), endDate: f("2018-07-11 05:32:15 +0000"), value: 0.0,   unit: .unitsPerHour, deliveredUnits: 0.0)
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:12:15 +0000"), endDate: f("2018-07-11 04:31:55 +0000"), value: 1.2, unit: .unitsPerHour, deliveredUnits: 0.3933333333333333),
+            DoseEntry(type: .suspend,   startDate: f("2018-07-11 04:31:55 +0000"), endDate: f("2018-07-11 05:01:14 +0000"), value: 0.0, unit: .units, deliveredUnits: 0.0),
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 05:01:14 +0000"), endDate: f("2018-07-11 05:02:15 +0000"), value: 1.2, unit: .unitsPerHour, deliveredUnits: 0.02033333333333333),
+            DoseEntry(type: .tempBasal, startDate: f("2018-07-11 05:02:15 +0000"), endDate: f("2018-07-11 05:32:15 +0000"), value: 0.0, unit: .unitsPerHour, deliveredUnits: 0.0)
         ]
         XCTAssertEqual(reconciled, doses.reversed().reconciled())
     }
@@ -766,16 +766,17 @@ class InsulinMathTests: XCTestCase {
 
         let reconciled = [
             DoseEntry(type: .tempBasal, startDate: f("2018-07-11 04:07:15 +0000"), endDate: f("2018-07-11 04:12:15 +0000"), value: 0.67500000000000004, unit: .unitsPerHour),
-            DoseEntry(type: .suspend,   startDate: f("2018-07-11 04:31:55 +0000"), endDate: f("2018-07-11 05:01:14 +0000"), value: 0.0,   unit: .units),
+            DoseEntry(type: .suspend,   startDate: f("2018-07-11 04:31:55 +0000"), endDate: f("2018-07-11 05:01:14 +0000"), value: 0.0, unit: .units),
             DoseEntry(type: .tempBasal, startDate: f("2018-07-11 05:02:15 +0000"), endDate: f("2018-07-11 05:32:15 +0000"), value: 0.0, unit: .unitsPerHour)
         ]
 
+        let scheduledBasalRate = HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.2)
         let reconciledWithBasal = [
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:00:00 +0000"), endDate: f("2018-07-11 04:07:15 +0000"), value: 1.2,   unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T04:00:00Z 2018-07-11T04:07:15Z"),
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:00:00 +0000"), endDate: f("2018-07-11 04:07:15 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T04:00:00Z 2018-07-11T04:07:15Z", scheduledBasalRate: scheduledBasalRate),
             DoseEntry(type: .tempBasal, startDate: f("2018-07-11 04:07:15 +0000"), endDate: f("2018-07-11 04:12:15 +0000"), value: 0.67500000000000004, unit: .unitsPerHour),
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:12:15 +0000"), endDate: f("2018-07-11 04:31:55 +0000"), value: 1.2,   unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T04:12:15Z 2018-07-11T04:31:55Z"),
-            DoseEntry(type: .suspend,   startDate: f("2018-07-11 04:31:55 +0000"), endDate: f("2018-07-11 05:01:14 +0000"), value: 0.0,   unit: .units),
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 05:01:14 +0000"), endDate: f("2018-07-11 05:02:15 +0000"), value: 1.2,   unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T05:01:14Z 2018-07-11T05:02:15Z"),
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:12:15 +0000"), endDate: f("2018-07-11 04:31:55 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T04:12:15Z 2018-07-11T04:31:55Z", scheduledBasalRate: scheduledBasalRate),
+            DoseEntry(type: .suspend,   startDate: f("2018-07-11 04:31:55 +0000"), endDate: f("2018-07-11 05:01:14 +0000"), value: 0.0, unit: .units),
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 05:01:14 +0000"), endDate: f("2018-07-11 05:02:15 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T05:01:14Z 2018-07-11T05:02:15Z", scheduledBasalRate: scheduledBasalRate),
             DoseEntry(type: .tempBasal, startDate: f("2018-07-11 05:02:15 +0000"), endDate: f("2018-07-11 05:32:15 +0000"), value: 0.0, unit: .unitsPerHour)
         ]
 

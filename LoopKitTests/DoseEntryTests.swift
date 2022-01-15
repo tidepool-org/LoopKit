@@ -21,12 +21,14 @@ class DoseEntryCodableTests: XCTestCase {
                                              deliveredUnits: 0.5,
                                              description: "Temporary Basal",
                                              syncIdentifier: "238E41EA-9576-4981-A1A4-51E10228584F",
-                                             scheduledBasalRate: HKQuantity(unit: DoseEntry.unitsPerHour, doubleValue: 1.5)),
+                                             scheduledBasalRate: HKQuantity(unit: DoseEntry.unitsPerHour, doubleValue: 1.5),
+                                             duringSuspend: false),
         encodesJSON: """
 {
   "automatic" : null,
   "deliveredUnits" : 0.5,
   "description" : "Temporary Basal",
+  "duringSuspend" : false,
   "endDate" : "2020-05-14T22:37:19Z",
   "manuallyEntered" : false,
   "scheduledBasalRate" : 1.5,
@@ -62,4 +64,24 @@ class DoseEntryCodableTests: XCTestCase {
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }()
+}
+
+class DoseEntryRawRepresentableTests: XCTestCase {
+    func testDoseEntryRawRepresentable() {
+        let original = DoseEntry(type: .tempBasal,
+                                 startDate: Date(),
+                                 endDate: Date().addingTimeInterval(.minutes(30)),
+                                 value: 1.5,
+                                 unit: .unitsPerHour,
+                                 deliveredUnits: 0.5,
+                                 description: "Test Dose Entry",
+                                 syncIdentifier: UUID().uuidString,
+                                 scheduledBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 2.0),
+                                 insulinType: .fiasp,
+                                 automatic: true,
+                                 manuallyEntered: false,
+                                 duringSuspend: false)
+        let actual = DoseEntry(rawValue: original.rawValue)
+        XCTAssertEqual(actual, original)
+    }
 }

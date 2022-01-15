@@ -119,7 +119,6 @@ class PumpEvent: NSManagedObject {
         }
     }
 
-
     var deliveredUnits: Double? {
         get {
             willAccessValue(forKey: "deliveredUnits")
@@ -130,6 +129,19 @@ class PumpEvent: NSManagedObject {
             willChangeValue(forKey: "deliveredUnits")
             defer { didChangeValue(forKey: "deliveredUnits") }
             primitiveDeliveredUnits = newValue != nil ? NSNumber(value: newValue!) : nil
+        }
+    }
+
+    var alarmType: PumpAlarmType? {
+        get {
+            willAccessValue(forKey: "alarmType")
+            defer { didAccessValue(forKey: "alarmType") }
+            return primitiveAlarmType.map { PumpAlarmType(rawValue: $0) }
+        }
+        set {
+            willChangeValue(forKey: "alarmType")
+            defer { didChangeValue(forKey: "alarmType") }
+            primitiveAlarmType = newValue?.rawValue
         }
     }
 
@@ -234,5 +246,6 @@ extension PumpEvent {
         title = event.title
         dose = event.dose
         automatic = event.automatic
+        alarmType = event.alarmType
     }
 }

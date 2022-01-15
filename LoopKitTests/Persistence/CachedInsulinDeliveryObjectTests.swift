@@ -89,6 +89,30 @@ class CachedInsulinDeliveryObjectTests: PersistenceControllerTestCase {
             XCTAssertNil(object.primitiveProgrammedTempBasalRate)
         }
     }
+
+    func testPrimitiveDuringSuspendTrue() {
+        cacheStore.managedObjectContext.performAndWait {
+            let object = CachedInsulinDeliveryObject(context: cacheStore.managedObjectContext)
+            object.duringSuspend = true
+            XCTAssertEqual(object.primitiveDuringSuspend, NSNumber(booleanLiteral: true))
+        }
+    }
+
+    func testPrimitiveDuringSuspendFalse() {
+        cacheStore.managedObjectContext.performAndWait {
+            let object = CachedInsulinDeliveryObject(context: cacheStore.managedObjectContext)
+            object.duringSuspend = false
+            XCTAssertEqual(object.primitiveDuringSuspend, NSNumber(booleanLiteral: false))
+        }
+    }
+
+    func testPrimitiveDuringSuspendNil() {
+        cacheStore.managedObjectContext.performAndWait {
+            let object = CachedInsulinDeliveryObject(context: cacheStore.managedObjectContext)
+            object.duringSuspend = nil
+            XCTAssertNil(object.primitiveDuringSuspend)
+        }
+    }
 }
 
 class CachedInsulinDeliveryObjectDoseTests: PersistenceControllerTestCase {
@@ -116,6 +140,7 @@ class CachedInsulinDeliveryObjectDoseTests: PersistenceControllerTestCase {
             XCTAssertEqual(dose!.description, nil)
             XCTAssertEqual(dose!.syncIdentifier, "876DDBF9-CC47-45ED-B0D7-AD77B77913C4")
             XCTAssertEqual(dose!.scheduledBasalRate, nil)
+            XCTAssertNil(dose!.duringSuspend)
         }
     }
 
@@ -132,6 +157,7 @@ class CachedInsulinDeliveryObjectDoseTests: PersistenceControllerTestCase {
             object.programmedTempBasalRate = HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.5)
             object.reason = .basal
             object.createdAt = dateFormatter.date(from: "2020-01-02T04:04:07Z")!
+            object.duringSuspend = false
             let dose = object.dose
             XCTAssertNotNil(dose)
             XCTAssertEqual(dose!.type, .tempBasal)
@@ -143,6 +169,36 @@ class CachedInsulinDeliveryObjectDoseTests: PersistenceControllerTestCase {
             XCTAssertEqual(dose!.description, nil)
             XCTAssertEqual(dose!.syncIdentifier, nil)
             XCTAssertEqual(dose!.scheduledBasalRate, HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.0))
+            XCTAssertEqual(dose!.duringSuspend, false)
+        }
+    }
+
+    func testDoseTempBasalDuringSuspend() {
+        cacheStore.managedObjectContext.performAndWait {
+            let object = CachedInsulinDeliveryObject(context: cacheStore.managedObjectContext)
+            object.provenanceIdentifier = Bundle.main.bundleIdentifier!
+            object.hasLoopKitOrigin = false
+            object.startDate = dateFormatter.date(from: "2020-01-02T03:04:06Z")!
+            object.endDate = dateFormatter.date(from: "2020-01-02T03:34:06Z")!
+            object.syncIdentifier = nil
+            object.value = 0.75
+            object.scheduledBasalRate = HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.0)
+            object.programmedTempBasalRate = HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.5)
+            object.reason = .basal
+            object.createdAt = dateFormatter.date(from: "2020-01-02T04:04:07Z")!
+            object.duringSuspend = true
+            let dose = object.dose
+            XCTAssertNotNil(dose)
+            XCTAssertEqual(dose!.type, .tempBasal)
+            XCTAssertEqual(dose!.startDate, dateFormatter.date(from: "2020-01-02T03:04:06Z")!)
+            XCTAssertEqual(dose!.endDate, dateFormatter.date(from: "2020-01-02T03:34:06Z")!)
+            XCTAssertEqual(dose!.value, 1.5)
+            XCTAssertEqual(dose!.unit, .unitsPerHour)
+            XCTAssertEqual(dose!.deliveredUnits, 0.75)
+            XCTAssertEqual(dose!.description, nil)
+            XCTAssertEqual(dose!.syncIdentifier, nil)
+            XCTAssertEqual(dose!.scheduledBasalRate, HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.0))
+            XCTAssertEqual(dose!.duringSuspend, true)
         }
     }
 
@@ -159,6 +215,7 @@ class CachedInsulinDeliveryObjectDoseTests: PersistenceControllerTestCase {
             object.programmedTempBasalRate = nil
             object.reason = .bolus
             object.createdAt = dateFormatter.date(from: "2020-01-02T05:05:06Z")!
+            object.duringSuspend = nil
             let dose = object.dose
             XCTAssertNotNil(dose)
             XCTAssertEqual(dose!.type, .bolus)
@@ -170,6 +227,7 @@ class CachedInsulinDeliveryObjectDoseTests: PersistenceControllerTestCase {
             XCTAssertEqual(dose!.description, nil)
             XCTAssertEqual(dose!.syncIdentifier, "9AA61454-EED5-476F-8E57-4BA63D0267C1")
             XCTAssertEqual(dose!.scheduledBasalRate, nil)
+            XCTAssertNil(dose!.duringSuspend)
         }
     }
 
@@ -184,8 +242,8 @@ class CachedInsulinDeliveryObjectOperationsTests: PersistenceControllerTestCase 
             HKMetadataKeyInsulinDeliveryReason: HKInsulinDeliveryReason.basal.rawValue,
             MetadataKeyHasLoopKitOrigin: true,
             MetadataKeyScheduledBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.0),
-            MetadataKeyProgrammedTempBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.5)
-            
+            MetadataKeyProgrammedTempBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.5),
+            MetadataKeyDuringSuspend: true
         ]
         let sample = HKQuantitySample(type: HKQuantityType.quantityType(forIdentifier: .insulinDelivery)!,
                                       quantity: HKQuantity(unit: .internationalUnit(), doubleValue: 0.75),
@@ -205,6 +263,7 @@ class CachedInsulinDeliveryObjectOperationsTests: PersistenceControllerTestCase 
             XCTAssertEqual(object.programmedTempBasalRate, HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.5))
             XCTAssertEqual(object.reason, .basal)
             XCTAssertEqual(object.createdAt, dateFormatter.date(from: "2020-01-02T03:34:06Z")!)
+            XCTAssertEqual(object.duringSuspend, true)
         }
     }
 
@@ -231,6 +290,7 @@ class CachedInsulinDeliveryObjectOperationsTests: PersistenceControllerTestCase 
             XCTAssertNil(object.programmedTempBasalRate)
             XCTAssertEqual(object.reason, .bolus)
             XCTAssertEqual(object.createdAt, dateFormatter.date(from: "2020-02-03T04:05:37Z")!)
+            XCTAssertNil(object.duringSuspend)
         }
     }
 
@@ -330,6 +390,7 @@ extension CachedInsulinDeliveryObject {
         self.value = 3.5
         self.scheduledBasalRate = nil
         self.programmedTempBasalRate = nil
+        self.duringSuspend = nil
         self.reason = .basal
         self.createdAt = Date()
     }

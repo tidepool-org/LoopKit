@@ -220,12 +220,42 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
         waitForExpectations(timeout: 10)
 
         let getDoseEntries2Completion = expectation(description: "getDoseEntries2")
-        insulinDeliveryStore.getDoseEntries(start: Date(timeIntervalSinceNow: -.minutes(5)), end: Date(timeIntervalSinceNow: -.minutes(3))) { result in
+        insulinDeliveryStore.getDoseEntries(limit: 2) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let entries):
-                XCTAssertEqual(entries.count, 1)
+                XCTAssertEqual(entries.count, 2)
+                XCTAssertEqual(entries[0].type, self.entry1.type)
+                XCTAssertEqual(entries[0].startDate, self.entry1.startDate)
+                XCTAssertEqual(entries[0].endDate, self.entry1.endDate)
+                XCTAssertEqual(entries[0].value, 0.015)
+                XCTAssertEqual(entries[0].unit, .units)
+                XCTAssertNil(entries[0].deliveredUnits)
+                XCTAssertEqual(entries[0].description, self.entry1.description)
+                XCTAssertEqual(entries[0].syncIdentifier, self.entry1.syncIdentifier)
+                XCTAssertEqual(entries[0].scheduledBasalRate, self.entry1.scheduledBasalRate)
+                XCTAssertEqual(entries[1].type, self.entry3.type)
+                XCTAssertEqual(entries[1].startDate, self.entry3.startDate)
+                XCTAssertEqual(entries[1].endDate, self.entry3.endDate)
+                XCTAssertEqual(entries[1].value, self.entry3.value)
+                XCTAssertEqual(entries[1].unit, self.entry3.unit)
+                XCTAssertEqual(entries[1].deliveredUnits, self.entry3.deliveredUnits)
+                XCTAssertEqual(entries[1].description, self.entry3.description)
+                XCTAssertEqual(entries[1].syncIdentifier, self.entry3.syncIdentifier)
+                XCTAssertEqual(entries[1].scheduledBasalRate, self.entry3.scheduledBasalRate)
+            }
+            getDoseEntries2Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let getDoseEntries3Completion = expectation(description: "getDoseEntries3")
+        insulinDeliveryStore.getDoseEntries(start: Date(timeIntervalSinceNow: -.minutes(3.75)), end: Date(timeIntervalSinceNow: -.minutes(1.75))) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let entries):
+                XCTAssertEqual(entries.count, 2)
                 XCTAssertEqual(entries[0].type, self.entry3.type)
                 XCTAssertEqual(entries[0].startDate, self.entry3.startDate)
                 XCTAssertEqual(entries[0].endDate, self.entry3.endDate)
@@ -235,8 +265,29 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
                 XCTAssertEqual(entries[0].description, self.entry3.description)
                 XCTAssertEqual(entries[0].syncIdentifier, self.entry3.syncIdentifier)
                 XCTAssertEqual(entries[0].scheduledBasalRate, self.entry3.scheduledBasalRate)
+                XCTAssertEqual(entries[1].type, self.entry2.type)
+                XCTAssertEqual(entries[1].startDate, self.entry2.startDate)
+                XCTAssertEqual(entries[1].endDate, self.entry2.endDate)
+                XCTAssertEqual(entries[1].value, self.entry2.value)
+                XCTAssertEqual(entries[1].unit, self.entry2.unit)
+                XCTAssertEqual(entries[1].deliveredUnits, self.entry2.deliveredUnits)
+                XCTAssertEqual(entries[1].description, self.entry2.description)
+                XCTAssertEqual(entries[1].syncIdentifier, self.entry2.syncIdentifier)
+                XCTAssertEqual(entries[1].scheduledBasalRate, self.entry2.scheduledBasalRate)
             }
-            getDoseEntries2Completion.fulfill()
+            getDoseEntries3Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let getDoseEntries4Completion = expectation(description: "getDoseEntries4")
+        insulinDeliveryStore.getDoseEntries(start: Date(timeIntervalSinceNow: -.minutes(3.75)), end: Date(timeIntervalSinceNow: -.minutes(1.75)), inclusive: false) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let entries):
+                XCTAssertEqual(entries.count, 0)
+            }
+            getDoseEntries4Completion.fulfill()
         }
         waitForExpectations(timeout: 10)
 
@@ -247,7 +298,7 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 10)
 
-        let getDoseEntries3Completion = expectation(description: "getDoseEntries3")
+        let getDoseEntries5Completion = expectation(description: "getDoseEntries5")
         insulinDeliveryStore.getDoseEntries() { result in
             switch result {
             case .failure(let error):
@@ -255,7 +306,7 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
             case .success(let entries):
                 XCTAssertEqual(entries.count, 0)
             }
-            getDoseEntries3Completion.fulfill()
+            getDoseEntries5Completion.fulfill()
         }
         waitForExpectations(timeout: 10)
     }

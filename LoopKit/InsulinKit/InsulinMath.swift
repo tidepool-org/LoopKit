@@ -114,7 +114,8 @@ extension DoseEntry {
             description: description,
             syncIdentifier: syncIdentifier,
             scheduledBasalRate: scheduledBasalRate,
-            insulinType: insulinType
+            insulinType: insulinType,
+            duringSuspend: duringSuspend
         )
     }
 }
@@ -296,7 +297,8 @@ extension DoseEntry {
             description: description,
             syncIdentifier: syncIdentifier,
             scheduledBasalRate: scheduledBasalRate,
-            insulinType: insulinType
+            insulinType: insulinType,
+            duringSuspend: duringSuspend
         )
     }
 }
@@ -347,7 +349,7 @@ extension DoseEntry {
                 return self
             }
         }
-        return DoseEntry(type: type, startDate: startDate, endDate: endDate, value: value, unit: unit, deliveredUnits: resolvedUnits, description: description, syncIdentifier: syncIdentifier, scheduledBasalRate: scheduledBasalRate, insulinType: insulinType)
+        return DoseEntry(type: type, startDate: startDate, endDate: endDate, value: value, unit: unit, deliveredUnits: resolvedUnits, description: description, syncIdentifier: syncIdentifier, scheduledBasalRate: scheduledBasalRate, insulinType: insulinType, duringSuspend: duringSuspend)
     }
 }
 
@@ -600,7 +602,9 @@ extension Collection where Element == DoseEntry {
                                 value: scheduled.value,
                                 unit: .unitsPerHour,
                                 syncIdentifier: syncIdentifier,
-                                insulinType: lastBasal.insulinType
+                                scheduledBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: scheduled.value),
+                                insulinType: lastBasal.insulinType,
+                                duringSuspend: dose.duringSuspend
                             ))
                         }
                     }

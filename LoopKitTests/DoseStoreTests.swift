@@ -349,22 +349,26 @@ class DoseStoreTests: PersistenceControllerTestCase {
 class DoseStoreQueryAnchorTests: XCTestCase {
     
     var rawValue: DoseStore.QueryAnchor.RawValue = [
-        "modificationCounter": Int64(123)
+        "modificationCounter": Int64(123),
+        "scheduledBasalStartDate": dateFormatter.date(from: "2022-01-05T11:14:28Z")!
     ]
     
     func testInitializerDefault() {
         let queryAnchor = DoseStore.QueryAnchor()
         XCTAssertEqual(queryAnchor.modificationCounter, 0)
+        XCTAssertNil(queryAnchor.scheduledBasalStartDate)
     }
     
     func testInitializerRawValue() {
         let queryAnchor = DoseStore.QueryAnchor(rawValue: rawValue)
         XCTAssertNotNil(queryAnchor)
         XCTAssertEqual(queryAnchor?.modificationCounter, 123)
+        XCTAssertEqual(queryAnchor?.scheduledBasalStartDate, Self.dateFormatter.date(from: "2022-01-05T11:14:28Z")!)
     }
     
     func testInitializerRawValueMissingModificationCounter() {
         rawValue["modificationCounter"] = nil
+        rawValue["scheduledBasalStartDate"] = Self.dateFormatter.date(from: "2022-01-05T11:14:28Z")!
         XCTAssertNil(DoseStore.QueryAnchor(rawValue: rawValue))
     }
     
@@ -382,10 +386,14 @@ class DoseStoreQueryAnchorTests: XCTestCase {
     func testRawValueWithNonDefault() {
         var queryAnchor = DoseStore.QueryAnchor()
         queryAnchor.modificationCounter = 123
+        queryAnchor.scheduledBasalStartDate = Self.dateFormatter.date(from: "2022-01-05T11:14:28Z")!
         let rawValue = queryAnchor.rawValue
-        XCTAssertEqual(rawValue.count, 1)
+        XCTAssertEqual(rawValue.count, 2)
         XCTAssertEqual(rawValue["modificationCounter"] as? Int64, Int64(123))
+        XCTAssertEqual(rawValue["scheduledBasalStartDate"] as? Date, Self.dateFormatter.date(from: "2022-01-05T11:14:28Z")!)
     }
+
+    private static let dateFormatter = ISO8601DateFormatter()
     
 }
 
@@ -424,9 +432,9 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         
         super.tearDown()
     }
-    
-    func testDoseEmptyWithDefaultQueryAnchor() {
-        doseStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+
+    func testPumpEmptyWithDefaultQueryAnchor() {
+        doseStore.executePumpQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -440,10 +448,10 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
     
-    func testDoseEmptyWithMissingQueryAnchor() {
+    func testPumpEmptyWithMissingQueryAnchor() {
         queryAnchor = nil
         
-        doseStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        doseStore.executePumpQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -457,10 +465,10 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
     
-    func testDoseEmptyWithNonDefaultQueryAnchor() {
+    func testPumpEmptyWithNonDefaultQueryAnchor() {
         queryAnchor.modificationCounter = 1
         
-        doseStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        doseStore.executePumpQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
@@ -474,19 +482,17 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
     
-    func testDoseDataWithUnusedQueryAnchor() {
+    func testPumpDataWithUnusedQueryAnchor() {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
         
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        
-        doseStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        addPumpData(withSyncIdentifiers: syncIdentifiers)
+
+        doseStore.executePumpQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 5)
+                XCTAssertEqual(anchor.modificationCounter, 3)
                 XCTAssertEqual(data.count, 3)
                 for (index, syncIdentifier) in syncIdentifiers.enumerated() {
                     XCTAssertEqual(data[index].syncIdentifier, syncIdentifier)
@@ -498,21 +504,19 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
     
-    func testDoseDataWithStaleQueryAnchor() {
+    func testPumpDataWithStaleQueryAnchor() {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
         
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
+        addPumpData(withSyncIdentifiers: syncIdentifiers)
+
+        queryAnchor.modificationCounter = 2
         
-        queryAnchor.modificationCounter = 4
-        
-        doseStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        doseStore.executePumpQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 5)
+                XCTAssertEqual(anchor.modificationCounter, 3)
                 XCTAssertEqual(data.count, 1)
                 XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[2])
             }
@@ -522,21 +526,19 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
     
-    func testDoseDataWithCurrentQueryAnchor() {
+    func testPumpDataWithCurrentQueryAnchor() {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
         
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
+        addPumpData(withSyncIdentifiers: syncIdentifiers)
+
+        queryAnchor.modificationCounter = 3
         
-        queryAnchor.modificationCounter = 5
-        
-        doseStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        doseStore.executePumpQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 5)
+                XCTAssertEqual(anchor.modificationCounter, 3)
                 XCTAssertEqual(data.count, 0)
             }
             self.completion.fulfill()
@@ -545,44 +547,19 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
     
-    func testDoseDataWithLimitZero() {
+    func testPumpDataWithLimitCoveredByData() {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
         
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        
-        limit = 0
-        
-        doseStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 0)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 2, enforceOrder: true)
-    }
-    
-    func testDoseDataWithLimitCoveredByData() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
-        
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
-        addPumpEventData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        
+        addPumpData(withSyncIdentifiers: syncIdentifiers)
+
         limit = 2
         
-        doseStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+        doseStore.executePumpQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 4)
+                XCTAssertEqual(anchor.modificationCounter, 2)
                 XCTAssertEqual(data.count, 2)
                 XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[0])
                 XCTAssertEqual(data[1].syncIdentifier, syncIdentifiers[1])
@@ -593,157 +570,15 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
     
-    func testPumpEventEmptyWithDefaultQueryAnchor() {
-        doseStore.executePumpEventQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 0)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 2, enforceOrder: true)
-    }
-    
-    func testPumpEventEmptyWithMissingQueryAnchor() {
-        queryAnchor = nil
-        
-        doseStore.executePumpEventQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 0)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 2, enforceOrder: true)
-    }
-    
-    func testPumpEventEmptyWithNonDefaultQueryAnchor() {
-        queryAnchor.modificationCounter = 1
-        
-        doseStore.executePumpEventQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 1)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 2, enforceOrder: true)
-    }
-    
-    func testPumpEventDataWithUnusedQueryAnchor() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
-        
-        addDoseData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addPumpEventData(withSyncIdentifiers: syncIdentifiers)
-        addDoseData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        
-        doseStore.executePumpEventQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 5)
-                XCTAssertEqual(data.count, 3)
-                for (index, syncIdentifier) in syncIdentifiers.enumerated() {
-                    XCTAssertEqual(data[index].raw?.hexadecimalString, syncIdentifier)
-                }
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 2, enforceOrder: true)
-    }
-    
-    func testPumpEventDataWithStaleQueryAnchor() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
-        
-        addDoseData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addPumpEventData(withSyncIdentifiers: syncIdentifiers)
-        addDoseData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        
-        queryAnchor.modificationCounter = 4
-        
-        doseStore.executePumpEventQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 5)
-                XCTAssertEqual(data.count, 1)
-                XCTAssertEqual(data[0].raw?.hexadecimalString, syncIdentifiers[2])
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 2, enforceOrder: true)
-    }
-    
-    func testPumpEventDataWithCurrentQueryAnchor() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
-        
-        addDoseData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addPumpEventData(withSyncIdentifiers: syncIdentifiers)
-        addDoseData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        
-        queryAnchor.modificationCounter = 5
-        
-        doseStore.executePumpEventQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 5)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 2, enforceOrder: true)
-    }
-    
-    func testPumpEventDataWithLimitCoveredByData() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
-        
-        addDoseData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        addPumpEventData(withSyncIdentifiers: syncIdentifiers)
-        addDoseData(withSyncIdentifiers: [generateSyncIdentifier(), generateSyncIdentifier()])
-        
-        limit = 2
-        
-        doseStore.executePumpEventQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 4)
-                XCTAssertEqual(data.count, 2)
-                XCTAssertEqual(data[0].raw?.hexadecimalString, syncIdentifiers[0])
-                XCTAssertEqual(data[1].raw?.hexadecimalString, syncIdentifiers[1])
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 2, enforceOrder: true)
-    }
-    
-    private func addDoseData(withSyncIdentifiers syncIdentifiers: [String]) {
+    private func addPumpData(withSyncIdentifiers syncIdentifiers: [String]) {
         cacheStore.managedObjectContext.performAndWait {
             for syncIdentifier in syncIdentifiers {
                 let pumpEvent = PumpEvent(context: self.cacheStore.managedObjectContext)
-                pumpEvent.type = PumpEventType.doseTypes.randomElement()!
+                pumpEvent.date = Date()
+                pumpEvent.type = PumpEventType.allCases.randomElement()!
                 switch pumpEvent.type {
+                case .alarm:
+                    pumpEvent.alarmType = .occlusion
                 case .basal:
                     pumpEvent.dose = DoseEntry(type: .basal, startDate: Date(), value: 0.75, unit: .unitsPerHour)
                 case .bolus:
@@ -764,23 +599,1013 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         }
     }
     
-    private func addPumpEventData(withSyncIdentifiers syncIdentifiers: [String]) {
-        cacheStore.managedObjectContext.performAndWait {
-            for syncIdentifier in syncIdentifiers {
-                let pumpEvent = PumpEvent(context: self.cacheStore.managedObjectContext)
-                pumpEvent.date = Date()
-                pumpEvent.type = PumpEventType.nonDoseTypes.randomElement()!
-                pumpEvent.raw = Data(hexadecimalString: syncIdentifier)
-                
-                self.cacheStore.save()
-            }
-        }
-    }
-    
     private func generateSyncIdentifier() -> String {
         return UUID().data.hexadecimalString
     }
     
+}
+
+class DoseStoreQueryAndMergeTests: PersistenceControllerTestCase {
+
+    let insulinModel = WalshInsulinModel(actionDuration: .hours(4))
+    let basalProfile = BasalRateSchedule(rawValue: ["timeZone": 0, "items": [["value": 0.5, "startTime": 0.0], ["value": 0.7, "startTime": 3600]]])
+    let insulinSensitivitySchedule = InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": 0, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 3600.0]]])
+
+    var doseStore: DoseStore!
+    var completion: XCTestExpectation!
+    var queryAnchor: DoseStore.QueryAnchor!
+    var limit: Int!
+
+    override func setUp() {
+        super.setUp()
+
+        doseStore = DoseStore(healthStore: HKHealthStoreMock(),
+                              cacheStore: cacheStore,
+                              observationEnabled: false,
+                              insulinModelProvider: StaticInsulinModelProvider(insulinModel),
+                              longestEffectDuration: insulinModel.effectDuration,
+                              basalProfile: basalProfile,
+                              insulinSensitivitySchedule: insulinSensitivitySchedule,
+                              provenanceIdentifier: Bundle.main.bundleIdentifier!)
+        completion = expectation(description: "Completion")
+        queryAnchor = DoseStore.QueryAnchor()
+        limit = Int.max
+    }
+
+    override func tearDown() {
+        limit = nil
+        queryAnchor = nil
+        completion = nil
+        doseStore = nil
+
+        super.tearDown()
+    }
+
+    func testInitialResume() {
+        doseStore.insulinDeliveryStore.test_currentDate = f("2022-01-10T00:35:00Z")
+
+        let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .resume,
+                                                       startDate: f("2022-01-10T00:10:00Z"),
+                                                       value: 0,
+                                                       unit: .units,
+                                                       syncIdentifier: "e2bae2b6b317416a9816edab137c9278"))]
+        doseStore.addPumpEvents(pumpEvents, lastReconciliation: f("2022-01-10T00:30:00Z")) { error in
+            XCTAssertNil(error)
+            self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                switch result {
+                case .failure(let error):
+                    XCTFail("Unexpected failure: \(error)")
+                case .success(_, let data):
+                    XCTAssertEqual(data.count, 1)
+
+                    XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:10:00Z"))
+                    XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:10:00Z"))
+                    XCTAssertEqual(data[0].dose?.type, .resume)
+                    XCTAssertFalse(data[0].mutable)
+                    XCTAssertEqual(data[0].syncIdentifier, "e2bae2b6b317416a9816edab137c9278")
+                }
+                self.completion.fulfill()
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testTempBasalMutable() {
+        doseStore.insulinDeliveryStore.test_currentDate = f("2022-01-10T00:35:00Z")
+
+        let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                       startDate: f("2022-01-10T00:15:00Z"),
+                                                       endDate: f("2022-01-10T00:45:00Z"),
+                                                       value: 4.5,
+                                                       unit: .unitsPerHour,
+                                                       deliveredUnits: nil,
+                                                       syncIdentifier: "e2bae2b6b317416a9816edab137c9278"),
+                                       isMutable: true)]
+        doseStore.addPumpEvents(pumpEvents, lastReconciliation: f("2022-01-10T00:30:00Z")) { error in
+            XCTAssertNil(error)
+            self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                switch result {
+                case .failure(let error):
+                    XCTFail("Unexpected failure: \(error)")
+                case .success(_, let data):
+                    XCTAssertEqual(data.count, 1)
+
+                    XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:15:00Z"))
+                    XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:45:00Z"))
+                    XCTAssertEqual(data[0].dose?.type, .tempBasal)
+                    XCTAssertEqual(data[0].dose?.unitsPerHour, 4.5)
+                    XCTAssertNil(data[0].dose?.duringSuspend)
+                    XCTAssertNil(data[0].dose?.scheduledBasalRate)
+                    XCTAssertTrue(data[0].mutable)
+                    XCTAssertEqual(data[0].syncIdentifier, "e2bae2b6b317416a9816edab137c9278")
+                }
+                self.completion.fulfill()
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testTempBasalImmutable() {
+        doseStore.insulinDeliveryStore.test_currentDate = f("2022-01-10T00:35:00Z")
+
+        let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                       startDate: f("2022-01-10T00:15:00Z"),
+                                                       endDate: f("2022-01-10T00:30:00Z"),
+                                                       value: 4.5,
+                                                       unit: .unitsPerHour,
+                                                       deliveredUnits: nil,
+                                                       syncIdentifier: "e2bae2b6b317416a9816edab137c9278"))]
+        doseStore.addPumpEvents(pumpEvents, lastReconciliation: f("2022-01-10T00:30:00Z")) { error in
+            XCTAssertNil(error)
+            self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                switch result {
+                case .failure(let error):
+                    XCTFail("Unexpected failure: \(error)")
+                case .success(_, let data):
+                    XCTAssertEqual(data.count, 4)
+
+                    XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-09T00:35:00Z"))
+                    XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-09T01:00:00Z"))
+                    XCTAssertEqual(data[0].dose?.type, .basal)
+                    XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                    XCTAssertFalse(data[0].mutable)
+
+                    XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-09T01:00:00Z"))
+                    XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T00:00:00Z"))
+                    XCTAssertEqual(data[1].dose?.type, .basal)
+                    XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                    XCTAssertFalse(data[1].mutable)
+
+                    XCTAssertEqual(data[2].dose?.startDate, self.f("2022-01-10T00:00:00Z"))
+                    XCTAssertEqual(data[2].dose?.endDate, self.f("2022-01-10T00:15:00Z"))
+                    XCTAssertEqual(data[2].dose?.type, .basal)
+                    XCTAssertEqual(data[2].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                    XCTAssertFalse(data[2].mutable)
+
+                    XCTAssertEqual(data[3].dose?.startDate, self.f("2022-01-10T00:15:00Z"))
+                    XCTAssertEqual(data[3].dose?.endDate, self.f("2022-01-10T00:30:00Z"))
+                    XCTAssertEqual(data[3].dose?.type, .tempBasal)
+                    XCTAssertEqual(data[3].dose?.unitsPerHour, 4.5)
+                    XCTAssertNil(data[3].dose?.duringSuspend)
+                    XCTAssertEqual(data[3].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                    XCTAssertFalse(data[3].mutable)
+                    XCTAssertEqual(data[3].syncIdentifier, "e2bae2b6b317416a9816edab137c9278")
+                }
+                self.completion.fulfill()
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testTempBasalImmutableWithPumpRecordsBasal() {
+        doseStore.pumpRecordsBasalProfileStartEvents = true
+        doseStore.insulinDeliveryStore.test_currentDate = f("2022-01-10T00:35:00Z")
+
+        let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                       startDate: f("2022-01-10T00:15:00Z"),
+                                                       endDate: f("2022-01-10T00:30:00Z"),
+                                                       value: 4.5,
+                                                       unit: .unitsPerHour,
+                                                       deliveredUnits: nil,
+                                                       syncIdentifier: "e2bae2b6b317416a9816edab137c9278"))]
+        doseStore.addPumpEvents(pumpEvents, lastReconciliation: f("2022-01-10T00:30:00Z")) { error in
+            XCTAssertNil(error)
+            self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                switch result {
+                case .failure(let error):
+                    XCTFail("Unexpected failure: \(error)")
+                case .success(_, let data):
+                    XCTAssertEqual(data.count, 1)
+
+                    XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:15:00Z"))
+                    XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:30:00Z"))
+                    XCTAssertEqual(data[0].dose?.type, .tempBasal)
+                    XCTAssertEqual(data[0].dose?.unitsPerHour, 4.5)
+                    XCTAssertNil(data[0].dose?.duringSuspend)
+                    XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                    XCTAssertFalse(data[0].mutable)
+                    XCTAssertEqual(data[0].syncIdentifier, "e2bae2b6b317416a9816edab137c9278")
+                }
+                self.completion.fulfill()
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testNextTempBasalMutable() {
+        populateInitialEvents {
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T01:10:00Z")
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T00:35:00Z"),
+                                                           endDate: self.f("2022-01-10T01:05:00Z"),
+                                                           value: 3.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "4c6f0e0610cf4e678dbf4a068e018bf2"),
+                                          isMutable: true)]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T01:10:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(_, let data):
+                        XCTAssertEqual(data.count, 1)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[0].dose?.unitsPerHour, 3.5)
+                        XCTAssertNil(data[0].dose?.duringSuspend)
+                        XCTAssertNil(data[0].dose?.scheduledBasalRate)
+                        XCTAssertTrue(data[0].mutable)
+                        XCTAssertEqual(data[0].syncIdentifier, "4c6f0e0610cf4e678dbf4a068e018bf2")
+                    }
+                    self.completion.fulfill()
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testNextTempBasalImmutableSpanningMultipleScheduledBasals() {
+        populateInitialEvents {
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T01:10:00Z")
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T00:35:00Z"),
+                                                           endDate: self.f("2022-01-10T01:05:00Z"),
+                                                           value: 3.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "4c6f0e0610cf4e678dbf4a068e018bf2"))]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T01:10:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(_, let data):
+                        XCTAssertEqual(data.count, 3)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:30:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .basal)
+                        XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[0].mutable)
+
+                        XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T01:00:00Z"))
+                        XCTAssertEqual(data[1].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[1].dose?.unitsPerHour, 3.5)
+                        XCTAssertNil(data[1].dose?.duringSuspend)
+                        XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[1].mutable)
+                        XCTAssertEqual(data[1].syncIdentifier, "4c6f0e0610cf4e678dbf4a068e018bf2 1/2")
+
+                        XCTAssertEqual(data[2].dose?.startDate, self.f("2022-01-10T01:00:00Z"))
+                        XCTAssertEqual(data[2].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[2].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[2].dose?.unitsPerHour, 3.5)
+                        XCTAssertNil(data[2].dose?.duringSuspend)
+                        XCTAssertEqual(data[2].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                        XCTAssertFalse(data[2].mutable)
+                        XCTAssertEqual(data[2].syncIdentifier, "4c6f0e0610cf4e678dbf4a068e018bf2 2/2")
+                    }
+                    self.completion.fulfill()
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testBolusMutable() {
+        populateInitialEvents {
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T00:41:00Z")
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .bolus,
+                                                           startDate: self.f("2022-01-10T00:40:00Z"),
+                                                           endDate: self.f("2022-01-10T00:42:00Z"),
+                                                           value: 3.5,
+                                                           unit: .units,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "484092b636f141c5beb025b546fcaa0f"),
+                                           isMutable: true)]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T00:41:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(_, let data):
+                        XCTAssertEqual(data.count, 1)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:40:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:42:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .bolus)
+                        XCTAssertEqual(data[0].dose?.programmedUnits, 3.5)
+                        XCTAssertTrue(data[0].mutable)
+                        XCTAssertEqual(data[0].syncIdentifier, "484092b636f141c5beb025b546fcaa0f")
+                    }
+                    self.completion.fulfill()
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testBolusImmutableInterrupted() {
+        populateInitialEvents {
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T00:41:00Z")
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .bolus,
+                                                           startDate: self.f("2022-01-10T00:40:00Z"),
+                                                           endDate: self.f("2022-01-10T00:41:00Z"),
+                                                           value: 3.5,
+                                                           unit: .units,
+                                                           deliveredUnits: 2.0,
+                                                           syncIdentifier: "484092b636f141c5beb025b546fcaa0f"))]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T00:42:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(_, let data):
+                        XCTAssertEqual(data.count, 1)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:40:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:41:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .bolus)
+                        XCTAssertEqual(data[0].dose?.programmedUnits, 3.5)
+                        XCTAssertEqual(data[0].dose?.deliveredUnits, 2.0)
+                        XCTAssertFalse(data[0].mutable)
+                        XCTAssertEqual(data[0].syncIdentifier, "484092b636f141c5beb025b546fcaa0f")
+                    }
+                    self.completion.fulfill()
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testSuspendResumeSpanningMultipleScheduledBasals() {
+        populateInitialEvents {
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T01:10:00Z")
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .suspend,
+                                                           startDate: self.f("2022-01-10T00:35:00Z"),
+                                                           value: 0,
+                                                           unit: .units,
+                                                           syncIdentifier: "07de19a9c35c49e3aa1590e42b818eb0")),
+                              NewPumpEvent(dose: DoseEntry(type: .resume,
+                                                           startDate: self.f("2022-01-10T01:05:00Z"),
+                                                           value: 0,
+                                                           unit: .units,
+                                                           syncIdentifier: "3b6aceda2cf141f59cbee9d4e07eb7ee")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T01:05:00Z"),
+                                                           endDate: self.f("2022-01-10T01:10:00Z"),
+                                                           value: 2.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "4747359c857f4b04810df17c781d9bcc"))]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T01:10:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(_, let data):
+                        XCTAssertEqual(data.count, 6)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:30:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .basal)
+                        XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[0].mutable)
+
+                        XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[1].dose?.type, .suspend)
+                        XCTAssertNil(data[1].dose?.scheduledBasalRate)
+                        XCTAssertFalse(data[1].mutable)
+                        XCTAssertEqual(data[1].syncIdentifier, "07de19a9c35c49e3aa1590e42b818eb0")
+
+                        XCTAssertEqual(data[2].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[2].dose?.endDate, self.f("2022-01-10T01:00:00Z"))
+                        XCTAssertEqual(data[2].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[2].dose?.unitsPerHour, 0)
+                        XCTAssertEqual(data[2].dose?.duringSuspend, true)
+                        XCTAssertEqual(data[2].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[2].mutable)
+
+                        XCTAssertEqual(data[3].dose?.startDate, self.f("2022-01-10T01:00:00Z"))
+                        XCTAssertEqual(data[3].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[3].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[3].dose?.unitsPerHour, 0)
+                        XCTAssertEqual(data[3].dose?.duringSuspend, true)
+                        XCTAssertEqual(data[3].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                        XCTAssertFalse(data[3].mutable)
+
+                        XCTAssertEqual(data[4].dose?.startDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[4].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[4].dose?.type, .resume)
+                        XCTAssertNil(data[4].dose?.scheduledBasalRate)
+                        XCTAssertFalse(data[4].mutable)
+                        XCTAssertEqual(data[4].syncIdentifier, "3b6aceda2cf141f59cbee9d4e07eb7ee")
+
+                        XCTAssertEqual(data[5].dose?.startDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[5].dose?.endDate, self.f("2022-01-10T01:10:00Z"))
+                        XCTAssertEqual(data[5].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[5].dose?.unitsPerHour, 2.5)
+                        XCTAssertNil(data[5].dose?.duringSuspend)
+                        XCTAssertEqual(data[5].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                        XCTAssertFalse(data[5].mutable)
+                        XCTAssertEqual(data[5].syncIdentifier, "4747359c857f4b04810df17c781d9bcc")
+                    }
+                    self.completion.fulfill()
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testSuspendResumeSpanningMultipleScheduledBasalsWithPumpRecordsBasal() {
+        populateInitialEvents {
+            self.doseStore.pumpRecordsBasalProfileStartEvents = true
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T01:10:00Z")
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .suspend,
+                                                           startDate: self.f("2022-01-10T00:35:00Z"),
+                                                           value: 0,
+                                                           unit: .units,
+                                                           syncIdentifier: "07de19a9c35c49e3aa1590e42b818eb0")),
+                              NewPumpEvent(dose: DoseEntry(type: .resume,
+                                                           startDate: self.f("2022-01-10T01:05:00Z"),
+                                                           value: 0,
+                                                           unit: .units,
+                                                           syncIdentifier: "3b6aceda2cf141f59cbee9d4e07eb7ee")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T01:05:00Z"),
+                                                           endDate: self.f("2022-01-10T01:10:00Z"),
+                                                           value: 2.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "4747359c857f4b04810df17c781d9bcc"))]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T01:10:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(_, let data):
+                        XCTAssertEqual(data.count, 5)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .suspend)
+                        XCTAssertNil(data[0].dose?.scheduledBasalRate)
+                        XCTAssertFalse(data[0].mutable)
+                        XCTAssertEqual(data[0].syncIdentifier, "07de19a9c35c49e3aa1590e42b818eb0")
+
+                        XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T01:00:00Z"))
+                        XCTAssertEqual(data[1].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[1].dose?.unitsPerHour, 0)
+                        XCTAssertEqual(data[1].dose?.duringSuspend, true)
+                        XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[1].mutable)
+
+                        XCTAssertEqual(data[2].dose?.startDate, self.f("2022-01-10T01:00:00Z"))
+                        XCTAssertEqual(data[2].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[2].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[2].dose?.unitsPerHour, 0)
+                        XCTAssertEqual(data[2].dose?.duringSuspend, true)
+                        XCTAssertEqual(data[2].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                        XCTAssertFalse(data[2].mutable)
+
+                        XCTAssertEqual(data[3].dose?.startDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[3].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[3].dose?.type, .resume)
+                        XCTAssertNil(data[3].dose?.scheduledBasalRate)
+                        XCTAssertFalse(data[3].mutable)
+                        XCTAssertEqual(data[3].syncIdentifier, "3b6aceda2cf141f59cbee9d4e07eb7ee")
+
+                        XCTAssertEqual(data[4].dose?.startDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[4].dose?.endDate, self.f("2022-01-10T01:10:00Z"))
+                        XCTAssertEqual(data[4].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[4].dose?.unitsPerHour, 2.5)
+                        XCTAssertNil(data[4].dose?.duringSuspend)
+                        XCTAssertEqual(data[4].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                        XCTAssertFalse(data[4].mutable)
+                        XCTAssertEqual(data[4].syncIdentifier, "4747359c857f4b04810df17c781d9bcc")
+                    }
+                    self.completion.fulfill()
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testAll() {
+        populateInitialEvents {
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T01:10:00Z")
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .suspend,
+                                                           startDate: self.f("2022-01-10T00:35:00Z"),
+                                                           value: 0,
+                                                           unit: .units,
+                                                           syncIdentifier: "07de19a9c35c49e3aa1590e42b818eb0")),
+                              NewPumpEvent(date: self.f("2022-01-10T00:35:00Z"),
+                                           type: .alarm,
+                                           alarmType: .occlusion,
+                                           syncIdentifier: "97c199328ece438a8098289ff1abf3c8"),
+                              NewPumpEvent(date: self.f("2022-01-10T00:40:00Z"),
+                                           type: .alarmClear,
+                                           syncIdentifier: "d926c8a0f24d47d483254d602ae12342"),
+                              NewPumpEvent(date: self.f("2022-01-10T00:45:00Z"),
+                                           type: .rewind,
+                                           syncIdentifier: "aa996aa7b0674155af7f2cdb675c2357"),
+                              NewPumpEvent(date: self.f("2022-01-10T00:47:00Z"),
+                                           type: .prime,
+                                           syncIdentifier: "b39fe47823f64bdf8cb3f511be5033f5"),
+                              NewPumpEvent(dose: DoseEntry(type: .resume,
+                                                           startDate: self.f("2022-01-10T01:05:00Z"),
+                                                           value: 0,
+                                                           unit: .units,
+                                                           syncIdentifier: "3b6aceda2cf141f59cbee9d4e07eb7ee")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T01:05:00Z"),
+                                                           endDate: self.f("2022-01-10T01:15:00Z"),
+                                                           value: 2.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "4747359c857f4b04810df17c781d9bcc")),
+                              NewPumpEvent(dose: DoseEntry(type: .bolus,
+                                                           startDate: self.f("2022-01-10T01:10:00Z"),
+                                                           endDate: self.f("2022-01-10T01:11:00Z"),
+                                                           value: 2.5,
+                                                           unit: .units,
+                                                           deliveredUnits: 1.5,
+                                                           syncIdentifier: "caab9921ec2a437285f61400ca1cbc0a")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T01:15:00Z"),
+                                                           endDate: self.f("2022-01-10T01:45:00Z"),
+                                                           value: 0.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "34528b71a99f43c1a500c080b9136ad7"),
+                                           isMutable: true),
+                              NewPumpEvent(dose: DoseEntry(type: .bolus,
+                                                           startDate: self.f("2022-01-10T01:20:00Z"),
+                                                           endDate: self.f("2022-01-10T01:22:00Z"),
+                                                           value: 0.75,
+                                                           unit: .units,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "b05e892486d140348e961c63633c3564"),
+                                          isMutable: true)]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T01:10:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(_, let data):
+                        XCTAssertEqual(data.count, 13)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:30:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .basal)
+                        XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[0].mutable)
+
+                        XCTAssertEqual(data[1].date, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[1].type, .alarm)
+                        XCTAssertEqual(data[1].alarmType, .occlusion)
+                        XCTAssertFalse(data[1].mutable)
+                        XCTAssertEqual(data[1].syncIdentifier, "97c199328ece438a8098289ff1abf3c8")
+
+                        XCTAssertEqual(data[2].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[2].dose?.endDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[2].dose?.type, .suspend)
+                        XCTAssertNil(data[2].dose?.scheduledBasalRate)
+                        XCTAssertFalse(data[2].mutable)
+                        XCTAssertEqual(data[2].syncIdentifier, "07de19a9c35c49e3aa1590e42b818eb0")
+
+                        XCTAssertEqual(data[3].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[3].dose?.endDate, self.f("2022-01-10T01:00:00Z"))
+                        XCTAssertEqual(data[3].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[3].dose?.unitsPerHour, 0)
+                        XCTAssertEqual(data[3].dose?.duringSuspend, true)
+                        XCTAssertEqual(data[3].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[3].mutable)
+                        XCTAssertEqual(data[3].syncIdentifier, "07de19a9c35c49e3aa1590e42b818eb0 1/2")
+
+                        XCTAssertEqual(data[4].date, self.f("2022-01-10T00:40:00Z"))
+                        XCTAssertEqual(data[4].type, .alarmClear)
+                        XCTAssertFalse(data[4].mutable)
+                        XCTAssertEqual(data[4].syncIdentifier, "d926c8a0f24d47d483254d602ae12342")
+
+                        XCTAssertEqual(data[5].date, self.f("2022-01-10T00:45:00Z"))
+                        XCTAssertEqual(data[5].type, .rewind)
+                        XCTAssertFalse(data[5].mutable)
+                        XCTAssertEqual(data[5].syncIdentifier, "aa996aa7b0674155af7f2cdb675c2357")
+
+                        XCTAssertEqual(data[6].date, self.f("2022-01-10T00:47:00Z"))
+                        XCTAssertEqual(data[6].type, .prime)
+                        XCTAssertFalse(data[6].mutable)
+                        XCTAssertEqual(data[6].syncIdentifier, "b39fe47823f64bdf8cb3f511be5033f5")
+
+                        XCTAssertEqual(data[7].dose?.startDate, self.f("2022-01-10T01:00:00Z"))
+                        XCTAssertEqual(data[7].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[7].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[7].dose?.unitsPerHour, 0)
+                        XCTAssertEqual(data[7].dose?.duringSuspend, true)
+                        XCTAssertEqual(data[7].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                        XCTAssertFalse(data[7].mutable)
+                        XCTAssertEqual(data[7].syncIdentifier, "07de19a9c35c49e3aa1590e42b818eb0 2/2")
+
+                        XCTAssertEqual(data[8].dose?.startDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[8].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[8].dose?.type, .resume)
+                        XCTAssertNil(data[8].dose?.scheduledBasalRate)
+                        XCTAssertFalse(data[8].mutable)
+                        XCTAssertEqual(data[8].syncIdentifier, "3b6aceda2cf141f59cbee9d4e07eb7ee")
+
+                        XCTAssertEqual(data[9].dose?.startDate, self.f("2022-01-10T01:05:00Z"))
+                        XCTAssertEqual(data[9].dose?.endDate, self.f("2022-01-10T01:15:00Z"))
+                        XCTAssertEqual(data[9].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[9].dose?.unitsPerHour, 2.5)
+                        XCTAssertNil(data[9].dose?.duringSuspend)
+                        XCTAssertNil(data[9].dose?.scheduledBasalRate)
+                        XCTAssertFalse(data[9].mutable)
+                        XCTAssertEqual(data[9].syncIdentifier, "4747359c857f4b04810df17c781d9bcc")
+
+                        XCTAssertEqual(data[10].dose?.startDate, self.f("2022-01-10T01:10:00Z"))
+                        XCTAssertEqual(data[10].dose?.endDate, self.f("2022-01-10T01:11:00Z"))
+                        XCTAssertEqual(data[10].dose?.type, .bolus)
+                        XCTAssertEqual(data[10].dose?.programmedUnits, 2.5)
+                        XCTAssertEqual(data[10].dose?.deliveredUnits, 1.5)
+                        XCTAssertFalse(data[10].mutable)
+                        XCTAssertEqual(data[10].syncIdentifier, "caab9921ec2a437285f61400ca1cbc0a")
+
+                        XCTAssertEqual(data[11].dose?.startDate, self.f("2022-01-10T01:15:00Z"))
+                        XCTAssertEqual(data[11].dose?.endDate, self.f("2022-01-10T01:45:00Z"))
+                        XCTAssertEqual(data[11].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[11].dose?.unitsPerHour, 0.5)
+                        XCTAssertNil(data[11].dose?.duringSuspend)
+                        XCTAssertNil(data[11].dose?.scheduledBasalRate)
+                        XCTAssertTrue(data[11].mutable)
+                        XCTAssertEqual(data[11].syncIdentifier, "34528b71a99f43c1a500c080b9136ad7")
+
+                        XCTAssertEqual(data[12].dose?.startDate, self.f("2022-01-10T01:20:00Z"))
+                        XCTAssertEqual(data[12].dose?.endDate, self.f("2022-01-10T01:22:00Z"))
+                        XCTAssertEqual(data[12].dose?.type, .bolus)
+                        XCTAssertEqual(data[12].dose?.programmedUnits, 0.75)
+                        XCTAssertTrue(data[12].mutable)
+                        XCTAssertEqual(data[12].syncIdentifier, "b05e892486d140348e961c63633c3564")
+                    }
+                    self.completion.fulfill()
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testPaging() {
+        populateInitialEvents {
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T01:25:00Z")
+            self.limit = 2
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                            startDate: self.f("2022-01-10T00:30:00Z"),
+                                                            endDate: self.f("2022-01-10T00:35:00Z"),
+                                                            value: 2.5,
+                                                            unit: .unitsPerHour,
+                                                            deliveredUnits: nil,
+                                                            syncIdentifier: "d86434bba46f499ea23c25e98c66687e")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T00:40:00Z"),
+                                                           endDate: self.f("2022-01-10T00:45:00Z"),
+                                                           value: 2.0,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "5c0c229d093f40869e8685cb5eb53c15")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T00:55:00Z"),
+                                                           endDate: self.f("2022-01-10T01:05:00Z"),
+                                                           value: 1.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "740f67b2c29b4a64a918046a8b09c5f3")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T01:15:00Z"),
+                                                           endDate: self.f("2022-01-10T01:20:00Z"),
+                                                           value: 1.0,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "1e96187ea69643b2a69e94d3c539fd64"))]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T01:25:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(let queryAnchor, let data):
+                        XCTAssertEqual(data.count, 2)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:30:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[0].dose?.unitsPerHour, 2.5)
+                        XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[0].mutable)
+                        XCTAssertEqual(data[0].syncIdentifier, "d86434bba46f499ea23c25e98c66687e")
+
+                        XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T00:40:00Z"))
+                        XCTAssertEqual(data[1].dose?.type, .basal)
+                        XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[1].mutable)
+
+                        self.queryAnchor = queryAnchor
+
+                        self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                            switch result {
+                            case .failure(let error):
+                                XCTFail("Unexpected failure: \(error)")
+                            case .success(let queryAnchor, let data):
+                                XCTAssertEqual(data.count, 2)
+
+                                XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:40:00Z"))
+                                XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:45:00Z"))
+                                XCTAssertEqual(data[0].dose?.type, .tempBasal)
+                                XCTAssertEqual(data[0].dose?.unitsPerHour, 2.0)
+                                XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                                XCTAssertFalse(data[0].mutable)
+                                XCTAssertEqual(data[0].syncIdentifier, "5c0c229d093f40869e8685cb5eb53c15")
+
+                                XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T00:45:00Z"))
+                                XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T00:55:00Z"))
+                                XCTAssertEqual(data[1].dose?.type, .basal)
+                                XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                                XCTAssertFalse(data[1].mutable)
+
+                                self.queryAnchor = queryAnchor
+
+                                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                                    switch result {
+                                    case .failure(let error):
+                                        XCTFail("Unexpected failure: \(error)")
+                                    case .success(let queryAnchor, let data):
+                                        XCTAssertEqual(data.count, 2)
+
+                                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:55:00Z"))
+                                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T01:00:00Z"))
+                                        XCTAssertEqual(data[0].dose?.type, .tempBasal)
+                                        XCTAssertEqual(data[0].dose?.unitsPerHour, 1.5)
+                                        XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                                        XCTAssertFalse(data[0].mutable)
+                                        XCTAssertEqual(data[0].syncIdentifier, "740f67b2c29b4a64a918046a8b09c5f3 1/2")
+
+                                        XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T01:00:00Z"))
+                                        XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                                        XCTAssertEqual(data[1].dose?.type, .tempBasal)
+                                        XCTAssertEqual(data[1].dose?.unitsPerHour, 1.5)
+                                        XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                                        XCTAssertFalse(data[1].mutable)
+                                        XCTAssertEqual(data[1].syncIdentifier, "740f67b2c29b4a64a918046a8b09c5f3 2/2")
+
+                                        self.queryAnchor = queryAnchor
+
+                                        self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                                            switch result {
+                                            case .failure(let error):
+                                                XCTFail("Unexpected failure: \(error)")
+                                            case .success(let queryAnchor, let data):
+                                                XCTAssertEqual(data.count, 2)
+
+                                                XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T01:05:00Z"))
+                                                XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T01:15:00Z"))
+                                                XCTAssertEqual(data[0].dose?.type, .basal)
+                                                XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                                                XCTAssertFalse(data[0].mutable)
+
+                                                XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T01:15:00Z"))
+                                                XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T01:20:00Z"))
+                                                XCTAssertEqual(data[1].dose?.type, .tempBasal)
+                                                XCTAssertEqual(data[1].dose?.unitsPerHour, 1.0)
+                                                XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                                                XCTAssertFalse(data[1].mutable)
+                                                XCTAssertEqual(data[1].syncIdentifier, "1e96187ea69643b2a69e94d3c539fd64")
+
+                                                self.queryAnchor = queryAnchor
+
+                                                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                                                    switch result {
+                                                    case .failure(let error):
+                                                        XCTFail("Unexpected failure: \(error)")
+                                                    case .success(_, let data):
+                                                        XCTAssertEqual(data.count, 0)
+
+                                                        self.completion.fulfill()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    func testPagingOufOfOrderPumpEvents() {
+        populateInitialEvents {
+            self.doseStore.insulinDeliveryStore.test_currentDate = self.f("2022-01-10T01:25:00Z")
+            self.limit = 4
+
+            let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T00:30:00Z"),
+                                                           endDate: self.f("2022-01-10T00:35:00Z"),
+                                                           value: 2.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "d86434bba46f499ea23c25e98c66687e")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T00:55:00Z"),       // This should come after the next one
+                                                           endDate: self.f("2022-01-10T01:05:00Z"),
+                                                           value: 1.5,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "740f67b2c29b4a64a918046a8b09c5f3")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T00:40:00Z"),
+                                                           endDate: self.f("2022-01-10T00:45:00Z"),
+                                                           value: 2.0,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "5c0c229d093f40869e8685cb5eb53c15")),
+                              NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                           startDate: self.f("2022-01-10T01:15:00Z"),
+                                                           endDate: self.f("2022-01-10T01:20:00Z"),
+                                                           value: 1.0,
+                                                           unit: .unitsPerHour,
+                                                           deliveredUnits: nil,
+                                                           syncIdentifier: "1e96187ea69643b2a69e94d3c539fd64"))]
+            self.doseStore.addPumpEvents(pumpEvents, lastReconciliation: self.f("2022-01-10T01:25:00Z")) { error in
+                XCTAssertNil(error)
+                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                    switch result {
+                    case .failure(let error):
+                        XCTFail("Unexpected failure: \(error)")
+                    case .success(let queryAnchor, let data):
+                        XCTAssertEqual(data.count, 2)
+
+                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:30:00Z"))
+                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[0].dose?.type, .tempBasal)
+                        XCTAssertEqual(data[0].dose?.unitsPerHour, 2.5)
+                        XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[0].mutable)
+                        XCTAssertEqual(data[0].syncIdentifier, "d86434bba46f499ea23c25e98c66687e")
+
+                        XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T00:35:00Z"))
+                        XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T00:40:00Z"))
+                        XCTAssertEqual(data[1].dose?.type, .basal)
+                        XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                        XCTAssertFalse(data[1].mutable)
+
+                        self.queryAnchor = queryAnchor
+
+                        self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                            switch result {
+                            case .failure(let error):
+                                XCTFail("Unexpected failure: \(error)")
+                            case .success(let queryAnchor, let data):
+                                XCTAssertEqual(data.count, 4)
+
+                                XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T00:40:00Z"))
+                                XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T00:45:00Z"))
+                                XCTAssertEqual(data[0].dose?.type, .tempBasal)
+                                XCTAssertEqual(data[0].dose?.unitsPerHour, 2.0)
+                                XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                                XCTAssertFalse(data[0].mutable)
+                                XCTAssertEqual(data[0].syncIdentifier, "5c0c229d093f40869e8685cb5eb53c15")
+
+                                XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T00:45:00Z"))
+                                XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T00:55:00Z"))
+                                XCTAssertEqual(data[1].dose?.type, .basal)
+                                XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                                XCTAssertFalse(data[1].mutable)
+
+                                XCTAssertEqual(data[2].dose?.startDate, self.f("2022-01-10T00:55:00Z"))
+                                XCTAssertEqual(data[2].dose?.endDate, self.f("2022-01-10T01:00:00Z"))
+                                XCTAssertEqual(data[2].dose?.type, .tempBasal)
+                                XCTAssertEqual(data[2].dose?.unitsPerHour, 1.5)
+                                XCTAssertEqual(data[2].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.5)
+                                XCTAssertFalse(data[2].mutable)
+                                XCTAssertEqual(data[2].syncIdentifier, "740f67b2c29b4a64a918046a8b09c5f3 1/2")
+
+                                XCTAssertEqual(data[3].dose?.startDate, self.f("2022-01-10T01:00:00Z"))
+                                XCTAssertEqual(data[3].dose?.endDate, self.f("2022-01-10T01:05:00Z"))
+                                XCTAssertEqual(data[3].dose?.type, .tempBasal)
+                                XCTAssertEqual(data[3].dose?.unitsPerHour, 1.5)
+                                XCTAssertEqual(data[3].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                                XCTAssertFalse(data[3].mutable)
+                                XCTAssertEqual(data[3].syncIdentifier, "740f67b2c29b4a64a918046a8b09c5f3 2/2")
+
+                                self.queryAnchor = queryAnchor
+
+                                self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                                    switch result {
+                                    case .failure(let error):
+                                        XCTFail("Unexpected failure: \(error)")
+                                    case .success(let queryAnchor, let data):
+                                        XCTAssertEqual(data.count, 2)
+
+                                        XCTAssertEqual(data[0].dose?.startDate, self.f("2022-01-10T01:05:00Z"))
+                                        XCTAssertEqual(data[0].dose?.endDate, self.f("2022-01-10T01:15:00Z"))
+                                        XCTAssertEqual(data[0].dose?.type, .basal)
+                                        XCTAssertEqual(data[0].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                                        XCTAssertFalse(data[0].mutable)
+
+                                        XCTAssertEqual(data[1].dose?.startDate, self.f("2022-01-10T01:15:00Z"))
+                                        XCTAssertEqual(data[1].dose?.endDate, self.f("2022-01-10T01:20:00Z"))
+                                        XCTAssertEqual(data[1].dose?.type, .tempBasal)
+                                        XCTAssertEqual(data[1].dose?.unitsPerHour, 1.0)
+                                        XCTAssertEqual(data[1].dose?.scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour), 0.7)
+                                        XCTAssertFalse(data[1].mutable)
+                                        XCTAssertEqual(data[1].syncIdentifier, "1e96187ea69643b2a69e94d3c539fd64")
+
+                                        self.queryAnchor = queryAnchor
+
+                                        self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                                            switch result {
+                                            case .failure(let error):
+                                                XCTFail("Unexpected failure: \(error)")
+                                            case .success(_, let data):
+                                                XCTAssertEqual(data.count, 0)
+
+                                                self.completion.fulfill()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        wait(for: [completion], timeout: 10)
+    }
+
+    private func populateInitialEvents(_ completion: @escaping () -> Void) {
+        doseStore.insulinDeliveryStore.test_currentDate = f("2022-01-10T00:35:00Z")
+
+        let pumpEvents = [NewPumpEvent(dose: DoseEntry(type: .resume,
+                                                       startDate: f("2022-01-10T00:10:00Z"),
+                                                       value: 0,
+                                                       unit: .units,
+                                                       syncIdentifier: "e2bae2b6b317416a9816edab137c9278")),
+                          NewPumpEvent(dose: DoseEntry(type: .tempBasal,
+                                                       startDate: f("2022-01-10T00:15:00Z"),
+                                                       endDate: f("2022-01-10T00:30:00Z"),
+                                                       value: 4.5,
+                                                       unit: .unitsPerHour,
+                                                       deliveredUnits: nil,
+                                                       syncIdentifier: "068f9253370443969c9b23c59383df10"))]
+        let dispatchGroup = DispatchGroup()
+        dispatchGroup.enter()
+        doseStore.addPumpEvents(pumpEvents, lastReconciliation: f("2022-01-10T00:30:00Z")) { error in
+            XCTAssertNil(error)
+            self.doseStore.executePumpQuery(fromQueryAnchor: self.queryAnchor, limit: self.limit) { result in
+                switch result {
+                case .failure(let error):
+                    XCTFail("Unexpected failure: \(error)")
+                case .success(let queryAnchor, let data):
+                    self.queryAnchor = queryAnchor
+                    XCTAssertEqual(data.count, 5)
+                }
+                dispatchGroup.leave()
+            }
+        }
+        dispatchGroup.wait()
+        completion()
+    }
+
+    private func f(_ dateString: String) -> Date {
+        return dateFormatter.date(from: dateString)!
+    }
+
+    private let dateFormatter = ISO8601DateFormatter()
 }
 
 class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
@@ -795,7 +1620,7 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
     override func setUp() {
         super.setUp()
 
-        let persistedDate = dateFormatter.date(from: "2100-01-02T03:000:00Z")!
+        let persistedDate = dateFormatter.date(from: "2100-01-02T03:00:00Z")!
         let url = URL(string: "http://a.b.com")!
         let events = [PersistedPumpEvent(date: dateFormatter.date(from: "2100-01-02T03:08:00Z")!, persistedDate: persistedDate, dose: nil, isUploaded: false, objectIDURL: url, raw: nil, title: nil, type: nil, isMutable: false),
                       PersistedPumpEvent(date: dateFormatter.date(from: "2100-01-02T03:10:00Z")!, persistedDate: persistedDate, dose: nil, isUploaded: false, objectIDURL: url, raw: nil, title: nil, type: nil, isMutable: false),
@@ -1055,5 +1880,19 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             XCTAssertEqual(expected.startDate, calculated.startDate)
             XCTAssertEqual(expected.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), calculated.quantity.doubleValue(for: HKUnit.milligramsPerDeciliter), accuracy: 1.0, String(describing: expected.startDate))
         }
+    }
+}
+
+fileprivate extension UUID {
+    var hexidecimalString: String { data.hexadecimalString }
+}
+
+fileprivate extension NewPumpEvent {
+    init(date: Date, type: PumpEventType, alarmType: PumpAlarmType? = nil, syncIdentifier: String) {
+        self.init(date: date, dose: nil, isMutable: false, raw: Data(hexadecimalString: syncIdentifier)!, title: syncIdentifier, type: type, alarmType: alarmType)
+    }
+
+    init(dose: DoseEntry, isMutable: Bool = false) {
+        self.init(date: dose.startDate, dose: dose, isMutable: isMutable, raw: Data(hexadecimalString: dose.syncIdentifier!)!, title: dose.syncIdentifier!)
     }
 }

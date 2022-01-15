@@ -166,15 +166,16 @@ extension InsulinDeliveryStore {
     /// - Parameters:
     ///   - start: The earliest date of dose entries to retrieve, if provided.
     ///   - end: The latest date of dose entries to retrieve, if provided.
+    ///   - limit: The maximum number of dose entries to retrieve, if provided, otherwise unlimited.
     ///   - completion: A closure called once the dose entries have been retrieved.
     ///   - result: An array of dose entries, in chronological order by startDate, or error.
-    public func getDoseEntries(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[DoseEntry], Error>) -> Void) {
+    public func getDoseEntries(start: Date? = nil, end: Date? = nil, limit: Int? = nil, inclusive: Bool = true, completion: @escaping (_ result: Result<[DoseEntry], Error>) -> Void) {
         queue.async {
-            completion(self.getDoseEntries(start: start, end: end))
+            completion(self.getDoseEntries(start: start, end: end, limit: limit, inclusive: inclusive))
         }
     }
 
-    private func getDoseEntries(start: Date? = nil, end: Date? = nil) -> Result<[DoseEntry], Error> {
+    private func getDoseEntries(start: Date? = nil, end: Date? = nil, limit: Int? = nil, inclusive: Bool = true) -> Result<[DoseEntry], Error> {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var entries: [DoseEntry] = []
@@ -182,7 +183,7 @@ extension InsulinDeliveryStore {
 
         cacheStore.managedObjectContext.performAndWait {
             do {
-                entries = try self.getCachedInsulinDeliveryObjects(start: start, end: end).map { $0.dose }
+                entries = try self.getCachedInsulinDeliveryObjects(start: start, end: end, limit: limit, inclusive: inclusive).map { $0.dose }
             } catch let coreDataError {
                 error = coreDataError
             }
@@ -196,22 +197,35 @@ extension InsulinDeliveryStore {
         return .success(entries)
     }
 
-    private func getCachedInsulinDeliveryObjects(start: Date? = nil, end: Date? = nil) throws -> [CachedInsulinDeliveryObject] {
+    private func getCachedInsulinDeliveryObjects(start: Date? = nil, end: Date? = nil, limit: Int? = nil, inclusive: Bool = true) throws -> [CachedInsulinDeliveryObject] {
         dispatchPrecondition(condition: .onQueue(queue))
 
-        // Match all doses whose start OR end dates fall in the start and end date range, if specified. Therefore, we ensure the
-        // dose end date is AFTER the start date, if specified, and the dose start date is BEFORE the end date, if specified.
         var predicates: [NSPredicate] = []
-        if let start = start {
-            predicates.append(NSPredicate(format: "endDate >= %@", start as NSDate))
-        }
-        if let end = end {
-            predicates.append(NSPredicate(format: "startDate <= %@", end as NSDate))    // Note: Using <= rather than < to match previous behavior
+        if inclusive {
+            // Match all doses whose start OR end dates fall in the start and end date range, if specified. Therefore, we ensure the
+            // dose end date is AFTER the start date, if specified, and the dose start date is BEFORE the end date, if specified.
+            if let start = start {
+                predicates.append(NSPredicate(format: "endDate >= %@", start as NSDate))
+            }
+            if let end = end {
+                predicates.append(NSPredicate(format: "startDate <= %@", end as NSDate))    // Note: Using <= rather than < to match previous behavior
+            }
+        } else {
+            // Otherwise, simple start and end date comparison, if specified.
+            if let start = start {
+                predicates.append(NSPredicate(format: "startDate >= %@", start as NSDate))
+            }
+            if let end = end {
+                predicates.append(NSPredicate(format: "endDate <= %@", end as NSDate))
+            }
         }
 
         let request: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
         request.predicate = (predicates.count > 1) ? NSCompoundPredicate(andPredicateWithSubpredicates: predicates) : predicates.first
         request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: true)]
+        if let limit = limit {
+            request.fetchLimit = limit
+        }
 
         return try self.cacheStore.managedObjectContext.fetch(request)
     }
