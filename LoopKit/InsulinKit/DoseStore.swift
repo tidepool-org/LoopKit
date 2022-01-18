@@ -1562,7 +1562,7 @@ extension DoseStore {
 
 extension DoseStore {
 
-    public struct QueryAnchor: RawRepresentable {
+    public struct QueryAnchor: Equatable, RawRepresentable {
 
         public typealias RawValue = [String: Any]
 
