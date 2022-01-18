@@ -938,13 +938,13 @@ extension DoseStore {
 
 
     /// Attempts to store doses from pump events to insulin delivery store
-    private func syncPumpEventsToInsulinDeliveryStore(completion: @escaping (_ error: Error?) -> Void) {
+    private func syncPumpEventsToInsulinDeliveryStore(after start: Date? = nil, completion: @escaping (_ error: Error?) -> Void) {
         insulinDeliveryStore.getLastBasalEndDate { (result) in
             switch result {
             case .success(let date):
                 // Limit the query behavior to 24 hours
                 let date = max(date, self.recentStartDate)
-                self.savePumpEventsToInsulinDeliveryStore(after: date, completion: completion)
+                self.savePumpEventsToInsulinDeliveryStore(after: start ?? date, completion: completion)
             case .failure(let error):
                 completion(error)
             }
@@ -1832,13 +1832,26 @@ extension DoseStore {
 
         var error: Error?
 
-        self.persistenceController.managedObjectContext.performAndWait {
+        let dispatchGroup = DispatchGroup()
+        dispatchGroup.enter()
+        self.persistenceController.managedObjectContext.perform {
             for event in events {
                 let object = PumpEvent(context: self.persistenceController.managedObjectContext)
                 object.update(from: event)
             }
-            self.persistenceController.save { error = $0 }
+            self.persistenceController.save { saveError in
+                guard saveError == nil else {
+                    error = saveError
+                    dispatchGroup.leave()
+                    return
+                }
+                self.syncPumpEventsToInsulinDeliveryStore(after: events.compactMap { $0.date }.min()) { syncError in
+                    error = syncError
+                    dispatchGroup.leave()
+                }
+            }
         }
+        dispatchGroup.wait()
 
         guard error == nil else {
             return error
