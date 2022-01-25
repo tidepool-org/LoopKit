@@ -111,19 +111,6 @@ class CachedInsulinDeliveryObject: NSManagedObject {
             primitiveAutomaticallyIssued = newValue != nil ? NSNumber(booleanLiteral: newValue!) : nil
         }
     }
-
-    var duringSuspend: Bool? {
-        get {
-            willAccessValue(forKey: "duringSuspend")
-            defer { didAccessValue(forKey: "duringSuspend") }
-            return primitiveDuringSuspend?.boolValue
-        }
-        set {
-            willChangeValue(forKey: "duringSuspend")
-            defer { didChangeValue(forKey: "duringSuspend") }
-            primitiveDuringSuspend = newValue.map { NSNumber(booleanLiteral: $0) }
-        }
-    }
 }
 
 // MARK: - Helpers
@@ -134,10 +121,12 @@ extension CachedInsulinDeliveryObject {
 
         switch reason! {
         case .basal:
-            if programmedTempBasalRate == nil && duringSuspend != true {
-                type = .basal
-            } else {
+            if isSuspend {
+                type = .suspend
+            } else if programmedTempBasalRate != nil {
                 type = .tempBasal
+            } else {
+                type = .basal
             }
         case .bolus:
             type = .bolus
@@ -171,8 +160,7 @@ extension CachedInsulinDeliveryObject {
             scheduledBasalRate: scheduledBasalRate,
             insulinType: insulinType,
             automatic: automaticallyIssued,
-            manuallyEntered: manuallyEntered,
-            duringSuspend: duringSuspend
+            manuallyEntered: manuallyEntered
         )
     }
 }
@@ -192,7 +180,7 @@ extension CachedInsulinDeliveryObject {
         self.insulinType = sample.insulinType
         self.automaticallyIssued = sample.automaticallyIssued
         self.manuallyEntered = sample.manuallyEntered
-        self.duringSuspend = sample.duringSuspend
+        self.isSuspend = sample.isSuspend
         self.reason = sample.insulinDeliveryReason
         self.createdAt = date
     }
@@ -210,7 +198,7 @@ extension CachedInsulinDeliveryObject {
         self.insulinType = sample.insulinType
         self.automaticallyIssued = sample.automaticallyIssued
         self.manuallyEntered = sample.manuallyEntered
-        self.duringSuspend = sample.duringSuspend
+        self.isSuspend = sample.isSuspend
         self.reason = sample.insulinDeliveryReason
         self.createdAt = date
     }

@@ -26,8 +26,8 @@ let MetadataKeyManuallyEntered = "com.loopkit.InsulinKit.MetadataKeyManuallyEnte
 /// Flag indicating whether this dose was issued automatically or if a user issued it manually.
 let MetadataKeyAutomaticallyIssued = "com.loopkit.InsulinKit.MetadataKeyAutomaticallyIssued"
 
-/// Flag indicating whether this dose occurred while the pump was suspended
-let MetadataKeyDuringSuspend = "com.loopkit.InsulinKit.MetadataKeyDuringSuspend"
+/// Flag indicating whether this dose is a suspend
+let MetadataKeyIsSuspend = "com.loopkit.InsulinKit.MetadataKeyIsSuspend"
 
 extension HKQuantitySample {
     convenience init?(type: HKQuantityType, unit: HKUnit, dose: DoseEntry, device: HKDevice?, provenanceIdentifier: String, syncVersion: Int = 1) {
@@ -60,9 +60,8 @@ extension HKQuantitySample {
             if dose.type == .tempBasal {
                 metadata[MetadataKeyProgrammedTempBasalRate] = HKQuantity(unit: .internationalUnitsPerHour, doubleValue: dose.unitsPerHour)
             }
-            if dose.type == .suspend {
-                metadata[MetadataKeyDuringSuspend] = true
-            }
+
+            metadata[MetadataKeyIsSuspend] = dose.type == .suspend
         case .bolus:
             // Ignore 0-unit bolus entries
             guard units > .ulpOfOne else {
@@ -116,8 +115,8 @@ extension HKQuantitySample {
         return metadata?[MetadataKeyProgrammedTempBasalRate] as? HKQuantity
     }
 
-    var duringSuspend: Bool? {
-        return metadata?[MetadataKeyDuringSuspend] as? Bool
+    var isSuspend: Bool {
+        return metadata?[MetadataKeyIsSuspend] as? Bool ?? false
     }
 
     var manuallyEntered: Bool {
@@ -144,14 +143,15 @@ extension HKQuantitySample {
         }
 
         let type: DoseType
-        let scheduledBasalRate = self.scheduledBasalRate
 
         switch reason {
         case .basal:
-            if programmedTempBasalRate == nil && duringSuspend != true {
-                type = .basal
-            } else {
+            if isSuspend {
+                type = .suspend
+            } else if programmedTempBasalRate != nil {
                 type = .tempBasal
+            } else {
+                type = .basal
             }
 
             // We can't properly trust non-LoopKit-provided basal insulin
@@ -190,8 +190,7 @@ extension HKQuantitySample {
             scheduledBasalRate: scheduledBasalRate,
             insulinType: insulinType,
             automatic: automaticallyIssued,
-            manuallyEntered: manuallyEntered,
-            duringSuspend: duringSuspend
+            manuallyEntered: manuallyEntered
         )
     }
 }

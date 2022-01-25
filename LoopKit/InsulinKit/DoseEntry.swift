@@ -21,7 +21,6 @@ public struct DoseEntry: TimelineValue, Equatable {
     public let insulinType: InsulinType?
     public let automatic: Bool?
     public let manuallyEntered: Bool
-    public let duringSuspend: Bool?
     public internal(set) var syncIdentifier: String?
 
     /// The scheduled basal rate during this dose entry
@@ -36,7 +35,7 @@ public struct DoseEntry: TimelineValue, Equatable {
     }
 
     // If the insulin model field is nil, it's assumed that the model is the type of insulin the pump dispenses
-    public init(type: DoseType, startDate: Date, endDate: Date? = nil, value: Double, unit: DoseUnit, deliveredUnits: Double? = nil, description: String? = nil, syncIdentifier: String? = nil, scheduledBasalRate: HKQuantity? = nil, insulinType: InsulinType? = nil, automatic: Bool? = nil, manuallyEntered: Bool = false, duringSuspend: Bool? = nil) {
+    public init(type: DoseType, startDate: Date, endDate: Date? = nil, value: Double, unit: DoseUnit, deliveredUnits: Double? = nil, description: String? = nil, syncIdentifier: String? = nil, scheduledBasalRate: HKQuantity? = nil, insulinType: InsulinType? = nil, automatic: Bool? = nil, manuallyEntered: Bool = false) {
         self.type = type
         self.startDate = startDate
         self.endDate = endDate ?? startDate
@@ -49,7 +48,6 @@ public struct DoseEntry: TimelineValue, Equatable {
         self.insulinType = insulinType
         self.automatic = automatic
         self.manuallyEntered = manuallyEntered
-        self.duringSuspend = duringSuspend
     }
 }
 
@@ -169,7 +167,6 @@ extension DoseEntry: Codable {
         }
         self.automatic = try container.decodeIfPresent(Bool.self, forKey: .automatic)
         self.manuallyEntered = try container.decodeIfPresent(Bool.self, forKey: .manuallyEntered) ?? false
-        self.duringSuspend = try container.decodeIfPresent(Bool.self, forKey: .duringSuspend)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -189,7 +186,6 @@ extension DoseEntry: Codable {
         }
         try container.encode(automatic, forKey: .automatic)
         try container.encode(manuallyEntered, forKey: .manuallyEntered)
-        try container.encodeIfPresent(duringSuspend, forKey: .duringSuspend)
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -206,7 +202,6 @@ extension DoseEntry: Codable {
         case insulinType
         case automatic
         case manuallyEntered
-        case duringSuspend
     }
 }
 
@@ -237,7 +232,6 @@ extension DoseEntry: RawRepresentable {
         self.description = rawValue["description"] as? String
         self.insulinType = (rawValue["insulinType"] as? InsulinType.RawValue).flatMap { InsulinType(rawValue: $0) }
         self.automatic = rawValue["automatic"] as? Bool
-        self.duringSuspend = rawValue["duringSuspend"] as? Bool
         self.syncIdentifier = rawValue["syncIdentifier"] as? String
         self.scheduledBasalRate = (rawValue["scheduledBasalRate"] as? Double).flatMap { HKQuantity(unit: .internationalUnitsPerHour, doubleValue: $0) }
     }
@@ -256,7 +250,6 @@ extension DoseEntry: RawRepresentable {
         rawValue["description"] = description
         rawValue["insulinType"] = insulinType?.rawValue
         rawValue["automatic"] = automatic
-        rawValue["duringSuspend"] = duringSuspend
         rawValue["syncIdentifier"] = syncIdentifier
         rawValue["scheduledBasalRate"] = scheduledBasalRate?.doubleValue(for: .internationalUnitsPerHour)
 

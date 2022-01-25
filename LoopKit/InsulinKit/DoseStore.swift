@@ -1640,86 +1640,8 @@ extension DoseStore {
                 var doseEvents = doses.compactMap { $0.syncPumpEventWithModificationCounter }
                 doseEvents.sort(by: { SyncPumpEventWithModificationCounter.sort($0, $1) })
 
-                var events: [SyncPumpEventWithModificationCounter] = []
-
-                // Walk the two sets of events and reconcile. As the events are sorted by start date, the event with the earlier
-                // start date gets added. If the events have the same start date, then reconcile based upon type.
-                var pumpEventIndex = 0
-                var doseEventIndex = 0
-                while true {
-                    if let pumpEvent = pumpEvents[safe: pumpEventIndex], let doseEvent = doseEvents[safe: doseEventIndex] {
-                        switch pumpEvent.startDate.compare(doseEvent.startDate) {
-                        case .orderedSame:
-                            switch pumpEvent.syncPumpEvent.type {
-                            case .alarm, .alarmClear, .prime, .resume, .rewind, .suspend:
-                                events.append(pumpEvent)
-                                pumpEventIndex += 1
-                            case .basal, .tempBasal:
-                                // A single basal pump event can be split into multiple basal dose events to account for changes to underlying scheduled basal
-                                if pumpEvent.endDate > doseEvent.endDate {
-                                    var splitEvents: [SyncPumpEventWithModificationCounter] = []
-                                    while let doseEvent = doseEvents[safe: doseEventIndex], pumpEvent.endDate >= doseEvent.endDate {
-                                        splitEvents.append(doseEvent)
-                                        doseEventIndex += 1
-                                    }
-                                    events.append(contentsOf: splitEvents.map { SyncPumpEventWithModificationCounter($0.syncPumpEvent, modificationCounter: pumpEvent.modificationCounter) })
-                                    pumpEventIndex += 1
-                                } else {
-                                    events.append(SyncPumpEventWithModificationCounter(doseEvent.syncPumpEvent, modificationCounter: pumpEvent.modificationCounter))
-                                    doseEventIndex += 1
-                                    pumpEventIndex += 1
-                                }
-                            case .bolus:
-                                events.append(pumpEvent)
-                                doseEventIndex += 1
-                                pumpEventIndex += 1
-                            }
-                        case .orderedAscending:
-                            events.append(pumpEvent)
-                            pumpEventIndex += 1
-                        case .orderedDescending:
-                            events.append(doseEvent)
-                            doseEventIndex += 1
-                        }
-                    } else {
-
-                        // No more events in one of the sets so just add the remainder of the events and stop
-                        if pumpEventIndex < pumpEvents.endIndex {
-                            events.append(contentsOf: pumpEvents[pumpEventIndex..<pumpEvents.endIndex])
-                        }
-                        if doseEventIndex < doseEvents.endIndex {
-                            events.append(contentsOf: doseEvents[doseEventIndex..<doseEvents.endIndex])
-                        }
-                        break
-                    }
-                }
-
-                // If the total number of events is larger than the limit, then trim down to size. However, to maintain a valid query
-                // using the modification counter, the latest modification counter in the limit events MUST NOT be later than the
-                // earliest modification counter in the extra events. If this is this case, then we need either reduce the limit
-                // events or use all of the events.
-                if events.count > limit {
-                    let (limitEvents, extraEvents) = events.split(at: limit)
-
-                    // Only care if there are modification counters in both the limit and extra events. If either is missing or
-                    // the latest limit modification counter is earlier than the earliest extra modification counter, which indicates
-                    // the events are in a valid modification counter order, then there is no modification counter issue.
-                    if let limitModificationCounterLatest = limitEvents.compactMap({ $0.modificationCounter }).max(),
-                       let extraModificationCounterEarliest = extraEvents.compactMap({ $0.modificationCounter }).min(),
-                       limitModificationCounterLatest > extraModificationCounterEarliest {
-
-                        // Otherwise, find the index of the first modification counter in the limit events that exceeds the earliest
-                        // extra modification counter and as long as it isn't the first index, use up to that point. Otherwise, we have no
-                        // choice but to use all of the events (highly unlikely unless an especially small limit). In theory,
-                        // we could use part of the extra events, but that requires extra work and is not worth the effort considering
-                        // the remote likelyhood of this last case.
-                        if let limitIndex = limitEvents.firstIndex(where: { $0.modificationCounter.map { $0 > extraModificationCounterEarliest } == true }), limitIndex > 0 {
-                            (events, _) = limitEvents.split(at: limitIndex)
-                        }
-                    } else {
-                        events = limitEvents
-                    }
-                }
+                // Reconcile and limit the events
+                let events = self.limitPumpEvents(self.reconcilePumpEventsAndDoseEvents(pumpEvents: pumpEvents, doseEvents: doseEvents), limit: limit)
 
                 // Use latest modification counter and the start date of the latest pump event that could start a scheduled basal, one
                 // of scheduled basal, resume, or temp basal. Do NOT use the end date, though, because it is possible the scheduled
@@ -1737,11 +1659,104 @@ extension DoseStore {
         }
     }
 
-    fileprivate static var storedDateFormatter: ISO8601DateFormatter = {
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return dateFormatter
-    }()
+    // Walk the two sets of events and reconcile based upon start date and type.
+    private func reconcilePumpEventsAndDoseEvents(pumpEvents: [SyncPumpEventWithModificationCounter], doseEvents: [SyncPumpEventWithModificationCounter]) -> [SyncPumpEventWithModificationCounter] {
+        var events = [SyncPumpEventWithModificationCounter]()
+        var pumpEventIndex = 0
+        var doseEventIndex = 0
+        while true {
+
+            // If no more events in one of the sets, then just add the remainder of the events and stop.
+            guard let pumpEvent = pumpEvents[safe: pumpEventIndex], let doseEvent = doseEvents[safe: doseEventIndex] else {
+                if pumpEventIndex < pumpEvents.endIndex {
+                    events.append(contentsOf: pumpEvents[pumpEventIndex..<pumpEvents.endIndex])
+                }
+                if doseEventIndex < doseEvents.endIndex {
+                    events.append(contentsOf: doseEvents[doseEventIndex..<doseEvents.endIndex])
+                }
+                break
+            }
+
+            // As the events are sorted by start date, the event with the earlier start date gets added. If the events have
+            // the same start date, then reconcile based upon type.
+            switch pumpEvent.startDate.compare(doseEvent.startDate) {
+            case .orderedAscending:
+                events.append(pumpEvent)
+                pumpEventIndex += 1
+            case .orderedDescending:
+                events.append(doseEvent)
+                doseEventIndex += 1
+            case .orderedSame:
+                switch pumpEvent.syncPumpEvent.type {
+                case .alarm, .alarmClear, .prime, .rewind:
+                    events.append(pumpEvent)
+                    pumpEventIndex += 1
+                case .basal, .tempBasal:
+                    // A single basal pump event can be split into multiple basal dose events to account for changes to underlying scheduled basal
+                    if pumpEvent.endDate > doseEvent.endDate {
+                        var splitEvents: [SyncPumpEventWithModificationCounter] = []
+                        while let doseEvent = doseEvents[safe: doseEventIndex], pumpEvent.endDate >= doseEvent.endDate {
+                            splitEvents.append(doseEvent)
+                            doseEventIndex += 1
+                        }
+                        events.append(contentsOf: splitEvents.map { SyncPumpEventWithModificationCounter($0.syncPumpEvent, modificationCounter: pumpEvent.modificationCounter) })
+                        pumpEventIndex += 1
+                    } else {
+                        events.append(SyncPumpEventWithModificationCounter(doseEvent.syncPumpEvent, modificationCounter: pumpEvent.modificationCounter))
+                        doseEventIndex += 1
+                        pumpEventIndex += 1
+                    }
+                case .bolus:
+                    events.append(pumpEvent)
+                    doseEventIndex += 1
+                    pumpEventIndex += 1
+                case .resume:
+                    events.append(pumpEvent)
+                    pumpEventIndex += 1
+                case .suspend:
+                    events.append(pumpEvent)
+                    pumpEventIndex += 1
+                }
+            }
+        }
+        return events
+    }
+
+    // If the total number of events is larger than the limit, then trim down to size. However, to maintain a valid query
+    // using the modification counter, the latest modification counter in the limit events MUST NOT be later than the
+    // earliest modification counter in the extra events. If this is this case, then we need either reduce the limit
+    // events or use all of the events.
+    private func limitPumpEvents(_ pumpEvents: [SyncPumpEventWithModificationCounter], limit: Int) -> [SyncPumpEventWithModificationCounter] {
+        guard pumpEvents.count > limit else {
+            return pumpEvents
+        }
+
+        let (limitEvents, extraEvents) = pumpEvents.split(at: limit)
+
+        // Only care if there are modification counters in both the limit and extra events. If either is missing or
+        // the latest limit modification counter is earlier than the earliest extra modification counter, which indicates
+        // the events are in a valid modification counter order, then there is no modification counter issue.
+        guard let limitModificationCounterLatest = limitEvents.compactMap({ $0.modificationCounter }).max(),
+              let extraModificationCounterEarliest = extraEvents.compactMap({ $0.modificationCounter }).min(),
+              limitModificationCounterLatest > extraModificationCounterEarliest
+        else {
+            return limitEvents
+        }
+
+        // Otherwise, find the index of the first modification counter in the limit events that exceeds the earliest
+        // extra modification counter and as long as it isn't the first index, use up to that point. Otherwise, we have no
+        // choice but to use all of the events (highly unlikely unless an especially small limit). In theory,
+        // we could use part of the extra events, but that requires extra work and is not worth the effort considering
+        // the remote likelyhood of this last case.
+        guard let limitIndex = limitEvents.firstIndex(where: { $0.modificationCounter.map { $0 > extraModificationCounterEarliest } == true }),
+              limitIndex > 0
+        else {
+            return pumpEvents
+        }
+
+        // Return the events up to the first event whose modification counter exceeds the extra modification counter
+        return limitEvents.split(at: limitIndex).0
+    }
 }
 
 // MARK: - Critical Event Log Export

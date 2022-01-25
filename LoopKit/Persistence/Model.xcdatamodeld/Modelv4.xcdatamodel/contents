@@ -59,10 +59,10 @@
     <entity name="CachedInsulinDeliveryObject" representedClassName=".CachedInsulinDeliveryObject" syncable="YES">
         <attribute name="automaticallyIssued" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="duringSuspend" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="endDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="hasLoopKitOrigin" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="insulinType" optional="YES" attributeType="Integer 16" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="isSuspend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="manuallyEntered" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="programmedTempBasalRate" optional="YES" attributeType="Double" usesScalarValueType="NO" elementID="scheduledTempBasalRate"/>
         <attribute name="provenanceIdentifier" attributeType="String"/>

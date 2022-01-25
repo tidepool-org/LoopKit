@@ -17,7 +17,6 @@ public enum PumpAlarmType: Equatable, Codable {
     case noPower
     case occlusion
     case other(_ details: String)
-    case overLimit
 }
 
 extension PumpAlarmType: RawRepresentable {
@@ -39,8 +38,6 @@ extension PumpAlarmType: RawRepresentable {
             self = .noPower
         case "occlusion":
             self = .occlusion
-        case "overLimit":
-            self = .overLimit
         default:
             self = .other(rawValue)
         }
@@ -64,8 +61,6 @@ extension PumpAlarmType: RawRepresentable {
             return "occlusion"
         case .other(let details):
             return details
-        case .overLimit:
-            return "overLimit"
         }
     }
 }
