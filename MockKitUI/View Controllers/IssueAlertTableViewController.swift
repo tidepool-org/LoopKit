@@ -67,6 +67,20 @@ final class IssueAlertTableViewController: UITableViewController {
             default: return MockCGMManager.submarine.identifier
             }
         }
+
+        var parameters: String? {
+            switch self {
+            case .buzz: return (try? JSONEncoder().encode(BuzzParameters())).flatMap { String(data: $0, encoding: .utf8) }
+            default: return nil
+            }
+        }
+
+        private struct BuzzParameters: Encodable {
+            let string = "Buzz"
+            let int = 1
+            let double = 2.34
+            let bool = true
+        }
     }
 
     init(cgmManager: MockCGMManager) {
@@ -131,7 +145,7 @@ final class IssueAlertTableViewController: UITableViewController {
         case .retract:
             cgmManager.retractCurrentAlert()
         default:
-            cgmManager.issueAlert(identifier: row.identifier, trigger: row.trigger, delay: row.delayBeforeIssue)
+            cgmManager.issueAlert(identifier: row.identifier, trigger: row.trigger, delay: row.delayBeforeIssue, parameters: row.parameters)
         }
         tableView.deselectRow(at: indexPath, animated: true)
         tableView.reloadRows(at: [IndexPath(row: AlertRow.retract.rawValue, section: indexPath.section)], with: .automatic)

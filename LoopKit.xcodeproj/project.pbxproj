@@ -541,6 +541,8 @@
 		A919889F2355016B00B75EEE /* DosingDecisionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A919889E2355016B00B75EEE /* DosingDecisionStore.swift */; };
 		A91A601A23CD023800C0E8A1 /* Modelv2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = A91A601923CD023800C0E8A1 /* Modelv2.xcmappingmodel */; };
 		A91A601B23CD023800C0E8A1 /* Modelv2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = A91A601923CD023800C0E8A1 /* Modelv2.xcmappingmodel */; };
+		A932803B2798D63B0091D0A1 /* SyncAlertObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932803A2798D63B0091D0A1 /* SyncAlertObject.swift */; };
+		A932803C2798D63B0091D0A1 /* SyncAlertObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932803A2798D63B0091D0A1 /* SyncAlertObject.swift */; };
 		A933DB8824BF956F009B417A /* CriticalEventLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A933DB8724BF956F009B417A /* CriticalEventLog.swift */; };
 		A933DB8924BF97CC009B417A /* CriticalEventLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A933DB8724BF956F009B417A /* CriticalEventLog.swift */; };
 		A935094426E2FAB70030B60D /* GlucoseCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A935094326E2FAB70030B60D /* GlucoseCondition.swift */; };
@@ -1499,6 +1501,7 @@
 		A919889B2354E5EB00B75EEE /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		A919889E2355016B00B75EEE /* DosingDecisionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DosingDecisionStore.swift; sourceTree = "<group>"; };
 		A91A601923CD023800C0E8A1 /* Modelv2.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Modelv2.xcmappingmodel; sourceTree = "<group>"; };
+		A932803A2798D63B0091D0A1 /* SyncAlertObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncAlertObject.swift; sourceTree = "<group>"; };
 		A933DB8724BF956F009B417A /* CriticalEventLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalEventLog.swift; sourceTree = "<group>"; };
 		A935094326E2FAB70030B60D /* GlucoseCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseCondition.swift; sourceTree = "<group>"; };
 		A93761C025ED670200F6BE43 /* BluetoothProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothProvider.swift; sourceTree = "<group>"; };
@@ -2316,6 +2319,7 @@
 				A912BE2A245B9E8600CBE199 /* SettingsObject+CoreDataProperties.swift */,
 				A919889B2354E5EB00B75EEE /* SettingsStore.swift */,
 				C1CAB9E826A3254800A57273 /* StoredInsulinModel.swift */,
+				A932803A2798D63B0091D0A1 /* SyncAlertObject.swift */,
 				89AE2223228BC54C00BDFD85 /* TemporaryScheduleOverride.swift */,
 				89AE2225228BC54C00BDFD85 /* TemporaryScheduleOverrideHistory.swift */,
 				89AE221F228BC54C00BDFD85 /* TemporaryScheduleOverridePreset.swift */,
@@ -3890,6 +3894,7 @@
 				A935094426E2FAB70030B60D /* GlucoseCondition.swift in Sources */,
 				433BC7AD20538FCA000B1200 /* StoredGlucoseSample.swift in Sources */,
 				43D8FDF91C7290350073BE78 /* GlucoseEffect.swift in Sources */,
+				A932803B2798D63B0091D0A1 /* SyncAlertObject.swift in Sources */,
 				1D841AAD24577EE10069DBFF /* AlertSoundPlayer.swift in Sources */,
 				C1CAB9E926A3254800A57273 /* StoredInsulinModel.swift in Sources */,
 				43CACE0E2247F89100F90AF5 /* WeakSynchronizedSet.swift in Sources */,
@@ -4191,6 +4196,7 @@
 				A9E675C622713F4700E25293 /* CarbStatus.swift in Sources */,
 				B42C951B24A63B8100857C73 /* DeviceStatusHighlight.swift in Sources */,
 				A935094526E2FAB70030B60D /* GlucoseCondition.swift in Sources */,
+				A932803C2798D63B0091D0A1 /* SyncAlertObject.swift in Sources */,
 				A9498D7023386C0B00DAA9B9 /* TempBasalRecommendation.swift in Sources */,
 				A9E675C722713F4700E25293 /* DoseEntry.swift in Sources */,
 				A9E675C822713F4700E25293 /* NSUserActivity+CarbKit.swift in Sources */,

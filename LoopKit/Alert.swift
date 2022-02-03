@@ -94,15 +94,19 @@ public struct Alert: Equatable {
         case sound(name: String)
     }
     public let sound: Sound?
+
+    /// Any parameters used to dynamically construct foreground or background content encoded as a JSON object string
+    public let parameters: String?
     
     public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger,
-                interruptionLevel: InterruptionLevel = .timeSensitive, sound: Sound? = nil) {
+                interruptionLevel: InterruptionLevel = .timeSensitive, sound: Sound? = nil, parameters: String? = nil) {
         self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger
         self.interruptionLevel = interruptionLevel
         self.sound = sound
+        self.parameters = parameters
     }
 }
 
