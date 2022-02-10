@@ -114,6 +114,13 @@ extension MockService: RemoteDataService {
         completion(.success(false))
     }
     
+    public func uploadDoseData(_ stored: [DoseEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void) {
+        if remoteData {
+            record("[RemoteDataService] Upload dose data (stored: \(stored.count))")
+        }
+        completion(.success(false))
+    }
+
     public func uploadDosingDecisionData(_ stored: [StoredDosingDecision], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
             let warned = stored.filter { !$0.warnings.isEmpty }
@@ -130,9 +137,9 @@ extension MockService: RemoteDataService {
         completion(.success(false))
     }
     
-    public func uploadPumpData(_ stored: [SyncPumpEvent], completion: @escaping (Result<Bool, Error>) -> Void) {
+    public func uploadPumpEventData(_ stored: [PersistedPumpEvent], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Upload pump data (stored: \(stored.count))")
+            record("[RemoteDataService] Upload pump event data (stored: \(stored.count))")
         }
         completion(.success(false))
     }

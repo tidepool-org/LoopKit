@@ -13,11 +13,11 @@ import os.log
 public protocol DoseStoreDelegate: AnyObject {
 
     /**
-     Informs the delegate that the dose store has updated pump data.
+     Informs the delegate that the dose store has updated pump event data.
 
-     - Parameter doseStore: The dose store that has updated pump data.
+     - Parameter doseStore: The dose store that has updated pump event data.
      */
-    func doseStoreHasUpdatedPumpData(_ doseStore: DoseStore)
+    func doseStoreHasUpdatedPumpEventData(_ doseStore: DoseStore)
 
 }
 
@@ -762,7 +762,7 @@ extension DoseStore {
             self.persistenceController.save { (error) -> Void in
                 self.syncPumpEventsToInsulinDeliveryStore() { _ in
                     completion(DoseStoreError(error: error))
-                    self.delegate?.doseStoreHasUpdatedPumpData(self)
+                    self.delegate?.doseStoreHasUpdatedPumpEventData(self)
                     NotificationCenter.default.post(name: DoseStore.valuesDidChange, object: self)
                 }
             }
@@ -1567,11 +1567,9 @@ extension DoseStore {
         public typealias RawValue = [String: Any]
 
         internal var modificationCounter: Int64
-        internal var scheduledBasalStartDate: Date?
 
         public init() {
             self.modificationCounter = 0
-            self.scheduledBasalStartDate = nil
         }
 
         public init?(rawValue: RawValue) {
@@ -1579,24 +1577,23 @@ extension DoseStore {
                 return nil
             }
             self.modificationCounter = modificationCounter
-            self.scheduledBasalStartDate = rawValue["scheduledBasalStartDate"] as? Date
         }
 
         public var rawValue: RawValue {
             var rawValue: RawValue = [:]
             rawValue["modificationCounter"] = modificationCounter
-            rawValue["scheduledBasalStartDate"] = scheduledBasalStartDate
             return rawValue
         }
     }
 
-    public enum PumpQueryResult {
-        case success(QueryAnchor, [SyncPumpEvent])
+    public enum PumpEventQueryResult {
+        case success(QueryAnchor, [PersistedPumpEvent])
         case failure(Error)
     }
     
-    public func executePumpQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (PumpQueryResult) -> Void) {
+    public func executePumpEventQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (PumpEventQueryResult) -> Void) {
         var queryAnchor = queryAnchor ?? QueryAnchor()
+        var queryResult = [PersistedPumpEvent]()
         var queryError: Error?
 
         guard limit > 0 else {
@@ -1604,9 +1601,6 @@ extension DoseStore {
             return
         }
 
-        var pumpEvents = [SyncPumpEventWithModificationCounter]()
-
-        // Get the next page of pump events
         persistenceController.managedObjectContext.performAndWait {
             let storedRequest: NSFetchRequest<PumpEvent> = PumpEvent.fetchRequest()
 
@@ -1615,9 +1609,12 @@ extension DoseStore {
             storedRequest.fetchLimit = limit
 
             do {
-                pumpEvents = try self.persistenceController.managedObjectContext.fetch(storedRequest).compactMap { $0.syncPumpEventWithModificationCounter }
-                pumpEvents.sort(by: { SyncPumpEventWithModificationCounter.sort($0, $1) } )
-            } catch {
+                let stored = try self.persistenceController.managedObjectContext.fetch(storedRequest)
+                if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                    queryAnchor.modificationCounter = modificationCounter
+                }
+                queryResult.append(contentsOf: stored.compactMap { $0.persistedPumpEvent })
+            } catch let error {
                 queryError = error
             }
         }
@@ -1627,135 +1624,7 @@ extension DoseStore {
             return
         }
 
-        // Determine the potential schedule basal end date used to query the insulin delivery store. Find the date of the
-        // latest pump event that can end a scheduled basal, namely either a resume or temp basal event.
-        let scheduledBasalEndDate = (pumpEvents.count == limit) ? pumpEvents.filter({ $0.delineatesScheduledBasal }).last?.endDate : nil
-
-        // Get the doses within the pump event window
-        insulinDeliveryStore.getDoseEntries(start: queryAnchor.scheduledBasalStartDate, end: scheduledBasalEndDate, limit: limit, inclusive: false) { result in
-            switch result {
-            case .failure(let error):
-                completion(.failure(error))
-            case .success(let doses):
-                var doseEvents = doses.compactMap { $0.syncPumpEventWithModificationCounter }
-                doseEvents.sort(by: { SyncPumpEventWithModificationCounter.sort($0, $1) })
-
-                // Reconcile and limit the events
-                let events = self.limitPumpEvents(self.reconcilePumpEventsAndDoseEvents(pumpEvents: pumpEvents, doseEvents: doseEvents), limit: limit)
-
-                // Use latest modification counter and the start date of the latest pump event that could start a scheduled basal, one
-                // of scheduled basal, resume, or temp basal. Do NOT use the end date, though, because it is possible the scheduled
-                // basal or temp basal recorded are still in-progress. If that is the case, then the last event will be repeated
-                // (which is correct since it was still in-progress).
-                if let modificationCounter = events.compactMap({ $0.modificationCounter }).max() {
-                    queryAnchor.modificationCounter = modificationCounter
-                }
-                if let scheduledBasalStartDate = events.filter({ $0.delineatesScheduledBasal }).last?.endDate {
-                    queryAnchor.scheduledBasalStartDate = scheduledBasalStartDate
-                }
-
-                completion(.success(queryAnchor, events.map { $0.syncPumpEvent }))
-            }
-        }
-    }
-
-    // Walk the two sets of events and reconcile based upon start date and type.
-    private func reconcilePumpEventsAndDoseEvents(pumpEvents: [SyncPumpEventWithModificationCounter], doseEvents: [SyncPumpEventWithModificationCounter]) -> [SyncPumpEventWithModificationCounter] {
-        var events = [SyncPumpEventWithModificationCounter]()
-        var pumpEventIndex = 0
-        var doseEventIndex = 0
-        while true {
-
-            // If no more events in one of the sets, then just add the remainder of the events and stop.
-            guard let pumpEvent = pumpEvents[safe: pumpEventIndex], let doseEvent = doseEvents[safe: doseEventIndex] else {
-                if pumpEventIndex < pumpEvents.endIndex {
-                    events.append(contentsOf: pumpEvents[pumpEventIndex..<pumpEvents.endIndex])
-                }
-                if doseEventIndex < doseEvents.endIndex {
-                    events.append(contentsOf: doseEvents[doseEventIndex..<doseEvents.endIndex])
-                }
-                break
-            }
-
-            // As the events are sorted by start date, the event with the earlier start date gets added. If the events have
-            // the same start date, then reconcile based upon type.
-            switch pumpEvent.startDate.compare(doseEvent.startDate) {
-            case .orderedAscending:
-                events.append(pumpEvent)
-                pumpEventIndex += 1
-            case .orderedDescending:
-                events.append(doseEvent)
-                doseEventIndex += 1
-            case .orderedSame:
-                switch pumpEvent.syncPumpEvent.type {
-                case .alarm, .alarmClear, .prime, .rewind:
-                    events.append(pumpEvent)
-                    pumpEventIndex += 1
-                case .basal, .tempBasal:
-                    // A single basal pump event can be split into multiple basal dose events to account for changes to underlying scheduled basal
-                    if pumpEvent.endDate > doseEvent.endDate {
-                        var splitEvents: [SyncPumpEventWithModificationCounter] = []
-                        while let doseEvent = doseEvents[safe: doseEventIndex], pumpEvent.endDate >= doseEvent.endDate {
-                            splitEvents.append(doseEvent)
-                            doseEventIndex += 1
-                        }
-                        events.append(contentsOf: splitEvents.map { SyncPumpEventWithModificationCounter($0.syncPumpEvent, modificationCounter: pumpEvent.modificationCounter) })
-                        pumpEventIndex += 1
-                    } else {
-                        events.append(SyncPumpEventWithModificationCounter(doseEvent.syncPumpEvent, modificationCounter: pumpEvent.modificationCounter))
-                        doseEventIndex += 1
-                        pumpEventIndex += 1
-                    }
-                case .bolus:
-                    events.append(pumpEvent)
-                    doseEventIndex += 1
-                    pumpEventIndex += 1
-                case .resume:
-                    events.append(pumpEvent)
-                    pumpEventIndex += 1
-                case .suspend:
-                    events.append(pumpEvent)
-                    pumpEventIndex += 1
-                }
-            }
-        }
-        return events
-    }
-
-    // If the total number of events is larger than the limit, then trim down to size. However, to maintain a valid query
-    // using the modification counter, the latest modification counter in the limit events MUST NOT be later than the
-    // earliest modification counter in the extra events. If this is this case, then we need either reduce the limit
-    // events or use all of the events.
-    private func limitPumpEvents(_ pumpEvents: [SyncPumpEventWithModificationCounter], limit: Int) -> [SyncPumpEventWithModificationCounter] {
-        guard pumpEvents.count > limit else {
-            return pumpEvents
-        }
-
-        let (limitEvents, extraEvents) = pumpEvents.split(at: limit)
-
-        // Only care if there are modification counters in both the limit and extra events. If either is missing or
-        // the latest limit modification counter is earlier than the earliest extra modification counter, which indicates
-        // the events are in a valid modification counter order, then there is no modification counter issue.
-        guard let limitModificationCounterLatest = limitEvents.compactMap({ $0.modificationCounter }).max(),
-              let extraModificationCounterEarliest = extraEvents.compactMap({ $0.modificationCounter }).min(),
-              limitModificationCounterLatest > extraModificationCounterEarliest
-        else {
-            return limitEvents
-        }
-
-        // Otherwise, find the index of the first modification counter in the limit events that exceeds the earliest
-        // extra modification counter and as long as it isn't the first index, use up to that point. Otherwise, we have no
-        // choice but to use all of the events (highly unlikely unless an especially small limit). In theory,
-        // we could use part of the extra events, but that requires extra work and is not worth the effort considering
-        // the remote likelyhood of this last case.
-        guard let limitIndex = limitEvents.firstIndex(where: { $0.modificationCounter.map { $0 > extraModificationCounterEarliest } == true }),
-              limitIndex > 0
-        else {
-            return pumpEvents
-        }
-
-        // Return the events up to the first event whose modification counter exceeds the extra modification counter
-        return limitEvents.split(at: limitIndex).0
+        completion(.success(queryAnchor, queryResult))
     }
 }
 
@@ -1873,107 +1742,7 @@ extension DoseStore {
         }
 
         self.log.info("Added %d PumpEvents", events.count)
-        self.delegate?.doseStoreHasUpdatedPumpData(self)
+        self.delegate?.doseStoreHasUpdatedPumpEventData(self)
         return nil
-    }
-}
-
-fileprivate struct SyncPumpEventWithModificationCounter {
-    let syncPumpEvent: SyncPumpEvent
-    let modificationCounter: Int64?
-
-    init(_ syncPumpEvent: SyncPumpEvent, modificationCounter: Int64? = nil) {
-        self.syncPumpEvent = syncPumpEvent
-        self.modificationCounter = modificationCounter
-    }
-
-    var startDate: Date { syncPumpEvent.dose?.startDate ?? syncPumpEvent.date }
-
-    var endDate: Date { syncPumpEvent.dose?.endDate ?? syncPumpEvent.date }
-
-    var delineatesScheduledBasal: Bool {
-        switch syncPumpEvent.type {
-        case .basal, .resume, .tempBasal:
-            return !syncPumpEvent.mutable
-        default:
-            return false
-        }
-    }
-
-    // Stable sort order even if date and type match
-    static func sort(_ lhs: Self, _ rhs: Self) -> Bool {
-        switch lhs.startDate.compare(rhs.startDate) {
-        case .orderedAscending:
-            return true
-        case .orderedDescending:
-            return false
-        case .orderedSame:
-            switch lhs.syncPumpEvent.type.sortOrder.compare(rhs.syncPumpEvent.type.sortOrder) {
-            case .orderedAscending:
-                return true
-            case .orderedDescending:
-                return false
-            case .orderedSame:
-                return lhs.syncPumpEvent.syncIdentifier < rhs.syncPumpEvent.syncIdentifier
-            }
-        }
-    }
-}
-
-fileprivate extension PumpEvent {
-    var syncPumpEventWithModificationCounter: SyncPumpEventWithModificationCounter? {
-        guard let syncPumpEvent = syncPumpEvent else {
-            return nil
-        }
-        return SyncPumpEventWithModificationCounter(syncPumpEvent, modificationCounter: modificationCounter)
-    }
-
-    private var syncPumpEvent: SyncPumpEvent? {
-        guard let type = type, let syncIdentifier = syncIdentifier else {
-            return nil
-        }
-        return SyncPumpEvent(date: date, type: type, alarmType: alarmType, mutable: mutable, dose: dose, syncIdentifier: syncIdentifier)
-    }
-}
-
-fileprivate extension DoseEntry {
-    var syncPumpEventWithModificationCounter: SyncPumpEventWithModificationCounter? {
-        guard let syncPumpEvent = syncPumpEvent else {
-            return nil
-        }
-        return SyncPumpEventWithModificationCounter(syncPumpEvent)
-    }
-
-    private var syncPumpEvent: SyncPumpEvent? {
-        guard let syncIdentifier = syncIdentifier else {
-            return nil
-        }
-        return SyncPumpEvent(date: startDate, type: type.pumpEventType, mutable: false, dose: self, syncIdentifier: syncIdentifier)
-    }
-}
-fileprivate extension Array {
-    func split(at index: Int) -> (Array<Element>, Array<Element>) {
-        guard index <= endIndex else {
-            return (self, [])
-        }
-        return (Array(self[0..<index]), Array(self[index..<endIndex]))
-    }
-}
-
-fileprivate extension Collection {
-    subscript (safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
-    }
-}
-
-fileprivate extension Int {
-    func compare(_ other: Int) -> ComparisonResult {
-        if self < other {
-            return .orderedAscending
-        } else if self > other {
-            return .orderedDescending
-        } else {
-            return .orderedSame
-        }
     }
 }

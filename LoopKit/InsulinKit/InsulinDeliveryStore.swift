@@ -9,6 +9,17 @@ import HealthKit
 import CoreData
 import os.log
 
+public protocol InsulinDeliveryStoreDelegate: AnyObject {
+
+    /**
+     Informs the delegate that the insulin delivery store has updated dose data.
+
+     - Parameter insulinDeliveryStore: The insulin delivery store that has updated dose data.
+     */
+    func insulinDeliveryStoreHasUpdatedDoseData(_ insulinDeliveryStore: InsulinDeliveryStore)
+
+}
+
 /// Manages insulin dose data in Core Data and optionally reads insulin dose data from HealthKit.
 ///
 /// Scheduled doses (e.g. a bolus or temporary basal) shouldn't be written to this store until they've
@@ -37,6 +48,8 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
     }
 
     internal var test_lastBasalEndDateDidSet: (() -> Void)?
+
+    public weak var delegate: InsulinDeliveryStoreDelegate?
 
     /// The interval of insulin delivery data to keep in cache
     public let cacheLength: TimeInterval
@@ -108,7 +121,8 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
                 return
             }
 
-            var changed = false
+            var dosesAdded = false
+            var dosesDeleted = false
             var error: Error?
 
             self.cacheStore.managedObjectContext.performAndWait {
@@ -118,7 +132,7 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
                         for sample in samples {
                             if try self.addDoseEntry(for: sample) {
                                 self.log.debug("Saved sample %@ into cache from HKAnchoredObjectQuery", sample.uuid.uuidString)
-                                changed = true
+                                dosesAdded = true
                             } else {
                                 self.log.default("Sample %@ from HKAnchoredObjectQuery already present in cache", sample.uuid.uuidString)
                             }
@@ -129,10 +143,10 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
                     let count = try self.deleteDoseEntries(withUUIDs: deleted.map { $0.uuid })
                     if count > 0 {
                         self.log.debug("Deleted %d samples from cache from HKAnchoredObjectQuery", count)
-                        changed = true
+                        dosesDeleted = true
                     }
 
-                    guard changed else {
+                    guard dosesAdded || dosesDeleted else {
                         return
                     }
 
@@ -142,17 +156,22 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
                 }
             }
 
-            if error != nil {
+            guard error == nil else {
                 completion(false)
                 return
             }
 
-            if !changed {
+            guard dosesAdded || dosesDeleted else {
                 completion(true)
                 return
             }
 
             self.handleUpdatedDoseData(updateSource: .queriedByHealthKit)
+
+            if dosesAdded {
+                self.delegate?.insulinDeliveryStoreHasUpdatedDoseData(self)
+            }
+
             completion(true)
         }
     }
@@ -166,16 +185,15 @@ extension InsulinDeliveryStore {
     /// - Parameters:
     ///   - start: The earliest date of dose entries to retrieve, if provided.
     ///   - end: The latest date of dose entries to retrieve, if provided.
-    ///   - limit: The maximum number of dose entries to retrieve, if provided, otherwise unlimited.
     ///   - completion: A closure called once the dose entries have been retrieved.
     ///   - result: An array of dose entries, in chronological order by startDate, or error.
-    public func getDoseEntries(start: Date? = nil, end: Date? = nil, limit: Int? = nil, inclusive: Bool = true, completion: @escaping (_ result: Result<[DoseEntry], Error>) -> Void) {
+    public func getDoseEntries(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[DoseEntry], Error>) -> Void) {
         queue.async {
-            completion(self.getDoseEntries(start: start, end: end, limit: limit, inclusive: inclusive))
+            completion(self.getDoseEntries(start: start, end: end))
         }
     }
 
-    private func getDoseEntries(start: Date? = nil, end: Date? = nil, limit: Int? = nil, inclusive: Bool = true) -> Result<[DoseEntry], Error> {
+    private func getDoseEntries(start: Date? = nil, end: Date? = nil) -> Result<[DoseEntry], Error> {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var entries: [DoseEntry] = []
@@ -183,7 +201,7 @@ extension InsulinDeliveryStore {
 
         cacheStore.managedObjectContext.performAndWait {
             do {
-                entries = try self.getCachedInsulinDeliveryObjects(start: start, end: end, limit: limit, inclusive: inclusive).map { $0.dose }
+                entries = try self.getCachedInsulinDeliveryObjects(start: start, end: end).map { $0.dose }
             } catch let coreDataError {
                 error = coreDataError
             }
@@ -197,35 +215,22 @@ extension InsulinDeliveryStore {
         return .success(entries)
     }
 
-    private func getCachedInsulinDeliveryObjects(start: Date? = nil, end: Date? = nil, limit: Int? = nil, inclusive: Bool = true) throws -> [CachedInsulinDeliveryObject] {
+    private func getCachedInsulinDeliveryObjects(start: Date? = nil, end: Date? = nil) throws -> [CachedInsulinDeliveryObject] {
         dispatchPrecondition(condition: .onQueue(queue))
 
+        // Match all doses whose start OR end dates fall in the start and end date range, if specified. Therefore, we ensure the
+        // dose end date is AFTER the start date, if specified, and the dose start date is BEFORE the end date, if specified.
         var predicates: [NSPredicate] = []
-        if inclusive {
-            // Match all doses whose start OR end dates fall in the start and end date range, if specified. Therefore, we ensure the
-            // dose end date is AFTER the start date, if specified, and the dose start date is BEFORE the end date, if specified.
-            if let start = start {
-                predicates.append(NSPredicate(format: "endDate >= %@", start as NSDate))
-            }
-            if let end = end {
-                predicates.append(NSPredicate(format: "startDate <= %@", end as NSDate))    // Note: Using <= rather than < to match previous behavior
-            }
-        } else {
-            // Otherwise, simple start and end date comparison, if specified.
-            if let start = start {
-                predicates.append(NSPredicate(format: "startDate >= %@", start as NSDate))
-            }
-            if let end = end {
-                predicates.append(NSPredicate(format: "endDate <= %@", end as NSDate))
-            }
+        if let start = start {
+            predicates.append(NSPredicate(format: "endDate >= %@", start as NSDate))
+        }
+        if let end = end {
+            predicates.append(NSPredicate(format: "startDate <= %@", end as NSDate))    // Note: Using <= rather than < to match previous behavior
         }
 
         let request: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
         request.predicate = (predicates.count > 1) ? NSCompoundPredicate(andPredicateWithSubpredicates: predicates) : predicates.first
         request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: true)]
-        if let limit = limit {
-            request.fetchLimit = limit
-        }
 
         return try self.cacheStore.managedObjectContext.fetch(request)
     }
@@ -327,6 +332,7 @@ extension InsulinDeliveryStore {
                         let object = CachedInsulinDeliveryObject(context: self.cacheStore.managedObjectContext)
                         object.create(fromNew: quantitySample, on: self.currentDate())
                         object.provenanceIdentifier = self.provenanceIdentifier
+                        object.updateModificationCounter()  // Maintains modificationCounter order
                         return object
                     }
 
@@ -346,12 +352,17 @@ extension InsulinDeliveryStore {
                 return
             }
 
-            if !changed {
+            guard changed else {
                 completion(.success(()))
                 return
             }
 
             self.handleUpdatedDoseData(updateSource: .changedInApp)
+
+            if changed {
+                self.delegate?.insulinDeliveryStoreHasUpdatedDoseData(self)
+            }
+
             completion(.success(()))
         }
     }
@@ -582,6 +593,78 @@ extension InsulinDeliveryStore {
 
             report.append("")
             completion(report.joined(separator: "\n"))
+        }
+    }
+}
+
+// MARK: - Query
+
+extension InsulinDeliveryStore {
+
+    public struct QueryAnchor: Equatable, RawRepresentable {
+
+        public typealias RawValue = [String: Any]
+
+        internal var modificationCounter: Int64
+
+        public init() {
+            self.modificationCounter = 0
+        }
+
+        public init?(rawValue: RawValue) {
+            guard let modificationCounter = rawValue["modificationCounter"] as? Int64 else {
+                return nil
+            }
+            self.modificationCounter = modificationCounter
+        }
+
+        public var rawValue: RawValue {
+            var rawValue: RawValue = [:]
+            rawValue["modificationCounter"] = modificationCounter
+            return rawValue
+        }
+    }
+
+    public enum DoseQueryResult {
+        case success(QueryAnchor, [DoseEntry])
+        case failure(Error)
+    }
+
+    public func executeDoseQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (DoseQueryResult) -> Void) {
+        queue.async {
+            var queryAnchor = queryAnchor ?? QueryAnchor()
+            var queryResult = [DoseEntry]()
+            var queryError: Error?
+
+            guard limit > 0 else {
+                completion(.success(queryAnchor, []))
+                return
+            }
+
+            self.cacheStore.managedObjectContext.performAndWait {
+                let storedRequest: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
+
+                storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter)
+                storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+                storedRequest.fetchLimit = limit
+
+                do {
+                    let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
+                    if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                        queryAnchor.modificationCounter = modificationCounter
+                    }
+                    queryResult.append(contentsOf: stored.compactMap { $0.dose })
+                } catch let error {
+                    queryError = error
+                }
+            }
+
+            if let queryError = queryError {
+                completion(.failure(queryError))
+                return
+            }
+
+            completion(.success(queryAnchor, queryResult))
         }
     }
 }

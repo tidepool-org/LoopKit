@@ -219,37 +219,8 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 10)
 
-        let getDoseEntries2Completion = expectation(description: "getDoseEntries2")
-        insulinDeliveryStore.getDoseEntries(limit: 2) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let entries):
-                XCTAssertEqual(entries.count, 2)
-                XCTAssertEqual(entries[0].type, self.entry1.type)
-                XCTAssertEqual(entries[0].startDate, self.entry1.startDate)
-                XCTAssertEqual(entries[0].endDate, self.entry1.endDate)
-                XCTAssertEqual(entries[0].value, 0.015)
-                XCTAssertEqual(entries[0].unit, .units)
-                XCTAssertNil(entries[0].deliveredUnits)
-                XCTAssertEqual(entries[0].description, self.entry1.description)
-                XCTAssertEqual(entries[0].syncIdentifier, self.entry1.syncIdentifier)
-                XCTAssertEqual(entries[0].scheduledBasalRate, self.entry1.scheduledBasalRate)
-                XCTAssertEqual(entries[1].type, self.entry3.type)
-                XCTAssertEqual(entries[1].startDate, self.entry3.startDate)
-                XCTAssertEqual(entries[1].endDate, self.entry3.endDate)
-                XCTAssertEqual(entries[1].value, self.entry3.value)
-                XCTAssertEqual(entries[1].unit, self.entry3.unit)
-                XCTAssertEqual(entries[1].deliveredUnits, self.entry3.deliveredUnits)
-                XCTAssertEqual(entries[1].description, self.entry3.description)
-                XCTAssertEqual(entries[1].syncIdentifier, self.entry3.syncIdentifier)
-                XCTAssertEqual(entries[1].scheduledBasalRate, self.entry3.scheduledBasalRate)
-            }
-            getDoseEntries2Completion.fulfill()
-        }
-        waitForExpectations(timeout: 10)
 
-        let getDoseEntries3Completion = expectation(description: "getDoseEntries3")
+        let getDoseEntries2Completion = expectation(description: "getDoseEntries2")
         insulinDeliveryStore.getDoseEntries(start: Date(timeIntervalSinceNow: -.minutes(3.75)), end: Date(timeIntervalSinceNow: -.minutes(1.75))) { result in
             switch result {
             case .failure(let error):
@@ -275,19 +246,7 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
                 XCTAssertEqual(entries[1].syncIdentifier, self.entry2.syncIdentifier)
                 XCTAssertEqual(entries[1].scheduledBasalRate, self.entry2.scheduledBasalRate)
             }
-            getDoseEntries3Completion.fulfill()
-        }
-        waitForExpectations(timeout: 10)
-
-        let getDoseEntries4Completion = expectation(description: "getDoseEntries4")
-        insulinDeliveryStore.getDoseEntries(start: Date(timeIntervalSinceNow: -.minutes(3.75)), end: Date(timeIntervalSinceNow: -.minutes(1.75)), inclusive: false) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let entries):
-                XCTAssertEqual(entries.count, 0)
-            }
-            getDoseEntries4Completion.fulfill()
+            getDoseEntries2Completion.fulfill()
         }
         waitForExpectations(timeout: 10)
 
@@ -298,7 +257,7 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 10)
 
-        let getDoseEntries5Completion = expectation(description: "getDoseEntries5")
+        let getDoseEntries3Completion = expectation(description: "getDoseEntries3")
         insulinDeliveryStore.getDoseEntries() { result in
             switch result {
             case .failure(let error):
@@ -306,7 +265,7 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
             case .success(let entries):
                 XCTAssertEqual(entries.count, 0)
             }
-            getDoseEntries5Completion.fulfill()
+            getDoseEntries3Completion.fulfill()
         }
         waitForExpectations(timeout: 10)
     }
@@ -694,4 +653,243 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
 
         NotificationCenter.default.removeObserver(observer)
     }
+}
+
+class InsulinDeliveryStoreQueryAnchorTests: XCTestCase {
+
+    var rawValue: InsulinDeliveryStore.QueryAnchor.RawValue = [
+        "modificationCounter": Int64(123)
+    ]
+
+    func testInitializerDefault() {
+        let queryAnchor = InsulinDeliveryStore.QueryAnchor()
+        XCTAssertEqual(queryAnchor.modificationCounter, 0)
+    }
+
+    func testInitializerRawValue() {
+        let queryAnchor = InsulinDeliveryStore.QueryAnchor(rawValue: rawValue)
+        XCTAssertNotNil(queryAnchor)
+        XCTAssertEqual(queryAnchor?.modificationCounter, 123)
+    }
+
+    func testInitializerRawValueMissingModificationCounter() {
+        rawValue["modificationCounter"] = nil
+        XCTAssertNil(InsulinDeliveryStore.QueryAnchor(rawValue: rawValue))
+    }
+
+    func testInitializerRawValueInvalidModificationCounter() {
+        rawValue["modificationCounter"] = "123"
+        XCTAssertNil(InsulinDeliveryStore.QueryAnchor(rawValue: rawValue))
+    }
+
+    func testRawValueWithDefault() {
+        let rawValue = InsulinDeliveryStore.QueryAnchor().rawValue
+        XCTAssertEqual(rawValue.count, 1)
+        XCTAssertEqual(rawValue["modificationCounter"] as? Int64, Int64(0))
+    }
+
+    func testRawValueWithNonDefault() {
+        var queryAnchor = InsulinDeliveryStore.QueryAnchor()
+        queryAnchor.modificationCounter = 123
+        let rawValue = queryAnchor.rawValue
+        XCTAssertEqual(rawValue.count, 1)
+        XCTAssertEqual(rawValue["modificationCounter"] as? Int64, Int64(123))
+    }
+
+}
+
+class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
+
+    let insulinModel = WalshInsulinModel(actionDuration: .hours(4))
+    let basalProfile = BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 68400.0]]])
+    let insulinSensitivitySchedule = InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]])
+
+    var insulinDeliveryStore: InsulinDeliveryStore!
+    var completion: XCTestExpectation!
+    var queryAnchor: InsulinDeliveryStore.QueryAnchor!
+    var limit: Int!
+
+    override func setUp() {
+        super.setUp()
+
+        insulinDeliveryStore = InsulinDeliveryStore(healthStore: HKHealthStoreMock(),
+                                                    storeSamplesToHealthKit: false,
+                                                    cacheStore: cacheStore,
+                                                    observationEnabled: false,
+                                                    provenanceIdentifier: HKSource.default().bundleIdentifier)
+        completion = expectation(description: "Completion")
+        queryAnchor = InsulinDeliveryStore.QueryAnchor()
+        limit = Int.max
+    }
+
+    override func tearDown() {
+        limit = nil
+        queryAnchor = nil
+        completion = nil
+        insulinDeliveryStore = nil
+
+        super.tearDown()
+    }
+
+    func testPumpEventEmptyWithDefaultQueryAnchor() {
+        insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let anchor, let data):
+                XCTAssertEqual(anchor.modificationCounter, 0)
+                XCTAssertEqual(data.count, 0)
+            }
+            self.completion.fulfill()
+        }
+
+        wait(for: [completion], timeout: 2, enforceOrder: true)
+    }
+
+    func testPumpEventEmptyWithMissingQueryAnchor() {
+        queryAnchor = nil
+
+        insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let anchor, let data):
+                XCTAssertEqual(anchor.modificationCounter, 0)
+                XCTAssertEqual(data.count, 0)
+            }
+            self.completion.fulfill()
+        }
+
+        wait(for: [completion], timeout: 2, enforceOrder: true)
+    }
+
+    func testPumpEventEmptyWithNonDefaultQueryAnchor() {
+        queryAnchor.modificationCounter = 1
+
+        insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let anchor, let data):
+                XCTAssertEqual(anchor.modificationCounter, 1)
+                XCTAssertEqual(data.count, 0)
+            }
+            self.completion.fulfill()
+        }
+
+        wait(for: [completion], timeout: 2, enforceOrder: true)
+    }
+
+    func testPumpEventDataWithUnusedQueryAnchor() {
+        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
+
+        addDoseData(withSyncIdentifiers: syncIdentifiers)
+
+        insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let anchor, let data):
+                XCTAssertEqual(anchor.modificationCounter, 3)
+                XCTAssertEqual(data.count, 3)
+                for (index, syncIdentifier) in syncIdentifiers.enumerated() {
+                    XCTAssertEqual(data[index].syncIdentifier, syncIdentifier)
+                }
+            }
+            self.completion.fulfill()
+        }
+
+        wait(for: [completion], timeout: 2, enforceOrder: true)
+    }
+
+    func testPumpEventDataWithStaleQueryAnchor() {
+        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
+
+        addDoseData(withSyncIdentifiers: syncIdentifiers)
+
+        queryAnchor.modificationCounter = 2
+
+        insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let anchor, let data):
+                XCTAssertEqual(anchor.modificationCounter, 3)
+                XCTAssertEqual(data.count, 1)
+                XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[2])
+            }
+            self.completion.fulfill()
+        }
+
+        wait(for: [completion], timeout: 2, enforceOrder: true)
+    }
+
+    func testPumpEventDataWithCurrentQueryAnchor() {
+        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
+
+        addDoseData(withSyncIdentifiers: syncIdentifiers)
+
+        queryAnchor.modificationCounter = 3
+
+        insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let anchor, let data):
+                XCTAssertEqual(anchor.modificationCounter, 3)
+                XCTAssertEqual(data.count, 0)
+            }
+            self.completion.fulfill()
+        }
+
+        wait(for: [completion], timeout: 2, enforceOrder: true)
+    }
+
+    func testPumpEventDataWithLimitCoveredByData() {
+        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
+
+        addDoseData(withSyncIdentifiers: syncIdentifiers)
+
+        limit = 2
+
+        insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let anchor, let data):
+                XCTAssertEqual(anchor.modificationCounter, 2)
+                XCTAssertEqual(data.count, 2)
+                XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[0])
+                XCTAssertEqual(data[1].syncIdentifier, syncIdentifiers[1])
+            }
+            self.completion.fulfill()
+        }
+
+        wait(for: [completion], timeout: 2, enforceOrder: true)
+    }
+
+    private func addDoseData(withSyncIdentifiers syncIdentifiers: [String]) {
+        cacheStore.managedObjectContext.performAndWait {
+            for syncIdentifier in syncIdentifiers {
+                let object = CachedInsulinDeliveryObject(context: self.cacheStore.managedObjectContext)
+                object.provenanceIdentifier = HKSource.default().bundleIdentifier
+                object.hasLoopKitOrigin = true
+                object.startDate = Date().addingTimeInterval(-.minutes(15))
+                object.endDate = Date().addingTimeInterval(-.minutes(5))
+                object.syncIdentifier = syncIdentifier
+                object.value = 1.0
+                object.reason = .bolus
+                object.createdAt = Date()
+                object.manuallyEntered = false
+                object.isSuspend = false
+                
+                self.cacheStore.save()
+            }
+        }
+    }
+
+    private func generateSyncIdentifier() -> String {
+        return UUID().uuidString
+    }
+
 }
