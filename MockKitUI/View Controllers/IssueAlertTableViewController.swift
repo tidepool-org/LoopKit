@@ -68,18 +68,18 @@ final class IssueAlertTableViewController: UITableViewController {
             }
         }
 
-        var parameters: String? {
+        var metadata: Alert.Metadata? {
             switch self {
-            case .buzz: return (try? JSONEncoder().encode(BuzzParameters())).flatMap { String(data: $0, encoding: .utf8) }
-            default: return nil
+            case .buzz:
+                return [
+                    "string": Alert.MetadataValue("Buzz"),
+                    "int": Alert.MetadataValue(1),
+                    "double": Alert.MetadataValue(2.34),
+                    "bool": Alert.MetadataValue(true),
+                ]
+            default:
+                return nil
             }
-        }
-
-        private struct BuzzParameters: Encodable {
-            let string = "Buzz"
-            let int = 1
-            let double = 2.34
-            let bool = true
         }
     }
 
@@ -145,7 +145,7 @@ final class IssueAlertTableViewController: UITableViewController {
         case .retract:
             cgmManager.retractCurrentAlert()
         default:
-            cgmManager.issueAlert(identifier: row.identifier, trigger: row.trigger, delay: row.delayBeforeIssue, parameters: row.parameters)
+            cgmManager.issueAlert(identifier: row.identifier, trigger: row.trigger, delay: row.delayBeforeIssue, metadata: row.metadata)
         }
         tableView.deselectRow(at: indexPath, animated: true)
         tableView.reloadRows(at: [IndexPath(row: AlertRow.retract.rawValue, section: indexPath.section)], with: .automatic)

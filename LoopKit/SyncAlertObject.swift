@@ -15,7 +15,7 @@ public struct SyncAlertObject: Codable {
     public let foregroundContent: Alert.Content?
     public let backgroundContent: Alert.Content?
     public let sound: Alert.Sound?
-    public let parameters: String?
+    public let metadata: Alert.Metadata?
     public let issuedDate: Date
     public let acknowledgedDate: Date?
     public let retractedDate: Date?
@@ -27,7 +27,7 @@ public struct SyncAlertObject: Codable {
                 foregroundContent: Alert.Content?,
                 backgroundContent: Alert.Content?,
                 sound: Alert.Sound?,
-                parameters: String?,
+                metadata: Alert.Metadata?,
                 issuedDate: Date,
                 acknowledgedDate: Date?,
                 retractedDate: Date?,
@@ -38,7 +38,7 @@ public struct SyncAlertObject: Codable {
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.sound = sound
-        self.parameters = parameters
+        self.metadata = metadata
         self.issuedDate = issuedDate
         self.acknowledgedDate = acknowledgedDate
         self.retractedDate = retractedDate

@@ -95,18 +95,20 @@ public struct Alert: Equatable {
     }
     public let sound: Sound?
 
-    /// Any parameters used to dynamically construct foreground or background content encoded as a JSON object string
-    public let parameters: String?
+    /// Any metadata for the alert used to customize the alert content
+    public typealias MetadataValue = AnyCodableEquatable
+    public typealias Metadata = [String: MetadataValue]
+    public let metadata: Metadata?
     
     public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger,
-                interruptionLevel: InterruptionLevel = .timeSensitive, sound: Sound? = nil, parameters: String? = nil) {
+                interruptionLevel: InterruptionLevel = .timeSensitive, sound: Sound? = nil, metadata: Metadata? = nil) {
         self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent
         self.trigger = trigger
         self.interruptionLevel = interruptionLevel
         self.sound = sound
-        self.parameters = parameters
+        self.metadata = metadata
     }
 }
 
