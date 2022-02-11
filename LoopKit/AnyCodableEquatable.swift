@@ -22,7 +22,7 @@ public struct AnyCodableEquatable: Codable, Equatable {
     }
 
     public init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
+        let container = try decoder.singleValueContainer()
         if let value = try? container.decode(String.self) {
             self.init(value)
         } else if let value = try? container.decode(Int.self) {
