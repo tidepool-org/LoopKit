@@ -71,12 +71,12 @@ final class IssueAlertTableViewController: UITableViewController {
         var metadata: Alert.Metadata? {
             switch self {
             case .buzz:
-                return [
+                return Alert.Metadata(dict: [
                     "string": Alert.MetadataValue("Buzz"),
                     "int": Alert.MetadataValue(1),
                     "double": Alert.MetadataValue(2.34),
                     "bool": Alert.MetadataValue(true),
-                ]
+                ])
             default:
                 return nil
             }

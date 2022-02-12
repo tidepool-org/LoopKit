@@ -224,6 +224,12 @@ extension Alert.Sound: Codable {
     }
 }
 
+public extension Alert.Metadata {
+    init<E: Codable & Equatable>(dict: [String: E]) {
+        self = dict.mapValues { Alert.MetadataValue($0) }
+    }
+}
+
 extension Decoder {
     var enumDecodingError: DecodingError {
         return DecodingError.dataCorrupted(DecodingError.Context(codingPath: codingPath, debugDescription: "invalid enumeration"))

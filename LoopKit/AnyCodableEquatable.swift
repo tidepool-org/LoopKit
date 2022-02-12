@@ -13,12 +13,12 @@ public struct AnyCodableEquatable: Codable, Equatable {
         case unknownType
     }
 
-    public let any: Any
+    public let wrapped: Any
     private let equals: (Self) -> Bool
 
-    public init<T: Codable & Equatable>(_ any: T) {
-        self.any = any
-        self.equals = { $0.any as? T == any }
+    public init<T: Codable & Equatable>(_ wrapped: T) {
+        self.wrapped = wrapped
+        self.equals = { $0.wrapped as? T == wrapped }
     }
 
     public init(from decoder: Decoder) throws {
@@ -37,7 +37,7 @@ public struct AnyCodableEquatable: Codable, Equatable {
     }
 
     public func encode(to encoder: Encoder) throws {
-        try (any as? Encodable)?.encode(to: encoder)
+        try (wrapped as? Encodable)?.encode(to: encoder)
     }
 
     public static func ==(lhs: AnyCodableEquatable, rhs: AnyCodableEquatable) -> Bool {
