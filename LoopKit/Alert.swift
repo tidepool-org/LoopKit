@@ -19,19 +19,30 @@ public protocol AlertIssuer: AnyObject {
 /// Protocol that describes something that can deal with a user's response to an alert.
 public protocol AlertResponder: AnyObject {
     /// Acknowledge alerts with a given type identifier. If the alert fails to clear, an error should be passed to the completion handler, indicating the cause of failure.
-    func acknowledgeAlert(alertIdentifier: Alert.AlertIdentifier, completion: @escaping (Error?) -> Void) -> Void
+    func acknowledgeAlert(alertIdentifier: Alert.AlertIdentifier, completion: @escaping (Error?) -> Void)
+}
+
+/// Protocol for looking up alerts in storage
+public protocol AlertSearcher {
+    /// Look up all issued, but unacknowledged and unretracted, alerts for a given `managerIdentifier`.  This is useful for an Alert issuer to see what alerts are extant (outstanding).
+    /// NOTE: the completion function will be called on a separate queue
+    func lookupOutstandingAlerts(managerIdentifier: String, completion: @escaping (Result<[Alert], Error>) -> Void)
 }
 
 /// Structure that represents an Alert that is issued from a Device.
 public struct Alert: Equatable {
     /// Representation of an alert Trigger
     public enum Trigger: Equatable {
-        /// Trigger the alert immediately
+        /// Trigger the alert immediately.
         case immediate
         /// Delay triggering the alert by `interval`, but issue it only once.
         case delayed(interval: TimeInterval)
-        /// Delay triggering the alert by `repeatInterval`, and repeat at that interval until cancelled or unscheduled.
+        /// Delay triggering the alert by `repeatInterval`, and repeats at that interval until retracted.
         case repeating(repeatInterval: TimeInterval)
+        /// Alert triggers once at the next date and time matching the given components
+        case nextDate(matching: DateComponents)
+        /// Alert triggers at the next date and time matching the given components, and repeats until retracted.
+        case nextDateRepeating(matching: DateComponents)
     }
     /// The interruption level of the alert.  Note that these follow the same definitions as defined by https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel
     /// Handlers will determine how that is manifested.
@@ -139,13 +150,16 @@ extension Alert.InterruptionLevel: Codable { }
 // The code below follows a pattern described by https://medium.com/@hllmandel/codable-enum-with-associated-values-swift-4-e7d75d6f4370
 extension Alert.Trigger: Codable {
     private enum CodingKeys: String, CodingKey {
-      case immediate, delayed, repeating
+      case immediate, delayed, repeating, nextDate, nextDateRepeating
     }
     private struct Delayed: Codable {
         let delayInterval: TimeInterval
     }
     private struct Repeating: Codable {
         let repeatInterval: TimeInterval
+    }
+    private struct NextDate: Codable {
+        let matching: DateComponents
     }
     public init(from decoder: Decoder) throws {
         if let singleValue = try? decoder.singleValueContainer().decode(CodingKeys.RawValue.self) {
@@ -161,6 +175,10 @@ extension Alert.Trigger: Codable {
                 self = .delayed(interval: delayInterval.delayInterval)
             } else if let repeatInterval = try? container.decode(Repeating.self, forKey: .repeating) {
                 self = .repeating(repeatInterval: repeatInterval.repeatInterval)
+            } else if let nextDate = try? container.decode(NextDate.self, forKey: .nextDate) {
+                self = .nextDate(matching: nextDate.matching)
+            } else if let nextDateRepeating = try? container.decode(NextDate.self, forKey: .nextDateRepeating) {
+                self = .nextDateRepeating(matching: nextDateRepeating.matching)
             } else {
                 throw decoder.enumDecodingError
             }
@@ -178,6 +196,12 @@ extension Alert.Trigger: Codable {
         case .repeating(let repeatInterval):
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(Repeating(repeatInterval: repeatInterval), forKey: .repeating)
+        case .nextDate(let matching):
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(NextDate(matching: matching), forKey: .nextDate)
+        case .nextDateRepeating(let matching):
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(NextDate(matching: matching), forKey: .nextDateRepeating)
         }
     }
 }
@@ -230,9 +254,12 @@ public extension Alert.Metadata {
     }
 }
 
+public extension Alert.Content {
+    static var defaultAcknowledgeActionButtonLabel: String { NSLocalizedString("OK", comment: "Default alert acknowledgment OK button") }
+}
+
 extension Decoder {
     var enumDecodingError: DecodingError {
         return DecodingError.dataCorrupted(DecodingError.Context(codingPath: codingPath, debugDescription: "invalid enumeration"))
     }
 }
-
