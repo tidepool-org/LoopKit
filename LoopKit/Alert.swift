@@ -22,13 +22,6 @@ public protocol AlertResponder: AnyObject {
     func acknowledgeAlert(alertIdentifier: Alert.AlertIdentifier, completion: @escaping (Error?) -> Void)
 }
 
-/// Protocol for looking up alerts in storage
-public protocol AlertSearcher {
-    /// Look up all issued, but unacknowledged and unretracted, alerts for a given `managerIdentifier`.  This is useful for an Alert issuer to see what alerts are extant (outstanding).
-    /// NOTE: the completion function will be called on a separate queue
-    func lookupOutstandingAlerts(managerIdentifier: String, completion: @escaping (Result<[Alert], Error>) -> Void)
-}
-
 /// Structure that represents an Alert that is issued from a Device.
 public struct Alert: Equatable {
     /// Representation of an alert Trigger
