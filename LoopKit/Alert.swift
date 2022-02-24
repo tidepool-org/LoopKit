@@ -32,10 +32,25 @@ public struct Alert: Equatable {
         case delayed(interval: TimeInterval)
         /// Delay triggering the alert by `repeatInterval`, and repeats at that interval until retracted.
         case repeating(repeatInterval: TimeInterval)
+        
+        /// Specifies a "time specification" for a date and time.  Think of this as a trimmed-down version of iOS `DateComponents`.
+        /// Only `dayOfMonth`, with values 1-31, `hourOfDay` with values 0-23, and `minuteOfHour` with values 0-59 are supported.
+        /// Values outside of these ranges will have undefined behavior.
+        public struct TimeSpec: Equatable {
+            public let dayOfMonth: Int?
+            public let hourOfDay: Int?
+            public let minuteOfHour: Int?
+            public init(dayOfMonth: Int? = nil, hourOfDay: Int? = nil, minuteOfHour: Int? = nil) {
+                self.dayOfMonth = dayOfMonth
+                self.hourOfDay = hourOfDay
+                self.minuteOfHour = minuteOfHour
+            }
+        }
+        
         /// Alert triggers once at the next date and time matching the given components
-        case nextDate(matching: DateComponents)
+        case nextDate(matching: TimeSpec)
         /// Alert triggers at the next date and time matching the given components, and repeats until retracted.
-        case nextDateRepeating(matching: DateComponents)
+        case nextDateRepeating(matching: TimeSpec)
     }
     /// The interruption level of the alert.  Note that these follow the same definitions as defined by https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel
     /// Handlers will determine how that is manifested.
@@ -125,6 +140,12 @@ public extension Alert.Sound {
     }
 }
 
+public extension Alert.Trigger.TimeSpec {
+    var dateComponents: DateComponents {
+        DateComponents(day: self.dayOfMonth, hour: self.hourOfDay, minute: self.minuteOfHour)
+    }
+}
+
 public protocol AlertSoundVendor {
     // Get the base URL for where to find all the vendor's sounds.  It is under here that all of the sound files should be.
     // Returns nil if the vendor has no sounds.
@@ -139,6 +160,7 @@ extension Alert: Codable { }
 extension Alert.Content: Codable { }
 extension Alert.Identifier: Codable { }
 extension Alert.InterruptionLevel: Codable { }
+extension Alert.Trigger.TimeSpec: Codable { }
 // These Codable implementations of enums with associated values cannot be synthesized (yet) in Swift.
 // The code below follows a pattern described by https://medium.com/@hllmandel/codable-enum-with-associated-values-swift-4-e7d75d6f4370
 extension Alert.Trigger: Codable {
@@ -152,7 +174,7 @@ extension Alert.Trigger: Codable {
         let repeatInterval: TimeInterval
     }
     private struct NextDate: Codable {
-        let matching: DateComponents
+        let matching: TimeSpec
     }
     public init(from decoder: Decoder) throws {
         if let singleValue = try? decoder.singleValueContainer().decode(CodingKeys.RawValue.self) {

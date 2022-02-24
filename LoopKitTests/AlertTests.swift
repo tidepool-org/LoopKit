@@ -37,15 +37,15 @@ class AlertTests: XCTestCase {
     }
     
     func testAlertNextMatchingEncodable() {
-        let alert = Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: .nextDate(matching: DateComponents(day: 1, hour: 2, minute: 3)))
+        let alert = Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: .nextDate(matching: Alert.Trigger.TimeSpec(dayOfMonth: 1, hourOfDay: 2, minuteOfHour: 3)))
         let str = try? alert.encodeToString()
-    XCTAssertEqual("{\"trigger\":{\"nextDate\":{\"matching\":{\"day\":1,\"minute\":3,\"hour\":2}}},\"interruptionLevel\":\"timeSensitive\",\"identifier\":{\"managerIdentifier\":\"managerIdentifier1\",\"alertIdentifier\":\"alertIdentifier1\"},\"foregroundContent\":{\"title\":\"title1\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel1\",\"body\":\"body1\"},\"backgroundContent\":{\"title\":\"title2\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel2\",\"body\":\"body2\"}}", str)
+    XCTAssertEqual("{\"trigger\":{\"nextDate\":{\"matching\":{\"dayOfMonth\":1,\"hourOfDay\":2,\"minuteOfHour\":3}}},\"interruptionLevel\":\"timeSensitive\",\"identifier\":{\"managerIdentifier\":\"managerIdentifier1\",\"alertIdentifier\":\"alertIdentifier1\"},\"foregroundContent\":{\"title\":\"title1\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel1\",\"body\":\"body1\"},\"backgroundContent\":{\"title\":\"title2\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel2\",\"body\":\"body2\"}}", str)
     }
     
     func testAlertNextMatchingRepeatingEncodable() {
-        let alert = Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: .nextDateRepeating(matching: DateComponents(day: 4, hour: 5, minute: 6)))
+        let alert = Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: .nextDateRepeating(matching: Alert.Trigger.TimeSpec(dayOfMonth: 4, hourOfDay: 5, minuteOfHour: 6)))
         let str = try? alert.encodeToString()
-    XCTAssertEqual("{\"trigger\":{\"nextDateRepeating\":{\"matching\":{\"day\":4,\"minute\":6,\"hour\":5}}},\"interruptionLevel\":\"timeSensitive\",\"identifier\":{\"managerIdentifier\":\"managerIdentifier1\",\"alertIdentifier\":\"alertIdentifier1\"},\"foregroundContent\":{\"title\":\"title1\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel1\",\"body\":\"body1\"},\"backgroundContent\":{\"title\":\"title2\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel2\",\"body\":\"body2\"}}", str)
+    XCTAssertEqual("{\"trigger\":{\"nextDateRepeating\":{\"matching\":{\"dayOfMonth\":4,\"hourOfDay\":5,\"minuteOfHour\":6}}},\"interruptionLevel\":\"timeSensitive\",\"identifier\":{\"managerIdentifier\":\"managerIdentifier1\",\"alertIdentifier\":\"alertIdentifier1\"},\"foregroundContent\":{\"title\":\"title1\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel1\",\"body\":\"body1\"},\"backgroundContent\":{\"title\":\"title2\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel2\",\"body\":\"body2\"}}", str)
     }
 
     func testAlertSilentSoundEncodable() {
@@ -88,15 +88,15 @@ class AlertTests: XCTestCase {
     }
 
     func testAlertNextMatchingDecodable() {
-        let str = "{\"trigger\":{\"nextDate\":{\"matching\":{\"day\":1,\"minute\":3,\"hour\":2}}},\"interruptionLevel\":\"timeSensitive\",\"identifier\":{\"managerIdentifier\":\"managerIdentifier1\",\"alertIdentifier\":\"alertIdentifier1\"},\"foregroundContent\":{\"title\":\"title1\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel1\",\"body\":\"body1\"},\"backgroundContent\":{\"title\":\"title2\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel2\",\"body\":\"body2\"}}"
-        let expected = Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: .nextDate(matching: DateComponents(day: 1, hour: 2, minute: 3)))
+        let str = "{\"trigger\":{\"nextDate\":{\"matching\":{\"dayOfMonth\":1,\"minuteOfHour\":3,\"hourOfDay\":2}}},\"interruptionLevel\":\"timeSensitive\",\"identifier\":{\"managerIdentifier\":\"managerIdentifier1\",\"alertIdentifier\":\"alertIdentifier1\"},\"foregroundContent\":{\"title\":\"title1\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel1\",\"body\":\"body1\"},\"backgroundContent\":{\"title\":\"title2\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel2\",\"body\":\"body2\"}}"
+        let expected = Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: .nextDate(matching: Alert.Trigger.TimeSpec(dayOfMonth: 1, hourOfDay: 2, minuteOfHour: 3)))
         let alert = try? Alert.decode(from: str)
         XCTAssertEqual(expected, alert)
     }
 
     func testAlertNextMatchingRepeatingDecodable() {
-        let str = "{\"trigger\":{\"nextDateRepeating\":{\"matching\":{\"day\":4,\"minute\":6,\"hour\":5}}},\"interruptionLevel\":\"timeSensitive\",\"identifier\":{\"managerIdentifier\":\"managerIdentifier1\",\"alertIdentifier\":\"alertIdentifier1\"},\"foregroundContent\":{\"title\":\"title1\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel1\",\"body\":\"body1\"},\"backgroundContent\":{\"title\":\"title2\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel2\",\"body\":\"body2\"}}"
-        let expected = Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: .nextDateRepeating(matching: DateComponents(day: 4, hour: 5, minute: 6)))
+        let str = "{\"trigger\":{\"nextDateRepeating\":{\"matching\":{\"dayOfMonth\":4,\"minuteOfHour\":6,\"hourOfDay\":5}}},\"interruptionLevel\":\"timeSensitive\",\"identifier\":{\"managerIdentifier\":\"managerIdentifier1\",\"alertIdentifier\":\"alertIdentifier1\"},\"foregroundContent\":{\"title\":\"title1\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel1\",\"body\":\"body1\"},\"backgroundContent\":{\"title\":\"title2\",\"acknowledgeActionButtonLabel\":\"acknowledgeActionButtonLabel2\",\"body\":\"body2\"}}"
+        let expected = Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: .nextDateRepeating(matching: Alert.Trigger.TimeSpec(dayOfMonth: 4, hourOfDay: 5, minuteOfHour: 6)))
         let alert = try? Alert.decode(from: str)
         XCTAssertEqual(expected, alert)
     }
