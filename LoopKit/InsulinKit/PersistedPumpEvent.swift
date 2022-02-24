@@ -27,8 +27,6 @@ public struct PersistedPumpEvent {
     /// The type of pump event
     public let type: PumpEventType?
     /// Whether the pump event is marked mutable
-    public let isMutable: Bool
-    /// Whether the event was automatic or manually triggered. nil indicates this status is unknown.
     public let automatic: Bool?
     /// The type of alarm, only valid if type == .alarm
     public let alarmType: PumpAlarmType?
@@ -41,7 +39,6 @@ public struct PersistedPumpEvent {
                 raw: Data?,
                 title: String?,
                 type: PumpEventType?,
-                isMutable: Bool,
                 automatic: Bool? = nil,
                 alarmType: PumpAlarmType? = nil) {
         self.date = date
@@ -52,7 +49,6 @@ public struct PersistedPumpEvent {
         self.raw = raw
         self.title = title
         self.type = type
-        self.isMutable = isMutable
         self.automatic = automatic
         self.alarmType = alarmType
     }
@@ -70,7 +66,6 @@ extension PumpEvent {
             raw: raw,
             title: title,
             type: type,
-            isMutable: mutable,
             automatic: automatic,
             alarmType: alarmType
         )

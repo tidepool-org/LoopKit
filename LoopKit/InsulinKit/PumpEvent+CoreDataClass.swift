@@ -203,7 +203,8 @@ extension PumpEvent {
                 deliveredUnits: deliveredUnits,
                 syncIdentifier: syncIdentifier,
                 insulinType: insulinType,
-                automatic: automatic
+                automatic: automatic,
+                isMutable: mutable
             )
         }
         set {
@@ -219,6 +220,7 @@ extension PumpEvent {
             deliveredUnits = entry.deliveredUnits
             insulinType = entry.insulinType
             automatic = entry.automatic
+            mutable = entry.isMutable
         }
     }
 
@@ -229,10 +231,6 @@ extension PumpEvent {
     var isUploaded: Bool {
         return uploaded
     }
-
-    var isMutable: Bool {
-        return mutable
-    }
 }
 
 extension PumpEvent {
@@ -241,7 +239,6 @@ extension PumpEvent {
         date = event.date
         type = event.type
         uploaded = event.isUploaded
-        mutable = event.isMutable
         raw = event.raw
         title = event.title
         dose = event.dose

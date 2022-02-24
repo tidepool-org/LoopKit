@@ -271,15 +271,15 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
     }
 
     func testLastBasalEndDate() {
-        let getLastBasalEndDate1Completion = expectation(description: "getLastBasalEndDate1")
-        insulinDeliveryStore.getLastBasalEndDate() { result in
+        let getLastImmutableBasalEndDate1Completion = expectation(description: "getLastImmutableBasalEndDate1")
+        insulinDeliveryStore.getLastImmutableBasalEndDate() { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let lastBasalEndDate):
                 XCTAssertEqual(lastBasalEndDate, .distantPast)
             }
-            getLastBasalEndDate1Completion.fulfill()
+            getLastImmutableBasalEndDate1Completion.fulfill()
         }
         waitForExpectations(timeout: 10)
 
@@ -295,15 +295,15 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 10)
 
-        let getLastBasalEndDate2Completion = expectation(description: "getLastBasalEndDate2")
-        insulinDeliveryStore.getLastBasalEndDate() { result in
+        let getLastImmutableBasalEndDate2Completion = expectation(description: "getLastImmutableBasalEndDate2")
+        insulinDeliveryStore.getLastImmutableBasalEndDate() { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let lastBasalEndDate):
                 XCTAssertEqual(lastBasalEndDate, self.entry2.endDate)
             }
-            getLastBasalEndDate2Completion.fulfill()
+            getLastImmutableBasalEndDate2Completion.fulfill()
         }
         waitForExpectations(timeout: 10)
 
@@ -314,15 +314,15 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
         }
         waitForExpectations(timeout: 10)
 
-        let getLastBasalEndDate3Completion = expectation(description: "getLastBasalEndDate3")
-        insulinDeliveryStore.getLastBasalEndDate() { result in
+        let getLastImmutableBasalEndDate3Completion = expectation(description: "getLastImmutableBasalEndDate3")
+        insulinDeliveryStore.getLastImmutableBasalEndDate() { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
             case .success(let lastBasalEndDate):
                 XCTAssertEqual(lastBasalEndDate, .distantPast)
             }
-            getLastBasalEndDate3Completion.fulfill()
+            getLastImmutableBasalEndDate3Completion.fulfill()
         }
         waitForExpectations(timeout: 10)
     }
@@ -468,6 +468,92 @@ class InsulinDeliveryStoreTests: PersistenceControllerTestCase {
         wait(for: [doseEntriesDidChangeCompletion, addDoseEntriesCompletion], timeout: 10, enforceOrder: true)
 
         NotificationCenter.default.removeObserver(observer)
+    }
+
+    func testManuallyEnteredDoses() {
+        let manualEntry = DoseEntry(type: .bolus,
+                                    startDate: Date(timeIntervalSinceNow: -.minutes(15)),
+                                    endDate: Date(timeIntervalSinceNow: -.minutes(10)),
+                                    value: 3.0,
+                                    unit: .units,
+                                    syncIdentifier: "C0AB1CBD-6B36-4113-9D49-709A022B2451",
+                                    manuallyEntered: true)
+
+        let addDoseEntriesCompletion = expectation(description: "addDoseEntries")
+        insulinDeliveryStore.addDoseEntries([entry1, manualEntry, entry2, entry3], from: device, syncVersion: 2) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success:
+                break
+            }
+            addDoseEntriesCompletion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let getManuallyEnteredDoses1Completion = expectation(description: "getManuallyEnteredDoses1")
+        insulinDeliveryStore.getManuallyEnteredDoses(since: .distantPast) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let entries):
+                XCTAssertEqual(entries.count, 1)
+                XCTAssertEqual(entries[0], manualEntry)
+            }
+            getManuallyEnteredDoses1Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let getManuallyEnteredDoses2Completion = expectation(description: "getManuallyEnteredDoses2")
+        insulinDeliveryStore.getManuallyEnteredDoses(since: Date(timeIntervalSinceNow: -.minutes(12))) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let entries):
+                XCTAssertEqual(entries.count, 0)
+            }
+            getManuallyEnteredDoses2Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let deleteAllManuallyEnteredDoses1Completion = expectation(description: "deleteAllManuallyEnteredDoses1")
+        insulinDeliveryStore.deleteAllManuallyEnteredDoses(since: Date(timeIntervalSinceNow: -.minutes(12))) { error in
+            XCTAssertNil(error)
+            deleteAllManuallyEnteredDoses1Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let getManuallyEnteredDoses3Completion = expectation(description: "getManuallyEnteredDoses3")
+        insulinDeliveryStore.getManuallyEnteredDoses(since: .distantPast) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let entries):
+                XCTAssertEqual(entries.count, 1)
+                XCTAssertEqual(entries[0], manualEntry)
+            }
+            getManuallyEnteredDoses3Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let deleteAllManuallyEnteredDose2Completion = expectation(description: "deleteAllManuallyEnteredDose2")
+        insulinDeliveryStore.deleteAllManuallyEnteredDoses(since: Date(timeIntervalSinceNow: -.minutes(20))) { error in
+            XCTAssertNil(error)
+            deleteAllManuallyEnteredDose2Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+
+        let getManuallyEnteredDoses4Completion = expectation(description: "getManuallyEnteredDoses4")
+        insulinDeliveryStore.getManuallyEnteredDoses(since: .distantPast) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail("Unexpected failure: \(error)")
+            case .success(let entries):
+                XCTAssertEqual(entries.count, 0)
+            }
+            getManuallyEnteredDoses4Completion.fulfill()
+        }
+        waitForExpectations(timeout: 10)
     }
 
     // MARK: - Cache Management
@@ -731,14 +817,15 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         super.tearDown()
     }
 
-    func testPumpEventEmptyWithDefaultQueryAnchor() {
+    func testDoseEmptyWithDefaultQueryAnchor() {
         insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
+            case .success(let anchor, let created, let deleted):
                 XCTAssertEqual(anchor.modificationCounter, 0)
-                XCTAssertEqual(data.count, 0)
+                XCTAssertEqual(created.count, 0)
+                XCTAssertEqual(deleted.count, 0)
             }
             self.completion.fulfill()
         }
@@ -746,16 +833,17 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
 
-    func testPumpEventEmptyWithMissingQueryAnchor() {
+    func testDoseEmptyWithMissingQueryAnchor() {
         queryAnchor = nil
 
         insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
+            case .success(let anchor, let created, let deleted):
                 XCTAssertEqual(anchor.modificationCounter, 0)
-                XCTAssertEqual(data.count, 0)
+                XCTAssertEqual(created.count, 0)
+                XCTAssertEqual(deleted.count, 0)
             }
             self.completion.fulfill()
         }
@@ -763,16 +851,17 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
 
-    func testPumpEventEmptyWithNonDefaultQueryAnchor() {
+    func testDoseEmptyWithNonDefaultQueryAnchor() {
         queryAnchor.modificationCounter = 1
 
         insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
+            case .success(let anchor, let created, let deleted):
                 XCTAssertEqual(anchor.modificationCounter, 1)
-                XCTAssertEqual(data.count, 0)
+                XCTAssertEqual(created.count, 0)
+                XCTAssertEqual(deleted.count, 0)
             }
             self.completion.fulfill()
         }
@@ -780,20 +869,25 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
 
-    func testPumpEventDataWithUnusedQueryAnchor() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
+    func testDoseDataWithUnusedQueryAnchor() {
+        let doseData = [DoseDatum(), DoseDatum(deleted: true), DoseDatum()]
 
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
+        addDoseData(doseData)
 
         insulinDeliveryStore.executeDoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
+            case .success(let anchor, let created, let deleted):
                 XCTAssertEqual(anchor.modificationCounter, 3)
-                XCTAssertEqual(data.count, 3)
-                for (index, syncIdentifier) in syncIdentifiers.enumerated() {
-                    XCTAssertEqual(data[index].syncIdentifier, syncIdentifier)
+                XCTAssertEqual(created.count, 2)
+                XCTAssertEqual(deleted.count, 1)
+                if created.count >= 2 {
+                    XCTAssertEqual(created[0].syncIdentifier, doseData[0].syncIdentifier)
+                    XCTAssertEqual(created[1].syncIdentifier, doseData[2].syncIdentifier)
+                }
+                if deleted.count >= 1 {
+                    XCTAssertEqual(deleted[0].syncIdentifier, doseData[1].syncIdentifier)
                 }
             }
             self.completion.fulfill()
@@ -802,10 +896,10 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
 
-    func testPumpEventDataWithStaleQueryAnchor() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
+    func testDoseDataWithStaleQueryAnchor() {
+        let doseData = [DoseDatum(), DoseDatum(deleted: true), DoseDatum()]
 
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
+        addDoseData(doseData)
 
         queryAnchor.modificationCounter = 2
 
@@ -813,10 +907,13 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
+            case .success(let anchor, let created, let deleted):
                 XCTAssertEqual(anchor.modificationCounter, 3)
-                XCTAssertEqual(data.count, 1)
-                XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[2])
+                XCTAssertEqual(created.count, 1)
+                XCTAssertEqual(deleted.count, 0)
+                if created.count >= 1 {
+                    XCTAssertEqual(created[0].syncIdentifier, doseData[2].syncIdentifier)
+                }
             }
             self.completion.fulfill()
         }
@@ -824,10 +921,10 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
 
-    func testPumpEventDataWithCurrentQueryAnchor() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
+    func testDoseDataWithCurrentQueryAnchor() {
+        let doseData = [DoseDatum(), DoseDatum(deleted: true), DoseDatum()]
 
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
+        addDoseData(doseData)
 
         queryAnchor.modificationCounter = 3
 
@@ -835,9 +932,10 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
+            case .success(let anchor, let created, let deleted):
                 XCTAssertEqual(anchor.modificationCounter, 3)
-                XCTAssertEqual(data.count, 0)
+                XCTAssertEqual(created.count, 0)
+                XCTAssertEqual(deleted.count, 0)
             }
             self.completion.fulfill()
         }
@@ -845,10 +943,10 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
 
-    func testPumpEventDataWithLimitCoveredByData() {
-        let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
+    func testDoseDataWithLimitCoveredByData() {
+        let doseData = [DoseDatum(), DoseDatum(deleted: true), DoseDatum()]
 
-        addDoseData(withSyncIdentifiers: syncIdentifiers)
+        addDoseData(doseData)
 
         limit = 2
 
@@ -856,11 +954,16 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
             switch result {
             case .failure(let error):
                 XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
+            case .success(let anchor, let created, let deleted):
                 XCTAssertEqual(anchor.modificationCounter, 2)
-                XCTAssertEqual(data.count, 2)
-                XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[0])
-                XCTAssertEqual(data[1].syncIdentifier, syncIdentifiers[1])
+                XCTAssertEqual(created.count, 1)
+                XCTAssertEqual(deleted.count, 1)
+                if created.count >= 1 {
+                    XCTAssertEqual(created[0].syncIdentifier, doseData[0].syncIdentifier)
+                }
+                if deleted.count >= 1 {
+                    XCTAssertEqual(deleted[0].syncIdentifier, doseData[1].syncIdentifier)
+                }
             }
             self.completion.fulfill()
         }
@@ -868,18 +971,19 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         wait(for: [completion], timeout: 2, enforceOrder: true)
     }
 
-    private func addDoseData(withSyncIdentifiers syncIdentifiers: [String]) {
+    private func addDoseData(_ doseData: [DoseDatum]) {
         cacheStore.managedObjectContext.performAndWait {
-            for syncIdentifier in syncIdentifiers {
+            for doseDatum in doseData {
                 let object = CachedInsulinDeliveryObject(context: self.cacheStore.managedObjectContext)
                 object.provenanceIdentifier = HKSource.default().bundleIdentifier
                 object.hasLoopKitOrigin = true
                 object.startDate = Date().addingTimeInterval(-.minutes(15))
                 object.endDate = Date().addingTimeInterval(-.minutes(5))
-                object.syncIdentifier = syncIdentifier
+                object.syncIdentifier = doseDatum.syncIdentifier
                 object.value = 1.0
                 object.reason = .bolus
                 object.createdAt = Date()
+                object.deletedAt = doseDatum.deleted ? Date() : nil
                 object.manuallyEntered = false
                 object.isSuspend = false
                 
@@ -888,8 +992,14 @@ class InsulinDeliveryStoreQueryTests: PersistenceControllerTestCase {
         }
     }
 
-    private func generateSyncIdentifier() -> String {
-        return UUID().uuidString
+    private struct DoseDatum {
+        let syncIdentifier: String
+        let deleted: Bool
+
+        init(deleted: Bool = false) {
+            self.syncIdentifier = UUID().uuidString
+            self.deleted = deleted
+        }
     }
 
 }

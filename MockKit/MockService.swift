@@ -114,9 +114,9 @@ extension MockService: RemoteDataService {
         completion(.success(false))
     }
     
-    public func uploadDoseData(_ stored: [DoseEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void) {
+    public func uploadDoseData(created: [DoseEntry], deleted: [DoseEntry], completion: @escaping (_ result: Result<Bool, Error>) -> Void) {
         if remoteData {
-            record("[RemoteDataService] Upload dose data (stored: \(stored.count))")
+            record("[RemoteDataService] Upload dose data (created: \(created.count), deleted: \(deleted.count))")
         }
         completion(.success(false))
     }

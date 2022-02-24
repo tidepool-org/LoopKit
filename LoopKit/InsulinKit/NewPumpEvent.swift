@@ -14,8 +14,6 @@ public struct NewPumpEvent: Equatable {
     public let date: Date
     /// The insulin dose described by the event, if applicable
     public let dose: DoseEntry?
-    /// Whether the dose value is expected to change.
-    public let isMutable: Bool
     /// The opaque raw data representing the event
     public let raw: Data
     /// The type of pump event
@@ -25,9 +23,8 @@ public struct NewPumpEvent: Equatable {
     /// The type of alarm, only valid if type == .alarm
     public let alarmType: PumpAlarmType?
 
-    public init(date: Date, dose: DoseEntry?, isMutable: Bool, raw: Data, title: String, type: PumpEventType? = nil, alarmType: PumpAlarmType? = nil) {
+    public init(date: Date, dose: DoseEntry?, raw: Data, title: String, type: PumpEventType? = nil, alarmType: PumpAlarmType? = nil) {
         self.date = date
-        self.isMutable = isMutable
         self.raw = raw
         self.title = title
 
@@ -48,7 +45,6 @@ extension NewPumpEvent: RawRepresentable {
 
     public init?(rawValue: [String: Any]) {
         guard let date = rawValue["date"] as? Date,
-              let isMutable = rawValue["isMutable"] as? Bool,
               let raw = rawValue["raw"] as? Data,
               let title = rawValue["title"] as? String
         else {
@@ -56,7 +52,6 @@ extension NewPumpEvent: RawRepresentable {
         }
 
         self.date = date
-        self.isMutable = isMutable
         self.raw = raw
         self.title = title
 
@@ -68,7 +63,6 @@ extension NewPumpEvent: RawRepresentable {
     public var rawValue: [String: Any] {
         var rawValue: [String: Any] = [
             "date": date,
-            "isMutable": isMutable,
             "raw": raw,
             "title": title
         ]

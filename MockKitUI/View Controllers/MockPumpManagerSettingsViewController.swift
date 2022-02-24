@@ -613,7 +613,6 @@ fileprivate extension NewPumpEvent {
     init(alarmAt date: Date, alarmType: PumpAlarmType? = nil) {
         self.init(date: date,
                   dose: nil,
-                  isMutable: false,
                   raw: Data(UUID().uuidString.utf8),
                   title: "alarm[\(alarmType?.rawValue ?? "")]",
                   type: .alarm,
@@ -623,7 +622,6 @@ fileprivate extension NewPumpEvent {
     init(alarmClearAt date: Date) {
         self.init(date: date,
                   dose: nil,
-                  isMutable: false,
                   raw: Data(UUID().uuidString.utf8),
                   title: "alarmClear",
                   type: .alarmClear)

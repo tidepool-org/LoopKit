@@ -697,7 +697,7 @@ extension DoseStore {
 
         for event in events {
             if let dose = event.dose {
-                self.log.debug("Add %@, isMutable=%@", String(describing: dose), String(describing: event.isMutable))
+                self.log.debug("Add %@, isMutable=%@", String(describing: dose), String(describing: event.dose?.isMutable))
             }
         }
 
@@ -708,7 +708,7 @@ extension DoseStore {
 
             // Remove any stored mutable pumpEvents; any that are still valid should be included in events
             do {
-                try self.purgePumpEventObjects(matching: NSPredicate(format: "mutable == true"))
+                try self.purgePumpEventObjects(matching: NSPredicate(format: "mutable == YES"))
             } catch let error {
                 completion(DoseStoreError(error: .coreDataError(error as NSError)))
                 return
@@ -728,7 +728,8 @@ extension DoseStore {
                     primeValueAdded = true
                 }
 
-                if event.isMutable {
+                let isMutable = event.dose?.isMutable == true
+                if isMutable {
                     firstMutableDate = min(event.date, firstMutableDate ?? event.date)
                 } else {
                     lastFinalDate = max(event.date, lastFinalDate ?? event.date)
@@ -740,7 +741,7 @@ extension DoseStore {
                 object.raw = event.raw
                 object.title = event.title
                 object.type = event.type
-                object.mutable = event.isMutable
+                object.mutable = isMutable
                 object.dose = event.dose
                 object.alarmType = event.alarmType
             }
@@ -760,7 +761,7 @@ extension DoseStore {
             }
 
             self.persistenceController.save { (error) -> Void in
-                self.syncPumpEventsToInsulinDeliveryStore() { _ in
+                self.syncPumpEventsToInsulinDeliveryStore(resolveMutable: true) { _ in
                     completion(DoseStoreError(error: error))
                     self.delegate?.doseStoreHasUpdatedPumpEventData(self)
                     NotificationCenter.default.post(name: DoseStore.valuesDidChange, object: self)
@@ -835,19 +836,19 @@ extension DoseStore {
     }
 
     /**
-     Adds and persists doses
+     Adds and persists doses. Doses *cannot* be mutable.
      - parameter doses: An array of dose entries to add.
      - parameter completion: A closure called after the doses are saved. The closure takes a single argument:
      - parameter error: An error object explaining why the doses could not be saved.
      */
-    public func addDoses(_ doses: [DoseEntry], completion: @escaping (_ error: Error?) -> Void) {
-        guard doses.count > 0 else {
+    public func addDoses(_ doses: [DoseEntry], from device: HKDevice?, completion: @escaping (_ error: Error?) -> Void) {
+        guard doses.count > 0, !doses.contains(where: { $0.isMutable }) else {
             completion(nil)
             return
         }
 
         self.persistenceController.save { (error) -> Void in
-            self.insulinDeliveryStore.addDoseEntries(doses, from: nil, syncVersion: self.syncVersion) { (result) in
+            self.insulinDeliveryStore.addDoseEntries(doses, from: device, syncVersion: self.syncVersion) { (result) in
                 switch result {
                 case .success:
                     completion(nil)
@@ -888,63 +889,22 @@ extension DoseStore {
     ///
     /// - Parameter completion: A closure called after all the events are deleted. This closure takes a single argument:
     /// - Parameter error: An error explaining why the deletion failed
-    public func deleteAllManuallyEnteredDoses(_ completion: @escaping (_ error: DoseStoreError?) -> Void) {
-        self.persistenceController.managedObjectContext.perform {
-            do {
-                self.log.info("Deleting all manually entered doses")
-                try self.purgeManuallyEnteredDoses()
-
-                self.persistenceController.save { (error) in
-
-                    completion(DoseStoreError(error: error))
-                    NotificationCenter.default.post(name: DoseStore.valuesDidChange, object: self)
-                }
-            } catch let error as PersistenceController.PersistenceControllerError {
-                completion(DoseStoreError(error: error))
-            } catch {
-                assertionFailure()
-            }
+    public func deleteAllManuallyEnteredDoses(since startDate: Date, _ completion: @escaping (_ error: DoseStoreError?) -> Void) {
+        self.log.info("Deleting all manually entered doses since %{public}@", String(describing: startDate))
+        insulinDeliveryStore.deleteAllManuallyEnteredDoses(since: startDate) { error in
+            completion(error)
+            NotificationCenter.default.post(name: DoseStore.valuesDidChange, object: self)
         }
     }
-
-    /**
-     Removes all manually entered doses.
-     
-     *This method should only be called from within a managed object context block.*
-     - throws: PersistenceController.PersistenceControllerError.coreDataError if the delete request failed
-     */
-    private func purgeManuallyEnteredDoses() throws {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: CachedInsulinDeliveryObject.entity().name!)
-        // Only delete manually entered doses
-        let typePredicate = NSPredicate(format: "manuallyEntered == YES")
-        fetchRequest.predicate = typePredicate
-
-        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        deleteRequest.resultType = .resultTypeObjectIDs
-
-        do {
-            if let result = try persistenceController.managedObjectContext.execute(deleteRequest) as? NSBatchDeleteResult,
-                let objectIDs = result.result as? [NSManagedObjectID],
-                objectIDs.count > 0
-            {
-                let changes = [NSDeletedObjectsKey: objectIDs]
-                NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [persistenceController.managedObjectContext])
-                persistenceController.managedObjectContext.refreshAllObjects()
-            }
-        } catch let error as NSError {
-            throw PersistenceController.PersistenceControllerError.coreDataError(error)
-        }
-    }
-
 
     /// Attempts to store doses from pump events to insulin delivery store
-    private func syncPumpEventsToInsulinDeliveryStore(after start: Date? = nil, completion: @escaping (_ error: Error?) -> Void) {
-        insulinDeliveryStore.getLastBasalEndDate { (result) in
+    private func syncPumpEventsToInsulinDeliveryStore(after start: Date? = nil, resolveMutable: Bool = false, completion: @escaping (_ error: Error?) -> Void) {
+        insulinDeliveryStore.getLastImmutableBasalEndDate { (result) in
             switch result {
             case .success(let date):
                 // Limit the query behavior to 24 hours
                 let date = max(date, self.recentStartDate)
-                self.savePumpEventsToInsulinDeliveryStore(after: start ?? date, completion: completion)
+                self.savePumpEventsToInsulinDeliveryStore(after: start ?? date, resolveMutable: resolveMutable, completion: completion)
             case .failure(let error):
                 completion(error)
             }
@@ -955,9 +915,10 @@ extension DoseStore {
     ///
     /// - Parameters:
     ///   - start: The date on and after which to include doses
+    ///   - resolveMutable: Resolve mutable dose entries during saving
     ///   - completion: A closure called on completion
     ///   - error: An error if one ocurred during processing or saving
-    private func savePumpEventsToInsulinDeliveryStore(after start: Date, completion: @escaping (_ error: Error?) -> Void) {
+    private func savePumpEventsToInsulinDeliveryStore(after start: Date, resolveMutable: Bool, completion: @escaping (_ error: Error?) -> Void) {
         getPumpEventDoseEntriesForSavingToInsulinDeliveryStore(startingAt: start) { (result) in
             switch result {
             case .success(let doses):
@@ -970,7 +931,7 @@ extension DoseStore {
                     self.log.debug("Adding dose to insulin delivery store: %@", String(describing: dose))
                 }
 
-                self.insulinDeliveryStore.addDoseEntries(doses, from: self.device, syncVersion: self.syncVersion) { (result) in
+                self.insulinDeliveryStore.addDoseEntries(doses, from: self.device, syncVersion: self.syncVersion, resolveMutable: resolveMutable) { (result) in
                     switch result {
                     case .success:
                         completion(nil)
@@ -1024,7 +985,7 @@ extension DoseStore {
                 return
             }
 
-            let reconciledDoses = doses.overlayBasalSchedule(basalSchedule, startingAt: startingAt, endingAt: endingAt, insertingBasalEntries: !self.pumpRecordsBasalProfileStartEvents)
+            let reconciledDoses = doses.overlayBasalSchedule(basalSchedule, startingAt: startingAt, insertingBasalEntries: !self.pumpRecordsBasalProfileStartEvents)
             completion(.success(reconciledDoses))
         }
     }
@@ -1032,58 +993,9 @@ extension DoseStore {
     /// Fetches manually entered doses.
     ///
     /// - Parameter startDate: The earliest dose startDate to include
-    /// - Returns: An array of manually entered dose managed objects, in reverse-chronological order
-    /// - Throws: An error describing the failure to fetch objects
+    /// - Returns: An array of manually entered dose managed objects, in reverse-chronological order, or an error describing the failure to fetch objects
     public func getManuallyEnteredDoses(since startDate: Date, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void) {
-        persistenceController.managedObjectContext.perform {
-            do {
-                let events = try self.getManuallyEnteredDoses(
-                    matching: NSPredicate(format: "startDate >= %@", startDate as NSDate),
-                    chronological: false
-                )
-
-                completion(.success(events))
-            } catch let error as DoseStoreError {
-                completion(.failure(error))
-            } catch {
-                assertionFailure()
-            }
-        }
-
-
-    }
-
-    /// Fetches manually entered doses.
-    /// *This method should only be called from within a managed object context block.*
-    ///
-    /// Objects are ordered by date using the DoseType sort ordering as a tiebreaker for stability
-    ///
-    /// - Parameters:
-    ///   - predicate: The predicate to apply to the objects
-    ///   - chronological: Whether to return the objects in chronological or reverse-chronological order
-    /// - Returns: An array of pump events in the specified order by date
-    /// - Throws: An error describing the failure to fetch objects
-    private func getManuallyEnteredDoses(matching predicate: NSPredicate, chronological: Bool, limit: Int? = nil) throws -> [DoseEntry] {
-        let request: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
-
-        let sourcePredicate = NSPredicate(format: "manuallyEntered == YES")
-        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, sourcePredicate])
-        request.predicate = compoundPredicate
-        request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: chronological)]
-
-        if let limit = limit {
-            request.fetchLimit = limit
-        }
-
-        do {
-            return try persistenceController.managedObjectContext.fetch(request).sorted(by: { (lhs, rhs) -> Bool in
-                let (first, second) = chronological ? (lhs, rhs) : (rhs, lhs)
-
-                return first.startDate < second.startDate
-            }).compactMap{ $0.dose }
-        } catch let fetchError as NSError {
-            throw DoseStoreError.fetchError(description: fetchError.localizedDescription, recoverySuggestion: fetchError.localizedRecoverySuggestion)
-        }
+        insulinDeliveryStore.getManuallyEnteredDoses(since: startDate, chronological: false, completion: completion)
     }
 
     /// Retrieves pump event values since the given date.
@@ -1210,8 +1122,8 @@ extension DoseStore {
         // resumption of temp basal after suspend/resume.
         let queryStart = basalStart.addingTimeInterval(-pumpEventReconciliationWindow)
 
-        let afterBasalStart = NSPredicate(format: "date >= %@ && doseType != nil && mutable == false", queryStart as NSDate)
-        let allBoluses = NSPredicate(format: "date >= %@ && doseType == %@ && mutable == false", recentStartDate as NSDate, DoseType.bolus.rawValue)
+        let afterBasalStart = NSPredicate(format: "date >= %@ && doseType != nil", queryStart as NSDate)
+        let allBoluses = NSPredicate(format: "date >= %@ && doseType == %@", recentStartDate as NSDate, DoseType.bolus.rawValue)
 
         let doses = try getPumpEventObjects(
             matching: NSCompoundPredicate(orPredicateWithSubpredicates: [afterBasalStart, allBoluses]),
@@ -1220,7 +1132,7 @@ extension DoseStore {
         // Ignore any doses which have not yet ended by the specified date.
         // Also, since we are retrieving dosing history older than basalStart for
         // reconciliation purposes, we need to filter that out after reconciliation.
-        let normalizedDoses = doses.reconciled().filter({ $0.endDate <= end }).annotated(with: basalProfile).filter({ $0.startDate >= basalStart || $0.type == .bolus })
+        let normalizedDoses = doses.reconciled().filter({ $0.endDate <= end || $0.isMutable }).annotated(with: basalProfile).filter({ $0.startDate >= basalStart || $0.type == .bolus })
 
         return normalizedDoses
     }
@@ -1710,7 +1622,7 @@ extension DoseStore: CriticalEventLog {
 
 extension DoseStore {
     public func addPumpEvents(events: [PersistedPumpEvent]) -> Error? {
-        guard !events.isEmpty else {
+        guard !events.isEmpty, !events.contains(where: { $0.dose?.isMutable == true }) else {
             return nil
         }
 

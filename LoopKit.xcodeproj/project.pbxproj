@@ -538,6 +538,8 @@
 		A912BE29245B9CD500CBE199 /* SettingsObject+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = A912BE28245B9CD500CBE199 /* SettingsObject+CoreDataClass.swift */; };
 		A912BE2B245B9E8600CBE199 /* SettingsObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = A912BE2A245B9E8600CBE199 /* SettingsObject+CoreDataProperties.swift */; };
 		A912BE2D245B9F9800CBE199 /* SettingsObject+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = A912BE28245B9CD500CBE199 /* SettingsObject+CoreDataClass.swift */; };
+		A914472527BF04170054A39D /* normalize_edge_case_doses_mutable_input.json in Resources */ = {isa = PBXBuildFile; fileRef = A914472427BF04170054A39D /* normalize_edge_case_doses_mutable_input.json */; };
+		A914472727BF044C0054A39D /* normalize_edge_case_doses_mutable_output.json in Resources */ = {isa = PBXBuildFile; fileRef = A914472627BF044C0054A39D /* normalize_edge_case_doses_mutable_output.json */; };
 		A919889C2354E5EB00B75EEE /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A919889B2354E5EB00B75EEE /* SettingsStore.swift */; };
 		A919889F2355016B00B75EEE /* DosingDecisionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A919889E2355016B00B75EEE /* DosingDecisionStore.swift */; };
 		A91A601A23CD023800C0E8A1 /* Modelv2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = A91A601923CD023800C0E8A1 /* Modelv2.xcmappingmodel */; };
@@ -1500,6 +1502,8 @@
 		A91263862790B45300C6C950 /* NewPumpEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPumpEventTests.swift; sourceTree = "<group>"; };
 		A912BE28245B9CD500CBE199 /* SettingsObject+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsObject+CoreDataClass.swift"; sourceTree = "<group>"; };
 		A912BE2A245B9E8600CBE199 /* SettingsObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		A914472427BF04170054A39D /* normalize_edge_case_doses_mutable_input.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = normalize_edge_case_doses_mutable_input.json; sourceTree = "<group>"; };
+		A914472627BF044C0054A39D /* normalize_edge_case_doses_mutable_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = normalize_edge_case_doses_mutable_output.json; sourceTree = "<group>"; };
 		A919889B2354E5EB00B75EEE /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		A919889E2355016B00B75EEE /* DosingDecisionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DosingDecisionStore.swift; sourceTree = "<group>"; };
 		A91A601923CD023800C0E8A1 /* Modelv2.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Modelv2.xcmappingmodel; sourceTree = "<group>"; };
@@ -2568,6 +2572,8 @@
 				43D8FECF1C7294B80073BE78 /* iob_from_reservoir_output.json */,
 				43CE7CED1CA9F2CF003CC1B0 /* normalize_edge_case_doses_input.json */,
 				43CE7CEF1CA9F32C003CC1B0 /* normalize_edge_case_doses_output.json */,
+				A914472427BF04170054A39D /* normalize_edge_case_doses_mutable_input.json */,
+				A914472627BF044C0054A39D /* normalize_edge_case_doses_mutable_output.json */,
 				43B99B011C7451E500D050F5 /* normalized_doses.json */,
 				43D8FED01C7294B80073BE78 /* normalized_reservoir_history_output.json */,
 				434872781CB6256500E55D75 /* reconcile_history_input.json */,
@@ -3383,6 +3389,7 @@
 				E93E866224DC87AE00FF40C8 /* effect_from_history_exponential_delivered_units_output.json in Resources */,
 				437874C1202FDD2D00A3D8B9 /* iob_from_bolus_312min_output.json in Resources */,
 				43D988AF1C87FFA300DA4467 /* glucose_from_effects_carb_effect_input.json in Resources */,
+				A914472527BF04170054A39D /* normalize_edge_case_doses_mutable_input.json in Resources */,
 				4322B793202FA3CC0002837D /* carb_effect_from_history_output.json in Resources */,
 				43D988A51C87FFA300DA4467 /* glucose_from_effects_momentum_flat_input.json in Resources */,
 				43D988A21C87FFA300DA4467 /* glucose_from_effects_momentum_up_output.json in Resources */,
@@ -3390,6 +3397,7 @@
 				E9E5E56624D362E900B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json in Resources */,
 				43D8FE691C7292B00073BE78 /* read_carb_ratios.json in Resources */,
 				43D988AB1C87FFA300DA4467 /* glucose_from_effects_momentum_blend_insulin_effect_input.json in Resources */,
+				A914472727BF044C0054A39D /* normalize_edge_case_doses_mutable_output.json in Resources */,
 				E9E5E56524D362E900B5DFFE /* dynamic_glucose_effect_none_observed_output.json in Resources */,
 				437874C4202FDD2D00A3D8B9 /* iob_from_bolus_exponential_output.json in Resources */,
 				437874CE202FDD2D00A3D8B9 /* reconcile_resume_before_rewind_input.json in Resources */,
