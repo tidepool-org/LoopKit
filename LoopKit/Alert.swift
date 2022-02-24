@@ -37,10 +37,10 @@ public struct Alert: Equatable {
         /// Only `dayOfMonth`, with values 1-31, `hourOfDay` with values 0-23, and `minuteOfHour` with values 0-59 are supported.
         /// Values outside of these ranges will have undefined behavior.
         public struct TimeSpec: Equatable {
-            public let dayOfMonth: Int?
-            public let hourOfDay: Int?
-            public let minuteOfHour: Int?
-            public init(dayOfMonth: Int? = nil, hourOfDay: Int? = nil, minuteOfHour: Int? = nil) {
+            public let dayOfMonth: Int
+            public let hourOfDay: Int
+            public let minuteOfHour: Int
+            public init(dayOfMonth: Int, hourOfDay: Int, minuteOfHour: Int) {
                 self.dayOfMonth = dayOfMonth
                 self.hourOfDay = hourOfDay
                 self.minuteOfHour = minuteOfHour
