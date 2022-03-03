@@ -842,7 +842,8 @@ extension DoseStore {
      - parameter error: An error object explaining why the doses could not be saved.
      */
     public func addDoses(_ doses: [DoseEntry], from device: HKDevice?, completion: @escaping (_ error: Error?) -> Void) {
-        guard doses.count > 0, !doses.contains(where: { $0.isMutable }) else {
+        assert(!doses.contains(where: { $0.isMutable }))
+        guard doses.count > 0 else {
             completion(nil)
             return
         }

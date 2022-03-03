@@ -121,8 +121,7 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
                 return
             }
 
-            var dosesAdded = false
-            var dosesDeleted = false
+            var changed = false
             var error: Error?
 
             self.cacheStore.managedObjectContext.performAndWait {
@@ -132,7 +131,7 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
                         for sample in samples {
                             if try self.addDoseEntry(for: sample) {
                                 self.log.debug("Saved sample %@ into cache from HKAnchoredObjectQuery", sample.uuid.uuidString)
-                                dosesAdded = true
+                                changed = true
                             } else {
                                 self.log.default("Sample %@ from HKAnchoredObjectQuery already present in cache", sample.uuid.uuidString)
                             }
@@ -143,10 +142,10 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
                     let count = try self.deleteDoseEntries(withUUIDs: deleted.map { $0.uuid })
                     if count > 0 {
                         self.log.debug("Deleted %d samples from cache from HKAnchoredObjectQuery", count)
-                        dosesDeleted = true
+                        changed = true
                     }
 
-                    guard dosesAdded || dosesDeleted else {
+                    guard changed else {
                         return
                     }
 
@@ -161,16 +160,13 @@ public class InsulinDeliveryStore: HealthKitSampleStore {
                 return
             }
 
-            guard dosesAdded || dosesDeleted else {
+            guard changed else {
                 completion(true)
                 return
             }
 
             self.handleUpdatedDoseData(updateSource: .queriedByHealthKit)
-
-            if dosesAdded {
-                self.delegate?.insulinDeliveryStoreHasUpdatedDoseData(self)
-            }
+            self.delegate?.insulinDeliveryStoreHasUpdatedDoseData(self)
 
             completion(true)
         }
@@ -333,6 +329,7 @@ extension InsulinDeliveryStore {
     ///   - entries: The new dose entries to add to the store.
     ///   - device: The optional device used for the new dose entries.
     ///   - syncVersion: The sync version used for the new dose entries.
+    ///   - resolveMutable: Whether to update or delete any pre-existing mutable dose entries based upon any matching incoming mutable dose entries.
     ///   - completion: A closure called once the dose entries have been stored.
     ///   - result: Success or error.
     func addDoseEntries(_ entries: [DoseEntry], from device: HKDevice?, syncVersion: Int, resolveMutable: Bool = false, completion: @escaping (_ result: Result<Void, Error>) -> Void) {
