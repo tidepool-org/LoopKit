@@ -11,6 +11,17 @@
 */
 public protocol RemoteDataService: Service {
 
+    /// The maximum number of alert data to upload to the remote data service at one time.
+    var alertDataLimit: Int? { get }
+
+    /**
+     Upload alert data to the remote data service.
+
+     - Parameter stored: The stored alert data to upload.
+     - Parameter completion: The completion function to call with any success or failure.
+     */
+    func uploadAlertData(_ stored: [SyncAlertObject], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+
     /// The maximum number of carb data to upload to the remote data service at one time.
     var carbDataLimit: Int? { get }
 
@@ -79,14 +90,24 @@ public protocol RemoteDataService: Service {
      - Parameter completion: The completion function to call with any success or failure.
      */
     func uploadSettingsData(_ stored: [StoredSettings], completion: @escaping (_ result: Result<Bool, Error>) -> Void)
+    
+    /**
+     Validates a push notification originated from this data service.
+     - Parameter notification: The push notification dictionary
+     - Returns: Success
+     */
+    func validatePushNotificationSource(_ notification: [String: AnyObject]) -> Bool
 
 }
 
 public extension RemoteDataService {
+    var alertDataLimit: Int? { return nil }
     var carbDataLimit: Int? { return nil }
     var doseDataLimit: Int? { return nil }
     var dosingDecisionDataLimit: Int? { return nil }
     var glucoseDataLimit: Int? { return nil }
     var pumpEventDataLimit: Int? { return nil }
     var settingsDataLimit: Int? { return nil }
+
+    func validatePushNotificationSource(_ notification: [String: AnyObject]) -> Bool { return false }
 }
