@@ -107,6 +107,13 @@ extension MockService: LoggingService {
 
 extension MockService: RemoteDataService {
     
+    public func uploadAlertData(_ stored: [SyncAlertObject], completion: @escaping (Result<Bool, Error>) -> Void) {
+        if remoteData {
+            record("[RemoteDataService] Upload alert data (stored: \(stored.count))")
+        }
+        completion(.success(false))
+    }
+
     public func uploadCarbData(created: [SyncCarbObject], updated: [SyncCarbObject], deleted: [SyncCarbObject], completion: @escaping (Result<Bool, Error>) -> Void) {
         if remoteData {
             record("[RemoteDataService] Upload carb data (created: \(created.count), updated: \(updated.count), deleted: \(deleted.count))")
@@ -154,4 +161,5 @@ extension MockService: RemoteDataService {
     public func validatePushNotificationSource(_ notification: [String : AnyObject]) -> Bool {
         return true
     }
+    
 }
