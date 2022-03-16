@@ -22,7 +22,7 @@ public protocol AlertResponder: AnyObject {
     func acknowledgeAlert(alertIdentifier: Alert.AlertIdentifier, completion: @escaping (Error?) -> Void) -> Void
 }
 
-public struct PersistedAlert {
+public struct PersistedAlert: Equatable {
     public let alert: Alert
     public let issuedDate: Date
     public let retractedDate: Date?
