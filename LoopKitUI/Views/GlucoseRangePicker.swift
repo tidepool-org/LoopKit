@@ -166,3 +166,11 @@ public struct GlucoseRangePicker: View {
         return min...max
     }
 }
+
+extension GlucoseRangePicker: Equatable {
+    static public func == (lhs: GlucoseRangePicker, rhs: GlucoseRangePicker) -> Bool {
+        // Purposefully ignoring upperbound and lowerbound changes here, to avoid reconstruction of the picker when
+        // the user changes values, as it causes confusing animation.
+        return lhs.minValue == rhs.minValue && lhs.maxValue == rhs.maxValue && lhs.unit == rhs.unit
+    }
+}
