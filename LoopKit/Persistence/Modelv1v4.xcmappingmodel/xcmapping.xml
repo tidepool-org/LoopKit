@@ -5,12 +5,12 @@
     <databaseInfo>
         <version>134481920</version>
         <UUID>B7872188-B623-47F1-8CDA-19B36EFB08C9</UUID>
-        <nextObjectID>202</nextObjectID>
+        <nextObjectID>204</nextObjectID>
         <metadata>
             <plist version="1.0">
                 <dict>
                     <key>NSPersistenceFrameworkVersion</key>
-                    <integer>1145</integer>
+                    <integer>1048</integer>
                     <key>NSStoreModelVersionHashes</key>
                     <dict>
                         <key>XDDevAttributeMapping</key>
@@ -203,7 +203,7 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEH+AALAAwAGwA3ADgAOQBNAE4ATwBQ
         <attribute name="destinationname" type="string">PumpEvent</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z133"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z157 z131 z139 z156 z143 z127 z104 z151 z165 z154 z185 z111 z132 z117 z122 z178"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z111 z178 z127 z104 z151 z157 z165 z132 z131 z154 z117 z139 z185 z122 z143 z156"></relationship>
         <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING"></relationship>
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z136">
@@ -242,7 +242,7 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEH+AALAAwAGwA3ADgAOQBNAE4ATwBQ
         <attribute name="destinationname" type="string">CachedInsulinDeliveryObject</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z133"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z166 z123 z158 z174 z180 z152 z120 z118 z114 z105 z138 z173 z144 z176 z109 z148 z167 z107"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z158 z203 z105 z176 z174 z138 z109 z180 z173 z148 z123 z152 z167 z120 z118 z107 z166 z114 z144"></relationship>
         <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING"></relationship>
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z143">
@@ -505,5 +505,11 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEH+AALAAwAGwA3ADgAOQBNAE4ATwBQ
     <object type="XDDEVATTRIBUTEMAPPING" id="z202">
         <attribute name="name" type="string">uuid</attribute>
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z186"></relationship>
+    </object>
+    <object type="XDDEVATTRIBUTEMAPPING" id="z203">
+        <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z142"></relationship>
+    </object>
+    <object type="XDDEVATTRIBUTEMAPPING" id="z204">
+        <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING"></relationship>
     </object>
 </database>

@@ -22,6 +22,7 @@ class DoseEntryCodableTests: XCTestCase {
   "endDate" : "2020-05-14T22:07:19Z",
   "isMutable" : false,
   "manuallyEntered" : false,
+  "wasProgrammedByPumpUI" : false,
   "startDate" : "2020-05-14T22:07:19Z",
   "type" : "bolus",
   "unit" : "U",
@@ -44,7 +45,8 @@ class DoseEntryCodableTests: XCTestCase {
                                              insulinType: .fiasp,
                                              automatic: true,
                                              manuallyEntered: true,
-                                             isMutable: true),
+                                             isMutable: true,
+                                             wasProgrammedByPumpUI: true),
                                    encodesJSON: """
 {
   "automatic" : true,
@@ -54,6 +56,7 @@ class DoseEntryCodableTests: XCTestCase {
   "insulinType" : 3,
   "isMutable" : true,
   "manuallyEntered" : true,
+  "wasProgrammedByPumpUI" : true,
   "scheduledBasalRate" : 1.5,
   "scheduledBasalRateUnit" : "IU/hr",
   "startDate" : "2020-05-14T22:07:19Z",
@@ -112,7 +115,8 @@ class DoseEntryRawRepresentableTests: XCTestCase {
                                  insulinType: .fiasp,
                                  automatic: true,
                                  manuallyEntered: true,
-                                 isMutable: true)
+                                 isMutable: true,
+                                 wasProgrammedByPumpUI: true)
         let actual = DoseEntry(rawValue: original.rawValue)
         XCTAssertEqual(actual, original)
     }

@@ -447,7 +447,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
 
         // 3. Add a mutable temp basal. It should persist in InsulinDeliveryStore.
         let pumpEvents2 = [
-            NewPumpEvent(date: f("2018-12-12 18:05:00 +0000"), dose: DoseEntry(type: .tempBasal, startDate: f("2018-12-12 18:05:00 +0000"), endDate: f("2018-12-12 18:25:00 +0000"), value: 1.375, unit: .unitsPerHour, isMutable: true), raw: Data(hexadecimalString: "3094c121601fa2")!, title: "TempBasalDurationPumpEvent(length: 7, rawData: 7 bytes, duration: 30, timestamp: calendar: gregorian (fixed) year: 2018 month: 12 day: 12 hour: 10 minute: 05 second: 0 isLeapMonth: false )", type: .tempBasal)
+            NewPumpEvent(date: f("2018-12-12 18:05:00 +0000"), dose: DoseEntry(type: .tempBasal, startDate: f("2018-12-12 18:05:00 +0000"), endDate: f("2018-12-12 18:25:00 +0000"), value: 1.375, unit: .unitsPerHour, isMutable: true, wasProgrammedByPumpUI: true), raw: Data(hexadecimalString: "3094c121601fa2")!, title: "TempBasalDurationPumpEvent(length: 7, rawData: 7 bytes, duration: 30, timestamp: calendar: gregorian (fixed) year: 2018 month: 12 day: 12 hour: 10 minute: 05 second: 0 isLeapMonth: false )", type: .tempBasal)
         ]
 
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate = f("2018-12-12 18:05:00 +0000")
@@ -471,6 +471,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
                     XCTAssertEqual(doseEntries[0].syncIdentifier, "1601fa23094c12")
                     XCTAssertEqual(doseEntries[0].scheduledBasalRate, HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 0.85))
                     XCTAssertFalse(doseEntries[0].isMutable)
+                    XCTAssertFalse(doseEntries[0].wasProgrammedByPumpUI)
                 }
                 addPumpEvents2.fulfill();
             }
@@ -496,6 +497,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
                     XCTAssertEqual(doseEntries[1].syncIdentifier, "3094c121601fa2")
                     XCTAssertEqual(doseEntries[1].scheduledBasalRate, HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 0.85))
                     XCTAssertTrue(doseEntries[1].isMutable)
+                    XCTAssertTrue(doseEntries[1].wasProgrammedByPumpUI)
                 }
                 addPumpEvents2.fulfill();
             }
@@ -1076,9 +1078,9 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
                                       progress: progress))
         XCTAssertEqual(outputStream.string, """
 [
-{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:08:00.000Z","duration":0,"insulinType":0,"modificationCounter":1,"mutable":false,"uploaded":false},
-{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:04:00.000Z","duration":0,"insulinType":0,"modificationCounter":3,"mutable":false,"uploaded":false},
-{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:06:00.000Z","duration":0,"insulinType":0,"modificationCounter":4,"mutable":false,"uploaded":false}
+{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:08:00.000Z","duration":0,"insulinType":0,"modificationCounter":1,"mutable":false,"uploaded":false,"wasProgrammedByPumpUI":false},
+{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:04:00.000Z","duration":0,"insulinType":0,"modificationCounter":3,"mutable":false,"uploaded":false,"wasProgrammedByPumpUI":false},
+{"createdAt":"2100-01-02T03:00:00.000Z","date":"2100-01-02T03:06:00.000Z","duration":0,"insulinType":0,"modificationCounter":4,"mutable":false,"uploaded":false,"wasProgrammedByPumpUI":false}
 ]
 """
         )
