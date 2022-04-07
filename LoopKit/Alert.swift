@@ -37,8 +37,8 @@ public struct PersistedAlert: Equatable {
 
 /// Protocol for recording and looking up alerts persisted in storage
 public protocol PersistedAlertStore {
-    /// Determine if an alert is already recorded for a given `Alert.Identifier`.
-    func doesPersistedAlertExist(identifier: Alert.Identifier, completion: @escaping (Swift.Result<Bool, Error>) -> Void)
+    /// Determine if an alert is already issued for a given `Alert.Identifier`.
+    func doesIssuedAlertExist(identifier: Alert.Identifier, completion: @escaping (Swift.Result<Bool, Error>) -> Void)
 
     /// Look up all issued, but unretracted, alerts for a given `managerIdentifier`.  This is useful for an Alert issuer to see what alerts are extant (outstanding).
     /// NOTE: the completion function may be called on a different queue than the caller.  Callers must be prepared for this.
