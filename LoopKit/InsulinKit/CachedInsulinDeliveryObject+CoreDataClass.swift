@@ -248,6 +248,7 @@ extension CachedInsulinDeliveryObject {
         self.manuallyEntered = entry.manuallyEntered
         self.isSuspend = (entry.type == .suspend)
         self.isMutable = entry.isMutable
+        self.wasProgrammedByPumpUI = entry.wasProgrammedByPumpUI
         updateModificationCounter()  // Maintains modificationCounter order
     }
 }
