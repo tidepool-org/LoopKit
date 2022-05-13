@@ -9,7 +9,7 @@
 import SwiftUI
 
 public struct VideoPlayView<ThumbnailContent: View>: View {
-    let stillImage: ThumbnailContent
+    let stillImage: () -> ThumbnailContent
     let url: URL?
     let hasBeenPlayed: Binding<Bool>
     let includeStillImageBorder: Bool
@@ -19,21 +19,21 @@ public struct VideoPlayView<ThumbnailContent: View>: View {
     // This from right out of the Design spec
     private let frameColor = Color(UIColor(red: 0.784, green: 0.784, blue: 0.784, alpha: 1))
     
-    public init(url: URL?, stillImage: ThumbnailContent, includeStillImageBorder: Bool = true) {
+    public init(url: URL?, stillImage: @autoclosure @escaping () -> ThumbnailContent, includeStillImageBorder: Bool = true) {
         self.url = url
         self.stillImage = stillImage
         self.includeStillImageBorder = includeStillImageBorder
         self.hasBeenPlayed = .false
     }
 
-    public init(url: URL?, stillImage: ThumbnailContent, hasBeenPlayed: Binding<Bool>, includeStillImageBorder: Bool = true) {
+    public init(url: URL?, stillImage: @autoclosure @escaping () -> ThumbnailContent, hasBeenPlayed: Binding<Bool>, includeStillImageBorder: Bool = true) {
         self.url = url
         self.stillImage = stillImage
         self.includeStillImageBorder = includeStillImageBorder
         self.hasBeenPlayed = hasBeenPlayed
     }
     
-    private init(_ other: Self, url: URL?? = nil, stillImage: ThumbnailContent? = nil, hasBeenPlayed: Binding<Bool>? = nil, autoPlay: Bool? = nil, overrideMuteSwitch: Bool? = nil, includeStillImageBorder: Bool? = nil) {
+    private init(_ other: Self, url: URL?? = nil, stillImage: (() -> ThumbnailContent)? = nil, hasBeenPlayed: Binding<Bool>? = nil, autoPlay: Bool? = nil, overrideMuteSwitch: Bool? = nil, includeStillImageBorder: Bool? = nil) {
         self.url = url ?? other.url
         self.stillImage = stillImage ?? other.stillImage
         self.hasBeenPlayed = hasBeenPlayed ?? other.hasBeenPlayed
@@ -59,7 +59,7 @@ public struct VideoPlayView<ThumbnailContent: View>: View {
         HStack {
             Spacer()
             ZStack {
-                stillImage
+                stillImage()
                 Image(frameworkImage: "play-button", decorative: true)
             }
             Spacer()

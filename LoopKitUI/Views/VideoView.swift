@@ -1,6 +1,6 @@
 //
 //  VideoView.swift
-//  DexcomCGMKitUI
+//  LoopKitUI
 //
 //  Created by Rick Pasetto on 4/13/21.
 //  Copyright © 2021 Tidepool Project. All rights reserved.
@@ -62,27 +62,24 @@ public struct VideoView: View {
     }
     
     public var body: some View {
+        HStack {
+            Spacer()
+            Button(LocalizedString("Done", comment: "Video player done button label"), action: dismiss)
+        }
+        .padding()
         if let url = url {
-            videoPlayer(for: url)
+            VideoPlayer(player: playerHolder.player(for: url, autoPlay: autoPlay))
                 .onDisappear {
                     playerHolder.destroy()
                 }
         } else {
+            Spacer()
             Image(systemName: "questionmark.video")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 100, height: 100, alignment: .center)
-        }
-    }
-    
-    @ViewBuilder
-    private func videoPlayer(for url: URL) -> some View {
-        HStack {
             Spacer()
-            Button("Done", action: dismiss)
         }
-        .padding()
-        VideoPlayer(player: playerHolder.player(for: url, autoPlay: autoPlay))
     }
 }
 

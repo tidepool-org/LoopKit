@@ -1,6 +1,6 @@
 //
 //  WebView.swift
-//  DexcomCGMKitUI
+//  LoopKitUI
 //
 //  Created by Rick Pasetto on 4/13/21.
 //  Copyright © 2021 Tidepool Project. All rights reserved.
