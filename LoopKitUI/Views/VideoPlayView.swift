@@ -9,42 +9,46 @@
 import SwiftUI
 
 public struct VideoPlayView<ThumbnailContent: View>: View {
-    let stillImage: () -> ThumbnailContent
+    let thumbnail: () -> ThumbnailContent
+    let includeThumbnailBorder: Bool
+    let centerThumbnail: Bool
     let url: URL?
     let hasBeenPlayed: Binding<Bool>
-    let includeStillImageBorder: Bool
     private var _autoPlay: Bool = true
     private var _overrideMuteSwitch: Bool = true
     
     // This from right out of the Design spec
     private let frameColor = Color(UIColor(red: 0.784, green: 0.784, blue: 0.784, alpha: 1))
     
-    public init(url: URL?, stillImage: @autoclosure @escaping () -> ThumbnailContent, includeStillImageBorder: Bool = true) {
+    public init(url: URL?, thumbnail: @autoclosure @escaping () -> ThumbnailContent, includeThumbnailBorder: Bool = true, centerThumbnail: Bool = true) {
         self.url = url
-        self.stillImage = stillImage
-        self.includeStillImageBorder = includeStillImageBorder
+        self.thumbnail = thumbnail
+        self.includeThumbnailBorder = includeThumbnailBorder
+        self.centerThumbnail = centerThumbnail
         self.hasBeenPlayed = .false
     }
 
-    public init(url: URL?, stillImage: @autoclosure @escaping () -> ThumbnailContent, hasBeenPlayed: Binding<Bool>, includeStillImageBorder: Bool = true) {
+    public init(url: URL?, thumbnail: @autoclosure @escaping () -> ThumbnailContent, hasBeenPlayed: Binding<Bool>, includeThumbnailBorder: Bool = true, centerThumbnail: Bool = true) {
         self.url = url
-        self.stillImage = stillImage
-        self.includeStillImageBorder = includeStillImageBorder
+        self.thumbnail = thumbnail
+        self.includeThumbnailBorder = includeThumbnailBorder
+        self.centerThumbnail = centerThumbnail
         self.hasBeenPlayed = hasBeenPlayed
     }
     
-    private init(_ other: Self, url: URL?? = nil, stillImage: (() -> ThumbnailContent)? = nil, hasBeenPlayed: Binding<Bool>? = nil, autoPlay: Bool? = nil, overrideMuteSwitch: Bool? = nil, includeStillImageBorder: Bool? = nil) {
+    private init(_ other: Self, url: URL?? = nil, thumbnail: (() -> ThumbnailContent)? = nil, hasBeenPlayed: Binding<Bool>? = nil, autoPlay: Bool? = nil, overrideMuteSwitch: Bool? = nil, includeThumbnailBorder: Bool? = nil, centerThumbnail: Bool? = nil) {
         self.url = url ?? other.url
-        self.stillImage = stillImage ?? other.stillImage
+        self.thumbnail = thumbnail ?? other.thumbnail
         self.hasBeenPlayed = hasBeenPlayed ?? other.hasBeenPlayed
-        self.includeStillImageBorder = includeStillImageBorder ?? other.includeStillImageBorder
+        self.includeThumbnailBorder = includeThumbnailBorder ?? other.includeThumbnailBorder
+        self.centerThumbnail = centerThumbnail ?? other.centerThumbnail
         self._autoPlay = autoPlay ?? other._autoPlay
         self._overrideMuteSwitch = overrideMuteSwitch ?? other._overrideMuteSwitch
     }
 
     public var body: some View {
         PopoverLink(destination: videoView) {
-            if includeStillImageBorder {
+            if includeThumbnailBorder {
                 placeholderImage
                     .padding()
                     .border(frameColor, width: 1)
@@ -57,12 +61,16 @@ public struct VideoPlayView<ThumbnailContent: View>: View {
 
     private var placeholderImage: some View {
         HStack {
-            Spacer()
+            if centerThumbnail {
+                Spacer()
+            }
             ZStack {
-                stillImage()
+                thumbnail()
                 Image(frameworkImage: "play-button", decorative: true)
             }
-            Spacer()
+            if centerThumbnail {
+                Spacer()
+            }
         }
         .aspectRatio(CGSize(width: 16, height: 9), contentMode: .fit)
         .frame(maxWidth: .infinity)
@@ -74,12 +82,20 @@ public struct VideoPlayView<ThumbnailContent: View>: View {
             .onDisappear { hasBeenPlayed.wrappedValue = true }
     }
     
-    func autoPlay(_ enabled: Bool) -> Self {
+    public func autoPlay(_ enabled: Bool) -> Self {
         Self.init(self, autoPlay: enabled)
     }
 
-    func overrideMuteSwitch(_ enabled: Bool) -> Self {
+    public func overrideMuteSwitch(_ enabled: Bool) -> Self {
         Self.init(self, overrideMuteSwitch: enabled)
+    }
+
+    public func includeThumbnailBorder(_ value: Bool) -> Self {
+        Self.init(self, includeThumbnailBorder: value)
+    }
+
+    public func centerThumbnail(_ value: Bool) -> Self {
+        Self.init(self, centerThumbnail: value)
     }
 }
 
