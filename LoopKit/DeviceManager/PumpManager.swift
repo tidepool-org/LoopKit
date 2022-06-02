@@ -17,11 +17,15 @@ public protocol PumpManagerStatusObserver: AnyObject {
     func pumpManager(_ pumpManager: PumpManager, didUpdate status: PumpManagerStatus, oldStatus: PumpManagerStatus)
 }
 
-public enum DoseActivationSource: String, Codable {
-    case noRecommendationUserDefined
-    case recommendationUserConfirmed
-    case recommendationUserAdjusted
-    case recommendationAutomatic
+public enum BolusActivationType: String, Codable {
+    case manualNoRecommendation
+    case manualRecommendationAccepted
+    case manualRecommendationChanged
+    case automatic
+
+    public var isAutomatic: Bool {
+        self == .automatic
+    }
 }
 
 public protocol PumpManagerDelegate: DeviceManagerDelegate, PumpManagerStatusObserver {
@@ -151,7 +155,7 @@ public protocol PumpManager: DeviceManager {
     ///   - automatic: Whether the dose was triggered automatically as opposed to commanded by user
     ///   - completion: A closure called after the command is complete
     ///   - error: An optional error describing why the command failed
-    func enactBolus(units: Double, activationSource: DoseActivationSource, completion: @escaping (_ error: PumpManagerError?) -> Void)
+    func enactBolus(units: Double, activationType: BolusActivationType, completion: @escaping (_ error: PumpManagerError?) -> Void)
 
     /// Cancels the current, in progress, bolus.
     ///
