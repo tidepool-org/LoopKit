@@ -402,7 +402,7 @@ extension InsulinDeliveryStore {
                     }
 
                     // Only save immutable objects to HealthKit
-                    self.saveEntriesToHealthKit(resolvedSampleObjects.filter { !$0.1.isMutable })
+                    self.saveEntriesToHealthKit(resolvedSampleObjects.filter { !$0.1.isMutable && !$0.1.isFault })
                 } catch let coreDataError {
                     error = coreDataError
                 }
