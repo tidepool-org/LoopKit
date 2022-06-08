@@ -26,6 +26,11 @@ public enum BolusActivationType: String, Codable {
     public var isAutomatic: Bool {
         self == .automatic
     }
+
+    static public func activationTypeFor(recommendedAmount: Double?, bolusAmount: Double) -> BolusActivationType {
+        guard let recommendedAmount = recommendedAmount else { return .manualNoRecommendation }
+        return recommendedAmount =~ bolusAmount ? .manualRecommendationAccepted : .manualRecommendationChanged
+    }
 }
 
 public protocol PumpManagerDelegate: DeviceManagerDelegate, PumpManagerStatusObserver {
