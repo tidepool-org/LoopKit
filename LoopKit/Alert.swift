@@ -50,6 +50,9 @@ public protocol PersistedAlertStore {
 
     /// Records an alert that occurred (likely in the past) but is already retracted. This alert will never be presented to the user by an AlertPresenter. Such a retracted alert has the same date for issued and retracted dates, and there is no acknowledged date
     func recordRetractedAlert(_ alert: Alert, at date: Date)
+
+    /// Records an alert that is already acknowledged upon being triggered, but can still be retracted. This alert will never be presented to the user by an AlertPresenter.
+    func recordAcknowledgedAlert(_ alert: Alert, at date: Date)
 }
 
 /// Structure that represents an Alert that is issued from a Device.
