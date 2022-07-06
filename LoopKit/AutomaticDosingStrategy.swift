@@ -9,7 +9,7 @@
 import Foundation
 
 
-public enum DosingStrategy: Int, CaseIterable, Codable {
+public enum AutomaticDosingStrategy: Int, CaseIterable, Codable {
     case tempBasalOnly
     case automaticBolus
 }
