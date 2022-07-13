@@ -65,7 +65,7 @@ public protocol PumpManagerDelegate: DeviceManagerDelegate, PumpManagerStatusObs
 
     func startDateToFilterNewPumpEvents(for manager: PumpManager) -> Date
 
-    var detectedSystemTimeOffset: Bool { get }
+    var detectedSystemTimeOffset: TimeInterval { get }
 }
 
 
