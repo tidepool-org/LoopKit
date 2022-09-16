@@ -142,6 +142,29 @@ public struct Alert: Equatable {
     }
 }
 
+extension Alert {
+    public func makeMutedAlert(_ shouldMute: Bool) -> Alert {
+        var metadata = metadata ?? [:]
+        if shouldMute {
+            metadata["muted"] =  MetadataValue(true)
+        } else {
+            metadata.removeValue(forKey: "muted")
+        }
+        return Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: trigger, interruptionLevel: interruptionLevel, sound: sound, metadata: metadata)
+    }
+
+    public var isMuted: Bool {
+        guard let isMutedMetadata = metadata?["muted"],
+              let isMuted = isMutedMetadata.wrapped as? Bool
+        else { return false }
+        return isMuted
+    }
+
+    public func soundToPlay() -> Sound? {
+        isMuted ? .vibrate : sound
+    }
+}
+
 public extension Alert.Sound {
     var filename: String? {
         switch self {
