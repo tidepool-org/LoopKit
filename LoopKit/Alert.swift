@@ -10,10 +10,14 @@ import Foundation
 
 /// Protocol that describes any class that issues and retract Alerts.
 public protocol AlertIssuer: AnyObject {
-    /// Issue (post) the given alert, according to its trigger schedule.
-    func issueAlert(_ alert: Alert)
+    /// Issue (post) the given alert, according to its trigger schedule and mute setting.
+    func issueAlert(_ alert: Alert, isMuted: Bool?)
     /// Retract any alerts with the given identifier.  This includes both pending and delivered alerts.
     func retractAlert(identifier: Alert.Identifier)
+}
+
+extension AlertIssuer {
+    public func issueAlert(_ alert: Alert) { issueAlert(alert, isMuted: nil) }
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.
@@ -123,7 +127,7 @@ public struct Alert: Equatable {
         case silence
         case sound(name: String)
     }
-    public let sound: Sound?
+    public let sound: Sound
 
     /// Any metadata for the alert used to customize the alert content
     public typealias MetadataValue = AnyCodableEquatable
@@ -137,31 +141,8 @@ public struct Alert: Equatable {
         self.backgroundContent = backgroundContent
         self.trigger = trigger
         self.interruptionLevel = interruptionLevel
-        self.sound = sound
+        self.sound = sound ?? .vibrate // all alerts will at least vibrate
         self.metadata = metadata
-    }
-}
-
-extension Alert {
-    public func makeMutedAlert(_ shouldMute: Bool) -> Alert {
-        var metadata = metadata ?? [:]
-        if shouldMute {
-            metadata["muted"] =  MetadataValue(true)
-        } else {
-            metadata.removeValue(forKey: "muted")
-        }
-        return Alert(identifier: identifier, foregroundContent: foregroundContent, backgroundContent: backgroundContent, trigger: trigger, interruptionLevel: interruptionLevel, sound: sound, metadata: metadata)
-    }
-
-    public var isMuted: Bool {
-        guard let isMutedMetadata = metadata?["muted"],
-              let isMuted = isMutedMetadata.wrapped as? Bool
-        else { return false }
-        return isMuted
-    }
-
-    public func soundToPlay() -> Sound? {
-        isMuted ? .vibrate : sound
     }
 }
 
