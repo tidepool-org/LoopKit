@@ -10,14 +10,10 @@ import Foundation
 
 /// Protocol that describes any class that issues and retract Alerts.
 public protocol AlertIssuer: AnyObject {
-    /// Issue (post) the given alert, according to its trigger schedule and mute setting.
-    func issueAlert(_ alert: Alert, isMuted: Bool?)
+    /// Issue (post) the given alert, according to its trigger schedule.
+    func issueAlert(_ alert: Alert)
     /// Retract any alerts with the given identifier.  This includes both pending and delivered alerts.
     func retractAlert(identifier: Alert.Identifier)
-}
-
-extension AlertIssuer {
-    public func issueAlert(_ alert: Alert) { issueAlert(alert, isMuted: nil) }
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.
@@ -110,8 +106,8 @@ public struct Alert: Equatable {
 
     /// Alert content to show while app is in the foreground.  If nil, there shall be no alert while app is in the foreground.
     public let foregroundContent: Content?
-    /// Alert content to show while app is in the background.  If nil, there shall be no alert while app is in the background.
-    public let backgroundContent: Content?
+    /// Alert content to show while app is in the background.
+    public let backgroundContent: Content
     /// Trigger for the alert.
     public let trigger: Trigger
     /// Interruption level for the alert.  See `InterruptionLevel` above.
@@ -134,8 +130,14 @@ public struct Alert: Equatable {
     public typealias Metadata = [String: MetadataValue]
     public let metadata: Metadata?
     
-    public init(identifier: Identifier, foregroundContent: Content?, backgroundContent: Content?, trigger: Trigger,
-                interruptionLevel: InterruptionLevel = .timeSensitive, sound: Sound? = nil, metadata: Metadata? = nil) {
+    public init(identifier: Identifier,
+                foregroundContent: Content?,
+                backgroundContent: Content,
+                trigger: Trigger,
+                interruptionLevel: InterruptionLevel = .timeSensitive,
+                sound: Sound? = nil,
+                metadata: Metadata? = nil)
+    {
         self.identifier = identifier
         self.foregroundContent = foregroundContent
         self.backgroundContent = backgroundContent

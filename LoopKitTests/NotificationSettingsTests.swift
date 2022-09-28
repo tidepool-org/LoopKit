@@ -89,6 +89,7 @@ fileprivate extension NotificationSettings {
                                     providesAppNotificationSettings: true,
                                     announcementSetting: .enabled,
                                     timeSensitiveSetting: .enabled,
-                                    scheduledDeliverySetting: .disabled)
+                                    scheduledDeliverySetting: .disabled,
+                                    temporaryMuteAlertsSettings: .disabled)
     }
 }
