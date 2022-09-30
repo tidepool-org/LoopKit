@@ -81,7 +81,7 @@ public extension DeviceAVSoundPlayer {
 
     func playAlert(sound: Alert.Sound) {
         switch sound {
-        case .vibrate:
+        case .systemDefault, .vibrate:
             vibrate()
         default:
             if let baseURL = baseURL {
@@ -90,9 +90,11 @@ public extension DeviceAVSoundPlayer {
                     self.play(url: baseURL.appendingPathComponent(name))
                 } else {
                     log.default("No file to play for %@", "\(sound)")
+                    vibrate()
                 }
             } else {
                 log.error("No base URL, could not play %@", sound.filename ?? "")
+                vibrate()
             }
         }
     }
