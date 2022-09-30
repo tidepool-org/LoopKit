@@ -81,7 +81,7 @@ public extension DeviceAVSoundPlayer {
 
     func playAlert(sound: Alert.Sound) {
         switch sound {
-        case .systemDefault, .vibrate:
+        case .vibrate:
             vibrate()
         default:
             if let baseURL = baseURL {
