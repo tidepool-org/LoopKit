@@ -81,9 +81,6 @@ public extension DeviceAVSoundPlayer {
 
     func playAlert(sound: Alert.Sound) {
         switch sound {
-        case .silence:
-            // noop
-            break
         case .vibrate:
             vibrate()
         default:

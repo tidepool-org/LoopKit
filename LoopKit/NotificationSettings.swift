@@ -110,7 +110,7 @@ public struct NotificationSettings: Equatable {
     public let announcementSetting: NotificationSetting
     public let timeSensitiveSetting: NotificationSetting
     public let scheduledDeliverySetting: NotificationSetting
-    public var temporaryMuteAlertsSettings: NotificationSetting
+    public var temporaryMuteAlertsSettings: Bool
 
     public init(authorizationStatus: AuthorizationStatus,
                 soundSetting: NotificationSetting,
@@ -126,7 +126,7 @@ public struct NotificationSettings: Equatable {
                 announcementSetting: NotificationSetting,
                 timeSensitiveSetting: NotificationSetting,
                 scheduledDeliverySetting: NotificationSetting,
-                temporaryMuteAlertsSettings: NotificationSetting)
+                temporaryMuteAlertsSettings: Bool)
     {
         self.authorizationStatus = authorizationStatus
         self.soundSetting = soundSetting
@@ -166,7 +166,7 @@ extension NotificationSettings: Codable {
             announcementSetting: try container.decode(NotificationSetting.self, forKey: .announcementSetting),
             timeSensitiveSetting: try container.decodeIfPresent(NotificationSetting.self, forKey: .timeSensitiveSetting) ?? .unknown,
             scheduledDeliverySetting: try container.decodeIfPresent(NotificationSetting.self, forKey: .scheduledDeliverySetting) ?? .unknown,
-            temporaryMuteAlertsSettings: try container.decodeIfPresent(NotificationSetting.self, forKey: .temporaryMuteAlertsSettings) ?? .unknown)
+            temporaryMuteAlertsSettings: try container.decodeIfPresent(Bool.self, forKey: .temporaryMuteAlertsSettings) ?? false)
     }
 
     private enum CodingKeys: String, CodingKey {

@@ -119,8 +119,8 @@ public struct Alert: Equatable {
 
     /// Representation of a "sound" (or other sound-like action, like vibrate) to perform when the alert is issued.
     public enum Sound: Equatable {
+        case systemDefault
         case vibrate
-        case silence
         case sound(name: String)
     }
     public let sound: Sound
@@ -152,7 +152,7 @@ public extension Alert.Sound {
     var filename: String? {
         switch self {
         case .sound(let name): return name
-        case .silence, .vibrate: return nil
+        case .systemDefault, .vibrate: return nil
         }
     }
 }
@@ -220,7 +220,7 @@ extension Alert.Trigger: Codable {
 
 extension Alert.Sound: Codable {
     private enum CodingKeys: String, CodingKey {
-      case silence, vibrate, sound
+      case vibrate, sound, systemDefault
     }
     private struct SoundName: Codable {
         let name: String
@@ -228,8 +228,8 @@ extension Alert.Sound: Codable {
     public init(from decoder: Decoder) throws {
         if let singleValue = try? decoder.singleValueContainer().decode(CodingKeys.RawValue.self) {
             switch singleValue {
-            case CodingKeys.silence.rawValue:
-                self = .silence
+            case CodingKeys.systemDefault.rawValue:
+                self = .systemDefault
             case CodingKeys.vibrate.rawValue:
                 self = .vibrate
             default:
@@ -247,15 +247,15 @@ extension Alert.Sound: Codable {
     
     public func encode(to encoder: Encoder) throws {
         switch self {
-        case .silence:
-            var container = encoder.singleValueContainer()
-            try container.encode(CodingKeys.silence.rawValue)
         case .vibrate:
             var container = encoder.singleValueContainer()
             try container.encode(CodingKeys.vibrate.rawValue)
         case .sound(let name):
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(SoundName(name: name), forKey: .sound)
+        case .systemDefault:
+            var container = encoder.singleValueContainer()
+            try container.encode(CodingKeys.systemDefault.rawValue)
         }
     }
 }
