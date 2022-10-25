@@ -96,6 +96,15 @@ public struct NotificationSettings: Equatable {
         }
     }
 
+    public enum TemporaryMuteAlertSetting: Codable, Equatable {
+        case disabled
+        case enabled(TimeInterval)
+
+        public init(enabled: Bool, duration: TimeInterval) {
+            self = enabled ? .enabled(duration) : .disabled
+        }
+    }
+
     public let authorizationStatus: AuthorizationStatus
     public let soundSetting: NotificationSetting
     public let badgeSetting: NotificationSetting
@@ -110,7 +119,7 @@ public struct NotificationSettings: Equatable {
     public let announcementSetting: NotificationSetting
     public let timeSensitiveSetting: NotificationSetting
     public let scheduledDeliverySetting: NotificationSetting
-    public var temporaryMuteAlertsSettings: Bool
+    public var temporaryMuteAlertsSetting: TemporaryMuteAlertSetting
 
     public init(authorizationStatus: AuthorizationStatus,
                 soundSetting: NotificationSetting,
@@ -126,7 +135,7 @@ public struct NotificationSettings: Equatable {
                 announcementSetting: NotificationSetting,
                 timeSensitiveSetting: NotificationSetting,
                 scheduledDeliverySetting: NotificationSetting,
-                temporaryMuteAlertsSettings: Bool)
+                temporaryMuteAlertsSetting: TemporaryMuteAlertSetting)
     {
         self.authorizationStatus = authorizationStatus
         self.soundSetting = soundSetting
@@ -142,7 +151,7 @@ public struct NotificationSettings: Equatable {
         self.announcementSetting = announcementSetting
         self.timeSensitiveSetting = timeSensitiveSetting
         self.scheduledDeliverySetting = scheduledDeliverySetting
-        self.temporaryMuteAlertsSettings = temporaryMuteAlertsSettings
+        self.temporaryMuteAlertsSetting = temporaryMuteAlertsSetting
     }
 }
 
@@ -166,7 +175,7 @@ extension NotificationSettings: Codable {
             announcementSetting: try container.decode(NotificationSetting.self, forKey: .announcementSetting),
             timeSensitiveSetting: try container.decodeIfPresent(NotificationSetting.self, forKey: .timeSensitiveSetting) ?? .unknown,
             scheduledDeliverySetting: try container.decodeIfPresent(NotificationSetting.self, forKey: .scheduledDeliverySetting) ?? .unknown,
-            temporaryMuteAlertsSettings: try container.decodeIfPresent(Bool.self, forKey: .temporaryMuteAlertsSettings) ?? false)
+            temporaryMuteAlertsSetting: try container.decodeIfPresent(TemporaryMuteAlertSetting.self, forKey: .temporaryMuteAlertsSetting) ?? .disabled)
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -184,6 +193,6 @@ extension NotificationSettings: Codable {
         case announcementSetting
         case timeSensitiveSetting
         case scheduledDeliverySetting
-        case temporaryMuteAlertsSettings
+        case temporaryMuteAlertsSetting
     }
 }
