@@ -90,7 +90,7 @@ public protocol SupportUI: AnyObject {
 
     var studyProductSelection: String? { get }
     
-    var loopNeedsReset: Bool { get set }
+    var loopNeedsReset: Bool { get }
 }
 
 extension SupportUI {
