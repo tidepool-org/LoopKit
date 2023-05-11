@@ -42,7 +42,7 @@ public class MockSupport: SupportUI {
     
     public weak var delegate: SupportUIDelegate?
 
-    public func configurationMenuItems() -> [AnyView] {
+    public func configurationMenuItems() -> [LoopKitUI.CustomMenuItem] {
         return []
     }
 
