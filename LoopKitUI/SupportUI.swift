@@ -63,6 +63,10 @@ public protocol SupportUI: AnyObject {
     /// The unique identifier of this type of support.
     static var supportIdentifier: String { get }
 
+    /// Support plugins often depend on other services.  This callback allows supports to reference the needed service(s).
+    /// It is called once during app initialization after  services are initialized and again as new services are added and initialized.
+    func initializationComplete(for services: [Service])
+
     /// Provides configuration menu items.
     ///
     /// - Returns: An array of views that will be added to the configuration section of settings.
