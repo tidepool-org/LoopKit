@@ -67,6 +67,8 @@ public protocol PumpManagerDelegate: DeviceManagerDelegate, PumpManagerStatusObs
     func pumpManager(_ pumpManager: PumpManager, didAdjustPumpClockBy adjustment: TimeInterval)
 
     func pumpManagerDidUpdateState(_ pumpManager: PumpManager)
+    
+    func pumpManager(_ pumpManager: PumpManager, didUpdateBasalRateSchedule basalRateSchedule: BasalRateSchedule)
 
     func startDateToFilterNewPumpEvents(for manager: PumpManager) -> Date
 
