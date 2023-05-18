@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import HealthKit
 import LoopKit
 import LoopKitUI
 import MockKit
@@ -24,7 +25,7 @@ struct MockPumpManagerSettingsView: View {
     
     @State private var showSuspendOptions = false
     @State private var presentedAlert: PresentedAlert?
-    @State private var transitioningSuspendResumeInsulinDelivery = false
+
     private var supportedInsulinTypes: [InsulinType]
     
     init(pumpManager: MockPumpManager, supportedInsulinTypes: [InsulinType]) {
@@ -52,40 +53,71 @@ struct MockPumpManagerSettingsView: View {
     private var statusSection: some View {
         Section {
             VStack(spacing: 8) {
-                progressViews
+                pumpProgressView
                     .openMockPumpSettingsOnLongPress(enabled: true, pumpManager: viewModel.pumpManager, supportedInsulinTypes: supportedInsulinTypes)
+                Divider()
                 insulinInfo
             }
         }
     }
     
-    private var progressViews: some View {
-        Text("Placeholder for Insulin Status View")
-//        LazyVStack(spacing: 10) {
-//            ForEach(SoloPumpComponent.allCases, id: \.self) {
-//                progressView(for: $0)
-//            }
-//        }
+    private var pumpProgressView: some View {
+        HStack(alignment: .center, spacing: 16) {
+            pumpImage
+            expirationArea
+                .offset(y: -3)
+        }
     }
     
-//    @ViewBuilder
-//    private func progressView(for component: SoloPumpComponent) -> some View {
-//        let viewModel = viewModel.expirationProgressViewModel.viewModel(for: component)
-//        if viewModel.isHidden {
-//            EmptyView()
-//        } else {
-//            VStack(spacing: 8) {
-//                ComponentExpirationProgressView(viewModel: viewModel)
-//                Divider()
-//            }
-//        }
-//    }
+    private var pumpImage: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 5)
+                .fill(Color(frameworkColor: "LightGrey")!)
+                .frame(width: 77, height: 76)
+            Image(frameworkImage: "Pump Simulator")
+                .resizable()
+                .aspectRatio(contentMode: ContentMode.fit)
+                .frame(maxHeight: 70)
+                .frame(width: 70)
+        }
+    }
+    
+    private var expirationArea: some View {
+        VStack(alignment: .leading) {
+            expirationText
+                .offset(y: 4)
+            expirationTime
+                .offset(y: 10)
+            progressBar
+        }
+    }
+    
+    private var expirationText: some View {
+        Text("Pump expires in ")
+            .font(.system(size: 15, weight: .medium, design: .default))
+            .foregroundColor(.secondary)
+    }
+    
+    private var expirationTime: some View {
+        HStack(alignment: .lastTextBaseline) {
+            Text("2")
+                .font(.system(size: 24, weight: .heavy, design: .default))
+            Text("days")
+                .font(.system(size: 15, weight: .regular, design: .default))
+                .foregroundColor(.secondary)
+                .offset(x: -3)
+        }
+    }
+    
+    private var progressBar: some View {
+        ProgressView(progress: viewModel.pumpExpirationPercentComplete)
+            .foregroundColor(insulinTintColor)
+    }
     
     var insulinInfo: some View {
-        Text("Placeholder for Insulin Info View")
-//        InsulinStatusView(viewModel: viewModel.insulinStatusViewModel)
-//            .environment(\.guidanceColors, guidanceColors)
-//            .environment(\.insulinTintColor, insulinTintColor)
+        InsulinStatusView(viewModel: viewModel)
+            .environment(\.guidanceColors, guidanceColors)
+            .environment(\.insulinTintColor, insulinTintColor)
     }
     
     @ViewBuilder
@@ -105,12 +137,12 @@ struct MockPumpManagerSettingsView: View {
                         .foregroundColor(viewModel.isDeliverySuspended ? guidanceColors.warning : .accentColor)
                     Text(viewModel.suspendResumeInsulinDeliveryLabel)
                     Spacer()
-                    if transitioningSuspendResumeInsulinDelivery {
+                    if viewModel.transitioningSuspendResumeInsulinDelivery {
                         ActivityIndicator(isAnimating: .constant(true), style: .medium)
                     }
                 }
             }
-            .disabled(transitioningSuspendResumeInsulinDelivery)
+            .disabled(viewModel.transitioningSuspendResumeInsulinDelivery)
             if viewModel.isDeliverySuspended {
                 LabeledValueView(label: LocalizedString("Suspended At", comment: "Label for suspended at field"),
                                  value: viewModel.suspendedAtString)
@@ -119,17 +151,14 @@ struct MockPumpManagerSettingsView: View {
     }
     
     private func suspendResumeTapped() {
-        transitioningSuspendResumeInsulinDelivery = true
         if viewModel.isDeliverySuspended {
             viewModel.resumeDelivery() { error in
-                transitioningSuspendResumeInsulinDelivery = false
                 if let error = error {
                     self.presentedAlert = .resumeInsulinDeliveryError(error)
                 }
             }
         } else {
             viewModel.suspendDelivery() { error in
-                transitioningSuspendResumeInsulinDelivery = false
                 if let error = error {
                     self.presentedAlert = .suspendInsulinDeliveryError(error)
                 }
@@ -210,20 +239,14 @@ struct MockPumpManagerSettingsView: View {
 class MockPumpManagerSettingsViewModel: ObservableObject {
     let pumpManager: MockPumpManager
     
-    init(pumpManager: MockPumpManager) {
-        self.pumpManager = pumpManager
-        
-        isDeliverySuspended = pumpManager.status.basalDeliveryState?.isSuspended == true
-        setSuspenededAtString(basalDeliveryState: pumpManager.status.basalDeliveryState)
-        
-        pumpManager.addStateObserver(self, queue: .main)
-    }
-    
     @Published var isDeliverySuspended: Bool {
         didSet {
-            setSuspenededAtString(basalDeliveryState: pumpManager.status.basalDeliveryState)
+            transitioningSuspendResumeInsulinDelivery = false
+            basalDeliveryState = pumpManager.status.basalDeliveryState
         }
     }
+    
+    @Published var transitioningSuspendResumeInsulinDelivery = false
     
     @Published var suspendedAtString: String? = nil
     
@@ -249,23 +272,67 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
         return formatter
     }()
     
-    private let pumpPairedInterval = TimeInterval(days: -1.0)
+    private var pumpPairedInterval: TimeInterval { pumpExpirationRemaing - pumpLifeTime
+    }
     
     var lastPumpPairedDateTimeString: String {
         Self.dateTimeFormatter.string(from: Date().addingTimeInterval(pumpPairedInterval))
     }
 
-    private let pumpExpirationInterval = TimeInterval(days: 2.0)
+    private let pumpExpirationRemaing = TimeInterval(days: 2.0)
+    private let pumpLifeTime = TimeInterval(days: 3.0)
+    var pumpExpirationPercentComplete: Double {
+        (pumpLifeTime - pumpExpirationRemaing) / pumpLifeTime
+    }
 
     var pumpExpirationDateTimeString: String {
-        Self.dateTimeFormatter.string(from: Date().addingTimeInterval(pumpExpirationInterval))
+        Self.dateTimeFormatter.string(from: Date().addingTimeInterval(pumpExpirationRemaing))
     }
     
     var pumpTimeString: String {
         Self.shortTimeFormatter.string(from: Date())
     }
     
-    private func setSuspenededAtString(basalDeliveryState: PumpManagerStatus.BasalDeliveryState? = nil) {
+    @Published var basalDeliveryState: PumpManagerStatus.BasalDeliveryState? {
+        didSet {
+            setSuspenededAtString()
+        }
+    }
+
+    @Published var basalDeliveryRate: Double?
+
+    @Published var presentDeliveryWarning: Bool?
+    
+    var isScheduledBasal: Bool {
+        switch basalDeliveryState {
+        case .active, .initiatingTempBasal:
+            return true
+        case .tempBasal, .cancelingTempBasal, .suspending, .suspended, .resuming, .none:
+            return false
+        }
+    }
+    
+    var isTempBasal: Bool {
+        switch basalDeliveryState {
+        case .tempBasal, .cancelingTempBasal:
+            return true
+        case .active, .initiatingTempBasal, .suspending, .suspended, .resuming, .none:
+            return false
+        }
+    }
+    
+    init(pumpManager: MockPumpManager) {
+        self.pumpManager = pumpManager
+        
+        isDeliverySuspended = pumpManager.status.basalDeliveryState?.isSuspended == true
+        basalDeliveryState = pumpManager.status.basalDeliveryState
+        basalDeliveryRate = pumpManager.state.basalDeliveryRate(at: Date())
+        setSuspenededAtString()
+        
+        pumpManager.addStateObserver(self, queue: .main)
+    }
+    
+    private func setSuspenededAtString() {
         switch basalDeliveryState {
         case .suspended(let suspendedAt):
             let formatter = DateFormatter()
@@ -279,6 +346,7 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
     }
     
     func resumeDelivery(completion: @escaping (Error?) -> Void) {
+        transitioningSuspendResumeInsulinDelivery = true
         pumpManager.resumeDelivery() { [weak self] error in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 if error == nil {
@@ -290,6 +358,7 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
     }
     
     func suspendDelivery(completion: @escaping (Error?) -> Void) {
+        transitioningSuspendResumeInsulinDelivery = true
         pumpManager.suspendDelivery() { [weak self] error in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 if error == nil {
@@ -303,11 +372,30 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
 
 extension MockPumpManagerSettingsViewModel: MockPumpManagerStateObserver {
     func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate state: MockKit.MockPumpManagerState) {
-        // TODO remove if unused
+        guard !transitioningSuspendResumeInsulinDelivery else { return }
+        basalDeliveryRate = state.basalDeliveryRate(at: Date())
+        basalDeliveryState = manager.status.basalDeliveryState
     }
     
     func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate status: LoopKit.PumpManagerStatus, oldStatus: LoopKit.PumpManagerStatus) {
-        // TODO remove if unused
+        guard !transitioningSuspendResumeInsulinDelivery else { return }
+        basalDeliveryRate = manager.state.basalDeliveryRate(at: Date())
+        basalDeliveryState = status.basalDeliveryState
+    }
+}
+ 
+extension MockPumpManagerState {
+    func basalDeliveryRate(at now: Date) -> Double? {
+        switch suspendState {
+        case .resumed:
+            if let tempBasal = unfinalizedTempBasal, !tempBasal.isFinished(at: now) {
+                return tempBasal.rate
+            } else {
+                return basalRateSchedule?.value(at: now)
+            }
+        case .suspended:
+            return nil
+        }
     }
 }
 
@@ -322,198 +410,6 @@ extension MockPumpManagerSettingsView.PresentedAlert: Identifiable {
     }
 }
 
-//struct InsulinStatusView: View {
-//    @Environment(\.guidanceColors) var guidanceColors
-//    @Environment(\.insulinTintColor) var insulinTintColor
-//
-//    @ObservedObject var viewModel: InsulinStatusViewModel
-//
-//    private let subViewSpacing: CGFloat = 21
-//
-//    var body: some View {
-//        HStack(alignment: .top, spacing: 0) {
-//            deliveryStatus
-//                .fixedSize(horizontal: true, vertical: true)
-//            Spacer()
-//            Divider()
-//                .frame(height: dividerHeight)
-//                .offset(y:3)
-//            Spacer()
-//            reservoirStatus
-//                .fixedSize(horizontal: true, vertical: true)
-//        }
-//    }
-//
-//    private var dividerHeight: CGFloat {
-//        guard inNoDelivery == false else {
-//            return 65 + subViewSpacing-10
-//        }
-//
-//        return 65 + subViewSpacing
-//    }
-//
-//    let basalRateFormatter = QuantityFormatter()
-//
-//    private var inNoDelivery: Bool {
-//        !viewModel.isInsulinSuspended && viewModel.basalDeliveryRate == nil
-//    }
-//
-//    private var deliveryStatusSpacing: CGFloat {
-//        return subViewSpacing
-//    }
-//
-//    var deliveryStatus: some View {
-//        VStack(alignment: .leading, spacing: deliveryStatusSpacing) {
-//            FixedHeightText(deliverySectionTitle)
-//                .foregroundColor(.secondary)
-//            if viewModel.isInsulinSuspended {
-//                insulinSuspended
-//            } else if let basalRate = viewModel.basalDeliveryRate {
-//                basalRateView(basalRate)
-//            } else {
-//                noDelivery
-//            }
-//        }
-//    }
-//
-//    var insulinSuspended: some View {
-//        HStack(alignment: .center, spacing: 2) {
-//            Image(systemName: "pause.circle.fill")
-//                .font(.system(size: 34))
-//                .fixedSize()
-//                .foregroundColor(guidanceColors.warning)
-//            FrameworkLocalizedText("Insulin\nSuspended", comment: "Text shown in insulin remaining space when no micropump is paired")
-//                .font(.system(size: 14, weight: .heavy, design: .default))
-//                .lineSpacing(0.01)
-//                .fixedSize()
-//        }
-//    }
-//
-//    private func basalRateView(_ basalRate: Double) -> some View {
-//        HStack(alignment: .center) {
-//            VStack(alignment: .leading) {
-//                HStack(alignment: .lastTextBaseline, spacing: 3) {
-//                    let unit = HKUnit.internationalUnitsPerHour
-//                    let quantity = HKQuantity(unit: unit, doubleValue: basalRate)
-//                    if viewModel.presentDeliveryWarning == true {
-//                        Image(systemName: "exclamationmark.circle.fill")
-//                            .foregroundColor(guidanceColors.warning)
-//                            .font(.system(size: 28))
-//                            .fixedSize()
-//                    }
-//                    Text(basalRateFormatter.string(from: quantity, for: unit, includeUnit: false) ?? "")
-//                        .font(.system(size: 28))
-//                        .fontWeight(.heavy)
-//                        .fixedSize()
-//                    Text(basalRateFormatter.string(from: unit))
-//                        .foregroundColor(.secondary)
-//                }
-//                Group {
-//                    if viewModel.isScheduledBasal {
-//                        FrameworkLocalizedText("Scheduled\(String.nonBreakingSpace)Basal", comment: "Subtitle of insulin delivery section during scheduled basal")
-//                    } else if viewModel.isTempBasal {
-//                        FrameworkLocalizedText("Temporary\(String.nonBreakingSpace)Basal", comment: "Subtitle of insulin delivery section during temporary basal")
-//                    }
-//                }
-//                .font(.footnote)
-//                .foregroundColor(.accentColor)
-//            }
-//        }
-//    }
-//
-//    var noDelivery: some View {
-//        HStack(alignment: .center, spacing: 2) {
-//            Image(systemName: "xmark.circle.fill")
-//                .font(.system(size: 34))
-//                .fixedSize()
-//                .foregroundColor(guidanceColors.critical)
-//            FrameworkLocalizedText("No\nDelivery", comment: "Text shown in insulin remaining space when no micropump is paired")
-//                .font(.system(size: 16, weight: .heavy, design: .default))
-//                .lineSpacing(0.01)
-//                .fixedSize()
-//        }
-//    }
-//
-//    var deliverySectionTitle: String {
-//        LocalizedString("Insulin\(String.nonBreakingSpace)Delivery", comment: "Title of insulin delivery section")
-//    }
-//
-//    private var reservoirStatusSpacing: CGFloat {
-//        subViewSpacing
-//    }
-//
-//    var reservoirStatus: some View {
-//        VStack(alignment: .trailing) {
-//            VStack(alignment: .leading, spacing: reservoirStatusSpacing) {
-//                FrameworkLocalizedText("Insulin\(String.nonBreakingSpace)Remaining", comment: "Header for insulin remaining on micropump settings screen")
-//                    .foregroundColor(Color(UIColor.secondaryLabel))
-//                HStack {
-//                    if let pumpStatusHighlight = viewModel.pumpStatusHighlight {
-//                        pumpStatusWarningText(pumpStatusHighlight: pumpStatusHighlight)
-//                    } else {
-//                        reservoirLevelStatus
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    @ViewBuilder
-//    func pumpStatusWarningText(pumpStatusHighlight: DeviceStatusHighlight) -> some View {
-//        HStack(spacing: 2) {
-//            Image(systemName: pumpStatusHighlight.imageName)
-//                .font(.system(size: 34))
-//                .fixedSize()
-//                .foregroundColor(guidanceColors.critical)
-//            FixedHeightText(Text(pumpStatusHighlight.localizedMessage).fontWeight(.heavy))
-//        }
-//    }
-//
-//    @ViewBuilder
-//    var reservoirLevelStatus: some View {
-//        VStack(alignment: .leading, spacing: 0) {
-//            HStack(alignment: .lastTextBaseline) {
-//                Image(frameworkImage: viewModel.reservoirViewModel.imageName)
-//                    .resizable()
-//                    .foregroundColor(reservoirColor)
-//                    .frame(width: 25, height: 38, alignment: .bottom)
-//                HStack(alignment: .firstTextBaseline, spacing: 3) {
-//                    Text(viewModel.reservoirLevelString)
-//                        .font(.system(size: 28))
-//                        .fontWeight(.heavy)
-//                        .fixedSize()
-//                    let unit = HKUnit.internationalUnit()
-//                    Text(basalRateFormatter.string(from: unit))
-//                        .foregroundColor(.secondary)
-//                }
-//            }
-//            if viewModel.isEstimatedReservoirLevel {
-//                FrameworkLocalizedText("Estimated Reading", comment: "label when reservoire level is estimated")
-//                    .font(.footnote)
-//                    .foregroundColor(.accentColor)
-//            } else {
-//                FrameworkLocalizedText("Accurate Reading", comment: "label when reservoire level is estimated")
-//                    .font(.footnote)
-//                    .foregroundColor(.accentColor)
-//            }
-//        }
-//        .offset(y: -11) // the reservoir image should have tight spacing so move the view up
-//        .padding(.bottom, -11)
-//    }
-//
-//    var reservoirColor: Color {
-//        switch viewModel.reservoirViewModel.warningColor {
-//        case .normal:
-//            return insulinTintColor
-//        case .warning:
-//            return guidanceColors.warning
-//        case .error:
-//            return guidanceColors.critical
-//        case .none:
-//            return guidanceColors.acceptable
-//        }
-//    }
-//}
 //
 //class InsulinStatusViewModel: ObservableObject {
 //    private weak var statePublisher: SoloPumpManagerStatePublisher?
