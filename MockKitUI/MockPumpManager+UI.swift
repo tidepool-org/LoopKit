@@ -31,8 +31,9 @@ extension MockPumpManager: PumpManagerUI {
     }
 
     public func settingsViewController(bluetoothProvider: BluetoothProvider, colorPalette: LoopUIColorPalette, allowDebugFeatures: Bool, allowedInsulinTypes: [InsulinType]) -> PumpManagerViewController {
-        let settings = MockPumpManagerSettingsViewController(pumpManager: self, supportedInsulinTypes: allowedInsulinTypes)
-        let nav = PumpManagerSettingsNavigationViewController(rootViewController: settings)
+        let settings = MockPumpManagerSettingsView(pumpManager: self, supportedInsulinTypes: allowedInsulinTypes)
+        let hostingController = DismissibleHostingController(rootView: settings, colorPalette: colorPalette)
+        let nav = PumpManagerSettingsNavigationViewController(rootViewController: hostingController)
         return nav
     }
     
