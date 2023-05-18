@@ -655,6 +655,8 @@
 		B451D1142A166403004878F1 /* DemoPlaceHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */; };
 		B451D1162A168C81004878F1 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D1152A168C81004878F1 /* Color.swift */; };
 		B451D1182A16A21F004878F1 /* InsulinStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D1172A16A21F004878F1 /* InsulinStatusView.swift */; };
+		B451D11B2A16B97C004878F1 /* MockPumpManagerSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D11A2A16B97C004878F1 /* MockPumpManagerSettingsViewModel.swift */; };
+		B451D11D2A171751004878F1 /* MockPumpManagerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D11C2A171751004878F1 /* MockPumpManagerControlsView.swift */; };
 		B455F31825FBEC5F000ED456 /* SuspendThresholdEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B455F2A125FBE985000ED456 /* SuspendThresholdEditorViewModel.swift */; };
 		B455F35625FC0284000ED456 /* CorrectionRangeOverridesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B455F35525FC0284000ED456 /* CorrectionRangeOverridesTests.swift */; };
 		B455F3A425FF7FF0000ED456 /* CorrectionRangeOverridesEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B455F3A325FF7FF0000ED456 /* CorrectionRangeOverridesEditorViewModel.swift */; };
@@ -1550,6 +1552,8 @@
 		B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoPlaceHolderView.swift; sourceTree = "<group>"; };
 		B451D1152A168C81004878F1 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		B451D1172A16A21F004878F1 /* InsulinStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinStatusView.swift; sourceTree = "<group>"; };
+		B451D11A2A16B97C004878F1 /* MockPumpManagerSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPumpManagerSettingsViewModel.swift; sourceTree = "<group>"; };
+		B451D11C2A171751004878F1 /* MockPumpManagerControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPumpManagerControlsView.swift; sourceTree = "<group>"; };
 		B455F2A125FBE985000ED456 /* SuspendThresholdEditorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SuspendThresholdEditorViewModel.swift; path = LoopKitUI/ViewModels/SuspendThresholdEditorViewModel.swift; sourceTree = SOURCE_ROOT; };
 		B455F35525FC0284000ED456 /* CorrectionRangeOverridesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverridesTests.swift; sourceTree = "<group>"; };
 		B455F3A325FF7FF0000ED456 /* CorrectionRangeOverridesEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverridesEditorViewModel.swift; sourceTree = "<group>"; };
@@ -2290,6 +2294,7 @@
 				C1E0EEF524EB26D800086510 /* DeliveryUncertaintyRecoveryView.swift */,
 				B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */,
 				B451D1172A16A21F004878F1 /* InsulinStatusView.swift */,
+				B451D11C2A171751004878F1 /* MockPumpManagerControlsView.swift */,
 				B451D10C2A161A3E004878F1 /* MockPumpManagerSettingsView.swift */,
 			);
 			path = Views;
@@ -2835,6 +2840,7 @@
 				C1CEBFE029BB7342007FD8A3 /* Resources */,
 				89D204B621CC7E77001238CC /* View Controllers */,
 				439706E722D2E8EE00C81566 /* Views */,
+				B451D1192A16B944004878F1 /* ViewModel */,
 				B451D10E2A161B43004878F1 /* ViewModifier */,
 				C18733CB29B94A7A00519CDF /* LocalizedString.swift */,
 				89CCD4F321A8A2B30068C3FB /* MockCGMManager+UI.swift */,
@@ -2959,6 +2965,14 @@
 				B451D10F2A161B84004878F1 /* OpenMockPumpSettingsOnLongPressGesture.swift */,
 			);
 			path = ViewModifier;
+			sourceTree = "<group>";
+		};
+		B451D1192A16B944004878F1 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				B451D11A2A16B97C004878F1 /* MockPumpManagerSettingsViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		B4CEE2E1257129780093111B /* MockKitTests */ = {
@@ -4264,8 +4278,10 @@
 				8992426521EC138000EA512B /* UIColor.swift in Sources */,
 				C18733C629B94A6400519CDF /* Comparable.swift in Sources */,
 				89D204BA21CC7F34001238CC /* MockPumpManagerSettingsViewController.swift in Sources */,
+				B451D11D2A171751004878F1 /* MockPumpManagerControlsView.swift in Sources */,
 				C18733CC29B94A7A00519CDF /* LocalizedString.swift in Sources */,
 				89D204BC21CC7F34001238CC /* SineCurveParametersTableViewController.swift in Sources */,
+				B451D11B2A16B97C004878F1 /* MockPumpManagerSettingsViewModel.swift in Sources */,
 				C1FAEC21264AEEA300A3250B /* UIImage.swift in Sources */,
 				B451D1182A16A21F004878F1 /* InsulinStatusView.swift in Sources */,
 				B451D1162A168C81004878F1 /* Color.swift in Sources */,

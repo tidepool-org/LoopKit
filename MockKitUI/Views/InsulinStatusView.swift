@@ -16,7 +16,7 @@ struct InsulinStatusView: View {
 
     @ObservedObject var viewModel: MockPumpManagerSettingsViewModel
 
-    private let subViewSpacing: CGFloat = 21
+    private let subViewSpacing: CGFloat = 14
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -27,8 +27,8 @@ struct InsulinStatusView: View {
                 .frame(height: dividerHeight)
                 .offset(y:3)
             Spacer()
-//            reservoirStatus
-//                .fixedSize(horizontal: true, vertical: true)
+            reservoirStatus
+                .fixedSize(horizontal: true, vertical: true)
         }
     }
 
@@ -131,75 +131,47 @@ struct InsulinStatusView: View {
         subViewSpacing
     }
 
-//    var reservoirStatus: some View {
-//        VStack(alignment: .trailing) {
-//            VStack(alignment: .leading, spacing: reservoirStatusSpacing) {
-//                Text("Insulin\(String.nonBreakingSpace)Remaining")
-//                    .foregroundColor(Color(UIColor.secondaryLabel))
-//                HStack {
-//                    if let pumpStatusHighlight = viewModel.pumpStatusHighlight {
-//                        pumpStatusWarningText(pumpStatusHighlight: pumpStatusHighlight)
-//                    } else {
-//                        reservoirLevelStatus
-//                    }
-//                }
-//            }
-//        }
-//    }
+    var reservoirStatus: some View {
+        VStack(alignment: .trailing) {
+            VStack(alignment: .leading, spacing: reservoirStatusSpacing) {
+                Text("Insulin\(String.nonBreakingSpace)Remaining")
+                    .foregroundColor(Color(UIColor.secondaryLabel))
+                HStack {
+                    reservoirLevelStatus
+                }
+            }
+        }
+    }
 
-//    @ViewBuilder
-//    func pumpStatusWarningText(pumpStatusHighlight: DeviceStatusHighlight) -> some View {
-//        HStack(spacing: 2) {
-//            Image(systemName: pumpStatusHighlight.imageName)
-//                .font(.system(size: 34))
-//                .fixedSize()
-//                .foregroundColor(guidanceColors.critical)
-//            FixedHeightText(Text(pumpStatusHighlight.localizedMessage).fontWeight(.heavy))
-//        }
-//    }
-
-//    @ViewBuilder
-//    var reservoirLevelStatus: some View {
-//        VStack(alignment: .leading, spacing: 0) {
-//            HStack(alignment: .lastTextBaseline) {
-//                Image(frameworkImage: viewModel.reservoirViewModel.imageName)
-//                    .resizable()
-//                    .foregroundColor(reservoirColor)
-//                    .frame(width: 25, height: 38, alignment: .bottom)
-//                HStack(alignment: .firstTextBaseline, spacing: 3) {
-//                    Text(viewModel.reservoirLevelString)
-//                        .font(.system(size: 28))
-//                        .fontWeight(.heavy)
-//                        .fixedSize()
-//                    let unit = HKUnit.internationalUnit()
-//                    Text(basalRateFormatter.string(from: unit))
-//                        .foregroundColor(.secondary)
-//                }
-//            }
-//            if viewModel.isEstimatedReservoirLevel {
-//                FrameworkLocalizedText("Estimated Reading", comment: "label when reservoire level is estimated")
-//                    .font(.footnote)
-//                    .foregroundColor(.accentColor)
-//            } else {
-//                FrameworkLocalizedText("Accurate Reading", comment: "label when reservoire level is estimated")
-//                    .font(.footnote)
-//                    .foregroundColor(.accentColor)
-//            }
-//        }
-//        .offset(y: -11) // the reservoir image should have tight spacing so move the view up
-//        .padding(.bottom, -11)
-//    }
-//
-//    var reservoirColor: Color {
-//        switch viewModel.reservoirViewModel.warningColor {
-//        case .normal:
-//            return insulinTintColor
-//        case .warning:
-//            return guidanceColors.warning
-//        case .error:
-//            return guidanceColors.critical
-//        case .none:
-//            return guidanceColors.acceptable
-//        }
-//    }
+    @ViewBuilder
+    var reservoirLevelStatus: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .lastTextBaseline) {
+                ZStack(alignment: .center) {
+                    Image(frameworkImage: "generic-reservoir")
+                        .resizable()
+                        .foregroundColor(.accentColor)
+                        .frame(width: 26, height: 34, alignment: .bottom)
+                    Image(frameworkImage: "generic-reservoir-mask")
+                        .resizable()
+                        .foregroundColor(.accentColor)
+                        .frame(width: 23, height: 34, alignment: .bottom)
+                }
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    Text("50+")
+                        .font(.system(size: 28))
+                        .fontWeight(.heavy)
+                        .fixedSize()
+                    let unit = HKUnit.internationalUnit()
+                    Text(basalRateFormatter.string(from: unit))
+                        .foregroundColor(.secondary)
+                }
+            }
+            Text("Estimated Reading")
+                .font(.footnote)
+                .foregroundColor(.accentColor)
+        }
+        .offset(y: -7) // the reservoir image should have tight spacing so move the view up
+        .padding(.bottom, -7)
+    }
 }

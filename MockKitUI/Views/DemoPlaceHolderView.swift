@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct DemoPlaceHolderView: View {
-    @Environment(\.appName) private var appName
+    var appName: String
     
     var body: some View {
         ZStack {
@@ -35,10 +35,6 @@ struct DemoPlaceHolderView: View {
                 .padding(.horizontal, 40)
                 
                 Spacer()
-                
-                Text("\(appName) is currently not available for use.")
-                    .font(.subheadline)
-                    .multilineTextAlignment(.center)
             }
             .padding(.leading, 0)
         }
@@ -47,6 +43,6 @@ struct DemoPlaceHolderView: View {
 
 struct DemoPlaceHolderView_Previews: PreviewProvider {
     static var previews: some View {
-        DemoPlaceHolderView()
+        DemoPlaceHolderView(appName: "Loop")
     }
 }

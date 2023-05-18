@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import HealthKit
 import LoopKit
 import LoopKitUI
 import MockKit
@@ -27,10 +26,12 @@ struct MockPumpManagerSettingsView: View {
     @State private var presentedAlert: PresentedAlert?
 
     private var supportedInsulinTypes: [InsulinType]
+    private var appName: String
     
-    init(pumpManager: MockPumpManager, supportedInsulinTypes: [InsulinType]) {
+    init(pumpManager: MockPumpManager, supportedInsulinTypes: [InsulinType], appName: String) {
         viewModel = MockPumpManagerSettingsViewModel(pumpManager: pumpManager)
         self.supportedInsulinTypes = supportedInsulinTypes
+        self.appName = appName
     }
     
     var body: some View {
@@ -111,7 +112,7 @@ struct MockPumpManagerSettingsView: View {
     
     private var progressBar: some View {
         ProgressView(progress: viewModel.pumpExpirationPercentComplete)
-            .foregroundColor(insulinTintColor)
+            .accentColor(insulinTintColor)
     }
     
     var insulinInfo: some View {
@@ -172,7 +173,7 @@ struct MockPumpManagerSettingsView: View {
             
             LabeledValueView(label: "Pump Expires", value: viewModel.pumpExpirationDateTimeString)
             
-            NavigationLink(destination: DemoPlaceHolderView()) {
+            NavigationLink(destination: DemoPlaceHolderView(appName: appName)) {
                 Text("Device Details")
             }
         }
@@ -180,7 +181,7 @@ struct MockPumpManagerSettingsView: View {
     
     private var replaceSystemComponentsSubSection: some View {
         Section {
-            NavigationLink(destination: DemoPlaceHolderView()) {
+            NavigationLink(destination: DemoPlaceHolderView(appName: appName)) {
                 Text("Replace Pump")
                     .foregroundColor(.accentColor)
             }
@@ -196,7 +197,7 @@ struct MockPumpManagerSettingsView: View {
     
     private var notificationSubSection: some View {
         Section(header: SectionHeader(label: "Configuration")) {
-            NavigationLink(destination: DemoPlaceHolderView()) {
+            NavigationLink(destination: DemoPlaceHolderView(appName: appName)) {
                 Text("Notification Settings")
             }
         }
@@ -210,7 +211,7 @@ struct MockPumpManagerSettingsView: View {
     
     private var supportSection: some View {
         Section(header: SectionHeader(label: "Support")) {
-            NavigationLink(destination: DemoPlaceHolderView()) {
+            NavigationLink(destination: DemoPlaceHolderView(appName: appName)) {
                 Text("Get help with your pump")
             }
         }
@@ -236,169 +237,6 @@ struct MockPumpManagerSettingsView: View {
     }
 }
 
-class MockPumpManagerSettingsViewModel: ObservableObject {
-    let pumpManager: MockPumpManager
-    
-    @Published var isDeliverySuspended: Bool {
-        didSet {
-            transitioningSuspendResumeInsulinDelivery = false
-            basalDeliveryState = pumpManager.status.basalDeliveryState
-        }
-    }
-    
-    @Published var transitioningSuspendResumeInsulinDelivery = false
-    
-    @Published var suspendedAtString: String? = nil
-    
-    var suspendResumeInsulinDeliveryLabel: String {
-        if isDeliverySuspended {
-            return "Tap to Resume Insulin Delivery"
-        } else {
-            return "Suspend Insulin Delivery"
-        }
-    }
-    
-    static private let dateTimeFormatter: DateFormatter = {
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateStyle = .short
-        timeFormatter.timeStyle = .short
-        return timeFormatter
-    }()
-    
-    static private let shortTimeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .short
-        return formatter
-    }()
-    
-    private var pumpPairedInterval: TimeInterval { pumpExpirationRemaing - pumpLifeTime
-    }
-    
-    var lastPumpPairedDateTimeString: String {
-        Self.dateTimeFormatter.string(from: Date().addingTimeInterval(pumpPairedInterval))
-    }
-
-    private let pumpExpirationRemaing = TimeInterval(days: 2.0)
-    private let pumpLifeTime = TimeInterval(days: 3.0)
-    var pumpExpirationPercentComplete: Double {
-        (pumpLifeTime - pumpExpirationRemaing) / pumpLifeTime
-    }
-
-    var pumpExpirationDateTimeString: String {
-        Self.dateTimeFormatter.string(from: Date().addingTimeInterval(pumpExpirationRemaing))
-    }
-    
-    var pumpTimeString: String {
-        Self.shortTimeFormatter.string(from: Date())
-    }
-    
-    @Published var basalDeliveryState: PumpManagerStatus.BasalDeliveryState? {
-        didSet {
-            setSuspenededAtString()
-        }
-    }
-
-    @Published var basalDeliveryRate: Double?
-
-    @Published var presentDeliveryWarning: Bool?
-    
-    var isScheduledBasal: Bool {
-        switch basalDeliveryState {
-        case .active, .initiatingTempBasal:
-            return true
-        case .tempBasal, .cancelingTempBasal, .suspending, .suspended, .resuming, .none:
-            return false
-        }
-    }
-    
-    var isTempBasal: Bool {
-        switch basalDeliveryState {
-        case .tempBasal, .cancelingTempBasal:
-            return true
-        case .active, .initiatingTempBasal, .suspending, .suspended, .resuming, .none:
-            return false
-        }
-    }
-    
-    init(pumpManager: MockPumpManager) {
-        self.pumpManager = pumpManager
-        
-        isDeliverySuspended = pumpManager.status.basalDeliveryState?.isSuspended == true
-        basalDeliveryState = pumpManager.status.basalDeliveryState
-        basalDeliveryRate = pumpManager.state.basalDeliveryRate(at: Date())
-        setSuspenededAtString()
-        
-        pumpManager.addStateObserver(self, queue: .main)
-    }
-    
-    private func setSuspenededAtString() {
-        switch basalDeliveryState {
-        case .suspended(let suspendedAt):
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .short
-            formatter.doesRelativeDateFormatting = true
-            suspendedAtString = formatter.string(from: suspendedAt)
-        default:
-            suspendedAtString = nil
-        }
-    }
-    
-    func resumeDelivery(completion: @escaping (Error?) -> Void) {
-        transitioningSuspendResumeInsulinDelivery = true
-        pumpManager.resumeDelivery() { [weak self] error in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                if error == nil {
-                    self?.isDeliverySuspended = false
-                }
-                completion(error)
-            }
-        }
-    }
-    
-    func suspendDelivery(completion: @escaping (Error?) -> Void) {
-        transitioningSuspendResumeInsulinDelivery = true
-        pumpManager.suspendDelivery() { [weak self] error in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                if error == nil {
-                    self?.isDeliverySuspended = true
-                }
-                completion(error)
-            }
-        }
-    }
-}
-
-extension MockPumpManagerSettingsViewModel: MockPumpManagerStateObserver {
-    func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate state: MockKit.MockPumpManagerState) {
-        guard !transitioningSuspendResumeInsulinDelivery else { return }
-        basalDeliveryRate = state.basalDeliveryRate(at: Date())
-        basalDeliveryState = manager.status.basalDeliveryState
-    }
-    
-    func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate status: LoopKit.PumpManagerStatus, oldStatus: LoopKit.PumpManagerStatus) {
-        guard !transitioningSuspendResumeInsulinDelivery else { return }
-        basalDeliveryRate = manager.state.basalDeliveryRate(at: Date())
-        basalDeliveryState = status.basalDeliveryState
-    }
-}
- 
-extension MockPumpManagerState {
-    func basalDeliveryRate(at now: Date) -> Double? {
-        switch suspendState {
-        case .resumed:
-            if let tempBasal = unfinalizedTempBasal, !tempBasal.isFinished(at: now) {
-                return tempBasal.rate
-            } else {
-                return basalRateSchedule?.value(at: now)
-            }
-        case .suspended:
-            return nil
-        }
-    }
-}
-
 extension MockPumpManagerSettingsView.PresentedAlert: Identifiable {
     var id: Int {
         switch self {
@@ -410,200 +248,8 @@ extension MockPumpManagerSettingsView.PresentedAlert: Identifiable {
     }
 }
 
-//
-//class InsulinStatusViewModel: ObservableObject {
-//    private weak var statePublisher: SoloPumpManagerStatePublisher?
-//
-//    @Published var basalDeliveryState: PumpManagerStatus.BasalDeliveryState?
-//
-//    @Published var basalDeliveryRate: Double?
-//
-//    @Published var presentDeliveryWarning: Bool?
-//
-//    var isScheduledBasal: Bool {
-//        switch basalDeliveryState {
-//        case .active, .initiatingTempBasal:
-//            return true
-//        case .tempBasal, .cancelingTempBasal, .suspending, .suspended, .resuming, .none:
-//            return false
-//        }
-//    }
-//
-//    var isTempBasal: Bool {
-//        switch basalDeliveryState {
-//        case .tempBasal, .cancelingTempBasal:
-//            return true
-//        case .active, .initiatingTempBasal, .suspending, .suspended, .resuming, .none:
-//            return false
-//        }
-//    }
-//
-//    var isInsulinSuspended: Bool {
-//        switch basalDeliveryState {
-//        case .suspended:
-//            return true
-//        default:
-//            return false
-//        }
-//    }
-//
-//    @Published var reservoirViewModel: SoloReservoirHUDViewModel
-//
-//    @Published private var statusHighlight: DeviceStatusHighlight?
-//    @Published private var lastCommsDate: Date?
-//    var isSignalLost: Bool {
-//        SoloPumpManager.isSignalLost(lastCommsDate: lastCommsDate, asOf: now)
-//    }
-//    var pumpStatusHighlight: DeviceStatusHighlight? {
-//        let shouldShowStatusHighlight = !isInsulinSuspended ||
-//            // This avoids a race condition where we detect signal loss timeout but pumpStatusHighlight has not yet updated.
-//            isSignalLost && statusHighlight is SignalLossPumpStatusHighlight
-//
-//        return shouldShowStatusHighlight ? statusHighlight : nil
-//    }
-//
-//    private let now: () -> Date
-//    private var internalBasalDeliveryState: PumpManagerStatus.BasalDeliveryState?
-//
-//    init(statePublisher: SoloPumpManagerStatePublisher, now: @autoclosure @escaping () -> Date = Date()) {
-//        self.statePublisher = statePublisher
-//        self.reservoirViewModel = SoloReservoirHUDViewModel(userThreshold: Double(statePublisher.state.lowReservoirWarningThresholdInUnits))
-//        self.now = now
-//        if let statusPublisher = statePublisher as? PumpManagerStatusPublisher {
-//            self.basalDeliveryState = statusPublisher.status.basalDeliveryState
-//            update(with: statusPublisher.status, pumpStatusHighlight: statusPublisher.pumpStatusHighlight)
-//            statusPublisher.addStatusObserver(self, queue: .main)
-//        }
-//        statePublisher.addPumpManagerStateObserver(self, queue: .main)
-//        update(with: statePublisher.state)
-//    }
-//
-//    func detach() {
-//        statePublisher?.removePumpManagerStateObserver(self)
-//        if let statusPublisher = statePublisher as? PumpManagerStatusPublisher {
-//            statusPublisher.removeStatusObserver(self)
-//        }
-//        statePublisher = nil
-//    }
-//
-//    deinit {
-//        detach()
-//    }
-//
-//    static let reservoirVolumeFormatter: QuantityFormatter = {
-//        let formatter = QuantityFormatter(for: .internationalUnit())
-//        formatter.numberFormatter.maximumFractionDigits = 2
-//        formatter.avoidLineBreaking = true
-//        return formatter
-//    }()
-//
-//    var reservoirLevelString: String {
-//        let accuracyLimit = SoloPump.reservoirAccuracyLimit
-//        let formatter = Self.reservoirVolumeFormatter
-//        let fallbackString = ""
-//        switch reservoirViewModel.reservoirLevel {
-//        case let x? where x >= accuracyLimit:
-//            // display reservoir level to the nearest 10U when above the accuracy level
-//            let roundedReservoirLevel = x.rounded(to: 10)
-//            let quantity = HKQuantity(unit: .internationalUnit(), doubleValue: roundedReservoirLevel)
-//            return formatter.string(from: quantity, for: .internationalUnit(), includeUnit: false) ?? fallbackString
-//        case .some(let value):
-//            let quantity = HKQuantity(unit: .internationalUnit(), doubleValue: value)
-//            return formatter.string(from: quantity, for: .internationalUnit(), includeUnit: false) ?? fallbackString
-//        default:
-//            return fallbackString
-//        }
-//    }
-//
-//    var isEstimatedReservoirLevel: Bool {
-//        guard let reservoirLevel = reservoirViewModel.reservoirLevel else { return false }
-//        return reservoirLevel >= SoloPump.reservoirAccuracyLimit
-//    }
-//
-//    private func update(with state: SoloPumpManagerState) {
-//        // ignore updates while suspending
-//        guard internalBasalDeliveryState != .suspending else {
-//            return
-//        }
-//        // ... but still update `basalDeliveryRate` while resuming otherwise the UI flashes "No Insulin" briefly
-//        basalDeliveryRate = state.basalDeliveryRate(at: now())
-//        // ignore updates while resuming
-//        guard internalBasalDeliveryState != .resuming else {
-//            return
-//        }
-//        reservoirViewModel = SoloReservoirHUDViewModel(userThreshold: Double(state.lowReservoirWarningThresholdInUnits), reservoirLevel: state.pumpState.deviceInformation?.reservoirLevel)
-//        lastCommsDate = state.pumpState.lastCommsDate
-//    }
-//
-//    private func update(with status: PumpManagerStatus, pumpStatusHighlight: DeviceStatusHighlight?) {
-//        internalBasalDeliveryState = status.basalDeliveryState
-//        guard status.basalDeliveryState != .suspending,
-//              status.basalDeliveryState != .resuming else {
-//                  return
-//              }
-//        if status.basalDeliveryState != basalDeliveryState {
-//            basalDeliveryState = status.basalDeliveryState
-//        }
-//        self.statusHighlight = pumpStatusHighlight
-//    }
-//}
-//
-//extension InsulinStatusViewModel: SoloPumpManagerStateObserver {
-//    func pumpManagerDidUpdateState(_ pumpManager: SoloPumpManager, _ state: SoloPumpManagerState) {
-//        update(with: state)
-//    }
-//}
-//
-//extension InsulinStatusViewModel: PumpManagerStatusObserver {
-//    func pumpManager(_ pumpManager: PumpManager, didUpdate status: PumpManagerStatus, oldStatus: PumpManagerStatus) {
-//        update(with: status, pumpStatusHighlight: (pumpManager as? PumpStatusIndicator)?.pumpStatusHighlight)
-//    }
-//}
-//
-//extension SoloReservoirHUDViewModel {
-//
-//    var imageName: String {
-//        switch imageType {
-//        case .full:
-//            return "solo_reservoir_full"
-//        case .open:
-//            return "solo_reservoir"
-//        }
-//    }
-//}
-//
-//public protocol PumpManagerStatusPublisher: AnyObject, PumpStatusIndicator {
-//    var status: PumpManagerStatus { get }
-//    var pumpStatusHighlight: DeviceStatusHighlight? { get }
-//    func addStatusObserver(_ observer: PumpManagerStatusObserver, queue: DispatchQueue)
-//    func removeStatusObserver(_ observer: PumpManagerStatusObserver)
-//}
-//
-//extension SoloPumpManager: PumpManagerStatusPublisher { }
-//
-//extension SoloPumpManagerState {
-//
-//    func basalDeliveryRate(at now: Date) -> Double? {
-//        switch suspendState {
-//        case .resumed:
-//            if let tempBasal = unfinalizedTempBasal, !tempBasal.isFinished(at: now) {
-//                return tempBasal.rate
-//            } else {
-//                return basalRateSchedule.value(at: now)
-//            }
-//        case .suspended, .none:
-//            return nil
-//        }
-//    }
-//}
-//
-//extension String {
-//    static let nonBreakingSpace = "\u{00a0}"
-//}
-
-
 struct MockPumpManagerSettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        MockPumpManagerSettingsView(pumpManager: MockPumpManager(), supportedInsulinTypes: [])
+        MockPumpManagerSettingsView(pumpManager: MockPumpManager(), supportedInsulinTypes: [], appName: "Loop")
     }
 }
