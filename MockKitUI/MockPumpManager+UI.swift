@@ -34,6 +34,7 @@ extension MockPumpManager: PumpManagerUI {
         let settings = MockPumpManagerSettingsView(pumpManager: self, supportedInsulinTypes: allowedInsulinTypes)
         let hostingController = DismissibleHostingController(rootView: settings, colorPalette: colorPalette)
         let nav = PumpManagerSettingsNavigationViewController(rootViewController: hostingController)
+        nav.navigationBar.prefersLargeTitles = true
         return nav
     }
     
@@ -51,8 +52,6 @@ extension MockPumpManager: PumpManagerUI {
     public static func createHUDView(rawValue: HUDProvider.HUDViewRawState) -> BaseHUDView? {
         return MockHUDProvider.createHUDView(rawValue: rawValue)
     }
-    
-    
 }
 
 public enum MockPumpStatusBadge: DeviceStatusBadge {

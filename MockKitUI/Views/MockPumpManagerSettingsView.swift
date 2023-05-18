@@ -26,8 +26,6 @@ struct MockPumpManagerSettingsView: View {
     @State private var presentedAlert: PresentedAlert?
     @State private var transitioningSuspendResumeInsulinDelivery = false
     private var supportedInsulinTypes: [InsulinType]
-    private let pumpReplacementInterval = TimeInterval(days: -1.0)
-    private let pumpExpiresInterval = TimeInterval(days: 2.0)
     
     init(pumpManager: MockPumpManager, supportedInsulinTypes: [InsulinType]) {
         viewModel = MockPumpManagerSettingsViewModel(pumpManager: pumpManager)
@@ -94,9 +92,9 @@ struct MockPumpManagerSettingsView: View {
     private var activitySection: some View {
         suspendResumeInsulinSubSection
 
-//        deviceDetailsSubSection
-//
-//        replaceSystemComponentsSubSection
+        deviceDetailsSubSection
+
+        replaceSystemComponentsSubSection
     }
     
     private var suspendResumeInsulinSubSection: some View {
@@ -138,19 +136,51 @@ struct MockPumpManagerSettingsView: View {
             }
         }
     }
-        
-    private var configurationSection: some View {
-        Section(header: SectionHeader(label: "Configuration")) {
+    
+    private var deviceDetailsSubSection: some View {
+        Section {
+            LabeledValueView(label: "Pump Paired", value: viewModel.lastPumpPairedDateTimeString)
             
-            Text("Configuration section placeholder")
-//            notificationSubSection
-//
-//            pumpTimeSubSection
+            LabeledValueView(label: "Pump Expires", value: viewModel.pumpExpirationDateTimeString)
+            
+            NavigationLink(destination: EmptyView()) {
+                Text("Device Details")
+            }
+        }
+    }
+    
+    private var replaceSystemComponentsSubSection: some View {
+        Section {
+            NavigationLink(destination: EmptyView()) {
+                Text("Replace Pump")
+                    .foregroundColor(.accentColor)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var configurationSection: some View {
+        notificationSubSection
+        
+        pumpTimeSubSection
+    }
+    
+    private var notificationSubSection: some View {
+        Section(header: SectionHeader(label: "Configuration")) {
+            NavigationLink(destination: EmptyView()) {
+                Text("Notification Settings")
+            }
+        }
+    }
+    
+    private var pumpTimeSubSection: some View {
+        Section {
+            LabeledValueView(label: "Pump Time", value: viewModel.pumpTimeString)
         }
     }
     
     private var supportSection: some View {
-        Section(header: SectionHeader(label: "Suport")) {
+        Section(header: SectionHeader(label: "Support")) {
             NavigationLink(destination: EmptyView()) {
                 Text("Get help with your pump")
             }
@@ -187,8 +217,6 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
         setSuspenededAtString(basalDeliveryState: pumpManager.status.basalDeliveryState)
         
         pumpManager.addStateObserver(self, queue: .main)
-        
-
     }
     
     @Published var isDeliverySuspended: Bool {
@@ -205,6 +233,36 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
         } else {
             return "Suspend Insulin Delivery"
         }
+    }
+    
+    static private let dateTimeFormatter: DateFormatter = {
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .short
+        timeFormatter.timeStyle = .short
+        return timeFormatter
+    }()
+    
+    static private let shortTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        return formatter
+    }()
+    
+    private let pumpPairedInterval = TimeInterval(days: -1.0)
+    
+    var lastPumpPairedDateTimeString: String {
+        Self.dateTimeFormatter.string(from: Date().addingTimeInterval(pumpPairedInterval))
+    }
+
+    private let pumpExpirationInterval = TimeInterval(days: 2.0)
+
+    var pumpExpirationDateTimeString: String {
+        Self.dateTimeFormatter.string(from: Date().addingTimeInterval(pumpExpirationInterval))
+    }
+    
+    var pumpTimeString: String {
+        Self.shortTimeFormatter.string(from: Date())
     }
     
     private func setSuspenededAtString(basalDeliveryState: PumpManagerStatus.BasalDeliveryState? = nil) {
