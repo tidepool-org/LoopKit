@@ -8,23 +8,46 @@
 
 import SwiftUI
 import LoopKit
+import LoopKitUI
 import MockKit
 
 struct MockPumpManagerSettingsView: View {
+    fileprivate enum PresentedAlert {
+        case resumeInsulinDeliveryError(Error)
+        case suspendInsulinDeliveryError(Error)
+    }
+    
     @Environment(\.dismissAction) private var dismiss
     @Environment(\.guidanceColors) private var guidanceColors
     @Environment(\.insulinTintColor) private var insulinTintColor
+    @ObservedObject var viewModel: MockPumpManagerSettingsViewModel
     
-    var pumpManager: MockPumpManager
-    var supportedInsulinTypes: [InsulinType]
+    @State private var showSuspendOptions = false
+    @State private var presentedAlert: PresentedAlert?
+    @State private var transitioningSuspendResumeInsulinDelivery = false
+    private var supportedInsulinTypes: [InsulinType]
+    private let pumpReplacementInterval = TimeInterval(days: -1.0)
+    private let pumpExpiresInterval = TimeInterval(days: 2.0)
+    
+    init(pumpManager: MockPumpManager, supportedInsulinTypes: [InsulinType]) {
+        viewModel = MockPumpManagerSettingsViewModel(pumpManager: pumpManager)
+        self.supportedInsulinTypes = supportedInsulinTypes
+    }
     
     var body: some View {
         List {
             statusSection
+            
+            activitySection
+            
+            configurationSection
+            
+            supportSection
         }
         .insetGroupedListStyle()
         .navigationBarItems(trailing: doneButton)
         .navigationBarTitle(Text("Pump Simulator"), displayMode: .large)
+        .alert(item: $presentedAlert, content: alert(for:))
     }
     
     @ViewBuilder
@@ -32,7 +55,7 @@ struct MockPumpManagerSettingsView: View {
         Section {
             VStack(spacing: 8) {
                 progressViews
-                    .openMockPumpSettingsOnLongPress(enabled: true, pumpManager: pumpManager, supportedInsulinTypes: supportedInsulinTypes)
+                    .openMockPumpSettingsOnLongPress(enabled: true, pumpManager: viewModel.pumpManager, supportedInsulinTypes: supportedInsulinTypes)
                 insulinInfo
             }
         }
@@ -61,16 +84,191 @@ struct MockPumpManagerSettingsView: View {
 //    }
     
     var insulinInfo: some View {
-        Text("Placeholder for Insulin Status View")
+        Text("Placeholder for Insulin Info View")
 //        InsulinStatusView(viewModel: viewModel.insulinStatusViewModel)
 //            .environment(\.guidanceColors, guidanceColors)
 //            .environment(\.insulinTintColor, insulinTintColor)
     }
     
+    @ViewBuilder
+    private var activitySection: some View {
+        suspendResumeInsulinSubSection
+
+//        deviceDetailsSubSection
+//
+//        replaceSystemComponentsSubSection
+    }
+    
+    private var suspendResumeInsulinSubSection: some View {
+        Section(header: SectionHeader(label: LocalizedString("Activity", comment: "Section header for the activity section"))) {
+            Button(action: suspendResumeTapped) {
+                HStack {
+                    Image(systemName: "pause.circle.fill")
+                        .foregroundColor(viewModel.isDeliverySuspended ? guidanceColors.warning : .accentColor)
+                    Text(viewModel.suspendResumeInsulinDeliveryLabel)
+                    Spacer()
+                    if transitioningSuspendResumeInsulinDelivery {
+                        ActivityIndicator(isAnimating: .constant(true), style: .medium)
+                    }
+                }
+            }
+            .disabled(transitioningSuspendResumeInsulinDelivery)
+            if viewModel.isDeliverySuspended {
+                LabeledValueView(label: LocalizedString("Suspended At", comment: "Label for suspended at field"),
+                                 value: viewModel.suspendedAtString)
+            }
+        }
+    }
+    
+    private func suspendResumeTapped() {
+        transitioningSuspendResumeInsulinDelivery = true
+        if viewModel.isDeliverySuspended {
+            viewModel.resumeDelivery() { error in
+                transitioningSuspendResumeInsulinDelivery = false
+                if let error = error {
+                    self.presentedAlert = .resumeInsulinDeliveryError(error)
+                }
+            }
+        } else {
+            viewModel.suspendDelivery() { error in
+                transitioningSuspendResumeInsulinDelivery = false
+                if let error = error {
+                    self.presentedAlert = .suspendInsulinDeliveryError(error)
+                }
+            }
+        }
+    }
+        
+    private var configurationSection: some View {
+        Section(header: SectionHeader(label: "Configuration")) {
+            
+            Text("Configuration section placeholder")
+//            notificationSubSection
+//
+//            pumpTimeSubSection
+        }
+    }
+    
+    private var supportSection: some View {
+        Section(header: SectionHeader(label: "Suport")) {
+            NavigationLink(destination: EmptyView()) {
+                Text("Get help with your pump")
+            }
+        }
+    }
+    
     private var doneButton: some View {
         Button(LocalizedString("Done", comment: "Settings done button label"), action: dismiss)
     }
+    
+    private func alert(for presentedAlert: PresentedAlert) -> SwiftUI.Alert {
+        switch presentedAlert {
+        case .suspendInsulinDeliveryError(let error):
+            return Alert(
+                title: Text("Failed to Suspend Insulin Delivery"),
+                message: Text(error.localizedDescription)
+            )
+        case .resumeInsulinDeliveryError(let error):
+            return Alert(
+                title: Text("Failed to Resume Insulin Delivery"),
+                message: Text(error.localizedDescription)
+            )
+        }
+    }
 }
+
+class MockPumpManagerSettingsViewModel: ObservableObject {
+    let pumpManager: MockPumpManager
+    
+    init(pumpManager: MockPumpManager) {
+        self.pumpManager = pumpManager
+        
+        isDeliverySuspended = pumpManager.status.basalDeliveryState?.isSuspended == true
+        setSuspenededAtString(basalDeliveryState: pumpManager.status.basalDeliveryState)
+        
+        pumpManager.addStateObserver(self, queue: .main)
+        
+
+    }
+    
+    @Published var isDeliverySuspended: Bool {
+        didSet {
+            setSuspenededAtString(basalDeliveryState: pumpManager.status.basalDeliveryState)
+        }
+    }
+    
+    @Published var suspendedAtString: String? = nil
+    
+    var suspendResumeInsulinDeliveryLabel: String {
+        if isDeliverySuspended {
+            return "Tap to Resume Insulin Delivery"
+        } else {
+            return "Suspend Insulin Delivery"
+        }
+    }
+    
+    private func setSuspenededAtString(basalDeliveryState: PumpManagerStatus.BasalDeliveryState? = nil) {
+        switch basalDeliveryState {
+        case .suspended(let suspendedAt):
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
+            formatter.doesRelativeDateFormatting = true
+            suspendedAtString = formatter.string(from: suspendedAt)
+        default:
+            suspendedAtString = nil
+        }
+    }
+    
+    func resumeDelivery(completion: @escaping (Error?) -> Void) {
+        pumpManager.resumeDelivery() { [weak self] error in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if error == nil {
+                    self?.isDeliverySuspended = false
+                }
+                completion(error)
+            }
+        }
+    }
+    
+    func suspendDelivery(completion: @escaping (Error?) -> Void) {
+        pumpManager.suspendDelivery() { [weak self] error in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if error == nil {
+                    self?.isDeliverySuspended = true
+                }
+                completion(error)
+            }
+        }
+    }
+}
+
+extension MockPumpManagerSettingsViewModel: MockPumpManagerStateObserver {
+    func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate state: MockKit.MockPumpManagerState) {
+//        switch state.suspendState {
+//        case .suspended(_):
+//            isDeliverySuspended = true
+//        case .resumed(_):
+//            isDeliverySuspended = false
+//        }
+    }
+    
+    func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate status: LoopKit.PumpManagerStatus, oldStatus: LoopKit.PumpManagerStatus) {
+//        isDeliverySuspended = status.basalDeliveryState?.isSuspended == true
+    }
+}
+
+extension MockPumpManagerSettingsView.PresentedAlert: Identifiable {
+    var id: Int {
+        switch self {
+        case .resumeInsulinDeliveryError:
+            return 0
+        case .suspendInsulinDeliveryError:
+            return 1
+        }
+    }
+}
+
 
 //struct InsulinStatusView: View {
 //    @Environment(\.guidanceColors) var guidanceColors
