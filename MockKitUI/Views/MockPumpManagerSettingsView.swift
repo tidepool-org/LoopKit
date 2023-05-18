@@ -143,7 +143,7 @@ struct MockPumpManagerSettingsView: View {
             
             LabeledValueView(label: "Pump Expires", value: viewModel.pumpExpirationDateTimeString)
             
-            NavigationLink(destination: EmptyView()) {
+            NavigationLink(destination: DemoPlaceHolderView()) {
                 Text("Device Details")
             }
         }
@@ -151,7 +151,7 @@ struct MockPumpManagerSettingsView: View {
     
     private var replaceSystemComponentsSubSection: some View {
         Section {
-            NavigationLink(destination: EmptyView()) {
+            NavigationLink(destination: DemoPlaceHolderView()) {
                 Text("Replace Pump")
                     .foregroundColor(.accentColor)
             }
@@ -167,7 +167,7 @@ struct MockPumpManagerSettingsView: View {
     
     private var notificationSubSection: some View {
         Section(header: SectionHeader(label: "Configuration")) {
-            NavigationLink(destination: EmptyView()) {
+            NavigationLink(destination: DemoPlaceHolderView()) {
                 Text("Notification Settings")
             }
         }
@@ -181,7 +181,7 @@ struct MockPumpManagerSettingsView: View {
     
     private var supportSection: some View {
         Section(header: SectionHeader(label: "Support")) {
-            NavigationLink(destination: EmptyView()) {
+            NavigationLink(destination: DemoPlaceHolderView()) {
                 Text("Get help with your pump")
             }
         }
@@ -303,16 +303,11 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
 
 extension MockPumpManagerSettingsViewModel: MockPumpManagerStateObserver {
     func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate state: MockKit.MockPumpManagerState) {
-//        switch state.suspendState {
-//        case .suspended(_):
-//            isDeliverySuspended = true
-//        case .resumed(_):
-//            isDeliverySuspended = false
-//        }
+        // TODO remove if unused
     }
     
     func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate status: LoopKit.PumpManagerStatus, oldStatus: LoopKit.PumpManagerStatus) {
-//        isDeliverySuspended = status.basalDeliveryState?.isSuspended == true
+        // TODO remove if unused
     }
 }
 
@@ -326,7 +321,6 @@ extension MockPumpManagerSettingsView.PresentedAlert: Identifiable {
         }
     }
 }
-
 
 //struct InsulinStatusView: View {
 //    @Environment(\.guidanceColors) var guidanceColors

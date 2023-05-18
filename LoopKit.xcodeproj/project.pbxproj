@@ -651,6 +651,8 @@
 		B43DA44224D9CD8500CAFF4E /* Environment+Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45AF6EF24D4355A00EEAA4D /* Environment+Colors.swift */; };
 		B451D10D2A161A3E004878F1 /* MockPumpManagerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D10C2A161A3E004878F1 /* MockPumpManagerSettingsView.swift */; };
 		B451D1102A161B84004878F1 /* OpenMockPumpSettingsOnLongPressGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D10F2A161B84004878F1 /* OpenMockPumpSettingsOnLongPressGesture.swift */; };
+		B451D1122A165DA0004878F1 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D1112A165DA0004878F1 /* Image.swift */; };
+		B451D1142A166403004878F1 /* DemoPlaceHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */; };
 		B455F31825FBEC5F000ED456 /* SuspendThresholdEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B455F2A125FBE985000ED456 /* SuspendThresholdEditorViewModel.swift */; };
 		B455F35625FC0284000ED456 /* CorrectionRangeOverridesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B455F35525FC0284000ED456 /* CorrectionRangeOverridesTests.swift */; };
 		B455F3A425FF7FF0000ED456 /* CorrectionRangeOverridesEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B455F3A325FF7FF0000ED456 /* CorrectionRangeOverridesEditorViewModel.swift */; };
@@ -1542,6 +1544,8 @@
 		B43DA43E24D49AA400CAFF4E /* GuidanceColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidanceColors.swift; sourceTree = "<group>"; };
 		B451D10C2A161A3E004878F1 /* MockPumpManagerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPumpManagerSettingsView.swift; sourceTree = "<group>"; };
 		B451D10F2A161B84004878F1 /* OpenMockPumpSettingsOnLongPressGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMockPumpSettingsOnLongPressGesture.swift; sourceTree = "<group>"; };
+		B451D1112A165DA0004878F1 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
+		B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoPlaceHolderView.swift; sourceTree = "<group>"; };
 		B455F2A125FBE985000ED456 /* SuspendThresholdEditorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SuspendThresholdEditorViewModel.swift; path = LoopKitUI/ViewModels/SuspendThresholdEditorViewModel.swift; sourceTree = SOURCE_ROOT; };
 		B455F35525FC0284000ED456 /* CorrectionRangeOverridesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverridesTests.swift; sourceTree = "<group>"; };
 		B455F3A325FF7FF0000ED456 /* CorrectionRangeOverridesEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrectionRangeOverridesEditorViewModel.swift; sourceTree = "<group>"; };
@@ -2280,6 +2284,7 @@
 			children = (
 				439706E822D2E94800C81566 /* BoundSwitchTableViewCell.swift */,
 				C1E0EEF524EB26D800086510 /* DeliveryUncertaintyRecoveryView.swift */,
+				B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */,
 				B451D10C2A161A3E004878F1 /* MockPumpManagerSettingsView.swift */,
 			);
 			path = Views;
@@ -2792,6 +2797,7 @@
 				8992426421EC138000EA512B /* UIColor.swift */,
 				C1FAEC20264AEEA300A3250B /* UIImage.swift */,
 				C18733C429B94A6300519CDF /* UITableViewCell.swift */,
+				B451D1112A165DA0004878F1 /* Image.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4240,6 +4246,7 @@
 				C18733C929B94A6400519CDF /* TimeInterval.swift in Sources */,
 				C18733C529B94A6400519CDF /* NumberFormatter.swift in Sources */,
 				B451D1102A161B84004878F1 /* OpenMockPumpSettingsOnLongPressGesture.swift in Sources */,
+				B451D1122A165DA0004878F1 /* Image.swift in Sources */,
 				439706E922D2E94800C81566 /* BoundSwitchTableViewCell.swift in Sources */,
 				89D204B421CC7E74001238CC /* MockCGMManager+UI.swift in Sources */,
 				89D204B521CC7E74001238CC /* MockPumpManager+UI.swift in Sources */,
@@ -4254,6 +4261,7 @@
 				C18733CC29B94A7A00519CDF /* LocalizedString.swift in Sources */,
 				89D204BC21CC7F34001238CC /* SineCurveParametersTableViewController.swift in Sources */,
 				C1FAEC21264AEEA300A3250B /* UIImage.swift in Sources */,
+				B451D1142A166403004878F1 /* DemoPlaceHolderView.swift in Sources */,
 				89D204BD21CC7F34001238CC /* RandomOutlierTableViewController.swift in Sources */,
 				B42C950E24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift in Sources */,
 				B45774352562CCC6004B9466 /* SupportedRangeTableViewController.swift in Sources */,
