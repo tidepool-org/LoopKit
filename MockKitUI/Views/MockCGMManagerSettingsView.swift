@@ -27,6 +27,8 @@ struct MockCGMManagerSettingsView: View {
     private var displayGlucoseUnitObservable: DisplayGlucoseUnitObservable
     private let appName: String
     
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
     init(cgmManager: MockCGMManager, displayGlucoseUnitObservable: DisplayGlucoseUnitObservable, appName: String) {
         viewModel = MockCGMManagerSettingsViewModel(cgmManager: cgmManager, displayGlucoseUnitObservable: displayGlucoseUnitObservable)
         self.displayGlucoseUnitObservable = displayGlucoseUnitObservable
@@ -56,7 +58,6 @@ struct MockCGMManagerSettingsView: View {
         notificationSubSection
     }
     
-    @ViewBuilder
     private var statusCardSubSection: some View {
         Section {
             VStack(spacing: 8) {
@@ -101,7 +102,7 @@ struct MockCGMManagerSettingsView: View {
     
     private var expirationText: some View {
         Text("Sensor expires in ")
-            .font(.system(size: 15, weight: .medium, design: .default))
+            .font(.subheadline)
             .foregroundColor(.secondary)
     }
     
@@ -122,7 +123,54 @@ struct MockCGMManagerSettingsView: View {
     }
     
     var lastReadingInfo: some View {
-        Text("Placeholder for last reading info")
+        HStack(alignment: .lastTextBaseline) {
+            lastGlucoseReading
+                .frame(idealWidth: 100)
+            Spacer()
+            lastReadingTime
+                .onReceive(timer) { _ in
+                    // Update every second
+                    viewModel.updateLastReadingTime()
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private var lastGlucoseReading: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("Last Reading")
+                .foregroundColor(.secondary)
+            
+            HStack(alignment: .center, spacing: 16) {
+                viewModel.lastGlucoseTrend?.filledImage
+                    .scaleEffect(1.7, anchor: .leading)
+                    .foregroundColor(glucoseTintColor)
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(viewModel.lastGlucoseValueFormatted)
+                        .font(.title)
+                        .fontWeight(.heavy)
+                    Text(viewModel.glucoseUnitString)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var lastReadingTime: some View {
+        HStack(alignment: .center, spacing: 16) {
+            Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                .scaleEffect(1.7, anchor: .leading)
+                .foregroundColor(glucoseTintColor)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text("\(viewModel.lastReadingMinutesFromNow)")
+                    .font(.title)
+                    .fontWeight(.heavy)
+                Text("min")
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(height: 40.0)
     }
     
     private var notificationSubSection: some View {
@@ -140,7 +188,6 @@ struct MockCGMManagerSettingsView: View {
         stopSensorSubSection
     }
     
-    @ViewBuilder
     private var deviceDetailsSubSection: some View {
         Section(header: SectionHeader(label: "Sensor")) {
             LabeledValueView(label: "Insertion Time", value: viewModel.sensorInsertionDateTimeString)
@@ -158,12 +205,11 @@ struct MockCGMManagerSettingsView: View {
         }
     }
 
-    @ViewBuilder
     private var lastReadingSection: some View {
         Section(header: SectionHeader(label: "Last Reading")) {
-            LabeledValueView(label: "Glucose", value: nil)
-            LabeledValueView(label: "Time", value: nil)
-            LabeledValueView(label: "Trend", value: nil)
+            LabeledValueView(label: "Glucose", value: viewModel.lastGlucoseValueWithUnitFormatted)
+            LabeledValueView(label: "Time", value: viewModel.lastGlucoseDateFormatted)
+            LabeledValueView(label: "Trend", value: viewModel.lastGlucoseTrendFormatted)
         }
     }
     
