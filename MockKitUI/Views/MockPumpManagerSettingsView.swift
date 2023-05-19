@@ -253,5 +253,3 @@ struct MockPumpManagerSettingsView_Previews: PreviewProvider {
         MockPumpManagerSettingsView(pumpManager: MockPumpManager(), supportedInsulinTypes: [], appName: "Loop")
     }
 }
-
-
