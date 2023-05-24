@@ -1,13 +1,12 @@
 //
 //  HKUnit.swift
-//  Naterade
+//  MockKitUI
 //
-//  Created by Nathan Racklyeft on 1/17/16.
-//  Copyright © 2016 Nathan Racklyeft. All rights reserved.
+//  Created by Nathaniel Hamming on 2023-05-18.
+//  Copyright © 2023 LoopKit Authors. All rights reserved.
 //
 
 import HealthKit
-
 
 extension HKUnit {
     static let milligramsPerDeciliter: HKUnit = {
@@ -26,7 +25,7 @@ extension HKUnit {
         return HKUnit.millimolesPerLiter.unitDivided(by: .minute())
     }()
 
-    public static let internationalUnitsPerHour: HKUnit = {
+    static let internationalUnitsPerHour: HKUnit = {
         return HKUnit.internationalUnit().unitDivided(by: .hour())
     }()
 
