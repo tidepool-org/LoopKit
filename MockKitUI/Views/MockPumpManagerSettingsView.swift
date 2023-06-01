@@ -207,7 +207,7 @@ struct MockPumpManagerSettingsView: View {
     
     private var pumpTimeSubSection: some View {
         Section {
-            LabeledValueView(label: "Pump Time", value: viewModel.pumpTimeString)
+            TimeView(label: "Pump Time")
         }
     }
     
