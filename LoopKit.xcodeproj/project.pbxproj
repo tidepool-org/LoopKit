@@ -645,7 +645,7 @@
 		B42C950E24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C950C24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift */; };
 		B42C951924A508CE00857C73 /* DeviceStatusHighlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */; };
 		B42C951B24A63B8100857C73 /* DeviceStatusHighlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C94FD24A2A2B000857C73 /* DeviceStatusHighlight.swift */; };
-		B42E898C2A27935B00E24081 /* DemoPlaceHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */; };
+		B43606E22A28D0340026F677 /* DemoPlaceHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */; };
 		B43D69D62A26642300DF0925 /* DemoPlaceHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */; };
 		B43DA43F24D49AA400CAFF4E /* GuidanceColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43DA43E24D49AA400CAFF4E /* GuidanceColors.swift */; };
 		B43DA44224D9CD8500CAFF4E /* Environment+Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45AF6EF24D4355A00EEAA4D /* Environment+Colors.swift */; };
@@ -4284,7 +4284,7 @@
 				C18733C929B94A6400519CDF /* TimeInterval.swift in Sources */,
 				C18733C529B94A6400519CDF /* NumberFormatter.swift in Sources */,
 				B451D1102A161B84004878F1 /* OpenMockPumpSettingsOnLongPressGesture.swift in Sources */,
-				B42E898C2A27935B00E24081 /* DemoPlaceHolderView.swift in Sources */,
+				B43606E22A28D0340026F677 /* DemoPlaceHolderView.swift in Sources */,
 				B451D1122A165DA0004878F1 /* Image.swift in Sources */,
 				439706E922D2E94800C81566 /* BoundSwitchTableViewCell.swift in Sources */,
 				89D204B421CC7E74001238CC /* MockCGMManager+UI.swift in Sources */,
