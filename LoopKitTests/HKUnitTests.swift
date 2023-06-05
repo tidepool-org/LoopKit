@@ -36,8 +36,8 @@ class HKUnitTests: XCTestCase {
     }
 
     func testMaxFractionDigits() throws {
-        XCTAssertEqual(HKUnit.internationalUnit().maxFractionDigits, 3)
-        XCTAssertEqual(HKUnit.internationalUnit().unitDivided(by: .hour()).maxFractionDigits, 3)
+        XCTAssertEqual(HKUnit.internationalUnit().maxFractionDigits, 2)
+        XCTAssertEqual(HKUnit.internationalUnit().unitDivided(by: .hour()).maxFractionDigits, 2)
 
         XCTAssertEqual(HKUnit.millimolesPerLiter.maxFractionDigits, 1)
         XCTAssertEqual(HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()).maxFractionDigits, 1)

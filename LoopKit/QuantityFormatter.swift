@@ -183,8 +183,6 @@ public extension HKUnit {
 
     var preferredFractionDigits: Int {
         switch self {
-        case .internationalUnit():
-            return 2
         case .millimolesPerLiter,
              HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()),
              HKUnit.millimolesPerLiter.unitDivided(by: .minute()):
