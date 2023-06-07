@@ -58,10 +58,10 @@ class HKUnitTests: XCTestCase {
         XCTAssertEqual(HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()).pickerFractionDigits, 1)
         XCTAssertEqual(HKUnit.millimolesPerLiter.unitDivided(by: .minute()).pickerFractionDigits, 1)
         XCTAssertEqual(HKUnit.gram().unitDivided(by: .internationalUnit()).pickerFractionDigits, 1)
+        XCTAssertEqual(HKUnit.milligramsPerDeciliter.unitDivided(by: .minute()).pickerFractionDigits, 1)
 
         XCTAssertEqual(HKUnit.gram().pickerFractionDigits, 0)
         XCTAssertEqual(HKUnit.milligramsPerDeciliter.pickerFractionDigits, 0)
         XCTAssertEqual(HKUnit.milligramsPerDeciliter.unitDivided(by: .internationalUnit()).pickerFractionDigits, 0)
-        XCTAssertEqual(HKUnit.milligramsPerDeciliter.unitDivided(by: .minute()).pickerFractionDigits, 0)
     }
 }

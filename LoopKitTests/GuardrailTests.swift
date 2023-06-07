@@ -270,9 +270,7 @@ class GuardrailTests: XCTestCase {
         var guardrail = Guardrail.carbRatio
         var unit: HKUnit = .gramsPerUnit
         var increment = 0.1
-        var allValues = guardrail.allValues(
-            stridingBy: HKQuantity(unit: unit, doubleValue: increment),
-            unit: unit)
+        var allValues = guardrail.allValues(forUnit: unit)
         var expectedValues = Array(stride(
             from: guardrail.absoluteBounds.lowerBound.doubleValue(for: unit, withRounding: true),
             through: guardrail.absoluteBounds.upperBound.doubleValue(for: unit, withRounding: true),
@@ -283,9 +281,7 @@ class GuardrailTests: XCTestCase {
         guardrail = Guardrail.insulinSensitivity
         unit = HKUnit.milligramsPerDeciliter.unitDivided(by: .internationalUnit())
         increment = 1
-        allValues = guardrail.allValues(
-            stridingBy: HKQuantity(unit: unit, doubleValue: increment),
-            unit: unit)
+        allValues = guardrail.allValues(forUnit: unit)
         expectedValues = Array(stride(
             from: guardrail.absoluteBounds.lowerBound.doubleValue(for: unit, withRounding: true),
             through: guardrail.absoluteBounds.upperBound.doubleValue(for: unit, withRounding: true),
