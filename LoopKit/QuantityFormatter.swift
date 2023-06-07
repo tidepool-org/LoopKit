@@ -195,18 +195,22 @@ public extension HKUnit {
     }
 
     var pickerFractionDigits: Int {
+        maxFractionDigits
+    }
+    
+    var maxFractionDigits: Int {
         switch self {
         case .internationalUnit(), .internationalUnitsPerHour:
             return 3
         case HKUnit.gram().unitDivided(by: .internationalUnit()):
             return 1
-        case .millimolesPerLiter,
-             HKUnit.millimolesPerLiter.unitDivided(by: .internationalUnit()),
-             HKUnit.millimolesPerLiter.unitDivided(by: .minute()):
-            return 1
         default:
-            return 0
+            return preferredFractionDigits
         }
+    }
+    
+    var precision: Double {
+        1/pow(10.0, Double(maxFractionDigits))
     }
 
     func round(value: Double, fractionalDigits: Int) -> Double {
@@ -216,6 +220,14 @@ public extension HKUnit {
             let scaleFactor = pow(10.0, Double(fractionalDigits))
             return (value * scaleFactor).rounded() / scaleFactor
         }
+    }
+    
+    func allValues(from lowerBound: HKQuantity, through upperBound: HKQuantity) -> [Double] {
+        Array(stride(
+            from: lowerBound.doubleValue(for: self, withRounding: true),
+            through: upperBound.doubleValue(for: self, withRounding: true),
+            by: precision
+        )).map { self.round(value: $0, fractionalDigits: maxFractionDigits) }
     }
 
     func round(value: Double) -> Double {
@@ -228,17 +240,6 @@ public extension HKUnit {
 
     func roundForPicker(value: Double) -> Double {
         return round(value: value, fractionalDigits: pickerFractionDigits)
-    }
-
-    var maxFractionDigits: Int {
-        switch self {
-        case .internationalUnit(), .internationalUnitsPerHour:
-            return 3
-        case HKUnit.gram().unitDivided(by: .internationalUnit()):
-            return 1
-        default:
-            return preferredFractionDigits
-        }
     }
     
     // Short localized unit string with unlocalized fallback
