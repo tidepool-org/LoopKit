@@ -233,7 +233,7 @@ public extension HKUnit {
     var maxFractionDigits: Int {
         switch self {
         case .internationalUnit(), .internationalUnitsPerHour:
-            return 2
+            return 3
         case HKUnit.gram().unitDivided(by: .internationalUnit()):
             return 1
         default:
