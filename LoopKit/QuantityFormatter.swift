@@ -209,7 +209,7 @@ public extension HKUnit {
         }
     }
     
-    var precision: Double {
+    private var resolution: Double {
         1/pow(10.0, Double(maxFractionDigits))
     }
 
@@ -226,7 +226,7 @@ public extension HKUnit {
         Array(stride(
             from: lowerBound.doubleValue(for: self, withRounding: true),
             through: upperBound.doubleValue(for: self, withRounding: true),
-            by: precision
+            by: resolution
         )).map { self.round(value: $0, fractionalDigits: maxFractionDigits) }
     }
 
