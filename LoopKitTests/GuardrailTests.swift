@@ -275,7 +275,7 @@ class GuardrailTests: XCTestCase {
             from: guardrail.absoluteBounds.lowerBound.doubleValue(for: unit, withRounding: true),
             through: guardrail.absoluteBounds.upperBound.doubleValue(for: unit, withRounding: true),
             by: increment
-        )).map { unit.round(value: $0, fractionalDigits: unit.maxFractionDigits) }
+        )).map { unit.round(value: $0, fractionDigits: unit.maxFractionDigits) }
         XCTAssertEqual(allValues, expectedValues)
 
         guardrail = Guardrail.insulinSensitivity
@@ -286,7 +286,7 @@ class GuardrailTests: XCTestCase {
             from: guardrail.absoluteBounds.lowerBound.doubleValue(for: unit, withRounding: true),
             through: guardrail.absoluteBounds.upperBound.doubleValue(for: unit, withRounding: true),
             by: increment
-        )).map { unit.round(value: $0, fractionalDigits: unit.maxFractionDigits) }
+        )).map { unit.round(value: $0, fractionDigits: unit.maxFractionDigits) }
         XCTAssertEqual(allValues, expectedValues)
     }
 }
