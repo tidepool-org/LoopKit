@@ -80,6 +80,6 @@ extension Guardrail where Value == HKQuantity {
     }
 
     public func allValues(forUnit unit: HKUnit) -> [Double] {
-        unit.allValues(from: absoluteBounds.lowerBound, through: absoluteBounds.upperBound)
+        unit.allValuesUsingMaxFractionDigits(from: absoluteBounds.lowerBound, through: absoluteBounds.upperBound)
     }
 }
