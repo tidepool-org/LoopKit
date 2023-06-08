@@ -214,13 +214,14 @@ public extension HKUnit {
         }
     }
     
-    func allValuesUsingMaxFractionDigits(from lowerBound: HKQuantity, through upperBound: HKQuantity) -> [Double] {
-        let resolutionUsingMaxFractionDigits = 1/pow(10.0, Double(maxFractionDigits))
+    /// if fractionDigits is nil, maxFractionDigits is used
+    func allValues(from lowerBound: HKQuantity, through upperBound: HKQuantity, usingFractionDigits fractionDigits: Int? = nil) -> [Double] {
+        let usedFractionDigits: Int = fractionDigits ?? maxFractionDigits
         return Array(stride(
             from: lowerBound.doubleValue(for: self, withRounding: true),
             through: upperBound.doubleValue(for: self, withRounding: true),
-            by: resolutionUsingMaxFractionDigits
-        )).map { self.round(value: $0, fractionalDigits: maxFractionDigits) }
+            by: 1/pow(10.0, Double(usedFractionDigits))
+        )).map { self.round(value: $0, fractionalDigits: usedFractionDigits) }
     }
 
     func round(value: Double) -> Double {
