@@ -17,7 +17,7 @@ public struct DemoPlaceHolderView: View {
     
     public var body: some View {
         ZStack {
-            Color.accentColor.opacity(0.1).ignoresSafeArea()
+            Color(frameworkColor: "demo-background").ignoresSafeArea()
 
             VStack {
                 Image(frameworkImage: "DemoPlaceholderImage")
