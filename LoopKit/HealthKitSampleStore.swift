@@ -120,9 +120,14 @@ public class HealthKitSampleStore {
 
         // Do not remove this log: it actually triggers a query by calling preferredUnit, and can update the cache
         // And trigger a unit change notification after authorization happens.
-        Task {
+        Task { [weak self, log] in
+            guard let self else {
+                assertionFailure()
+                return
+            }
+            
             let unit = await self.preferredUnit
-            self.log.default("Checking units after authorization: %{public}@", String(describing: unit))
+            log.default("Checking units after authorization: %{public}@", String(describing: unit))
         }
     }
 
