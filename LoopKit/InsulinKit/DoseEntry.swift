@@ -10,7 +10,7 @@ import Foundation
 import HealthKit
 
 
-public struct DoseEntry: TimelineValue, Equatable {
+public struct DoseEntry: TimelineValue {
     public let type: DoseType
     public let startDate: Date
     public let endDate: Date
@@ -55,6 +55,19 @@ public struct DoseEntry: TimelineValue, Equatable {
     }
 }
 
+extension DoseEntry: Equatable {
+    public static func == (lhs: DoseEntry, rhs: DoseEntry) -> Bool {
+        return lhs.type == rhs.type &&
+        lhs.startDate == rhs.startDate &&
+        lhs.value == rhs.value &&
+        lhs.unit == rhs.unit &&
+        lhs.insulinType == rhs.insulinType &&
+        lhs.automatic == rhs.automatic &&
+        lhs.manuallyEntered == rhs.manuallyEntered &&
+        lhs.syncIdentifier == rhs.syncIdentifier &&
+        lhs.wasProgrammedByPumpUI == rhs.wasProgrammedByPumpUI
+    }
+}
 
 extension DoseEntry {
     public static var units = HKUnit.internationalUnit()
