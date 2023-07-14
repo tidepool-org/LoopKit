@@ -9,7 +9,7 @@
 import Foundation
 import HealthKit
 
-public struct Meal: Identifiable, Equatable {
+public struct Meal: Identifiable {
     public var id = UUID().uuidString
     
     public var carbsQuantity: HKQuantity
@@ -25,8 +25,9 @@ public struct Meal: Identifiable, Equatable {
         self.name = name
     }
     
+    private let quantityFormatter = QuantityFormatter(for: .gram())
+    
     public var carbsString: String {
-        let quantityFormatter = QuantityFormatter(for: .gram())
         guard let string = quantityFormatter.string(from: carbsQuantity) else {
             assertionFailure("Unable to format \(String(describing: carbsQuantity)) into gram format")
             return ""
@@ -34,19 +35,26 @@ public struct Meal: Identifiable, Equatable {
         return string
     }
     
+    private let absorptionFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.collapsesLargestUnit = true
+        formatter.unitsStyle = .full
+        formatter.allowsFractionalUnits = true
+        formatter.allowedUnits = [.hour, .minute]
+        return formatter
+    }()
+    
     public var absorptionTimeString: String {
-        let absorptionFormatter: DateComponentsFormatter = {
-            let formatter = DateComponentsFormatter()
-            formatter.collapsesLargestUnit = true
-            formatter.unitsStyle = .full
-            formatter.allowsFractionalUnits = true
-            formatter.allowedUnits = [.hour, .minute]
-            return formatter
-        }()
         guard let string = absorptionFormatter.string(from: absorptionTime) else {
             assertionFailure("Unable to format \(String(describing: absorptionTime)) into absorption time format")
             return ""
         }
         return string
+    }
+}
+
+extension Meal: Equatable {
+    public static func == (lhs: Meal, rhs: Meal) -> Bool {
+        return lhs.id == rhs.id
     }
 }
