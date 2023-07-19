@@ -184,6 +184,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
     },
     "deviceToken" : "Device Token String",
     "dosingEnabled" : true,
+    "favoriteFoodsEnabled" : false,
     "glucoseTargetRangeSchedule" : {
       "override" : {
         "end" : "2020-05-14T14:48:15Z",
@@ -1094,6 +1095,7 @@ fileprivate extension StoredSettings {
                                   udiDeviceIdentifier: "Pump UDI Device Identifier")
         let bloodGlucoseUnit = HKUnit.milligramsPerDeciliter
 
+        let favoriteFoodsEnabled = false
         return StoredSettings(date: dateFormatter.date(from: "2020-05-14T22:48:15Z")!,
                               controllerTimeZone: controllerTimeZone,
                               dosingEnabled: dosingEnabled,
@@ -1109,6 +1111,7 @@ fileprivate extension StoredSettings {
                               deviceToken: deviceToken,
                               insulinType: insulinType,
                               defaultRapidActingModel: defaultRapidActingModel,
+                              favoriteFoodsEnabled: favoriteFoodsEnabled,
                               basalRateSchedule: basalRateSchedule,
                               insulinSensitivitySchedule: insulinSensitivitySchedule,
                               carbRatioSchedule: carbRatioSchedule,
