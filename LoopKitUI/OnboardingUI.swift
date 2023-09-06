@@ -136,7 +136,16 @@ public protocol SupportProvider: AnyObject {
     var availableSupports: [SupportUI] { get }
 }
 
-public protocol OnboardingProvider: NotificationAuthorizationProvider, HealthStoreAuthorizationProvider, BluetoothProvider, CGMManagerProvider, PumpManagerProvider, ServiceProvider, TherapySettingsProvider, SupportProvider {
+public protocol SecurityProvider: AnyObject {
+    /// The security with the specified identifier.
+    ///
+    /// - Parameters:
+    ///     - identifier: The identifier of the security
+    /// - Returns: Either a security with matching identifier or nil.
+    func security(withIdentifier identifier: String) -> Security?
+}
+
+public protocol OnboardingProvider: NotificationAuthorizationProvider, HealthStoreAuthorizationProvider, BluetoothProvider, CGMManagerProvider, PumpManagerProvider, SecurityProvider, ServiceProvider, TherapySettingsProvider, SupportProvider {
     var allowDebugFeatures: Bool { get }   // NOTE: DEBUG FEATURES - DEBUG AND TEST ONLY
 }
 
