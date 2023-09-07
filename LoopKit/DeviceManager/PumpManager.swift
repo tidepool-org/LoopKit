@@ -17,22 +17,6 @@ public protocol PumpManagerStatusObserver: AnyObject {
     func pumpManager(_ pumpManager: PumpManager, didUpdate status: PumpManagerStatus, oldStatus: PumpManagerStatus)
 }
 
-public enum BolusActivationType: String, Codable {
-    case manualNoRecommendation
-    case manualRecommendationAccepted
-    case manualRecommendationChanged
-    case automatic
-
-    public var isAutomatic: Bool {
-        self == .automatic
-    }
-
-    static public func activationTypeFor(recommendedAmount: Double?, bolusAmount: Double) -> BolusActivationType {
-        guard let recommendedAmount = recommendedAmount else { return .manualNoRecommendation }
-        return recommendedAmount =~ bolusAmount ? .manualRecommendationAccepted : .manualRecommendationChanged
-    }
-}
-
 public protocol PumpManagerDelegate: DeviceManagerDelegate, PumpManagerStatusObserver {
     func pumpManagerBLEHeartbeatDidFire(_ pumpManager: PumpManager)
 
@@ -144,6 +128,9 @@ public protocol PumpManager: DeviceManager {
     
     /// The most-recent status
     var status: PumpManagerStatus { get }
+    
+    /// The Pump Manager may need reference to a security (e.g., request certificate signing). This callback allows the pump manager to reference the needed security(ies).
+    func initializationComplete(for securityProvider: SecurityProvider)
     
     /// Adds an observer of changes in PumpManagerStatus
     ///
@@ -267,4 +254,5 @@ public extension PumpManager {
         }
     }
 
+    func initializationComplete(for securityProvider: SecurityProvider) { } // optional
 }

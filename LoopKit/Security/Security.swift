@@ -12,6 +12,15 @@ public protocol SecurityPlugin {
     var security: Security { get }
 }
 
+public protocol SecurityProvider: AnyObject {
+    /// The security with the specified identifier.
+    ///
+    /// - Parameters:
+    ///     - identifier: The identifier of the security
+    /// - Returns: Either a security with matching identifier or nil.
+    func security(withIdentifier identifier: String) -> Security?
+}
+
 public protocol Security: AnyObject {
     /// The unique identifier of this type of security.
     static var identifier: String { get }
