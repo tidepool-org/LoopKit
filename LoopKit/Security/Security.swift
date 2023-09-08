@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol SecurityPluginProvider {
+public protocol SecurityPlugin {
     var security: Security { get }
 }
 
@@ -21,4 +21,7 @@ public protocol SecurityProvider {
     func security(withIdentifier identifier: String) -> Security?
 }
 
-public protocol Security: Pluggable {}
+public protocol Security: Pluggable {
+    func verifyDevice(completion: @escaping (Result<Bool, Error>) -> Void)
+    func verifyApp(completion: @escaping (Result<Bool, Error>) -> Void)
+}

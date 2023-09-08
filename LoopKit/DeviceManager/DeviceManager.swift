@@ -15,9 +15,6 @@ public protocol DeviceManagerDelegate: AlertIssuer, PersistedAlertStore {
 
 public protocol DeviceManager: CustomDebugStringConvertible, AlertResponder, AlertSoundVendor, Pluggable {
     typealias RawStateValue = [String: Any]
-
-    /// A unique identifier for this manager
-    var managerIdentifier: String { get }
     
     /// A title describing this manager
     var localizedTitle: String { get }
@@ -34,9 +31,4 @@ public protocol DeviceManager: CustomDebugStringConvertible, AlertResponder, Ale
 
     /// Is the device manager onboarded and ready for use?
     var isOnboarded: Bool { get }
-}
-
-extension DeviceManager {
-    public static var managerIdentifier: String { identifier }
-    public var managerIdentifier: String { managerIdentifier }
 }

@@ -65,7 +65,7 @@ public final class MockPumpManager: TestingPumpManager {
     }
 
     private static let device = HKDevice(
-        name: MockPumpManager.managerIdentifier,
+        name: MockPumpManager.identifier,
         manufacturer: nil,
         model: nil,
         hardwareVersion: nil,

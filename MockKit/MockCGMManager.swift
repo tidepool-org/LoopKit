@@ -626,7 +626,7 @@ extension MockCGMManager {
         }
         delegate.notifyDelayed(by: delay ?? 0) { delegate in
             self.logDeviceComms(.delegate, message: "\(#function): \(identifier) \(trigger)")
-            delegate?.issueAlert(Alert(identifier: Alert.Identifier(managerIdentifier: self.managerIdentifier, alertIdentifier: identifier),
+            delegate?.issueAlert(Alert(identifier: Alert.Identifier(managerIdentifier: self.identifier, alertIdentifier: identifier),
                                        foregroundContent: alert.foregroundContent,
                                        backgroundContent: alert.backgroundContent,
                                        trigger: trigger,
@@ -659,7 +659,7 @@ extension MockCGMManager {
     }
 
     public func retractAlert(identifier: Alert.AlertIdentifier) {
-        delegate.notify { $0?.retractAlert(identifier: Alert.Identifier(managerIdentifier: self.managerIdentifier, alertIdentifier: identifier)) }
+        delegate.notify { $0?.retractAlert(identifier: Alert.Identifier(managerIdentifier: self.identifier, alertIdentifier: identifier)) }
         
         // updating the status highlight
         if  mockSensorState.cgmStatusHighlight?.alertIdentifier == identifier {
@@ -703,7 +703,7 @@ extension MockCGMManager {
             return
         }
 
-        let alertIdentifier = Alert.Identifier(managerIdentifier: self.managerIdentifier,
+        let alertIdentifier = Alert.Identifier(managerIdentifier: self.identifier,
                                                alertIdentifier: glucoseAlertIdentifier)
         let alertContent = Alert.Content(title: alertTitle,
                                          body: "The glucose measurement received triggered this alert",
