@@ -6,22 +6,24 @@
 //  Copyright © 2019 LoopKit Authors. All rights reserved.
 //
 
-public protocol PumpManagerUIPlugin {
+import LoopKit
+
+public protocol PumpManagerUIPluginProvider {
     var pumpManagerType: PumpManagerUI.Type? { get }
 }
 
-public protocol CGMManagerUIPlugin {
+public protocol CGMManagerUIPluginProvider {
     var cgmManagerType: CGMManagerUI.Type? { get }
 }
 
-public protocol ServiceUIPlugin {
+public protocol ServiceUIPluginProvider {
     var serviceType: ServiceUI.Type? { get }
 }
 
-public protocol OnboardingUIPlugin {
+public protocol OnboardingUIPluginProvider {
     var onboardingType: OnboardingUI.Type? { get }
 }
 
-public protocol SupportUIPlugin {
+public protocol SupportUIPluginProvider {
     var support: SupportUI { get }
 }

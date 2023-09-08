@@ -40,12 +40,7 @@ public enum MockPumpManagerError: LocalizedError {
 }
 
 public final class MockPumpManager: TestingPumpManager {
-
-    public static let managerIdentifier = "MockPumpManager"
-
-    public var managerIdentifier: String {
-        return MockPumpManager.managerIdentifier
-    }
+    public static let identifier = "MockPumpManager"
     
     public static let localizedTitle = "Pump Simulator"
     

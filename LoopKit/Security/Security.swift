@@ -8,11 +8,11 @@
 
 import Foundation
 
-public protocol SecurityPlugin {
+public protocol SecurityPluginProvider {
     var security: Security { get }
 }
 
-public protocol SecurityProvider: AnyObject {
+public protocol SecurityProvider {
     /// The security with the specified identifier.
     ///
     /// - Parameters:
@@ -21,15 +21,4 @@ public protocol SecurityProvider: AnyObject {
     func security(withIdentifier identifier: String) -> Security?
 }
 
-public protocol Security: AnyObject {
-    /// The unique identifier of this type of security.
-    static var identifier: String { get }
-
-    /// A security plugin may need backing of a service (e.g., device check app attestation).  This callback allows a security to reference the needed service(s).
-    /// It is called once during app initialization after a security are initialized and again as new securities are added and initialized.
-    func initializationComplete(for services: [Service])
-}
-
-public extension Security {
-    var identifier: String { return type(of: self).identifier }
-}
+public protocol Security: Pluggable {}

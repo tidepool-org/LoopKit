@@ -709,6 +709,8 @@
 		B4A2AAB3240832350066563F /* MultipleSelectionList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2AAB2240832350066563F /* MultipleSelectionList.swift */; };
 		B4A2ABEA2AA9F210007E3EC1 /* BolusActivationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2ABE92AA9F210007E3EC1 /* BolusActivationType.swift */; };
 		B4A2ABEB2AA9F210007E3EC1 /* BolusActivationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2ABE92AA9F210007E3EC1 /* BolusActivationType.swift */; };
+		B4A2ABEF2AAB5160007E3EC1 /* Pluggable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2ABEE2AAB5160007E3EC1 /* Pluggable.swift */; };
+		B4A2ABF02AAB5160007E3EC1 /* Pluggable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A2ABEE2AAB5160007E3EC1 /* Pluggable.swift */; };
 		B4B7C1612603F241007379F6 /* InsulinSensitivityScheduleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B7C1602603F241007379F6 /* InsulinSensitivityScheduleTests.swift */; };
 		B4B7C1772603F5F6007379F6 /* HKUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B7C1762603F5F6007379F6 /* HKUnitTests.swift */; };
 		B4B7C1BC2604E3FC007379F6 /* CorrectionRangeScheduleEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B7C1BB2604E3FC007379F6 /* CorrectionRangeScheduleEditorViewModel.swift */; };
@@ -1671,6 +1673,7 @@
 		B4A2AAB0240830A30066563F /* LabeledTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabeledTextField.swift; sourceTree = "<group>"; };
 		B4A2AAB2240832350066563F /* MultipleSelectionList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSelectionList.swift; sourceTree = "<group>"; };
 		B4A2ABE92AA9F210007E3EC1 /* BolusActivationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BolusActivationType.swift; sourceTree = "<group>"; };
+		B4A2ABEE2AAB5160007E3EC1 /* Pluggable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pluggable.swift; sourceTree = "<group>"; };
 		B4B1162D25AF3A40006428DE /* DisplayGlucoseUnitObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayGlucoseUnitObserver.swift; sourceTree = "<group>"; };
 		B4B7C1602603F241007379F6 /* InsulinSensitivityScheduleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinSensitivityScheduleTests.swift; sourceTree = "<group>"; };
 		B4B7C1762603F5F6007379F6 /* HKUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKUnitTests.swift; sourceTree = "<group>"; };
@@ -2627,6 +2630,7 @@
 				C1814B8B226371DF008D2D8E /* WeakSynchronizedDelegate.swift */,
 				43CACE0D2247F89100F90AF5 /* WeakSynchronizedSet.swift */,
 				C16BC0B42A5FA9D200BDC713 /* DoseMath.swift */,
+				B4A2ABEE2AAB5160007E3EC1 /* Pluggable.swift */,
 			);
 			path = LoopKit;
 			sourceTree = "<group>";
@@ -4332,6 +4336,7 @@
 				1DD9CE9926B8CC2A008B4A46 /* HKDevice+Encodable.swift in Sources */,
 				4322B775202FA2790002837D /* CarbStatus.swift in Sources */,
 				4322B787202FA2B30002837D /* DoseEntry.swift in Sources */,
+				B4A2ABEF2AAB5160007E3EC1 /* Pluggable.swift in Sources */,
 				43CB51B2211EB1A400DB9B4A /* NSUserActivity+CarbKit.swift in Sources */,
 				C187338C29B9486200519CDF /* HKUnit.swift in Sources */,
 				434113AB20F171CB00D05747 /* CachedInsulinDeliveryObject+CoreDataProperties.swift in Sources */,
@@ -4608,6 +4613,7 @@
 				A9E6759D22713F4700E25293 /* DeviceManager.swift in Sources */,
 				A9E6759E22713F4700E25293 /* DoseUnit.swift in Sources */,
 				B4A2ABEB2AA9F210007E3EC1 /* BolusActivationType.swift in Sources */,
+				B4A2ABF02AAB5160007E3EC1 /* Pluggable.swift in Sources */,
 				C17F39D123CE34FD00FA1113 /* StoredDeviceLogEntry.swift in Sources */,
 				A9E675A022713F4700E25293 /* HKQuantitySample.swift in Sources */,
 				C1CEBFD329BA9D4F007FD8A3 /* OSLog.swift in Sources */,

@@ -11,8 +11,7 @@ import Foundation
 import LoopKit
 
 public final class MockService: Service {
-    
-    public static let serviceIdentifier = "MockService"
+    public static let identifier = "MockService"
     
     public static let localizedTitle = "Simulator"
     

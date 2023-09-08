@@ -13,7 +13,7 @@ public protocol DeviceManagerDelegate: AlertIssuer, PersistedAlertStore {
     func deviceManager(_ manager: DeviceManager, logEventForDeviceIdentifier deviceIdentifier: String?, type: DeviceLogEntryType, message: String, completion: ((Error?) -> Void)?)
 }
 
-public protocol DeviceManager: CustomDebugStringConvertible, AlertResponder, AlertSoundVendor {
+public protocol DeviceManager: CustomDebugStringConvertible, AlertResponder, AlertSoundVendor, Pluggable {
     typealias RawStateValue = [String: Any]
 
     /// A unique identifier for this manager
@@ -34,4 +34,9 @@ public protocol DeviceManager: CustomDebugStringConvertible, AlertResponder, Ale
 
     /// Is the device manager onboarded and ready for use?
     var isOnboarded: Bool { get }
+}
+
+extension DeviceManager {
+    public static var managerIdentifier: String { identifier }
+    public var managerIdentifier: String { managerIdentifier }
 }

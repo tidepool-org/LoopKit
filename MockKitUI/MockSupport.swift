@@ -12,8 +12,7 @@ import LoopKitUI
 import SwiftUI
 
 public class MockSupport: SupportUI {
-
-    public static let supportIdentifier = "MockSupport"
+    public static let identifier = "MockSupport"
     
     var versionUpdate: VersionUpdate?
     var alertIssuer: AlertIssuer? {
@@ -32,8 +31,6 @@ public class MockSupport: SupportUI {
         rawValue["lastVersionCheckAlertDate"] = lastVersionCheckAlertDate
         return rawValue
     }
-
-    public func initializationComplete(for services: [LoopKit.Service]) { }
    
     public func checkVersion(bundleIdentifier: String, currentVersion: String) async -> VersionUpdate? {
         maybeIssueAlert(versionUpdate ?? .noUpdateNeeded)
