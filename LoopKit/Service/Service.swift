@@ -33,9 +33,6 @@ public protocol ServiceDelegate: AnyObject, PluginHost, AlertIssuer, RemoteActio
 public protocol Service: Pluggable {
     typealias RawStateValue = [String: Any]
 
-    /// The unique identifier of this type of service.
-    static var serviceIdentifier: String { get }
-
     /// The localized title of this type of service.
     static var localizedTitle: String { get }
 
@@ -56,7 +53,5 @@ public protocol Service: Pluggable {
 }
 
 public extension Service {
-    static var serviceIdentifier: String { identifier }
-    var serviceIdentifier: String { type(of: self).serviceIdentifier }
     var localizedTitle: String { type(of: self).localizedTitle }
 }

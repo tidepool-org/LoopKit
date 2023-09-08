@@ -70,9 +70,6 @@ public protocol SupportUI: Pluggable {
 
     typealias RawStateValue = [String: Any]
 
-    /// The unique identifier of this type of support.
-    static var supportIdentifier: String { get }
-
     /// Provides configuration menu items.
     ///
     /// - Returns: An array of views that will be added to the configuration section of settings.
@@ -134,10 +131,7 @@ public protocol SupportUI: Pluggable {
     var deviceIdentifierWhitelist: DeviceWhitelist { get }
 }
 
-extension SupportUI {
-    static public var supportIdentifier: String { identifier }
-    public var supportIdentifier: String { type(of: self).supportIdentifier }
-    
+extension SupportUI {    
     public var deviceIdentifierWhitelist: DeviceWhitelist {
         DeviceWhitelist()
     }

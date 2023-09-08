@@ -203,8 +203,3 @@ public protocol OnboardingUI: Pluggable {
     /// - Returns: A view controller to create and configure a new onboarding.
     func onboardingViewController(onboardingProvider: OnboardingProvider, displayGlucosePreference: DisplayGlucosePreference, colorPalette: LoopUIColorPalette) -> OnboardingViewController
 }
-
-extension OnboardingUI {
-    public static var onboardingIdentifier: String { identifier }
-    public var onboardingIdentifier: String { type(of: self).onboardingIdentifier }
-}

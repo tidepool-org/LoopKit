@@ -14,7 +14,7 @@ import Foundation
 final class MockHUDProvider: NSObject, HUDProvider {
 
     var managerIdentifier: String {
-        return MockPumpManager.identifier
+        return MockPumpManager.pluginIdentifier
     }
 
     private var pumpManager: MockPumpManager
