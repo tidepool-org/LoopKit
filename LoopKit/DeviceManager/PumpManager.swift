@@ -128,10 +128,7 @@ public protocol PumpManager: DeviceManager {
     
     /// The most-recent status
     var status: PumpManagerStatus { get }
-    
-    /// The Pump Manager may need reference to a security (e.g., request certificate signing). This callback allows the pump manager to reference the needed security(ies).
-    func initializationComplete(for securityProvider: SecurityProvider)
-    
+        
     /// Adds an observer of changes in PumpManagerStatus
     ///
     /// Observers are held by weak reference.
@@ -234,7 +231,7 @@ public extension PumpManager {
     func roundToSupportedBasalRate(unitsPerHour: Double) -> Double {
         return supportedBasalRates.filter({$0 <= unitsPerHour}).max() ?? 0
     }
-
+    
     func roundToSupportedBolusVolume(units: Double) -> Double {
         return supportedBolusVolumes.filter({$0 <= units}).max() ?? 0
     }
@@ -242,7 +239,7 @@ public extension PumpManager {
     func prepareForDeactivation(_ completion: @escaping (Error?) -> Void) {
         notifyDelegateOfDeactivation() { completion(nil) }
     }
-
+    
     /// Convenience wrapper for notifying the delegate of deactivation on the delegate queue
     ///
     /// - Parameters:
@@ -253,6 +250,4 @@ public extension PumpManager {
             completion()
         }
     }
-
-    func initializationComplete(for securityProvider: SecurityProvider) { } // optional
 }
