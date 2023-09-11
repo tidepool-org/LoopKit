@@ -6,8 +6,6 @@
 //  Copyright © 2019 LoopKit Authors. All rights reserved.
 //
 
-import LoopKit
-
 public protocol PumpManagerUIPlugin {
     var pumpManagerType: PumpManagerUI.Type? { get }
 }
