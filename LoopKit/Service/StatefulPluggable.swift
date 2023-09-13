@@ -1,5 +1,5 @@
 //
-//  Security.swift
+//  StatefulPluggable.swift
 //  LoopKit
 //
 //  Created by Nathaniel Hamming on 2023-09-05.
@@ -14,12 +14,12 @@ public protocol StatefulPlugin {
 }
 
 public protocol StatefulPluggableProvider {
-    /// The security with the specified identifier.
+    /// The stateful plugin with the specified identifier.
     ///
     /// - Parameters:
-    ///     - identifier: The identifier of the security
-    /// - Returns: Either a security with matching identifier or nil.
-    func plugin(withIdentifier identifier: String) -> StatefulPluggable?
+    ///     - identifier: The identifier of the stateful plugin
+    /// - Returns: Either a stateful plugin with matching identifier or nil.
+    func statefulPlugin(withIdentifier identifier: String) -> StatefulPluggable?
 }
 
 public protocol StatefulPluggableDelegate: AnyObject {

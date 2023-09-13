@@ -14,7 +14,7 @@ public protocol PluginHost {
     var hostVersion: String { get }
 }
 
-public protocol ServiceDelegate: StatefulPluggableDelegate, PluginHost, AlertIssuer, RemoteActionDelegate { }
+public protocol ServiceDelegate: PluginHost, AlertIssuer, RemoteActionDelegate { }
 
 public protocol Service: StatefulPluggable {
     /// The localized title of this type of plugin.

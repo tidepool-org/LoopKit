@@ -41,6 +41,8 @@ fileprivate class TestService: Service {
     static var localizedTitle: String { return "Test Service" }
 
     public weak var serviceDelegate: ServiceDelegate?
+    
+    public weak var stateDelegate: StatefulPluggableDelegate?
 
     init() {}
 
