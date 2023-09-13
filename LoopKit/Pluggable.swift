@@ -12,11 +12,11 @@ public protocol Pluggable: AnyObject {
     
     /// A plugin may need a reference to another plugin. This callback allows for such a reference.
     /// It is called once during app initialization after plugins are initialized and again as new plugins are added and initialized.
-    func initializationComplete(for plugins: [Pluggable])
+    func initializationComplete(for pluggables: [Pluggable])
 }
 
 public extension Pluggable {
     var pluginIdentifier: String { return type(of: self).pluginIdentifier }
     
-    func initializationComplete(for plugins: [Pluggable]) { } // optional
+    func initializationComplete(for pluggables: [Pluggable]) { } // optional
 }
