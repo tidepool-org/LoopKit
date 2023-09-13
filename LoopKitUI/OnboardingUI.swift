@@ -136,7 +136,7 @@ public protocol SupportProvider: AnyObject {
     var availableSupports: [SupportUI] { get }
 }
 
-public protocol OnboardingProvider: NotificationAuthorizationProvider, HealthStoreAuthorizationProvider, BluetoothProvider, CGMManagerProvider, PumpManagerProvider, SecurityProvider, ServiceProvider, TherapySettingsProvider, SupportProvider {
+public protocol OnboardingProvider: NotificationAuthorizationProvider, HealthStoreAuthorizationProvider, BluetoothProvider, CGMManagerProvider, PumpManagerProvider, StatefulPluggableProvider, ServiceProvider, TherapySettingsProvider, SupportProvider {
     var allowDebugFeatures: Bool { get }   // NOTE: DEBUG FEATURES - DEBUG AND TEST ONLY
 }
 

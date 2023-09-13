@@ -16,7 +16,7 @@ public enum LoopPluginBundleKey: String {
     case pluginIsSimulator = "com.loopkit.Loop.PluginIsSimulator"
     case pumpManagerDisplayName = "com.loopkit.Loop.PumpManagerDisplayName"
     case pumpManagerIdentifier = "com.loopkit.Loop.PumpManagerIdentifier"
-    case securityIdentifier = "com.loopkit.Loop.SecurityIdentifier"
+    case statefulPluginIdentifier = "com.loopkit.Loop.StatefulPluginIdentifier"
     case serviceDisplayName = "com.loopkit.Loop.ServiceDisplayName"
     case serviceIdentifier = "com.loopkit.Loop.ServiceIdentifier"
     case supportIdentifier = "com.loopkit.Loop.SupportIdentifier"

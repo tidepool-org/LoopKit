@@ -15,6 +15,8 @@ public final class MockService: Service {
     
     public static let localizedTitle = "Simulator"
     
+    public weak var stateDelegate: StatefulPluggableDelegate?
+    
     public weak var serviceDelegate: ServiceDelegate?
     
     public var remoteData: Bool
@@ -58,11 +60,11 @@ public final class MockService: Service {
     public func completeCreate() {}
     
     public func completeUpdate() {
-        serviceDelegate?.serviceDidUpdateState(self)
+        stateDelegate?.pluginDidUpdateState(self)
     }
     
     public func completeDelete() {
-        serviceDelegate?.serviceWantsDeletion(self)
+        stateDelegate?.pluginWantsDeletion(self)
     }
     
     public func clearHistory() {

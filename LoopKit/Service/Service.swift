@@ -14,42 +14,13 @@ public protocol PluginHost {
     var hostVersion: String { get }
 }
 
-public protocol ServiceDelegate: AnyObject, PluginHost, AlertIssuer, RemoteActionDelegate {
-    /// Informs the delegate that the state of the specified service was updated and the delegate should persist the service. May
-    /// be invoked prior to the service completing setup.
-    ///
-    /// - Parameters:
-    ///     - service: The service that updated state.
-    func serviceDidUpdateState(_ service: Service)
+public protocol ServiceDelegate: StatefulPluggableDelegate, PluginHost, AlertIssuer, RemoteActionDelegate { }
 
-    /// Informs the delegate that the service wants deletion.
-    ///
-    /// - Parameters:
-    ///     - service: The service that wants deletion.
-    func serviceWantsDeletion(_ service: Service)
-
-}
-
-public protocol Service: Pluggable {
-    typealias RawStateValue = [String: Any]
-
-    /// The localized title of this type of service.
+public protocol Service: StatefulPluggable {
+    /// The localized title of this type of plugin.
     static var localizedTitle: String { get }
-
-    /// The delegate to notify of service updates.
+    
     var serviceDelegate: ServiceDelegate? { get set }
-
-    /// Initializes the service with the previously-serialized state.
-    ///
-    /// - Parameters:
-    ///     - rawState: The previously-serialized state of the service.
-    init?(rawState: RawStateValue)
-
-    /// The current, serializable state of the service.
-    var rawState: RawStateValue { get }
-
-    /// Is the service onboarded and ready for use?
-    var isOnboarded: Bool { get }
 }
 
 public extension Service {
