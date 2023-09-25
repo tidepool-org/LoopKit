@@ -46,7 +46,7 @@ public struct Card: View {
     var backgroundColor: Color
     
     init<Hero: View>(hero: Hero? = nil, parts: [AnyView?], backgroundColor: Color = Color(.secondarySystemGroupedBackground)) {
-        if let hero {
+        if let hero, !(hero is EmptyView) {
             self.hero = AnyView(hero)
         }
         
@@ -61,30 +61,33 @@ public struct Card: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
+        VStack {
             if let hero {
                 hero
                     .frame(height: 200)
                     .frame(maxWidth: .infinity)
             }
             
-            ForEach(parts.indices, id: \.self) { index in
-                Group {
-                    if self.parts[index] != nil {
-                        VStack {
-                            self.parts[index]!
-                                .padding(.top, index == 0 || hero != nil ? 0 : 4)
-
-                            if index != self.parts.indices.last! {
-                                CardSectionDivider()
+            VStack {
+                ForEach(parts.indices, id: \.self) { index in
+                    Group {
+                        if self.parts[index] != nil {
+                            VStack {
+                                self.parts[index]!
+                                    .padding(.top, index == 0 || hero != nil ? 0 : 4)
+                                
+                                if index != self.parts.indices.last! {
+                                    CardSectionDivider()
+                                }
                             }
+                            .transition(AnyTransition.move(edge: .top).combined(with: .opacity))
                         }
-                        .transition(AnyTransition.move(edge: .top).combined(with: .opacity))
                     }
                 }
             }
             .padding()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(CardBackground(color: backgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .padding(.horizontal)
@@ -110,7 +113,7 @@ extension Card {
     public init<Hero: View>(hero: Hero? = nil, @CardBuilder card: () -> Card) {
         let card = card()
         
-        if let hero {
+        if let hero, !(hero is EmptyView) {
             self.hero = AnyView(hero)
         }
 
@@ -142,7 +145,7 @@ extension Card {
     }
 
     init<Hero: View>(hero: Hero? = nil, reducing cards: [Card], backgroundColor: Color = Color(.secondarySystemGroupedBackground)) {
-        if let hero {
+        if let hero, !(hero is EmptyView) {
             self.hero = AnyView(hero)
         }
         self.parts = cards.flatMap { $0.parts }
@@ -157,7 +160,7 @@ extension Card {
     
     /// `nil` values denote placeholder positions where a view may become visible upon state change.
     init<Hero: View>(hero: Hero? = nil, components: [Component?], backgroundColor: Color = Color(.secondarySystemGroupedBackground)) {
-        if let hero {
+        if let hero, !(hero is EmptyView) {
             self.hero = AnyView(hero)
         }
         
