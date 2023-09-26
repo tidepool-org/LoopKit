@@ -299,10 +299,12 @@ extension MockCGMLifecycleProgress: RawRepresentable {
 }
 
 public final class MockCGMManager: TestingCGMManager {    
-    public static let pluginIdentifier: String = "MockCGMManager"
+    public static let managerIdentifier: String = "MockCGMManager"
+
+    public var pluginIdentifier: String { Self.managerIdentifier }
 
     public static let localizedTitle = "CGM Simulator"
-    
+
     public var localizedTitle: String {
         return MockCGMManager.localizedTitle
     }
