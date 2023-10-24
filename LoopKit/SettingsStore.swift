@@ -589,3 +589,230 @@ extension SettingsStore {
         }
     }
 }
+
+// MARK: Historical queries
+
+extension SettingsStore {
+    public func getTargetRangeHistory(startDate: Date, endDate: Date) async throws -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
+        // Get any changes during the period
+        var settingsHistory = try await getStoredSettings(start: startDate, end: endDate)
+
+        // Also need to get the one in effect before the start of the period
+        if let firstSettings = try await getStoredSettings(end: startDate, limit: 1).first {
+            settingsHistory.append(firstSettings)
+        }
+
+        guard !settingsHistory.isEmpty else {
+            return []
+        }
+
+        // Order from oldest to newest
+        settingsHistory.reverse()
+
+        // Find all valid, non-repeat target schedules in settings
+        var lastSchedule: GlucoseRangeSchedule? = nil
+        let schedules: [(date: Date, schedule: GlucoseRangeSchedule)] = settingsHistory.compactMap { settings in
+            if let schedule = settings.glucoseTargetRangeSchedule, schedule != lastSchedule {
+                lastSchedule = schedule
+                return (date: settings.date, schedule: schedule)
+            } else {
+                return nil
+            }
+        }
+
+        var idx = schedules.startIndex
+        var date = startDate
+        var items = [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>]()
+        while date < endDate {
+            let scheduleActiveEnd: Date
+            if idx+1 < schedules.endIndex {
+                scheduleActiveEnd = schedules[idx+1].date
+            } else {
+                scheduleActiveEnd = endDate
+            }
+
+            let schedule = schedules[idx].schedule
+
+            let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd)
+
+            items.append(contentsOf: absoluteScheduleValues.map { entry in
+                let quantityRange = entry.value.quantityRange(for: schedule.unit)
+                return AbsoluteScheduleValue(startDate: entry.startDate, endDate: entry.endDate, value: quantityRange)
+            })
+            date = scheduleActiveEnd
+            idx += 1
+        }
+        return items
+    }
+
+    public func getBasalHistory(startDate: Date, endDate: Date) async throws -> [AbsoluteScheduleValue<Double>] {
+        // Get any settings changes during the period
+        var settingsHistory = try await getStoredSettings(start: startDate, end: endDate)
+
+        // Also need to get the one in effect before the start of the period
+        if let firstSettings = try await getStoredSettings(end: startDate, limit: 1).first {
+            settingsHistory.append(firstSettings)
+        }
+
+        guard !settingsHistory.isEmpty else {
+            return []
+        }
+
+        // Order from oldest to newest
+        settingsHistory.reverse()
+
+        // Find all valid, non-repeat basal rate schedules in settings
+        var lastSchedule: BasalRateSchedule? = nil
+        let schedules: [(date: Date, schedule: BasalRateSchedule)] = settingsHistory.compactMap { settings in
+            if let schedule = settings.basalRateSchedule, schedule != lastSchedule {
+                lastSchedule = schedule
+                return (date: settings.date, schedule: schedule)
+            } else {
+                return nil
+            }
+        }
+
+        var idx = schedules.startIndex
+        var date = startDate
+        var items = [AbsoluteScheduleValue<Double>]()
+        while date < endDate {
+            let scheduleActiveEnd: Date
+            if idx+1 < schedules.endIndex {
+                scheduleActiveEnd = schedules[idx+1].date
+            } else {
+                scheduleActiveEnd = endDate
+            }
+
+            let schedule = schedules[idx].schedule
+
+            let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd)
+
+            items.append(contentsOf: absoluteScheduleValues)
+            date = scheduleActiveEnd
+            idx += 1
+        }
+
+        return items
+    }
+
+    public func getInsulinSensitivityHistory(startDate: Date, endDate: Date) async throws -> [AbsoluteScheduleValue<HKQuantity>] {
+        // Get any settings changes during the period
+        var settingsHistory = try await getStoredSettings(start: startDate, end: endDate)
+
+        // Also need to get the one in effect before the start of the period
+        if let firstSettings = try await getStoredSettings(end: startDate, limit: 1).first {
+            settingsHistory.append(firstSettings)
+        }
+
+        guard !settingsHistory.isEmpty else {
+            return []
+        }
+
+        // Order from oldest to newest
+        settingsHistory.reverse()
+
+        // Find all valid, non-repeat insulin sensitivity schedules in settings
+        var lastSchedule: InsulinSensitivitySchedule? = nil
+        let schedules: [(date: Date, schedule: InsulinSensitivitySchedule)] = settingsHistory.compactMap { settings in
+            if let schedule = settings.insulinSensitivitySchedule, schedule != lastSchedule {
+                lastSchedule = schedule
+                return (date: settings.date, schedule: schedule)
+            } else {
+                return nil
+            }
+        }
+
+        var idx = schedules.startIndex
+        var date = startDate
+        var items = [AbsoluteScheduleValue<HKQuantity>]()
+        while date < endDate {
+            let scheduleActiveEnd: Date
+            if idx+1 < schedules.endIndex {
+                scheduleActiveEnd = schedules[idx+1].date
+            } else {
+                scheduleActiveEnd = endDate
+            }
+
+            let schedule: InsulinSensitivitySchedule = schedules[idx].schedule
+
+            let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd).map {
+                AbsoluteScheduleValue(
+                    startDate: $0.startDate,
+                    endDate: $0.endDate,
+                    value: HKQuantity(unit: schedule.unit, doubleValue: $0.value))
+            }
+
+            items.append(contentsOf: absoluteScheduleValues)
+            date = scheduleActiveEnd
+            idx += 1
+        }
+
+        return items
+    }
+
+    public func getCarbRatioHistory(startDate: Date, endDate: Date) async throws -> [LoopKit.AbsoluteScheduleValue<Double>] {
+        // Get any settings changes during the period
+        var settingsHistory = try await getStoredSettings(start: startDate, end: endDate)
+
+        // Also need to get the one in effect before the start of the period
+        if let firstSettings = try await getStoredSettings(end: startDate, limit: 1).first {
+            settingsHistory.append(firstSettings)
+        }
+
+        guard !settingsHistory.isEmpty else {
+            return []
+        }
+
+        // Order from oldest to newest
+        settingsHistory.reverse()
+
+        // Find all valid, non-repeat basal rate schedules in settings
+        var lastSchedule: CarbRatioSchedule? = nil
+        let schedules: [(date: Date, schedule: CarbRatioSchedule)] = settingsHistory.compactMap { settings in
+            if let schedule = settings.carbRatioSchedule, schedule != lastSchedule {
+                lastSchedule = schedule
+                return (date: settings.date, schedule: schedule)
+            } else {
+                return nil
+            }
+        }
+
+        var idx = schedules.startIndex
+        var date = startDate
+        var items = [AbsoluteScheduleValue<Double>]()
+        while date < endDate {
+            let scheduleActiveEnd: Date
+            if idx+1 < schedules.endIndex {
+                scheduleActiveEnd = schedules[idx+1].date
+            } else {
+                scheduleActiveEnd = endDate
+            }
+
+            let schedule = schedules[idx].schedule
+
+            let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd)
+
+            items.append(contentsOf: absoluteScheduleValues)
+            date = scheduleActiveEnd
+            idx += 1
+        }
+
+        return items
+    }
+
+    public func getDosingLimits(at date: Date) async throws -> DosingLimits {
+        // Get the one in effect before the given date. The underlying query already sorts by date descending.
+        let settings = try await getStoredSettings(end: date, limit: 1).first
+        return DosingLimits(
+            suspendThreshold: settings?.suspendThreshold?.quantity,
+            maxBolus: settings?.maximumBolus,
+            maxBasalRate: settings?.maximumBasalRatePerHour)
+    }
+}
+
+public struct DosingLimits {
+    public var suspendThreshold: HKQuantity?
+    public var maxBolus: Double?
+    public var maxBasalRate: Double?
+}
+
