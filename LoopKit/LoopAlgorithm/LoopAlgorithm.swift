@@ -47,7 +47,7 @@ public struct LoopPrediction {
 
 public struct LoopAlgorithm {
     /// Percentage of recommended dose to apply as bolus when using automatic bolus dosing strategy
-    static public let bolusPartialApplicationFactor = 0.4
+    static public let defaultBolusPartialApplicationFactor = 0.4
 
     /// The duration of recommended temp basals
     static public let tempBasalDuration = TimeInterval(minutes: 30)
@@ -269,6 +269,7 @@ public struct LoopAlgorithm {
     public static func recommendAutomaticDose(
         for correction: InsulinCorrection,
         at deliveryDate: Date,
+        applicationFactor: Double,
         scheduledBasalRate: Double,
         activeInsulin: Double,
         maxBolus: Double,
@@ -279,7 +280,7 @@ public struct LoopAlgorithm {
         overrideIsActive: Bool
     ) -> AutomaticDoseRecommendation? {
 
-        var maxAutomaticBolus = maxBolus * bolusPartialApplicationFactor
+        var maxAutomaticBolus = maxBolus * applicationFactor
 
         if case .aboveRange(min: let min, correcting: _, minTarget: let doseThreshold, units: _) = correction,
             min.quantity < doseThreshold
@@ -303,7 +304,7 @@ public struct LoopAlgorithm {
         )
 
         let bolusUnits = correction.asPartialBolus(
-            partialApplicationFactor: bolusPartialApplicationFactor,
+            partialApplicationFactor: applicationFactor,
             maxBolusUnits: maxAutomaticBolus,
             volumeRounder: volumeRounder
         )
@@ -408,6 +409,7 @@ public struct LoopAlgorithm {
             let recommendation = recommendAutomaticDose(
                 for: correction,
                 at: input.predictionStart,
+                applicationFactor: input.automaticBolusApplicationFactor ?? defaultBolusPartialApplicationFactor,
                 scheduledBasalRate: scheduledBasalRate,
                 activeInsulin: activeInsulin,
                 maxBolus: input.maxBolus,

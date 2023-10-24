@@ -31,6 +31,7 @@ public struct LoopAlgorithmInput {
     public var useIntegralRetrospectiveCorrection: Bool = false
     public var recommendationInsulinType: InsulinType = .novolog
     public var recommendationType: DoseRecommendationType = .automaticBolus
+    public var automaticBolusApplicationFactor: Double?
 
     struct TargetEntry: Codable {
         var startDate: Date
