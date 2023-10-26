@@ -429,7 +429,7 @@ extension TemporaryScheduleOverride.EnactTrigger: Codable {
 
 extension Array where Element == TemporaryScheduleOverride {
 
-    func apply<T>(
+    public func apply<T>(
         over timeline: [AbsoluteScheduleValue<T>],
         transform: (T, TemporaryScheduleOverride) -> T
     ) -> [AbsoluteScheduleValue<T>]

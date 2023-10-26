@@ -593,7 +593,7 @@ extension SettingsStore {
 // MARK: Historical queries
 
 extension SettingsStore {
-    public func getTargetRangeHistory(startDate: Date, endDate: Date) async throws -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
+    public func getTargetRangeHistory(startDate: Date, endDate: Date) async throws -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
         // Get any changes during the period
         var settingsHistory = try await getStoredSettings(start: startDate, end: endDate)
 
@@ -750,7 +750,7 @@ extension SettingsStore {
         return items
     }
 
-    public func getCarbRatioHistory(startDate: Date, endDate: Date) async throws -> [LoopKit.AbsoluteScheduleValue<Double>] {
+    public func getCarbRatioHistory(startDate: Date, endDate: Date) async throws -> [AbsoluteScheduleValue<Double>] {
         // Get any settings changes during the period
         var settingsHistory = try await getStoredSettings(start: startDate, end: endDate)
 
