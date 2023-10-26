@@ -16,7 +16,7 @@ public struct CarbMath {
     public static let defaultEffectDelay: TimeInterval = .minutes(10)
 }
 
-struct CarbModelSettings {
+public struct CarbModelSettings {
     var absorptionModel: CarbAbsorptionComputable
     var initialAbsorptionTimeOverrun: Double
     var adaptiveAbsorptionRateEnabled: Bool

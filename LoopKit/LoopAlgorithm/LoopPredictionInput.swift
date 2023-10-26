@@ -32,6 +32,8 @@ public struct LoopPredictionInput {
 
     public var useIntegralRetrospectiveCorrection: Bool = false
 
+    public var carbAbsorptionModel: CarbAbsorptionModel = .piecewiseLinear
+
     public init(
         glucoseHistory: [StoredGlucoseSample],
         doses: [DoseEntry],

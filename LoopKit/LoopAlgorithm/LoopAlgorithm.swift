@@ -74,6 +74,7 @@ public struct LoopAlgorithm {
     ///   - carbRatio: Carb ratio timeline: t-10h to t+6h
     ///   - algorithmEffectsOptions: Which effects to include when combining effects to generate glucose prediction
     ///   - useIntegralRetrospectiveCorrection: If true, the prediction will use Integral Retrospection. If false, will use traditional Retrospective Correction
+    ///   - carbAbsorptionModel: A model conforming to CarbAbsorptionComputable that is used for computing carb absorption over time.
     /// - Returns: A LoopPrediction struct containing the predicted glucose and the computed intermediate effects used to make the prediction
 
     public static func generatePrediction(
@@ -85,7 +86,8 @@ public struct LoopAlgorithm {
         sensitivity: [AbsoluteScheduleValue<HKQuantity>],
         carbRatio: [AbsoluteScheduleValue<Double>],
         algorithmEffectsOptions: AlgorithmEffectsOptions = .all,
-        useIntegralRetrospectiveCorrection: Bool = false
+        useIntegralRetrospectiveCorrection: Bool = false,
+        carbAbsorptionModel: CarbAbsorptionComputable = PiecewiseLinearAbsorption()
     ) -> LoopPrediction {
 
         guard let latestGlucose = glucoseHistory.last else {
@@ -122,7 +124,8 @@ public struct LoopAlgorithm {
         let carbEffects = carbStatus.dynamicGlucoseEffects(
             from: start.addingTimeInterval(-IntegralRetrospectiveCorrection.retrospectionInterval),
             carbRatios: carbRatio,
-            insulinSensitivities: sensitivity
+            insulinSensitivities: sensitivity,
+            absorptionModel: carbAbsorptionModel
         )
 
         // RC
@@ -190,6 +193,7 @@ public struct LoopAlgorithm {
 
     // Helper to generate prediction with LoopPredictionInput struct
     public static func generatePrediction(input: LoopPredictionInput) -> LoopPrediction {
+
         return generatePrediction(
             glucoseHistory: input.glucoseHistory,
             doses: input.doses,
@@ -198,7 +202,9 @@ public struct LoopAlgorithm {
             sensitivity: input.sensitivity,
             carbRatio: input.carbRatio,
             algorithmEffectsOptions: input.algorithmEffectsOptions,
-            useIntegralRetrospectiveCorrection: input.useIntegralRetrospectiveCorrection)
+            useIntegralRetrospectiveCorrection: input.useIntegralRetrospectiveCorrection,
+            carbAbsorptionModel: input.carbAbsorptionModel.model
+        )
     }
 
     // Computes an amount of insulin to correct the given prediction
@@ -365,7 +371,9 @@ public struct LoopAlgorithm {
             carbEntries: input.carbEntries,
             basal: input.basal,
             sensitivity: input.sensitivity,
-            carbRatio: input.carbRatio)
+            carbRatio: input.carbRatio,
+            carbAbsorptionModel: input.carbAbsorptionModel.model
+        )
 
         guard let suspendThreshold = input.suspendThreshold ?? input.target.closestPrior(to: input.predictionStart)?.value.lowerBound else {
             throw AlgorithmError.missingSuspendThreshold

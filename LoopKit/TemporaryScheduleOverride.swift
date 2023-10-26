@@ -418,3 +418,72 @@ extension TemporaryScheduleOverride.EnactTrigger: Codable {
         case remote
     }
 }
+
+extension Array where Element == TemporaryScheduleOverride {
+
+    func apply(overSensitivities sensitivities: [AbsoluteScheduleValue<Double>]) -> [AbsoluteScheduleValue<Double>] {
+        guard sensitivities.count > 0 else {
+            return []
+        }
+
+        var result: [AbsoluteScheduleValue<Double>] = []
+        var presetIndex = 0
+
+        for sensitivity in sensitivities {
+            var start = sensitivity.startDate
+
+            while presetIndex < self.count {
+                let preset = self[presetIndex]
+
+                // Skip presets that end before this sensitivity period
+                if preset.actualEndDate < start {
+                    presetIndex += 1
+                    continue
+                }
+
+                if preset.isActive(at: start) {
+                    let newValue = sensitivity.value / preset.settings.effectiveInsulinNeedsScaleFactor
+                    let end = Swift.min(sensitivity.endDate, preset.actualEndDate)
+                    result.append(AbsoluteScheduleValue(
+                        startDate: start,
+                        endDate: end,
+                        value: newValue
+                    ))
+                    if sensitivity.endDate > end {
+                        presetIndex += 1
+                    }
+                    start = end
+                } else if preset.startDate < sensitivity.endDate {
+                    result.append(AbsoluteScheduleValue(
+                        startDate: start,
+                        endDate: preset.startDate,
+                        value: sensitivity.value
+                    ))
+                    let newValue = sensitivity.value / preset.settings.effectiveInsulinNeedsScaleFactor
+                    let endDate = Swift.min(sensitivity.endDate, preset.actualEndDate)
+                    result.append(AbsoluteScheduleValue(
+                        startDate: preset.startDate,
+                        endDate: endDate,
+                        value: newValue
+                    ))
+                    start = endDate
+                    if preset.actualEndDate > sensitivity.endDate {
+                        break
+                    }
+                    presetIndex += 1
+                } else {
+                    break
+                }
+            }
+            if start < sensitivity.endDate {
+                result.append(AbsoluteScheduleValue(
+                    startDate: start,
+                    endDate: sensitivity.endDate,
+                    value: sensitivity.value
+                ))
+                start = sensitivity.endDate
+            }
+        }
+        return result
+    }
+}

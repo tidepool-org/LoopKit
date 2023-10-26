@@ -19,8 +19,16 @@ public enum CarbStoreResult<T> {
 
 public enum CarbAbsorptionModel {
     case linear
-    case nonlinear
-    case adaptiveRateNonlinear
+    case piecewiseLinear
+
+    var model: CarbAbsorptionComputable {
+        switch self {
+        case .linear:
+            return LinearAbsorption()
+        case .piecewiseLinear:
+            return PiecewiseLinearAbsorption()
+        }
+    }
 }
 
 public protocol CarbStoreDelegate: AnyObject {
@@ -188,7 +196,7 @@ public final class CarbStore {
     
     static let healthKitQueryAnchorMetadataKey = "com.loopkit.CarbStore.hkQueryAnchor"
     
-    var settings = CarbModelSettings(absorptionModel: PiecewiseLinearAbsorption(), initialAbsorptionTimeOverrun: 1.5, adaptiveAbsorptionRateEnabled: false)
+    var settings: CarbModelSettings
 
     private let provenanceIdentifier: String
 
@@ -209,7 +217,7 @@ public final class CarbStore {
         absorptionTimeOverrun: Double = CarbMath.defaultAbsorptionTimeOverrun,
         calculationDelta: TimeInterval = GlucoseMath.defaultDelta,
         effectDelay: TimeInterval = CarbMath.defaultEffectDelay,
-        carbAbsorptionModel: CarbAbsorptionModel = .nonlinear,
+        carbAbsorptionModel: CarbAbsorptionModel = .piecewiseLinear,
         provenanceIdentifier: String,
         test_currentDate: Date? = nil
     ) {
@@ -228,17 +236,15 @@ public final class CarbStore {
         self.provenanceIdentifier = provenanceIdentifier
         self.test_currentDate = test_currentDate
 
-        healthKitSampleStore?.delegate = self
-        
         // Carb model settings based on the selected absorption model
         switch self.carbAbsorptionModel {
         case .linear:
             self.settings = CarbModelSettings(absorptionModel: LinearAbsorption(), initialAbsorptionTimeOverrun: absorptionTimeOverrun, adaptiveAbsorptionRateEnabled: false)
-        case .nonlinear:
+        case .piecewiseLinear:
             self.settings = CarbModelSettings(absorptionModel: PiecewiseLinearAbsorption(), initialAbsorptionTimeOverrun: absorptionTimeOverrun, adaptiveAbsorptionRateEnabled: false)
-        case .adaptiveRateNonlinear:
-            self.settings = CarbModelSettings(absorptionModel: PiecewiseLinearAbsorption(), initialAbsorptionTimeOverrun: 1.0, adaptiveAbsorptionRateEnabled: true, adaptiveRateStandbyIntervalFraction: 0.2)
         }
+
+        healthKitSampleStore?.delegate = self
 
         cacheStore.onReady { (error) in
             guard error == nil else {
@@ -1458,10 +1464,8 @@ extension CarbStore {
             switch self.carbAbsorptionModel {
             case .linear:
                 carbAbsorptionModel = "Linear"
-            case .nonlinear:
+            case .piecewiseLinear:
                 carbAbsorptionModel = "Nonlinear"
-            case .adaptiveRateNonlinear:
-                carbAbsorptionModel = "Nonlinear with Adaptive Rate for Remaining Carbs"
             }
 
             var report: [String] = [

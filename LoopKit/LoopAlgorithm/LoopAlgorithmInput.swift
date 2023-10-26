@@ -28,7 +28,8 @@ public struct LoopAlgorithmInput {
     public var suspendThreshold: HKQuantity?
     public var maxBolus: Double
     public var maxBasalRate: Double
-    public var useIntegralRetrospectiveCorrection: Bool = false
+    public var useIntegralRetrospectiveCorrection: Bool
+    public var carbAbsorptionModel: CarbAbsorptionModel = .piecewiseLinear
     public var recommendationInsulinType: InsulinType = .novolog
     public var recommendationType: DoseRecommendationType = .automaticBolus
     public var automaticBolusApplicationFactor: Double?
@@ -72,7 +73,8 @@ public struct LoopAlgorithmInput {
         suspendThreshold: HKQuantity?,
         maxBolus: Double,
         maxBasalRate: Double,
-        useIntegralRetrospectiveCorrection: Bool,
+        useIntegralRetrospectiveCorrection: Bool = false,
+        carbAbsorptionModel: CarbAbsorptionModel = .piecewiseLinear,
         recommendationInsulinType: InsulinType,
         recommendationType: DoseRecommendationType)
     {
@@ -88,6 +90,7 @@ public struct LoopAlgorithmInput {
         self.maxBolus = maxBolus
         self.maxBasalRate = maxBasalRate
         self.useIntegralRetrospectiveCorrection = useIntegralRetrospectiveCorrection
+        self.carbAbsorptionModel = carbAbsorptionModel
         self.recommendationInsulinType = recommendationInsulinType
         self.recommendationType = recommendationType
     }
