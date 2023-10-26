@@ -288,7 +288,9 @@ class TemporaryScheduleOverrideTests: XCTestCase {
             .custom(scale: 0.2, start: .t(4.5), end: .t(5))
         ]
 
-        let applied = overrides.apply(overSensitivities: timeline)
+        let applied = overrides.apply(over: timeline) { (value, override) in
+            value / override.settings.effectiveInsulinNeedsScaleFactor
+        }
 
         let times = applied.map { $0.startDate }
         let expectedTimes: [Date] = [.t(1), .t(2), .t(2.5), .t(3), .t(3.5), .t(4), .t(4.5)]
@@ -308,7 +310,9 @@ class TemporaryScheduleOverrideTests: XCTestCase {
             .custom(scale: 0.5, start: .t(1), end: .t(1.5))
         ]
 
-        let applied = overrides.apply(overSensitivities: timeline)
+        let applied = overrides.apply(over: timeline) { (value, override) in
+            value / override.settings.effectiveInsulinNeedsScaleFactor
+        }
 
         let times = applied.map { $0.startDate }
         let expectedTimes: [Date] = [.t(1), .t(1.5)]
@@ -329,7 +333,9 @@ class TemporaryScheduleOverrideTests: XCTestCase {
             .custom(scale: 0.5, start: .t(1.5), end: .t(2))
         ]
 
-        let applied = overrides.apply(overSensitivities: timeline)
+        let applied = overrides.apply(over: timeline) { (value, override) in
+            value / override.settings.effectiveInsulinNeedsScaleFactor
+        }
 
         let times = applied.map { $0.startDate }
         let expectedTimes: [Date] = [.t(1), .t(1.5), .t(2)]
@@ -349,7 +355,9 @@ class TemporaryScheduleOverrideTests: XCTestCase {
             .custom(scale: 0.5, start: .t(1.5), end: .t(2))
         ]
 
-        let applied = overrides.apply(overSensitivities: timeline)
+        let applied = overrides.apply(over: timeline) { (value, override) in
+            value / override.settings.effectiveInsulinNeedsScaleFactor
+        }
 
         let times = applied.map { $0.startDate }
         let expectedTimes: [Date] = [.t(1), .t(1.5), .t(2)]

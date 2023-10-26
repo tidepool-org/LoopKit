@@ -106,7 +106,15 @@ public struct TemporaryScheduleOverride: Hashable {
         return date > actualEndDate
     }
 
-    public init(context: Context, settings: TemporaryScheduleOverrideSettings, startDate: Date, duration: Duration, enactTrigger: EnactTrigger, syncIdentifier: UUID, actualEnd: End = .natural) {
+    public init(
+        context: Context,
+        settings: TemporaryScheduleOverrideSettings,
+        startDate: Date,
+        duration: Duration,
+        enactTrigger: EnactTrigger,
+        syncIdentifier: UUID,
+        actualEnd: End = .natural
+    ) {
         precondition(duration.timeInterval > 0)
         self.context = context
         self.settings = settings
@@ -421,16 +429,20 @@ extension TemporaryScheduleOverride.EnactTrigger: Codable {
 
 extension Array where Element == TemporaryScheduleOverride {
 
-    func apply(overSensitivities sensitivities: [AbsoluteScheduleValue<Double>]) -> [AbsoluteScheduleValue<Double>] {
-        guard sensitivities.count > 0 else {
+    func apply<T>(
+        over timeline: [AbsoluteScheduleValue<T>],
+        transform: (T, TemporaryScheduleOverride) -> T
+    ) -> [AbsoluteScheduleValue<T>]
+    {
+        guard timeline.count > 0 else {
             return []
         }
 
-        var result: [AbsoluteScheduleValue<Double>] = []
+        var result: [AbsoluteScheduleValue<T>] = []
         var presetIndex = 0
 
-        for sensitivity in sensitivities {
-            var start = sensitivity.startDate
+        for entry in timeline {
+            var start = entry.startDate
 
             while presetIndex < self.count {
                 let preset = self[presetIndex]
@@ -442,32 +454,32 @@ extension Array where Element == TemporaryScheduleOverride {
                 }
 
                 if preset.isActive(at: start) {
-                    let newValue = sensitivity.value / preset.settings.effectiveInsulinNeedsScaleFactor
-                    let end = Swift.min(sensitivity.endDate, preset.actualEndDate)
+                    let newValue = transform(entry.value, preset)
+                    let end = Swift.min(entry.endDate, preset.actualEndDate)
                     result.append(AbsoluteScheduleValue(
                         startDate: start,
                         endDate: end,
                         value: newValue
                     ))
-                    if sensitivity.endDate > end {
+                    if entry.endDate > end {
                         presetIndex += 1
                     }
                     start = end
-                } else if preset.startDate < sensitivity.endDate {
+                } else if preset.startDate < entry.endDate {
                     result.append(AbsoluteScheduleValue(
                         startDate: start,
                         endDate: preset.startDate,
-                        value: sensitivity.value
+                        value: entry.value
                     ))
-                    let newValue = sensitivity.value / preset.settings.effectiveInsulinNeedsScaleFactor
-                    let endDate = Swift.min(sensitivity.endDate, preset.actualEndDate)
+                    let newValue = transform(entry.value, preset)
+                    let endDate = Swift.min(entry.endDate, preset.actualEndDate)
                     result.append(AbsoluteScheduleValue(
                         startDate: preset.startDate,
                         endDate: endDate,
                         value: newValue
                     ))
                     start = endDate
-                    if preset.actualEndDate > sensitivity.endDate {
+                    if preset.actualEndDate > entry.endDate {
                         break
                     }
                     presetIndex += 1
@@ -475,13 +487,13 @@ extension Array where Element == TemporaryScheduleOverride {
                     break
                 }
             }
-            if start < sensitivity.endDate {
+            if start < entry.endDate {
                 result.append(AbsoluteScheduleValue(
                     startDate: start,
-                    endDate: sensitivity.endDate,
-                    value: sensitivity.value
+                    endDate: entry.endDate,
+                    value: entry.value
                 ))
-                start = sensitivity.endDate
+                start = entry.endDate
             }
         }
         return result
