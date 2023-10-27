@@ -12,4 +12,5 @@ public struct LoopAlgorithmOutput {
     public var predictedGlucose: [PredictedGlucoseValue]
     public var effects: LoopAlgorithmEffects
     public var activeInsulin: Double
+    public var activeCarbs: Double
 }

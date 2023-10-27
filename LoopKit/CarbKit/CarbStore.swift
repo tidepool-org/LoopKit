@@ -1082,7 +1082,7 @@ extension CarbStore {
             {
                 return []
             }
-
+            
             return samples.map(
                 to: velocities,
                 carbRatio: carbRatio,
@@ -1097,10 +1097,7 @@ extension CarbStore {
             ).dynamicCarbsOnBoard(
                 from: start,
                 to: end,
-                defaultAbsorptionTime: defaultAbsorptionTimes.medium,
-                absorptionModel: settings.absorptionModel,
-                delay: delay,
-                delta: delta
+                absorptionModel: settings.absorptionModel
             )
         } else {
             return samples.carbsOnBoard(
