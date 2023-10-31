@@ -343,7 +343,7 @@ public struct DeliveryLimitsEditor: View {
         Task {
             do {
                 let result = try await syncDeliveryLimits(deliveryLimits)
-                actuallySave(deliveryLimits)
+                actuallySave(result)
             } catch {
                 Task { @MainActor in
                     completion(PresentedAlert.saveError(error))
