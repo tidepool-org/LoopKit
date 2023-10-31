@@ -287,4 +287,13 @@ public extension PumpManager {
             }
         }
     }
+
+    func syncDeliveryLimits(limits deliveryLimits: DeliveryLimits) async throws -> DeliveryLimits
+    {
+        return try await withCheckedThrowingContinuation { (continuation) in
+            syncDeliveryLimits(limits: deliveryLimits) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
 }
