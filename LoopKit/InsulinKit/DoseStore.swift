@@ -91,9 +91,6 @@ public final class DoseStore {
     }
     private let lockedInsulinModelProvider: Locked<InsulinModelProvider>
     
-    /// A history of recently applied schedule overrides.
-    private let overrideHistory: TemporaryScheduleOverrideHistory?
-
     public var basalProfile: BasalRateSchedule? {
         get {
             return lockedBasalProfile.value
@@ -107,42 +104,6 @@ public final class DoseStore {
         }
     }
     private let lockedBasalProfile: Locked<BasalRateSchedule?>
-
-    /// The basal profile, applying recent overrides relative to the current moment in time.
-    public var basalProfileApplyingOverrideHistory: BasalRateSchedule? {
-        if let basalProfile = basalProfile {
-            return overrideHistory?.resolvingRecentBasalSchedule(basalProfile) ?? basalProfile
-        } else {
-            return nil
-        }
-    }
-
-    public var insulinSensitivitySchedule: InsulinSensitivitySchedule? {
-        get {
-            return lockedInsulinSensitivitySchedule.value
-        }
-        set {
-            lockedInsulinSensitivitySchedule.value = newValue
-        }
-    }
-    private let lockedInsulinSensitivitySchedule: Locked<InsulinSensitivitySchedule?>
-
-    /// The insulin sensitivity schedule, applying recent overrides relative to the current moment in time.
-    public var insulinSensitivityScheduleApplyingOverrideHistory: InsulinSensitivitySchedule? {
-        if let insulinSensitivitySchedule = insulinSensitivitySchedule {
-            return overrideHistory?.resolvingRecentInsulinSensitivitySchedule(insulinSensitivitySchedule)
-        } else {
-            return nil
-        }
-    }
-
-    /// The computed EGP schedule based on the basal profile and insulin sensitivity schedule.
-    public var egpSchedule: EGPSchedule? {
-        guard let basalProfile = basalProfile, let insulinSensitivitySchedule = insulinSensitivitySchedule else {
-            return nil
-        }
-        return .egpSchedule(basalSchedule: basalProfile, insulinSensitivitySchedule: insulinSensitivitySchedule)
-    }
 
     public let insulinDeliveryStore: InsulinDeliveryStore
 
@@ -184,7 +145,6 @@ public final class DoseStore {
     ///   - longestEffectDuration: This determines the oldest age of doses to be retrieved for calculating glucose effects
     ///   - basalProfile: The daily schedule of basal insulin rates
     ///   - insulinSensitivitySchedule: The daily schedule of insulin sensitivity (ISF)
-    ///   - overrideHistory: A history of overrides to be used when calculating glucose effects
     ///   - syncVersion: A version number for determining resolution in de-duplication
     ///   - lastPumpEventsReconciliation: The date the PumpManger last reconciled with the pump
     ///   - provenanceIdentifier: An id to store with new doses, indicating the provenance of the dose, usually the app's bundle identifier.
@@ -195,13 +155,12 @@ public final class DoseStore {
         cacheStore: PersistenceController,
         cacheLength: TimeInterval = 24 /* hours */ * 60 /* minutes */ * 60 /* seconds */,
         insulinModelProvider: InsulinModelProvider,
-        longestEffectDuration: TimeInterval,
-        basalProfile: BasalRateSchedule?,
-        insulinSensitivitySchedule: InsulinSensitivitySchedule?,
-        overrideHistory: TemporaryScheduleOverrideHistory? = nil,
+        longestEffectDuration: TimeInterval = InsulinMath.longestInsulinActivityDuration,
+        basalProfile: BasalRateSchedule? = nil,
+        insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
         syncVersion: Int = 1,
         lastPumpEventsReconciliation: Date? = nil,
-        provenanceIdentifier: String,
+        provenanceIdentifier: String = HKSource.default().bundleIdentifier,
         onReady: ((DoseStoreError?) -> Void)? = nil,
         test_currentDate: Date? = nil
     ) {
@@ -212,11 +171,9 @@ public final class DoseStore {
             provenanceIdentifier: provenanceIdentifier,
             test_currentDate: test_currentDate
         )
-        self.lockedInsulinSensitivitySchedule = Locked(insulinSensitivitySchedule)
         self.lockedInsulinModelProvider = Locked(insulinModelProvider)
         self.longestEffectDuration = longestEffectDuration
         self.lockedBasalProfile = Locked(basalProfile)
-        self.overrideHistory = overrideHistory
         self.persistenceController = cacheStore
         self.cacheLength = cacheLength
         self.syncVersion = syncVersion
@@ -467,7 +424,7 @@ extension DoseStore {
             reservoir.date = date
 
             let previousValue = self.lastStoredReservoirValue
-            if let basalProfile = self.basalProfileApplyingOverrideHistory {
+            if let basalProfile = self.basalProfile {
                 var newValues: [StoredReservoirValue] = []
 
                 if let previousValue = previousValue {
@@ -566,7 +523,7 @@ extension DoseStore {
         if let normalizedDoses = self.recentReservoirNormalizedDoseEntriesCache, let firstDoseDate = normalizedDoses.first?.startDate, firstDoseDate <= start {
             return normalizedDoses.filterDateRange(start, end)
         } else {
-            guard let basalProfile = self.basalProfileApplyingOverrideHistory else {
+            guard let basalProfile = self.basalProfile else {
                 throw DoseStoreError.configurationError
             }
 
@@ -983,7 +940,7 @@ extension DoseStore {
                 return
             }
 
-            guard let basalSchedule = self.basalProfileApplyingOverrideHistory else {
+            guard let basalSchedule = self.basalProfile else {
                 self.log.error("Can't save %d doses to insulin delivery store because no basal profile is configured", doses.count)
                 completion(.failure(DoseStoreError.configurationError))
                 return
@@ -1094,7 +1051,7 @@ extension DoseStore {
     /// - Returns: An array of doses from pump events that were marked mutable
     /// - Throws: An error describing the failure to fetch objects
     private func getNormalizedMutablePumpEventDoseEntries(start: Date) throws -> [DoseEntry] {
-        guard let basalProfile = self.basalProfileApplyingOverrideHistory else {
+        guard let basalProfile = self.basalProfile else {
             throw DoseStoreError.configurationError
         }
 
@@ -1191,7 +1148,7 @@ extension DoseStore {
     ///   - result: An array of dose entries, in chronological order by startDate
     public func getNormalizedDoseEntries(start: Date, end: Date? = nil, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void) {
 
-        guard let basalProfile = self.basalProfileApplyingOverrideHistory else {
+        guard let basalProfile = self.basalProfile else {
             completion(.failure(.configurationError))
             return
         }
@@ -1326,41 +1283,6 @@ extension DoseStore {
         }
     }
 
-    /// Retrieves a timeline of effect on blood glucose from doses
-    ///
-    /// This operation is performed asynchronously and the completion will be executed on an arbitrary background queue.
-    ///
-    /// - Parameters:
-    ///   - start: The earliest date of effects to retrieve
-    ///   - end: The latest date of effects to retrieve, if provided
-    ///   - basalDosingEnd: The date at which continuing doses should be assumed to be cancelled
-    ///   - completion: A closure called once the effects have been retrieved
-    ///   - result: An array of effects, in chronological order
-    public func getGlucoseEffects(start: Date, end: Date? = nil, basalDosingEnd: Date? = Date(), completion: @escaping (_ result: DoseStoreResult<[GlucoseEffect]>) -> Void) {
-        guard let insulinSensitivitySchedule = self.insulinSensitivityScheduleApplyingOverrideHistory else {
-            completion(.failure(.configurationError))
-            return
-        }
-
-        // To properly know glucose effects at startDate, we need to go back another DIA hours
-        let doseStart = start.addingTimeInterval(-longestEffectDuration)
-        getNormalizedDoseEntries(start: doseStart, end: end) { (result) in
-            switch result {
-            case .failure(let error):
-                completion(.failure(error))
-            case .success(let doses):
-                let trimmedDoses = doses.map { (dose) -> DoseEntry in
-                    guard dose.type != .bolus else {
-                        return dose
-                    }
-                    return dose.trimmed(to: basalDosingEnd)
-                }
-
-                let glucoseEffects = trimmedDoses.glucoseEffects(insulinModelProvider: self.insulinModelProvider, longestEffectDuration: self.longestEffectDuration, insulinSensitivity: insulinSensitivitySchedule, from: start, to: end)
-                completion(.success(glucoseEffects.filterDateRange(start, end)))
-            }
-        }
-    }
 
     /// Retrieves the estimated total number of units delivered since the specified date.
     ///
@@ -1401,11 +1323,6 @@ extension DoseStore {
             "",
             "* insulinModelProvider: \(String(reflecting: insulinModelProvider))",
             "* basalProfile: \(basalProfile?.debugDescription ?? "")",
-            "* basalProfileApplyingOverrideHistory \(basalProfileApplyingOverrideHistory?.debugDescription ?? "nil")",
-            "* insulinSensitivitySchedule: \(insulinSensitivitySchedule?.debugDescription ?? "")",
-            "* insulinSensitivityScheduleApplyingOverrideHistory \(insulinSensitivityScheduleApplyingOverrideHistory?.debugDescription ?? "nil")",
-            "* overrideHistory: \(overrideHistory.map(String.init(describing:)) ?? "nil")",
-            "* egpSchedule: \(egpSchedule?.debugDescription ?? "nil")",
             "* areReservoirValuesValid: \(areReservoirValuesValid)",
             "* lastPumpEventsReconciliation: \(String(describing: lastPumpEventsReconciliation))",
             "* lastStoredReservoirValue: \(String(describing: lastStoredReservoirValue))",

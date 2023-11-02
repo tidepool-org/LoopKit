@@ -148,7 +148,7 @@ public final class GlucoseStore {
         cacheStore: PersistenceController,
         cacheLength: TimeInterval = 60 /* minutes */ * 60 /* seconds */,
         momentumDataInterval: TimeInterval = GlucoseMath.momentumDataInterval,
-        provenanceIdentifier: String
+        provenanceIdentifier: String = HKSource.default().bundleIdentifier
     ) {
         let cacheLength = max(cacheLength, momentumDataInterval)
 

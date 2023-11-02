@@ -68,6 +68,7 @@ public protocol TemporaryScheduleOverrideHistoryDelegate: AnyObject {
 }
 
 public final class TemporaryScheduleOverrideHistory {
+
     public struct QueryAnchor: RawRepresentable {
         public typealias RawValue = [String: Any]
 

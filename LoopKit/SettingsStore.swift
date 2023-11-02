@@ -295,8 +295,6 @@ public struct StoredSettings: Equatable {
     public let preMealTargetRange: ClosedRange<HKQuantity>?
     public let workoutTargetRange: ClosedRange<HKQuantity>?
     public let overridePresets: [TemporaryScheduleOverridePreset]?
-    public let scheduleOverride: TemporaryScheduleOverride?
-    public let preMealOverride: TemporaryScheduleOverride?
     public let maximumBasalRatePerHour: Double?
     public let maximumBolus: Double?
     public let suspendThreshold: GlucoseThreshold?
@@ -322,8 +320,6 @@ public struct StoredSettings: Equatable {
                 preMealTargetRange: ClosedRange<HKQuantity>? = nil,
                 workoutTargetRange: ClosedRange<HKQuantity>? = nil,
                 overridePresets: [TemporaryScheduleOverridePreset]? = nil,
-                scheduleOverride: TemporaryScheduleOverride? = nil,
-                preMealOverride: TemporaryScheduleOverride? = nil,
                 maximumBasalRatePerHour: Double? = nil,
                 maximumBolus: Double? = nil,
                 suspendThreshold: GlucoseThreshold? = nil,
@@ -347,8 +343,6 @@ public struct StoredSettings: Equatable {
         self.preMealTargetRange = preMealTargetRange
         self.workoutTargetRange = workoutTargetRange
         self.overridePresets = overridePresets
-        self.scheduleOverride = scheduleOverride
-        self.preMealOverride = preMealOverride
         self.maximumBasalRatePerHour = maximumBasalRatePerHour
         self.maximumBolus = maximumBolus
         self.suspendThreshold = suspendThreshold
@@ -381,8 +375,6 @@ extension StoredSettings: Codable {
                   preMealTargetRange: try container.decodeIfPresent(DoubleRange.self, forKey: .preMealTargetRange)?.quantityRange(for: bloodGlucoseUnit),
                   workoutTargetRange: try container.decodeIfPresent(DoubleRange.self, forKey: .workoutTargetRange)?.quantityRange(for: bloodGlucoseUnit),
                   overridePresets: try container.decodeIfPresent([TemporaryScheduleOverridePreset].self, forKey: .overridePresets),
-                  scheduleOverride: try container.decodeIfPresent(TemporaryScheduleOverride.self, forKey: .scheduleOverride),
-                  preMealOverride: try container.decodeIfPresent(TemporaryScheduleOverride.self, forKey: .preMealOverride),
                   maximumBasalRatePerHour: try container.decodeIfPresent(Double.self, forKey: .maximumBasalRatePerHour),
                   maximumBolus: try container.decodeIfPresent(Double.self, forKey: .maximumBolus),
                   suspendThreshold: try container.decodeIfPresent(GlucoseThreshold.self, forKey: .suspendThreshold),
@@ -411,8 +403,6 @@ extension StoredSettings: Codable {
         try container.encodeIfPresent(preMealTargetRange?.doubleRange(for: bloodGlucoseUnit), forKey: .preMealTargetRange)
         try container.encodeIfPresent(workoutTargetRange?.doubleRange(for: bloodGlucoseUnit), forKey: .workoutTargetRange)
         try container.encodeIfPresent(overridePresets, forKey: .overridePresets)
-        try container.encodeIfPresent(scheduleOverride, forKey: .scheduleOverride)
-        try container.encodeIfPresent(preMealOverride, forKey: .preMealOverride)
         try container.encodeIfPresent(maximumBasalRatePerHour, forKey: .maximumBasalRatePerHour)
         try container.encodeIfPresent(maximumBolus, forKey: .maximumBolus)
         try container.encodeIfPresent(suspendThreshold, forKey: .suspendThreshold)
