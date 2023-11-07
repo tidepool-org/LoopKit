@@ -280,6 +280,7 @@ public extension PumpManager {
         }
     }
 
+    @discardableResult
     func ensureCurrentPumpData() async -> Date? {
         await withCheckedContinuation { (continuation) in
             ensureCurrentPumpData { lastSync in

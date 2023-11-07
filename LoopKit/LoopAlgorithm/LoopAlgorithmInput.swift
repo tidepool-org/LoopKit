@@ -76,8 +76,9 @@ public struct LoopAlgorithmInput {
         useIntegralRetrospectiveCorrection: Bool = false,
         carbAbsorptionModel: CarbAbsorptionModel = .piecewiseLinear,
         recommendationInsulinType: InsulinType,
-        recommendationType: DoseRecommendationType)
-    {
+        recommendationType: DoseRecommendationType,
+        automaticBolusApplicationFactor: Double? = nil
+    ) {
         self.predictionStart = predictionStart
         self.glucoseHistory = glucoseHistory
         self.doses = doses
@@ -93,6 +94,7 @@ public struct LoopAlgorithmInput {
         self.carbAbsorptionModel = carbAbsorptionModel
         self.recommendationInsulinType = recommendationInsulinType
         self.recommendationType = recommendationType
+        self.automaticBolusApplicationFactor = automaticBolusApplicationFactor
     }
 }
 

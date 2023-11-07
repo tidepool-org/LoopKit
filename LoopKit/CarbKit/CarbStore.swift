@@ -12,16 +12,11 @@ import HealthKit
 import os.log
 
 
-public enum CarbStoreResult<T> {
-    case success(T)
-    case failure(CarbStore.CarbStoreError)
-}
-
 public enum CarbAbsorptionModel {
     case linear
     case piecewiseLinear
 
-    var model: CarbAbsorptionComputable {
+    public var model: CarbAbsorptionComputable {
         switch self {
         case .linear:
             return LinearAbsorption()
@@ -321,7 +316,7 @@ extension CarbStore {
     ///   - end: The latest date of values to retrieve, if provided
     ///   - completion: A closure called once the values have been retrieved
     ///   - result: An array of carb entries, in chronological order by startDate, or error
-    public func getCarbEntries(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: CarbStoreResult<[StoredCarbEntry]>) -> Void) {
+    public func getCarbEntries(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[StoredCarbEntry], Error>) -> Void) {
         queue.async {
             completion(self.getCarbEntries(start: start, end: end))
         }
@@ -333,7 +328,7 @@ extension CarbStore {
     ///   - start: The earliest date of values to retrieve
     ///   - end: The latest date of values to retrieve, if provided
     /// - Returns: An array of carb entries, in chronological order by startDate, or error
-    private func getCarbEntries(start: Date? = nil, end: Date? = nil) -> CarbStoreResult<[StoredCarbEntry]> {
+    private func getCarbEntries(start: Date? = nil, end: Date? = nil) -> Result<[StoredCarbEntry], Error> {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var entries: [StoredCarbEntry] = []
@@ -384,7 +379,16 @@ extension CarbStore {
 // MARK: - Modification
 
 extension CarbStore {
-    public func addCarbEntry(_ entry: NewCarbEntry, completion: @escaping (_ result: CarbStoreResult<StoredCarbEntry>) -> Void) {
+
+    public func addCarbEntry(_ entry: NewCarbEntry) async throws -> StoredCarbEntry {
+        try await withCheckedThrowingContinuation { continuation in
+            addCarbEntry(entry) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func addCarbEntry(_ entry: NewCarbEntry, completion: @escaping (_ result: Result<StoredCarbEntry,Error>) -> Void) {
         queue.async {
             var storedEntry: StoredCarbEntry?
             var error: CarbStoreError?
@@ -423,9 +427,17 @@ extension CarbStore {
         }
     }
 
-    public func replaceCarbEntry(_ oldEntry: StoredCarbEntry, withEntry newEntry: NewCarbEntry, completion: @escaping (_ result: CarbStoreResult<StoredCarbEntry>) -> Void) {
+    public func replaceCarbEntry(_ oldEntry: StoredCarbEntry, withEntry newEntry: NewCarbEntry) async throws -> StoredCarbEntry {
+        try await withCheckedThrowingContinuation { continuation in
+            replaceCarbEntry(oldEntry, withEntry: newEntry) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func replaceCarbEntry(_ oldEntry: StoredCarbEntry, withEntry newEntry: NewCarbEntry, completion: @escaping (_ result: Result<StoredCarbEntry,Error>) -> Void) {
         guard oldEntry.createdByCurrentApp else {
-            completion(.failure(.unauthorized))
+            completion(.failure(CarbStoreError.unauthorized))
             return
         }
 
@@ -505,9 +517,17 @@ extension CarbStore {
         }
     }
 
-    public func deleteCarbEntry(_ oldEntry: StoredCarbEntry, completion: @escaping (_ result: CarbStoreResult<Bool>) -> Void) {
+    public func deleteCarbEntry(_ oldEntry: StoredCarbEntry) async throws -> Bool {
+        try await withCheckedThrowingContinuation { continuation in
+            deleteCarbEntry(oldEntry) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func deleteCarbEntry(_ oldEntry: StoredCarbEntry, completion: @escaping (_ result: Result<Bool,Error>) -> Void) {
         guard oldEntry.createdByCurrentApp else {
-            completion(.failure(.unauthorized))
+            completion(.failure(CarbStoreError.unauthorized))
             return
         }
 
@@ -685,7 +705,7 @@ extension CarbStore {
 extension CarbStore {
 
     /// Get carb objects in main app for syncing to another store
-    public func getSyncCarbObjects(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: CarbStoreResult<[SyncCarbObject]>) -> Void) {
+    public func getSyncCarbObjects(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[SyncCarbObject],Error>) -> Void) {
         queue.async {
             var objects: [SyncCarbObject] = []
             var error: CarbStoreError?
@@ -912,7 +932,7 @@ extension CarbStore {
     ///   - start: The earliest date of samples to include.
     ///   - completion: A closure called once the value has been retrieved.
     ///   - result: The total carbs recorded and the date of the first sample
-    public func getTotalCarbs(since start: Date, completion: @escaping (_ result: CarbStoreResult<CarbValue>) -> Void) {
+    public func getTotalCarbs(since start: Date, completion: @escaping (_ result: Result<CarbValue,Error>) -> Void) {
         getCarbEntries(start: start) { (result) in
             switch result {
             case .success(let samples):
@@ -924,6 +944,14 @@ extension CarbStore {
                 completion(.success(total))
             case .failure(let error):
                 completion(.failure(error))
+            }
+        }
+    }
+
+    public func getTotalCarbs(since start: Date) async throws -> CarbValue {
+        try await withCheckedThrowingContinuation { continuation in
+            getTotalCarbs(since: start) { result in
+                continuation.resume(with: result)
             }
         }
     }
@@ -1140,59 +1168,59 @@ extension CarbStore {
     /// This operation is performed asynchronously and the completion will be executed on an arbitrary background queue.
     ///
     /// - parameter completionHandler: A closure called once the report has been generated. The closure takes a single argument of the report string.
-    public func generateDiagnosticReport(_ completionHandler: @escaping (_ report: String) -> Void) {
-        queue.async {
+    public func generateDiagnosticReport() async -> String {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                var carbAbsorptionModel: String
+                switch self.carbAbsorptionModel {
+                case .linear:
+                    carbAbsorptionModel = "Linear"
+                case .piecewiseLinear:
+                    carbAbsorptionModel = "Nonlinear"
+                }
 
-            var carbAbsorptionModel: String
-            switch self.carbAbsorptionModel {
-            case .linear:
-                carbAbsorptionModel = "Linear"
-            case .piecewiseLinear:
-                carbAbsorptionModel = "Nonlinear"
+                var report: [String] = [
+                    "## CarbStore",
+                    "",
+                    "* cacheLength: \(self.cacheLength)",
+                    "* defaultAbsorptionTimes: \(self.defaultAbsorptionTimes)",
+                    "* delay: \(self.delay)",
+                    "* delta: \(self.delta)",
+                    "* absorptionTimeOverrun: \(self.absorptionTimeOverrun)",
+                    "* carbAbsorptionModel: \(carbAbsorptionModel)",
+                    "* Carb absorption model settings: \(self.settings)",
+                    "* HealthKit Sample Store: \(self.hkSampleStore?.debugDescription ?? "nil")",
+                    "",
+                    "cachedCarbEntries:"
+                ]
+
+                switch self.getCarbEntries() {
+                case .failure(let error):
+                    report.append("Error: \(error)")
+                case .success(let entries):
+                    report.append("[")
+                    report.append("\tStoredCarbEntry(uuid, provenanceIdentifier, syncIdentifier, syncVersion, startDate, quantity, foodType, absorptionTime, createdByCurrentApp, userCreatedDate, userUpdatedDate)")
+                    report.append(entries.map({ (entry) -> String in
+                        return [
+                            "\t",
+                            entry.uuid?.uuidString ?? "",
+                            entry.provenanceIdentifier,
+                            entry.syncIdentifier ?? "",
+                            entry.syncVersion != nil ? String(describing: entry.syncVersion) : "",
+                            String(describing: entry.startDate),
+                            String(describing: entry.quantity),
+                            entry.foodType ?? "",
+                            String(describing: entry.absorptionTime ?? self.defaultAbsorptionTimes.medium),
+                            String(describing: entry.createdByCurrentApp),
+                            entry.userCreatedDate != nil ? String(describing: entry.userCreatedDate) : "",
+                            entry.userUpdatedDate != nil ? String(describing: entry.userUpdatedDate) : "",
+                        ].joined(separator: ", ")
+                    }).joined(separator: "\n"))
+                    report.append("]")
+                    report.append("")
+                }
+                continuation.resume(returning: report.joined(separator: "\n"))
             }
-
-            var report: [String] = [
-                "## CarbStore",
-                "",
-                "* cacheLength: \(self.cacheLength)",
-                "* defaultAbsorptionTimes: \(self.defaultAbsorptionTimes)",
-                "* delay: \(self.delay)",
-                "* delta: \(self.delta)",
-                "* absorptionTimeOverrun: \(self.absorptionTimeOverrun)",
-                "* carbAbsorptionModel: \(carbAbsorptionModel)",
-                "* Carb absorption model settings: \(self.settings)",
-                "* HealthKit Sample Store: \(self.hkSampleStore?.debugDescription ?? "nil")",
-                "",
-                "cachedCarbEntries:"
-            ]
-
-            switch self.getCarbEntries() {
-            case .failure(let error):
-                report.append("Error: \(error)")
-            case .success(let entries):
-                report.append("[")
-                report.append("\tStoredCarbEntry(uuid, provenanceIdentifier, syncIdentifier, syncVersion, startDate, quantity, foodType, absorptionTime, createdByCurrentApp, userCreatedDate, userUpdatedDate)")
-                report.append(entries.map({ (entry) -> String in
-                    return [
-                        "\t",
-                        entry.uuid?.uuidString ?? "",
-                        entry.provenanceIdentifier,
-                        entry.syncIdentifier ?? "",
-                        entry.syncVersion != nil ? String(describing: entry.syncVersion) : "",
-                        String(describing: entry.startDate),
-                        String(describing: entry.quantity),
-                        entry.foodType ?? "",
-                        String(describing: entry.absorptionTime ?? self.defaultAbsorptionTimes.medium),
-                        String(describing: entry.createdByCurrentApp),
-                        entry.userCreatedDate != nil ? String(describing: entry.userCreatedDate) : "",
-                        entry.userUpdatedDate != nil ? String(describing: entry.userUpdatedDate) : "",
-                    ].joined(separator: ", ")
-                }).joined(separator: "\n"))
-                report.append("]")
-                report.append("")
-            }
-
-            completionHandler(report.joined(separator: "\n"))
         }
     }
 }

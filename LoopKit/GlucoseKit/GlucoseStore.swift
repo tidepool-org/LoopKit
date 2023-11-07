@@ -423,7 +423,16 @@ extension GlucoseStore {
             completion(.success(storedSamples))
         }
     }
-    
+
+    public func addGlucoseSamples(_ samples: [NewGlucoseSample]) async throws -> [StoredGlucoseSample] {
+        try await withCheckedThrowingContinuation { continuation in
+            addGlucoseSamples(samples) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+
     private func saveSamplesToHealthKit() {
         dispatchPrecondition(condition: .onQueue(queue))
         var error: Error?
@@ -947,32 +956,34 @@ extension GlucoseStore {
     /// This operation is performed asynchronously and the completion will be executed on an arbitrary background queue.
     ///
     /// - parameter completionHandler: A closure called once the report has been generated. The closure takes a single argument of the report string.
-    public func generateDiagnosticReport(_ completionHandler: @escaping (_ report: String) -> Void) {
-        queue.async {
-            var report: [String] = [
-                "## GlucoseStore",
-                "",
-                "* latestGlucoseValue: \(String(reflecting: self.latestGlucose))",
-                "* managedDataInterval: \(self.managedDataInterval ?? 0)",
-                "* cacheLength: \(self.cacheLength)",
-                "* momentumDataInterval: \(self.momentumDataInterval)",
-                "* HealthKitSampleStore: \(self.hkSampleStore?.debugDescription ?? "nil")",
-                "",
-                "### cachedGlucoseSamples",
-            ]
+    public func generateDiagnosticReport() async -> String {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                var report: [String] = [
+                    "## GlucoseStore",
+                    "",
+                    "* latestGlucoseValue: \(String(reflecting: self.latestGlucose))",
+                    "* managedDataInterval: \(self.managedDataInterval ?? 0)",
+                    "* cacheLength: \(self.cacheLength)",
+                    "* momentumDataInterval: \(self.momentumDataInterval)",
+                    "* HealthKitSampleStore: \(self.hkSampleStore?.debugDescription ?? "nil")",
+                    "",
+                    "### cachedGlucoseSamples",
+                ]
 
-            switch self.getGlucoseSamples(start: Date(timeIntervalSinceNow: -.hours(24))) {
-            case .failure(let error):
-                report.append("Error: \(error)")
-            case .success(let samples):
-                for sample in samples {
-                    report.append(String(describing: sample))
+                switch self.getGlucoseSamples(start: Date(timeIntervalSinceNow: -.hours(24))) {
+                case .failure(let error):
+                    report.append("Error: \(error)")
+                case .success(let samples):
+                    for sample in samples {
+                        report.append(String(describing: sample))
+                    }
                 }
+
+                report.append("")
+
+                continuation.resume(returning: report.joined(separator: "\n"))
             }
-
-            report.append("")
-
-            completionHandler(report.joined(separator: "\n"))
         }
     }
 }

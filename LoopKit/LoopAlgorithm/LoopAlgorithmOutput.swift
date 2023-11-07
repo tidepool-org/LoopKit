@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import HealthKit
 
 public struct LoopAlgorithmOutput {
-    public var doseRecommendation: LoopAlgorithmDoseRecommendation
+    public var recommendationResult: Result<LoopAlgorithmDoseRecommendation,Error>
     public var predictedGlucose: [PredictedGlucoseValue]
     public var effects: LoopAlgorithmEffects
-    public var activeInsulin: Double
-    public var activeCarbs: Double
+    public var activeInsulin: Double?
+    public var activeCarbs: Double?
 }
