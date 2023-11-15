@@ -1304,21 +1304,22 @@ extension DoseStore {
     ///   - startDate: The date after which delivery should be calculated
     ///   - completion: A closure called once the total has been retrieved with arguments:
     ///   - result: The total units delivered and the date of the first dose
-    public func getTotalUnitsDelivered(since startDate: Date, completion: @escaping (_ result: DoseStoreResult<InsulinValue>) -> Void) {
-        persistenceController.managedObjectContext.perform {
-
-            self.getNormalizedDoseEntries(start: startDate) { (result) in
-                switch result {
-                case .success(let doses):
-                    let trimmedDoses = doses.map { $0.trimmed(from: startDate, to: self.currentDate())}
-                    let result = InsulinValue(
-                        startDate: startDate,
-                        value: trimmedDoses.totalDelivery
-                    )
-
-                    completion(.success(result))
-                case .failure(let error):
-                    completion(.failure(error))
+    public func getTotalUnitsDelivered(since startDate: Date) async throws -> InsulinValue
+    {
+        try await withCheckedThrowingContinuation { continuation in
+            persistenceController.managedObjectContext.perform {
+                self.getNormalizedDoseEntries(start: startDate) { (result) in
+                    switch result {
+                    case .success(let doses):
+                        let trimmedDoses = doses.map { $0.trimmed(from: startDate, to: self.currentDate())}
+                        let result = InsulinValue(
+                            startDate: startDate,
+                            value: trimmedDoses.totalDelivery
+                        )
+                        continuation.resume(returning: result)
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
         }

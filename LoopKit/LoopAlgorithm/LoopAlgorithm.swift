@@ -20,6 +20,7 @@ public enum AlgorithmError: Error {
 public struct LoopAlgorithmEffects {
     public var insulin: [GlucoseEffect]
     public var carbs: [GlucoseEffect]
+    public var carbStatus: [CarbStatus<StoredCarbEntry>]
     public var retrospectiveCorrection: [GlucoseEffect]
     public var momentum: [GlucoseEffect]
     public var insulinCounteraction: [GlucoseEffectVelocity]
@@ -46,6 +47,7 @@ public struct AlgorithmEffectsOptions: OptionSet {
 public struct LoopPrediction {
     public var glucose: [PredictedGlucoseValue]
     public var effects: LoopAlgorithmEffects
+    public var dosesRelativeToBasal: [DoseEntry]
     public var activeInsulin: Double?
     public var activeCarbs: Double?
 }
@@ -102,91 +104,96 @@ public struct LoopAlgorithm {
         var totalGlucoseCorrectionEffect: HKQuantity?
         var activeInsulin: Double?
         var activeCarbs: Double?
+        var carbStatus: [CarbStatus<StoredCarbEntry>] = []
+        var dosesRelativeToBasal: [DoseEntry] = []
+
 
         // Ensure basal history covers doses
         if let doseStart = doses.first?.startDate, !basal.isEmpty, basal.first!.startDate <= doseStart {
             // Overlay basal history on basal doses, splitting doses to get amount delivered relative to basal
-            let annotatedDoses = doses.annotated(with: basal)
+            dosesRelativeToBasal = doses.annotated(with: basal)
 
-            insulinEffects = annotatedDoses.glucoseEffects(
+            insulinEffects = dosesRelativeToBasal.glucoseEffects(
                 insulinModelProvider: insulinModelProvider,
                 insulinSensitivityHistory: sensitivity,
                 from: start.addingTimeInterval(-CarbMath.maximumAbsorptionTimeInterval).dateFlooredToTimeInterval(GlucoseMath.defaultDelta),
                 to: nil)
 
-            activeInsulin = doses.insulinOnBoard(insulinModelProvider: insulinModelProvider, at: start)
+            activeInsulin = dosesRelativeToBasal.insulinOnBoard(insulinModelProvider: insulinModelProvider, at: start)
 
             // ICE
             insulinCounteractionEffects = glucoseHistory.counteractionEffects(to: insulinEffects)
+        } else {
+            activeInsulin = 0
+        }
 
-            // Carb Effects
-            let carbStatus = carbEntries.map(
-                to: insulinCounteractionEffects,
-                carbRatio: carbRatio,
-                insulinSensitivity: sensitivity
+        // Carb Effects
+        carbStatus = carbEntries.map(
+            to: insulinCounteractionEffects,
+            carbRatio: carbRatio,
+            insulinSensitivity: sensitivity
+        )
+
+        carbEffects = carbStatus.dynamicGlucoseEffects(
+            from: start.addingTimeInterval(-IntegralRetrospectiveCorrection.retrospectionInterval),
+            carbRatios: carbRatio,
+            insulinSensitivities: sensitivity,
+            absorptionModel: carbAbsorptionModel
+        )
+
+        activeCarbs = carbStatus.dynamicCarbsOnBoard(at: start, absorptionModel: carbAbsorptionModel)
+
+        // RC
+        let retrospectiveGlucoseDiscrepancies = insulinCounteractionEffects.subtracting(carbEffects)
+        retrospectiveGlucoseDiscrepanciesSummed = retrospectiveGlucoseDiscrepancies.combinedSums(of: LoopMath.retrospectiveCorrectionGroupingInterval * 1.01)
+
+        let rc: RetrospectiveCorrection
+
+        if useIntegralRetrospectiveCorrection {
+            rc = IntegralRetrospectiveCorrection(effectDuration: LoopMath.retrospectiveCorrectionEffectDuration)
+        } else {
+            rc = StandardRetrospectiveCorrection(effectDuration: LoopMath.retrospectiveCorrectionEffectDuration)
+        }
+
+        if let latestGlucose = glucoseHistory.last {
+            retrospectiveCorrectionEffects = rc.computeEffect(
+                startingAt: latestGlucose,
+                retrospectiveGlucoseDiscrepanciesSummed: retrospectiveGlucoseDiscrepanciesSummed,
+                recencyInterval: TimeInterval(minutes: 15),
+                retrospectiveCorrectionGroupingInterval: LoopMath.retrospectiveCorrectionGroupingInterval
             )
 
-            carbEffects = carbStatus.dynamicGlucoseEffects(
-                from: start.addingTimeInterval(-IntegralRetrospectiveCorrection.retrospectionInterval),
-                carbRatios: carbRatio,
-                insulinSensitivities: sensitivity,
-                absorptionModel: carbAbsorptionModel
-            )
+            totalGlucoseCorrectionEffect = rc.totalGlucoseCorrectionEffect
 
-            activeCarbs = carbStatus.dynamicCarbsOnBoard(at: start, absorptionModel: carbAbsorptionModel)
+            var effects = [[GlucoseEffect]]()
 
-            // RC
-            let retrospectiveGlucoseDiscrepancies = insulinCounteractionEffects.subtracting(carbEffects)
-            retrospectiveGlucoseDiscrepanciesSummed = retrospectiveGlucoseDiscrepancies.combinedSums(of: LoopMath.retrospectiveCorrectionGroupingInterval * 1.01)
-
-            let rc: RetrospectiveCorrection
-
-            if useIntegralRetrospectiveCorrection {
-                rc = IntegralRetrospectiveCorrection(effectDuration: LoopMath.retrospectiveCorrectionEffectDuration)
-            } else {
-                rc = StandardRetrospectiveCorrection(effectDuration: LoopMath.retrospectiveCorrectionEffectDuration)
+            if algorithmEffectsOptions.contains(.carbs) {
+                effects.append(carbEffects)
             }
 
-            if let latestGlucose = glucoseHistory.last {
-                retrospectiveCorrectionEffects = rc.computeEffect(
-                    startingAt: latestGlucose,
-                    retrospectiveGlucoseDiscrepanciesSummed: retrospectiveGlucoseDiscrepanciesSummed,
-                    recencyInterval: TimeInterval(minutes: 15),
-                    retrospectiveCorrectionGroupingInterval: LoopMath.retrospectiveCorrectionGroupingInterval
-                )
+            if algorithmEffectsOptions.contains(.insulin) {
+                effects.append(insulinEffects)
+            }
 
-                totalGlucoseCorrectionEffect = rc.totalGlucoseCorrectionEffect
+            if algorithmEffectsOptions.contains(.retrospection) {
+                effects.append(retrospectiveCorrectionEffects)
+            }
 
-                var effects = [[GlucoseEffect]]()
+            // Glucose Momentum
+            if algorithmEffectsOptions.contains(.momentum) {
+                let momentumInputData = glucoseHistory.filterDateRange(start.addingTimeInterval(-GlucoseMath.momentumDataInterval), start)
+                momentumEffects = momentumInputData.linearMomentumEffect()
+            } else {
+                momentumEffects = []
+            }
 
-                if algorithmEffectsOptions.contains(.carbs) {
-                    effects.append(carbEffects)
-                }
+            prediction = LoopMath.predictGlucose(startingAt: latestGlucose, momentum: momentumEffects, effects: effects)
 
-                if algorithmEffectsOptions.contains(.insulin) {
-                    effects.append(insulinEffects)
-                }
-
-                if algorithmEffectsOptions.contains(.retrospection) {
-                    effects.append(retrospectiveCorrectionEffects)
-                }
-
-                // Glucose Momentum
-                if algorithmEffectsOptions.contains(.momentum) {
-                    let momentumInputData = glucoseHistory.filterDateRange(start.addingTimeInterval(-GlucoseMath.momentumDataInterval), start)
-                    momentumEffects = momentumInputData.linearMomentumEffect()
-                } else {
-                    momentumEffects = []
-                }
-
-                prediction = LoopMath.predictGlucose(startingAt: latestGlucose, momentum: momentumEffects, effects: effects)
-
-                // Dosing requires prediction entries at least as long as the insulin model duration.
-                // If our prediction is shorter than that, then extend it here.
-                let finalDate = latestGlucose.startDate.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration)
-                if let last = prediction.last, last.startDate < finalDate {
-                    prediction.append(PredictedGlucoseValue(startDate: finalDate, quantity: last.quantity))
-                }
+            // Dosing requires prediction entries at least as long as the insulin model duration.
+            // If our prediction is shorter than that, then extend it here.
+            let finalDate = latestGlucose.startDate.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration)
+            if let last = prediction.last, last.startDate < finalDate {
+                prediction.append(PredictedGlucoseValue(startDate: finalDate, quantity: last.quantity))
             }
         }
 
@@ -195,12 +202,14 @@ public struct LoopAlgorithm {
             effects: LoopAlgorithmEffects(
                 insulin: insulinEffects,
                 carbs: carbEffects,
+                carbStatus: carbStatus,
                 retrospectiveCorrection: retrospectiveCorrectionEffects,
                 momentum: momentumEffects,
                 insulinCounteraction: insulinCounteractionEffects,
                 retrospectiveGlucoseDiscrepancies: retrospectiveGlucoseDiscrepanciesSummed,
                 totalGlucoseCorrectionEffect: totalGlucoseCorrectionEffect
-            ),
+            ), 
+            dosesRelativeToBasal: dosesRelativeToBasal,
             activeInsulin: activeInsulin,
             activeCarbs: activeCarbs
         )
@@ -341,14 +350,25 @@ public struct LoopAlgorithm {
     }
 
     public static func run(input: LoopAlgorithmInput, effectOptions: AlgorithmEffectsOptions = .all) -> LoopAlgorithmOutput {
+
+        // If we're running for automated dosing, we calculate a dose assuming that the current temp basal will be canceled
+        let inputDoses: [DoseEntry]
+
+        if input.recommendationType.automated {
+            inputDoses = input.doses.trimmed(to: input.predictionStart, onlyTrimTempBasals: true)
+        } else {
+            inputDoses = input.doses
+        }
+
         // `generatePrediction` does a best-try to generate a prediction and associated effects.
         // Outputs may be incomplete, if there are issues with the provided data.
         // Assertions of data completeness/recency for dosing will be checked after.
         // This is so we can communicate/visualize state to the user even if we can't make a dosing recommendation.
+
         let prediction = generatePrediction(
             start: input.predictionStart,
             glucoseHistory: input.glucoseHistory,
-            doses: input.doses,
+            doses: inputDoses,
             carbEntries: input.carbEntries,
             basal: input.basal,
             sensitivity: input.sensitivity,
@@ -431,10 +451,10 @@ public struct LoopAlgorithm {
             recommendationResult: result,
             predictedGlucose: prediction.glucose,
             effects: prediction.effects,
+            dosesRelativeToBasal: prediction.dosesRelativeToBasal,
             activeInsulin: prediction.activeInsulin,
             activeCarbs: prediction.activeCarbs
         )
     }
 }
-
 

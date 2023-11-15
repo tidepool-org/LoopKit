@@ -16,6 +16,10 @@ public struct AutomaticDoseRecommendation: Equatable {
         self.basalAdjustment = basalAdjustment
         self.bolusUnits = bolusUnits
     }
+
+    public var hasDosingChange: Bool {
+        return basalAdjustment != nil || bolusUnits != nil
+    }
 }
 
 extension AutomaticDoseRecommendation: Codable {}
