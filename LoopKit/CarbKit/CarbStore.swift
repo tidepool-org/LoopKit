@@ -12,20 +12,6 @@ import HealthKit
 import os.log
 
 
-public enum CarbAbsorptionModel {
-    case linear
-    case piecewiseLinear
-
-    public var model: CarbAbsorptionComputable {
-        switch self {
-        case .linear:
-            return LinearAbsorption()
-        case .piecewiseLinear:
-            return PiecewiseLinearAbsorption()
-        }
-    }
-}
-
 public protocol CarbStoreDelegate: AnyObject {
 
     /**

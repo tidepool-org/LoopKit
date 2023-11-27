@@ -16,6 +16,20 @@ public struct CarbMath {
     public static let defaultEffectDelay: TimeInterval = .minutes(10)
 }
 
+public enum CarbAbsorptionModel {
+    case linear
+    case piecewiseLinear
+
+    public var model: CarbAbsorptionComputable {
+        switch self {
+        case .linear:
+            return LinearAbsorption()
+        case .piecewiseLinear:
+            return PiecewiseLinearAbsorption()
+        }
+    }
+}
+
 public struct CarbModelSettings {
     var absorptionModel: CarbAbsorptionComputable
     var initialAbsorptionTimeOverrun: Double
