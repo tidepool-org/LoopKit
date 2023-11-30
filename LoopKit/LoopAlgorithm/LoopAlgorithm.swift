@@ -27,6 +27,25 @@ public struct LoopAlgorithmEffects {
     public var retrospectiveGlucoseDiscrepancies: [GlucoseChange]
     public var totalGlucoseCorrectionEffect: HKQuantity?
 
+    public init(
+        insulin: [GlucoseEffect],
+        carbs: [GlucoseEffect],
+        carbStatus: [CarbStatus<StoredCarbEntry>],
+        retrospectiveCorrection: [GlucoseEffect],
+        momentum: [GlucoseEffect],
+        insulinCounteraction: [GlucoseEffectVelocity],
+        retrospectiveGlucoseDiscrepancies: [GlucoseChange],
+        totalGlucoseCorrectionEffect: HKQuantity? = nil
+    ) {
+        self.insulin = insulin
+        self.carbs = carbs
+        self.carbStatus = carbStatus
+        self.retrospectiveCorrection = retrospectiveCorrection
+        self.momentum = momentum
+        self.insulinCounteraction = insulinCounteraction
+        self.retrospectiveGlucoseDiscrepancies = retrospectiveGlucoseDiscrepancies
+        self.totalGlucoseCorrectionEffect = totalGlucoseCorrectionEffect
+    }
 }
 
 public struct AlgorithmEffectsOptions: OptionSet {

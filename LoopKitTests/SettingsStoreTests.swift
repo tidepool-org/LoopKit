@@ -1101,8 +1101,6 @@ fileprivate extension StoredSettings {
                               preMealTargetRange: preMealTargetRange,
                               workoutTargetRange: workoutTargetRange,
                               overridePresets: overridePresets,
-                              scheduleOverride: scheduleOverride,
-                              preMealOverride: preMealOverride,
                               maximumBasalRatePerHour: maximumBasalRatePerHour,
                               maximumBolus: maximumBolus,
                               suspendThreshold: suspendThreshold,

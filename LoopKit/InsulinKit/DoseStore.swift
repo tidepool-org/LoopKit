@@ -487,6 +487,20 @@ extension DoseStore {
         }
     }
 
+    public func getReservoirValues(since startDate: Date, limit: Int? = nil) async throws -> [ReservoirValue] {
+        try await withCheckedThrowingContinuation { continuation in
+            getReservoirValues(since: startDate, limit: limit) { result in
+                switch result {
+                case .success(let values):
+                    continuation.resume(returning: values)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+
     /// *This method should only be called from within a managed object context block.*
     ///
     /// - Parameters:
@@ -970,8 +984,8 @@ extension DoseStore {
     ///
     /// - Parameter startDate: The earliest dose startDate to include
     /// - Returns: An array of manually entered dose managed objects, in reverse-chronological order, or an error describing the failure to fetch objects
-    public func getManuallyEnteredDoses(since startDate: Date, completion: @escaping (_ result: DoseStoreResult<[DoseEntry]>) -> Void) {
-        insulinDeliveryStore.getManuallyEnteredDoses(since: startDate, chronological: false, completion: completion)
+    public func getManuallyEnteredDoses(since startDate: Date) async throws -> [DoseEntry] {
+        try await insulinDeliveryStore.getManuallyEnteredDoses(since: startDate, chronological: false)
     }
 
     /// Retrieves pump event values since the given date.
@@ -990,6 +1004,19 @@ extension DoseStore {
                 completion(.failure(error))
             } catch {
                 assertionFailure()
+            }
+        }
+    }
+
+    public func getPumpEventValues(since startDate: Date) async throws -> [PersistedPumpEvent] {
+        try await withCheckedThrowingContinuation { continuation in
+            getPumpEventValues(since: startDate) { result in
+                switch result {
+                case .success(let events):
+                    continuation.resume(returning: events)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
         }
     }
@@ -1241,7 +1268,7 @@ extension DoseStore {
     }
 
 
-
+    @available(*, deprecated, message: "Code using this should be updated to use active insulin returned from LoopAlgorithm")
     /// Retrieves the maximum insulin on-board value from the two timeline values nearest to the specified date
     ///
     /// This operation is performed asynchronously and the completion will be executed on an arbitrary background queue.
@@ -1271,18 +1298,8 @@ extension DoseStore {
         }
     }
 
-    /// Retrieves a timeline of unabsorbed insulin values.
-    ///
-    /// This operation is performed asynchronously and the completion will be executed on an arbitrary background queue.
-    ///
-    /// - Parameters:
-    ///   - start: The earliest date of values to retrieve
-    ///   - end: The latest date of values to retrieve, if provided
-    ///   - basalDosingEnd: The date at which continuing doses should be assumed to be cancelled
-    ///   - completion: A closure called once the values have been retrieved
-    ///   - result: An array of insulin values, in chronological order
-    public func getInsulinOnBoardValues(start: Date, end: Date? = nil, basalDosingEnd: Date? = nil, completion: @escaping (_ result: DoseStoreResult<[InsulinValue]>) -> Void) {
-        
+    private func getInsulinOnBoardValues(start: Date, end: Date? = nil, basalDosingEnd: Date? = nil, completion: @escaping (_ result: DoseStoreResult<[InsulinValue]>) -> Void) {
+
         // To properly know IOB at startDate, we need to go back another DIA hours
         let doseStart = start.addingTimeInterval(-longestEffectDuration)
         getNormalizedDoseEntries(start: doseStart, end: end) { (result) in
@@ -1324,135 +1341,64 @@ extension DoseStore {
             }
         }
     }
+    
 }
 
 extension DoseStore {
     /// Generates a diagnostic report about the current state
-    ///
-    /// This operation is performed asynchronously and the completion will be executed on an arbitrary background queue.
-    ///
-    /// - parameter completion: The closure takes a single argument of the report string.
     public func generateDiagnosticReport() async -> String {
-        await withCheckedContinuation { continuation in
-            var report: [String] = [
-                "## DoseStore",
-                "",
-                "* insulinModelProvider: \(String(reflecting: insulinModelProvider))",
-                "* basalProfile: \(basalProfile?.debugDescription ?? "")",
-                "* areReservoirValuesValid: \(areReservoirValuesValid)",
-                "* lastPumpEventsReconciliation: \(String(describing: lastPumpEventsReconciliation))",
-                "* lastStoredReservoirValue: \(String(describing: lastStoredReservoirValue))",
-                "* pumpEventQueryAfterDate: \(pumpEventQueryAfterDate)",
-                "* lastRecordedPrimeEventDate: \(String(describing: lastRecordedPrimeEventDate))",
-                "* pumpRecordsBasalProfileStartEvents: \(pumpRecordsBasalProfileStartEvents)",
-                "* device: \(String(describing: device))",
-            ]
+        var report: [String] = [
+            "## DoseStore",
+            "",
+            "* insulinModelProvider: \(String(reflecting: insulinModelProvider))",
+            "* basalProfile: \(basalProfile?.debugDescription ?? "")",
+            "* areReservoirValuesValid: \(areReservoirValuesValid)",
+            "* lastPumpEventsReconciliation: \(String(describing: lastPumpEventsReconciliation))",
+            "* lastStoredReservoirValue: \(String(describing: lastStoredReservoirValue))",
+            "* pumpEventQueryAfterDate: \(pumpEventQueryAfterDate)",
+            "* lastRecordedPrimeEventDate: \(String(describing: lastRecordedPrimeEventDate))",
+            "* pumpRecordsBasalProfileStartEvents: \(pumpRecordsBasalProfileStartEvents)",
+            "* device: \(String(describing: device))",
+        ]
 
-            insulinOnBoard(at: currentDate()) { (result) in
-                report.append("")
+        let historyStart = Date().addingTimeInterval(-.hours(24))
 
-                switch result {
-                case .failure(let error):
-                    report.append("* insulinOnBoard: \(error)")
-                case .success(let value):
-                    report.append("* insulinOnBoard: \(String(describing: value))")
-                }
-
-                let historyStart = Date().addingTimeInterval(-.hours(24))
-
-                self.getReservoirValues(since: historyStart) { (result) in
-                    report.append("")
-                    report.append("### getReservoirValues")
-
-                    switch result {
-                    case .failure(let error):
-                        report.append("Error: \(error)")
-                    case .success(let values):
-                        report.append("")
-                        report.append("* Reservoir(startDate, unitVolume)")
-                        for value in values {
-                            report.append("* \(value.startDate), \(value.unitVolume)")
-                        }
-                    }
-
-                    self.getPumpEventValues(since: historyStart) { (result) in
-                        report.append("")
-                        report.append("### getPumpEventValues")
-
-                        var firstPumpEventDate = self.cacheStartDate
-
-                        switch result {
-                        case .failure(let error):
-                            report.append("Error: \(error)")
-                        case .success(let values):
-                            report.append("")
-
-                            if let firstEvent = values.last {
-                                firstPumpEventDate = firstEvent.date
-                            }
-
-                            for value in values {
-                                report.append("* \(value)")
-                            }
-                        }
-
-                        self.getNormalizedDoseEntries(start: firstPumpEventDate) { (result) in
-                            report.append("")
-                            report.append("### getNormalizedDoseEntries")
-
-                            switch result {
-                            case .failure(let error):
-                                report.append("Error: \(error)")
-                            case .success(let entries):
-                                report.append("")
-                                for entry in entries {
-                                    report.append("* \(entry)")
-                                }
-                            }
-
-                            self.getPumpEventDoseEntriesForSavingToInsulinDeliveryStore(startingAt: firstPumpEventDate, completion: { (result) in
-
-                                report.append("")
-                                report.append("### getPumpEventDoseEntriesForSavingToInsulinDeliveryStore")
-
-                                switch result {
-                                case .failure(let error):
-                                    report.append("Error: \(error)")
-                                case .success(let entries):
-                                    report.append("")
-                                    for entry in entries {
-                                        report.append("* \(entry)")
-                                    }
-                                }
-
-                                self.getManuallyEnteredDoses(since: firstPumpEventDate) { (result) in
-                                    report.append("")
-                                    report.append("### getManuallyEnteredDoses")
-
-                                    switch result {
-                                    case .failure(let error):
-                                        report.append("Error: \(error)")
-                                    case .success(let entries):
-                                        report.append("")
-                                        for entry in entries {
-                                            report.append("* \(entry)")
-                                        }
-                                    }
-
-                                    self.insulinDeliveryStore.generateDiagnosticReport { (result) in
-                                        report.append("")
-                                        report.append(result)
-
-                                        report.append("")
-                                        continuation.resume(returning: report.joined(separator: "\n"))
-                                    }
-                                }
-                            })
-                        }
-                    }
-                }
+        do {
+            report.append("")
+            report.append("### getReservoirValues")
+            report.append("")
+            report.append("* Reservoir(startDate, unitVolume)")
+            for value in try await getReservoirValues(since: historyStart) {
+                report.append("* \(value.startDate), \(value.unitVolume)")
             }
+
+            report.append("")
+            report.append("### getPumpEventValues")
+            let values = try await getPumpEventValues(since: historyStart)
+            var firstPumpEventDate = self.cacheStartDate
+            report.append("")
+            if let firstEvent = values.last {
+                firstPumpEventDate = firstEvent.date
+            }
+
+            for value in values {
+                report.append("* \(value)")
+            }
+            report.append("")
+            report.append("### getManuallyEnteredDoses")
+            let entries = try await self.getManuallyEnteredDoses(since: firstPumpEventDate)
+            report.append("")
+            for entry in entries {
+                report.append("* \(entry)")
+            }
+
+            report.append("")
+            report.append(await insulinDeliveryStore.generateDiagnosticReport())
+            report.append("")
+        } catch {
+            report.append("Error: \(error)")
         }
+        return report.joined(separator: "\n")
     }
 }
 

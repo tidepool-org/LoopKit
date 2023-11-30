@@ -15,4 +15,29 @@ public struct LoopAlgorithmOutput {
     public var dosesRelativeToBasal: [DoseEntry]
     public var activeInsulin: Double?
     public var activeCarbs: Double?
+
+    public init(
+        recommendationResult: Result<LoopAlgorithmDoseRecommendation, Error>,
+        predictedGlucose: [PredictedGlucoseValue],
+        effects: LoopAlgorithmEffects,
+        dosesRelativeToBasal: [DoseEntry],
+        activeInsulin: Double? = nil,
+        activeCarbs: Double? = nil
+    ) {
+        self.recommendationResult = recommendationResult
+        self.predictedGlucose = predictedGlucose
+        self.effects = effects
+        self.dosesRelativeToBasal = dosesRelativeToBasal
+        self.activeInsulin = activeInsulin
+        self.activeCarbs = activeCarbs
+    }
+
+    var recommendation: LoopAlgorithmDoseRecommendation? {
+        switch recommendationResult {
+        case .success(let rec):
+            return rec
+        case .failure:
+            return nil
+        }
+    }
 }
