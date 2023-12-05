@@ -32,7 +32,7 @@ public struct LoopAlgorithmOutput {
         self.activeCarbs = activeCarbs
     }
 
-    var recommendation: LoopAlgorithmDoseRecommendation? {
+    public var recommendation: LoopAlgorithmDoseRecommendation? {
         switch recommendationResult {
         case .success(let rec):
             return rec

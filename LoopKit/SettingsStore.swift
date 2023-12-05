@@ -288,30 +288,30 @@ public struct StoredSettingsData {
 }
 
 public struct StoredSettings: Equatable {
-    public let date: Date
+    public var date: Date
     public var controllerTimeZone: TimeZone
-    public let dosingEnabled: Bool
-    public let glucoseTargetRangeSchedule: GlucoseRangeSchedule?
-    public let preMealTargetRange: ClosedRange<HKQuantity>?
-    public let workoutTargetRange: ClosedRange<HKQuantity>?
-    public let overridePresets: [TemporaryScheduleOverridePreset]
-    public let maximumBasalRatePerHour: Double?
-    public let maximumBolus: Double?
-    public let suspendThreshold: GlucoseThreshold?
-    public let deviceToken: String?
-    public let insulinType: InsulinType?
-    public let defaultRapidActingModel: StoredInsulinModel?
-    public let basalRateSchedule: BasalRateSchedule?
-    public let insulinSensitivitySchedule: InsulinSensitivitySchedule?
-    public let carbRatioSchedule: CarbRatioSchedule?
+    public var dosingEnabled: Bool
+    public var glucoseTargetRangeSchedule: GlucoseRangeSchedule?
+    public var preMealTargetRange: ClosedRange<HKQuantity>?
+    public var workoutTargetRange: ClosedRange<HKQuantity>?
+    public var overridePresets: [TemporaryScheduleOverridePreset]
+    public var maximumBasalRatePerHour: Double?
+    public var maximumBolus: Double?
+    public var suspendThreshold: GlucoseThreshold?
+    public var deviceToken: String?
+    public var insulinType: InsulinType?
+    public var defaultRapidActingModel: StoredInsulinModel?
+    public var basalRateSchedule: BasalRateSchedule?
+    public var insulinSensitivitySchedule: InsulinSensitivitySchedule?
+    public var carbRatioSchedule: CarbRatioSchedule?
     public var notificationSettings: NotificationSettings?
-    public let controllerDevice: ControllerDevice?
-    public let cgmDevice: HKDevice?
-    public let pumpDevice: HKDevice?
+    public var controllerDevice: ControllerDevice?
+    public var cgmDevice: HKDevice?
+    public var pumpDevice: HKDevice?
     // This is the user's display preference glucose unit. TODO: Rename?
-    public let bloodGlucoseUnit: HKUnit?
-    public let automaticDosingStrategy: AutomaticDosingStrategy
-    public let syncIdentifier: UUID
+    public var bloodGlucoseUnit: HKUnit?
+    public var automaticDosingStrategy: AutomaticDosingStrategy
+    public var syncIdentifier: UUID
 
     public init(date: Date = Date(),
                 controllerTimeZone: TimeZone = TimeZone.current,
@@ -804,5 +804,11 @@ public struct DosingLimits {
     public var suspendThreshold: HKQuantity?
     public var maxBolus: Double?
     public var maxBasalRate: Double?
+
+    public init(suspendThreshold: HKQuantity? = nil, maxBolus: Double? = nil, maxBasalRate: Double? = nil) {
+        self.suspendThreshold = suspendThreshold
+        self.maxBolus = maxBolus
+        self.maxBasalRate = maxBasalRate
+    }
 }
 
