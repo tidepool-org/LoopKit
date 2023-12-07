@@ -863,23 +863,6 @@ class StoredSettingsCodableTests: XCTestCase {
       "symbol" : "🍎"
     }
   ],
-  "preMealOverride" : {
-    "actualEnd" : {
-      "type" : "natural"
-    },
-    "context" : "preMeal",
-    "duration" : "indefinite",
-    "enactTrigger" : "local",
-    "settings" : {
-      "insulinNeedsScaleFactor" : 0.5,
-      "targetRangeInMgdl" : {
-        "maxValue" : 90,
-        "minValue" : 80
-      }
-    },
-    "startDate" : "2020-05-14T14:38:39Z",
-    "syncIdentifier" : "2A67A303-5203-1234-8263-79498265368E"
-  },
   "preMealTargetRange" : {
     "maxValue" : 90,
     "minValue" : 80
@@ -893,31 +876,6 @@ class StoredSettingsCodableTests: XCTestCase {
     "name" : "Pump Name",
     "softwareVersion" : "Pump Software Version",
     "udiDeviceIdentifier" : "Pump UDI Device Identifier"
-  },
-  "scheduleOverride" : {
-    "actualEnd" : {
-      "type" : "natural"
-    },
-    "context" : "preMeal",
-    "duration" : {
-      "finite" : {
-        "duration" : 3600
-      }
-    },
-    "enactTrigger" : {
-      "remote" : {
-        "address" : "127.0.0.1"
-      }
-    },
-    "settings" : {
-      "insulinNeedsScaleFactor" : 1.5,
-      "targetRangeInMgdl" : {
-        "maxValue" : 120,
-        "minValue" : 110
-      }
-    },
-    "startDate" : "2020-05-14T14:48:19Z",
-    "syncIdentifier" : "2A67A303-1234-4CB8-8263-79498265368E"
   },
   "suspendThreshold" : {
     "unit" : "mg/dL",
