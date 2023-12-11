@@ -121,17 +121,13 @@ public extension Guardrail where Value == HKQuantity {
         let filteredSupportedBasalRates = supportedBasalRates.drop { $0 <= 0 }.map { Double($0) }
         
         if let highestScheduledBasalRate = scheduledBasalRange?.upperBound {
-            recommendedLowerBound = (recommendedLowScheduledBasalScaleFactor * highestScheduledBasalRate).matchingOrTruncatedValue(from: filteredSupportedBasalRates, withinDecimalPlaces: decimalPlaces)
-            recommendedUpperBound = (recommendedHighScheduledBasalScaleFactor * highestScheduledBasalRate).matchingOrTruncatedValue(from: filteredSupportedBasalRates, withinDecimalPlaces: decimalPlaces)
+            let referenceScheduledBasalRate = highestScheduledBasalRate <= 0 ? filteredSupportedBasalRates.first! : highestScheduledBasalRate
+            recommendedLowerBound = (recommendedLowScheduledBasalScaleFactor * referenceScheduledBasalRate).matchingOrTruncatedValue(from: filteredSupportedBasalRates, withinDecimalPlaces: decimalPlaces)
+            recommendedUpperBound = (recommendedHighScheduledBasalScaleFactor * referenceScheduledBasalRate).matchingOrTruncatedValue(from: filteredSupportedBasalRates, withinDecimalPlaces: decimalPlaces)
             
-            let absoluteBounds: ClosedRange<Double>
-            if highestScheduledBasalRate < recommendedLowerBound {
-                absoluteBounds = recommendedLowerBound...max(absoluteUpperBound, recommendedUpperBound)
-            } else {
-                absoluteBounds = highestScheduledBasalRate...max(absoluteUpperBound, recommendedUpperBound)
-            }
-            
+            let absoluteBounds = referenceScheduledBasalRate...max(absoluteUpperBound, recommendedUpperBound)
             let recommendedBounds = (recommendedLowerBound...recommendedUpperBound).clamped(to: absoluteBounds)
+
             return Guardrail(
                 absoluteBounds: absoluteBounds,
                 recommendedBounds: recommendedBounds,
