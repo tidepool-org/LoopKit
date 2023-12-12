@@ -97,6 +97,7 @@ public struct LoopAlgorithm {
     ///   - carbRatio: Carb ratio timeline: t-10h to t+6h
     ///   - algorithmEffectsOptions: Which effects to include when combining effects to generate glucose prediction
     ///   - useIntegralRetrospectiveCorrection: If true, the prediction will use Integral Retrospection. If false, will use traditional Retrospective Correction
+    ///   - includingPositiveVelocityAndRC: If false, only net negative momentum and RC effects will used.
     ///   - carbAbsorptionModel: A model conforming to CarbAbsorptionComputable that is used for computing carb absorption over time.
     /// - Returns: A LoopPrediction struct containing the predicted glucose and the computed intermediate effects used to make the prediction
 
@@ -110,6 +111,7 @@ public struct LoopAlgorithm {
         carbRatio: [AbsoluteScheduleValue<Double>],
         algorithmEffectsOptions: AlgorithmEffectsOptions = .all,
         useIntegralRetrospectiveCorrection: Bool = false,
+        includingPositiveVelocityAndRC: Bool = true,
         carbAbsorptionModel: CarbAbsorptionComputable = PiecewiseLinearAbsorption()
     ) -> LoopPrediction {
 
@@ -125,7 +127,6 @@ public struct LoopAlgorithm {
         var activeCarbs: Double?
         var carbStatus: [CarbStatus<StoredCarbEntry>] = []
         var dosesRelativeToBasal: [DoseEntry] = []
-
 
         // Ensure basal history covers doses
         if let doseStart = doses.first?.startDate, !basal.isEmpty, basal.first!.startDate <= doseStart {
@@ -198,15 +199,32 @@ public struct LoopAlgorithm {
                 effects.append(retrospectiveCorrectionEffects)
             }
 
+            if algorithmEffectsOptions.contains(.retrospection) {
+                if !includingPositiveVelocityAndRC, let netRC = retrospectiveCorrectionEffects.netEffect(), netRC.quantity.doubleValue(for: .milligramsPerDeciliter) > 0 {
+                    // positive RC is turned off
+                } else {
+                    effects.append(retrospectiveCorrectionEffects)
+                }
+            }
+
             // Glucose Momentum
+            var useMomentum: Bool = true
             if algorithmEffectsOptions.contains(.momentum) {
                 let momentumInputData = glucoseHistory.filterDateRange(start.addingTimeInterval(-GlucoseMath.momentumDataInterval), start)
                 momentumEffects = momentumInputData.linearMomentumEffect()
+                if !includingPositiveVelocityAndRC, let netMomentum = momentumEffects.netEffect(), netMomentum.quantity.doubleValue(for: .milligramsPerDeciliter) > 0 {
+                    // positive momentum is turned off
+                    useMomentum = false
+                }
             } else {
-                momentumEffects = []
+                useMomentum = false
             }
 
-            prediction = LoopMath.predictGlucose(startingAt: latestGlucose, momentum: momentumEffects, effects: effects)
+            prediction = LoopMath.predictGlucose(
+                startingAt: latestGlucose,
+                momentum: useMomentum ? momentumEffects : [],
+                effects: effects
+            )
 
             // Dosing requires prediction entries at least as long as the insulin model duration.
             // If our prediction is shorter than that, then extend it here.
@@ -393,6 +411,8 @@ public struct LoopAlgorithm {
             sensitivity: input.sensitivity,
             carbRatio: input.carbRatio,
             algorithmEffectsOptions: .all,
+            useIntegralRetrospectiveCorrection: input.useIntegralRetrospectiveCorrection,
+            includingPositiveVelocityAndRC: input.includePositiveVelocityAndRC,
             carbAbsorptionModel: input.carbAbsorptionModel.model
         )
 

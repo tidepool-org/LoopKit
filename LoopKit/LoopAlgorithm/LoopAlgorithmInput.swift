@@ -29,6 +29,7 @@ public struct LoopAlgorithmInput {
     public var maxBolus: Double
     public var maxBasalRate: Double
     public var useIntegralRetrospectiveCorrection: Bool
+    public var includePositiveVelocityAndRC: Bool
     public var carbAbsorptionModel: CarbAbsorptionModel = .piecewiseLinear
     public var recommendationInsulinType: InsulinType = .novolog
     public var recommendationType: DoseRecommendationType = .automaticBolus
@@ -74,6 +75,7 @@ public struct LoopAlgorithmInput {
         maxBolus: Double,
         maxBasalRate: Double,
         useIntegralRetrospectiveCorrection: Bool = false,
+        includePositiveVelocityAndRC: Bool = true,
         carbAbsorptionModel: CarbAbsorptionModel = .piecewiseLinear,
         recommendationInsulinType: InsulinType,
         recommendationType: DoseRecommendationType,
@@ -91,6 +93,7 @@ public struct LoopAlgorithmInput {
         self.maxBolus = maxBolus
         self.maxBasalRate = maxBasalRate
         self.useIntegralRetrospectiveCorrection = useIntegralRetrospectiveCorrection
+        self.includePositiveVelocityAndRC = includePositiveVelocityAndRC
         self.carbAbsorptionModel = carbAbsorptionModel
         self.recommendationInsulinType = recommendationInsulinType
         self.recommendationType = recommendationType
@@ -190,6 +193,7 @@ extension LoopAlgorithmInput: Codable {
         self.maxBolus = try container.decode(Double.self, forKey: .maxBolus)
         self.maxBasalRate = try container.decode(Double.self, forKey: .maxBasalRate)
         self.useIntegralRetrospectiveCorrection = try container.decodeIfPresent(Bool.self, forKey: .useIntegralRetrospectiveCorrection) ?? false
+        self.includePositiveVelocityAndRC = try container.decodeIfPresent(Bool.self, forKey: .includePositiveVelocityAndRC) ?? true
 
         if let rawRecommendationInsulinType = try container.decodeIfPresent(String.self, forKey: .recommendationInsulinType) {
             guard let decodedRecommendationInsulinType = InsulinType(with: rawRecommendationInsulinType) else {
@@ -259,6 +263,9 @@ extension LoopAlgorithmInput: Codable {
         if useIntegralRetrospectiveCorrection {
             try container.encode(useIntegralRetrospectiveCorrection, forKey: .useIntegralRetrospectiveCorrection)
         }
+        if !includePositiveVelocityAndRC {
+            try container.encode(includePositiveVelocityAndRC, forKey: .includePositiveVelocityAndRC)
+        }
         try container.encode(recommendationInsulinType.identifierForAlgorithmInput, forKey: .recommendationInsulinType)
         try container.encode(recommendationType.rawValue, forKey: .recommendationType)
 
@@ -277,6 +284,7 @@ extension LoopAlgorithmInput: Codable {
         case maxBolus
         case maxBasalRate
         case useIntegralRetrospectiveCorrection
+        case includePositiveVelocityAndRC
         case recommendationInsulinType
         case recommendationType
     }
