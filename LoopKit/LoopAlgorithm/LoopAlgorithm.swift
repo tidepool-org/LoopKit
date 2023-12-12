@@ -196,10 +196,6 @@ public struct LoopAlgorithm {
             }
 
             if algorithmEffectsOptions.contains(.retrospection) {
-                effects.append(retrospectiveCorrectionEffects)
-            }
-
-            if algorithmEffectsOptions.contains(.retrospection) {
                 if !includingPositiveVelocityAndRC, let netRC = retrospectiveCorrectionEffects.netEffect(), netRC.quantity.doubleValue(for: .milligramsPerDeciliter) > 0 {
                     // positive RC is turned off
                 } else {
@@ -332,12 +328,15 @@ public struct LoopAlgorithm {
         maxBasalRate: Double
     ) -> AutomaticDoseRecommendation? {
 
-        var maxAutomaticBolus = maxBolus * applicationFactor
 
-        if case .aboveRange(min: let min, correcting: _, minTarget: let doseThreshold, units: _) = correction,
-            min.quantity < doseThreshold
+        let deliveryHeadroom = max(0, maxBolus * 2.0 - activeInsulin)
+
+        var deliveryMax = min(maxBolus * applicationFactor, deliveryHeadroom)
+
+        if case .aboveRange(min: let min, correcting: _, minTarget: let minTarget, units: _) = correction,
+            min.quantity < minTarget
         {
-            maxAutomaticBolus = 0
+            deliveryMax = 0
         }
 
         let temp: TempBasalRecommendation? = correction.asTempBasal(
@@ -348,7 +347,7 @@ public struct LoopAlgorithm {
 
         let bolusUnits = correction.asPartialBolus(
             partialApplicationFactor: applicationFactor,
-            maxBolusUnits: maxAutomaticBolus
+            maxBolusUnits: deliveryMax
         )
 
         if temp != nil || bolusUnits > 0 {
