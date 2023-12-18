@@ -819,7 +819,6 @@ extension DoseStore {
             self.insulinDeliveryStore.addDoseEntries(doses, from: device, syncVersion: self.syncVersion) { (result) in
                 switch result {
                 case .success:
-                    completion(nil)
                     self.syncPumpEventsToInsulinDeliveryStore { error in
                         completion(error)
                         NotificationCenter.default.post(name: DoseStore.valuesDidChange, object: self)
