@@ -662,6 +662,10 @@ extension SettingsStore {
             }
         }
 
+        guard !schedules.isEmpty else {
+            return []
+        }
+
         var idx = schedules.startIndex
         var date = startDate
         var items = [AbsoluteScheduleValue<Double>]()
@@ -765,6 +769,10 @@ extension SettingsStore {
             } else {
                 return nil
             }
+        }
+
+        guard !settingsHistory.isEmpty else {
+            return []
         }
 
         var idx = schedules.startIndex
