@@ -8,7 +8,7 @@
 
 
 import HealthKit
-
+import LoopAlgorithm
 
 public protocol GlucoseValue: SampleValue {
 }
@@ -56,36 +56,36 @@ extension SimpleGlucoseValue: Codable {
     }
 }
 
-public struct PredictedGlucoseValue: Equatable, GlucoseValue {
-    public let startDate: Date
-    public let quantity: HKQuantity
-
-    public init(startDate: Date, quantity: HKQuantity) {
-        self.startDate = startDate
-        self.quantity = quantity
-    }
-}
-
-extension PredictedGlucoseValue: Codable {
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.startDate = try container.decode(Date.self, forKey: .startDate)
-        self.quantity = HKQuantity(unit: HKUnit(from: try container.decode(String.self, forKey: .quantityUnit)),
-                                   doubleValue: try container.decode(Double.self, forKey: .quantity))
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(startDate, forKey: .startDate)
-        try container.encode(quantity.doubleValue(for: .milligramsPerDeciliter), forKey: .quantity)
-        try container.encode(HKUnit.milligramsPerDeciliter.unitString, forKey: .quantityUnit)
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case startDate
-        case quantity
-        case quantityUnit
-    }
-}
+//public struct PredictedGlucoseValue: Equatable, GlucoseValue {
+//    public let startDate: Date
+//    public let quantity: HKQuantity
+//
+//    public init(startDate: Date, quantity: HKQuantity) {
+//        self.startDate = startDate
+//        self.quantity = quantity
+//    }
+//}
+//
+//extension PredictedGlucoseValue: Codable {
+//    public init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.startDate = try container.decode(Date.self, forKey: .startDate)
+//        self.quantity = HKQuantity(unit: HKUnit(from: try container.decode(String.self, forKey: .quantityUnit)),
+//                                   doubleValue: try container.decode(Double.self, forKey: .quantity))
+//    }
+//
+//    public func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(startDate, forKey: .startDate)
+//        try container.encode(quantity.doubleValue(for: .milligramsPerDeciliter), forKey: .quantity)
+//        try container.encode(HKUnit.milligramsPerDeciliter.unitString, forKey: .quantityUnit)
+//    }
+//
+//    private enum CodingKeys: String, CodingKey {
+//        case startDate
+//        case quantity
+//        case quantityUnit
+//    }
+//}
 
 extension HKQuantitySample: GlucoseValue { }

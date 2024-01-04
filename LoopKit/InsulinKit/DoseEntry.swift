@@ -8,6 +8,7 @@
 
 import Foundation
 import HealthKit
+import LoopAlgorithm
 
 
 public struct DoseEntry: TimelineValue, Equatable {
@@ -279,7 +280,7 @@ extension DoseEntry: RawRepresentable {
 
 public extension Array where Element == DoseEntry {
     func trimmed(from start: Date? = nil, to end: Date? = nil, onlyTrimTempBasals: Bool = false) -> [DoseEntry] {
-        return self.compactMap { dose in
+        return self.compactMap { (dose) -> DoseEntry? in
             if let start, dose.endDate < start {
                 return nil
             }

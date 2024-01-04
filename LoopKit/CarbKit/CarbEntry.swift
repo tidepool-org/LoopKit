@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import LoopAlgorithm
 
-
-public protocol CarbEntry: SampleValue {
-    var absorptionTime: TimeInterval? { get }
-}
-
+//public protocol CarbEntry: SampleValue {
+//    var absorptionTime: TimeInterval? { get }
+//}
+//

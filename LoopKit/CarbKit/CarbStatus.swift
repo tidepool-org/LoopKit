@@ -7,6 +7,7 @@
 
 import Foundation
 import HealthKit
+import LoopAlgorithm
 
 
 public struct CarbStatus<T: CarbEntry> {

@@ -8,18 +8,18 @@
 
 import Foundation
 
-extension Double: RawRepresentable {
-    public typealias RawValue = Double
-
-    public init?(rawValue: RawValue) {
-        self = rawValue
-    }
-
-    public var rawValue: RawValue {
-        return self
-    }
-}
-
+////extension Double: RawRepresentable {
+////    public typealias RawValue = Double
+////
+////    public init?(rawValue: RawValue) {
+////        self = rawValue
+////    }
+////
+////    public var rawValue: RawValue {
+////        return self
+////    }
+////}
+//
 infix operator =~ : ComparisonPrecedence
 
  extension Double {

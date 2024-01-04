@@ -8,20 +8,20 @@
 import HealthKit
 
 
-public struct GlucoseChange: SampleValue, Equatable {
-    public var startDate: Date
-    public var endDate: Date
-    public var quantity: HKQuantity
-}
-
-
-extension GlucoseChange {
-    mutating public func append(_ effect: GlucoseEffect) {
-        startDate = min(effect.startDate, startDate)
-        endDate = max(effect.endDate, endDate)
-        quantity = HKQuantity(
-            unit: .milligramsPerDeciliter,
-            doubleValue: quantity.doubleValue(for: .milligramsPerDeciliter) + effect.quantity.doubleValue(for: .milligramsPerDeciliter)
-        )
-    }
-}
+//public struct GlucoseChange: SampleValue, Equatable {
+//    public var startDate: Date
+//    public var endDate: Date
+//    public var quantity: HKQuantity
+//}
+//
+//
+//extension GlucoseChange {
+//    mutating public func append(_ effect: GlucoseEffect) {
+//        startDate = min(effect.startDate, startDate)
+//        endDate = max(effect.endDate, endDate)
+//        quantity = HKQuantity(
+//            unit: .milligramsPerDeciliter,
+//            doubleValue: quantity.doubleValue(for: .milligramsPerDeciliter) + effect.quantity.doubleValue(for: .milligramsPerDeciliter)
+//        )
+//    }
+//}

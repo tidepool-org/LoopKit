@@ -10,9 +10,9 @@ import Foundation
 import HealthKit
 
 
-extension HKQuantity: Comparable { }
-
-
-public func <(lhs: HKQuantity, rhs: HKQuantity) -> Bool {
-    return lhs.compare(rhs) == .orderedAscending
-}
+//extension HKQuantity: Comparable { }
+//
+//
+//public func <(lhs: HKQuantity, rhs: HKQuantity) -> Bool {
+//    return lhs.compare(rhs) == .orderedAscending
+//}
