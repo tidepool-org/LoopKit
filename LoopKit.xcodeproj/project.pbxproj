@@ -1687,7 +1687,6 @@
 		C10B8078297E498E00446CDD /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C10BD98429C7867600FE2BDC /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1110E981EE98CF5009BB852 /* ice_35_min_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_35_min_input.json; sourceTree = "<group>"; };
-		C11DFC2C2B475AC800D9430E /* LoopAlgorithm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopAlgorithm; path = ../LoopAlgorithm; sourceTree = "<group>"; };
 		C121D8D329C7866D00DA0520 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C121D8D429C7866D00DA0520 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C122DF0129BBFAAE00321F8D /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
@@ -1757,6 +1756,7 @@
 		C16DA83E22E8D88F008624C2 /* LoopPluginBundleKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopPluginBundleKey.swift; sourceTree = "<group>"; };
 		C16DA84422E9330A008624C2 /* LoopUIPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopUIPlugin.swift; sourceTree = "<group>"; };
 		C16DFA45297E494500D56397 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C16E57252B56FFB10024A4B2 /* LoopAlgorithm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopAlgorithm; path = ../LoopAlgorithm; sourceTree = "<group>"; };
 		C1742345259CD3ED00399C9D /* InsulinTypeChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinTypeChooser.swift; sourceTree = "<group>"; };
 		C1790E6D297E493600683E3B /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C17F39C023CD24A000FA1113 /* DeviceCommsLog.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DeviceCommsLog.xcdatamodel; sourceTree = "<group>"; };
@@ -2527,7 +2527,7 @@
 				892A5D35222F03CB008961AB /* LoopTestingKit */,
 				B4CEE2E1257129780093111B /* MockKitTests */,
 				43BA718D202020140058961E /* Frameworks */,
-				C11DFC2C2B475AC800D9430E /* LoopAlgorithm */,
+				C16E57252B56FFB10024A4B2 /* LoopAlgorithm */,
 				43D8FDCC1C728FDF0073BE78 /* Products */,
 			);
 			sourceTree = "<group>";
