@@ -9,6 +9,7 @@
 import HealthKit
 import SwiftUI
 import LoopKit
+import LoopAlgorithm
 
 public struct InsulinModelSelection: View {
     @EnvironmentObject private var displayGlucosePreference: DisplayGlucosePreference

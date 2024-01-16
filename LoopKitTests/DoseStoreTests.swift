@@ -8,6 +8,7 @@
 import XCTest
 import CoreData
 import HealthKit
+import LoopAlgorithm
 @testable import LoopKit
 
 class DoseStoreTests: PersistenceControllerTestCase {
@@ -57,23 +58,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
 
     func testingDate(_ input: String) -> Date {
         return testingDateFormatter.date(from: input)!
-    }
-
-    func testEmptyDoseStoreReturnsZeroInsulinOnBoard() {
-        let doseStore = defaultStore()
-
-        let queryFinishedExpectation = expectation(description: "query finished")
-        
-        doseStore.insulinOnBoard(at: Date()) { (result) in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected error: \(error)")
-            case .success(let value):
-                XCTAssertEqual(0, value.value)
-            }
-            queryFinishedExpectation.fulfill()
-        }
-        waitForExpectations(timeout: 3)
     }
 
     func testGetNormalizedDoseEntriesUsingReservoir() {

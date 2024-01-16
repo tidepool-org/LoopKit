@@ -9,7 +9,7 @@
 import XCTest
 @testable import LoopKit
 import HealthKit
-
+import LoopAlgorithm
 
 class CarbMathTests: XCTestCase {
 

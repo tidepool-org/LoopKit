@@ -8,6 +8,7 @@
 
 import XCTest
 import HealthKit
+import LoopAlgorithm
 
 @testable import LoopKit
 
@@ -89,6 +90,7 @@ class RecommendTempBasalTests: XCTestCase {
     var insulinActionDuration: TimeInterval {
         return TimeInterval(hours: 4)
     }
+
 
     func testNoChange() {
         let glucose = loadGlucoseValueFixture("recommend_temp_basal_no_change_glucose")

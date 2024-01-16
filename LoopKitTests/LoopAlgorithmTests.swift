@@ -7,11 +7,15 @@
 //
 
 import XCTest
+import LoopAlgorithm
 @testable import LoopKit
 
 final class LoopAlgorithmTests: XCTestCase {
 
-    func loadScenario(_ name: String) -> (input: LoopAlgorithmInput, recommendation: LoopAlgorithmDoseRecommendation) {
+    func loadScenario(_ name: String) -> (
+        input: LoopAlgorithmInput<FixtureCarbEntry, FixtureGlucoseSample, FixtureInsulinDose>,
+        recommendation: LoopAlgorithmDoseRecommendation
+    ) {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         var url = bundle.url(forResource: name + "_input", withExtension: "json")!

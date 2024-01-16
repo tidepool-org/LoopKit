@@ -8,6 +8,7 @@
 
 import Foundation
 import HealthKit
+import LoopAlgorithm
 
 public enum BolusRecommendationNotice {
     case glucoseBelowSuspendThreshold(minGlucose: GlucoseValue)
