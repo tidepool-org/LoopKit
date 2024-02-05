@@ -7,7 +7,7 @@
 //
 
 import XCTest
-
+import LoopAlgorithm
 @testable import LoopKit
 
 class TempBasalRecommendationTests: XCTestCase {

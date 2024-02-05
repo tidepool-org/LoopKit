@@ -76,7 +76,6 @@
 		4301581A1C7ECB5E00B64B63 /* LoopKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 43D8FDCB1C728FDF0073BE78 /* LoopKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4301582D1C7ECD7A00B64B63 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4301582C1C7ECD7A00B64B63 /* HealthKit.framework */; };
 		43026D642132404900A332E2 /* ice_minus_flat_carb_effect_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 43026D632132404900A332E2 /* ice_minus_flat_carb_effect_output.json */; };
-		4322B76C202F9ECD0002837D /* CarbMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE411C7291900073BE78 /* CarbMathTests.swift */; };
 		4322B76D202F9EF20002837D /* GlucoseMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE991C7293D00073BE78 /* GlucoseMathTests.swift */; };
 		4322B76E202FA26B0002837D /* GlucoseMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE861C72934C0073BE78 /* GlucoseMath.swift */; };
 		4322B76F202FA26F0002837D /* GlucoseSampleValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43971A3F1C8CABFF0013154F /* GlucoseSampleValue.swift */; };
@@ -109,21 +108,6 @@
 		4322B78D202FA2B30002837D /* InsulinDeliveryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 438207701F2AE9A300886C13 /* InsulinDeliveryStore.swift */; };
 		4322B78E202FA2B30002837D /* InsulinMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FEDF1C7294D50073BE78 /* InsulinMath.swift */; };
 		4322B790202FA2B30002837D /* InsulinValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43DFE2811CB1FB8500EFBE95 /* InsulinValue.swift */; };
-		4322B792202FA3CC0002837D /* carb_effect_from_history_input.json in Resources */ = {isa = PBXBuildFile; fileRef = 43D8FE441C7291A60073BE78 /* carb_effect_from_history_input.json */; };
-		4322B793202FA3CC0002837D /* carb_effect_from_history_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 43D8FE451C7291A60073BE78 /* carb_effect_from_history_output.json */; };
-		4322B794202FA3CC0002837D /* carb_entry_input.json in Resources */ = {isa = PBXBuildFile; fileRef = C17F4CB21EE9B6DF005079B1 /* carb_entry_input.json */; };
-		4322B795202FA3CC0002837D /* carbs_on_board_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 43D8FE461C7291A60073BE78 /* carbs_on_board_output.json */; };
-		4322B796202FA3CC0002837D /* grouped_by_overlapping_absorption_times_border_case_input.json in Resources */ = {isa = PBXBuildFile; fileRef = 43EBE44C1EAC7F0C0073A0B5 /* grouped_by_overlapping_absorption_times_border_case_input.json */; };
-		4322B797202FA3CC0002837D /* grouped_by_overlapping_absorption_times_border_case_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 43EBE44B1EAC7F0C0073A0B5 /* grouped_by_overlapping_absorption_times_border_case_output.json */; };
-		4322B798202FA3CC0002837D /* grouped_by_overlapping_absorption_times_input.json in Resources */ = {isa = PBXBuildFile; fileRef = 43EBE4471EAC77290073A0B5 /* grouped_by_overlapping_absorption_times_input.json */; };
-		4322B799202FA3CC0002837D /* grouped_by_overlapping_absorption_times_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 43EBE4481EAC77290073A0B5 /* grouped_by_overlapping_absorption_times_output.json */; };
-		4322B79A202FA3CC0002837D /* ice_1_hour_input.json in Resources */ = {isa = PBXBuildFile; fileRef = C1CBF61B1EEA2A1E001E4851 /* ice_1_hour_input.json */; };
-		4322B79B202FA3CC0002837D /* ice_1_hour_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 439BCD8F1EEDD2AD00100EAA /* ice_1_hour_output.json */; };
-		4322B79C202FA3CC0002837D /* ice_35_min_input.json in Resources */ = {isa = PBXBuildFile; fileRef = C1110E981EE98CF5009BB852 /* ice_35_min_input.json */; };
-		4322B79D202FA3CC0002837D /* ice_35_min_none_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 439BCD8D1EEDD22900100EAA /* ice_35_min_none_output.json */; };
-		4322B79E202FA3CC0002837D /* ice_35_min_partial_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 4359E74F1EED04330022EF0C /* ice_35_min_partial_output.json */; };
-		4322B79F202FA3CC0002837D /* ice_slow_absorption_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 439BCD911EEDD33F00100EAA /* ice_slow_absorption_output.json */; };
-		4322B7A0202FA3CC0002837D /* ice_slow_absorption.json in Resources */ = {isa = PBXBuildFile; fileRef = C13E6D291EEB1CB9006F5880 /* ice_slow_absorption.json */; };
 		4322B7A1202FA3D20002837D /* momentum_effect_bouncing_glucose_input.json in Resources */ = {isa = PBXBuildFile; fileRef = 43D8FE9C1C7293FA0073BE78 /* momentum_effect_bouncing_glucose_input.json */; };
 		4322B7A2202FA3D20002837D /* momentum_effect_bouncing_glucose_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 43D8FE9D1C7293FA0073BE78 /* momentum_effect_bouncing_glucose_output.json */; };
 		4322B7A3202FA3D20002837D /* momentum_effect_display_only_glucose_input.json in Resources */ = {isa = PBXBuildFile; fileRef = 43971A411C8CAEF20013154F /* momentum_effect_display_only_glucose_input.json */; };
@@ -457,10 +441,6 @@
 		89FC6891245A2D680075CF59 /* ScheduleItemPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC688C245A2D680075CF59 /* ScheduleItemPicker.swift */; };
 		89FC6892245A2D680075CF59 /* ScheduleEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC688D245A2D680075CF59 /* ScheduleEditor.swift */; };
 		89FC6893245A2D680075CF59 /* ScheduleItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC688E245A2D680075CF59 /* ScheduleItemView.swift */; };
-		9E78433F236653F00016C583 /* ice_35_min_none_piecewiselinear_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E78433E236653F00016C583 /* ice_35_min_none_piecewiselinear_output.json */; };
-		9E784341236656770016C583 /* ice_35_min_partial_piecewiselinear_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E784340236656770016C583 /* ice_35_min_partial_piecewiselinear_output.json */; };
-		9E784343236659BD0016C583 /* ice_slow_absorption_piecewiselinear_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E784342236659BD0016C583 /* ice_slow_absorption_piecewiselinear_output.json */; };
-		9E78434523665B5A0016C583 /* ice_35_min_partial_piecewiselinear_adaptiverate_output.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E78434423665B5A0016C583 /* ice_35_min_partial_piecewiselinear_adaptiverate_output.json */; };
 		A9012EB225BA3861000813AD /* SetupUIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9012EB125BA3861000813AD /* SetupUIResult.swift */; };
 		A91263872790B45300C6C950 /* NewPumpEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91263862790B45300C6C950 /* NewPumpEventTests.swift */; };
 		A912BE29245B9CD500CBE199 /* SettingsObject+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = A912BE28245B9CD500CBE199 /* SettingsObject+CoreDataClass.swift */; };
@@ -729,7 +709,6 @@
 		C164A56022F14C73000E3FA5 /* UnfinalizedDose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C164A55F22F14C73000E3FA5 /* UnfinalizedDose.swift */; };
 		C164A56422F21081000E3FA5 /* MockPumpManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C164A56322F21081000E3FA5 /* MockPumpManagerState.swift */; };
 		C168CA7A280DD00F002BD2A7 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C168CA77280DD00F002BD2A7 /* Model.xcdatamodeld */; };
-		C16BC0B72A5FAB6F00BDC713 /* DoseMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16BC0B62A5FAB6E00BDC713 /* DoseMathTests.swift */; };
 		C16BC0CA2A60351B00BDC713 /* far_future_high_bg_forecast_after_6_hours.json in Resources */ = {isa = PBXBuildFile; fileRef = C16BC0B92A60351900BDC713 /* far_future_high_bg_forecast_after_6_hours.json */; };
 		C16BC0CB2A60351B00BDC713 /* recommend_temp_basal_no_change_glucose.json in Resources */ = {isa = PBXBuildFile; fileRef = C16BC0BA2A60351900BDC713 /* recommend_temp_basal_no_change_glucose.json */; };
 		C16BC0CC2A60351B00BDC713 /* recommend_temp_basal_start_low_end_high.json in Resources */ = {isa = PBXBuildFile; fileRef = C16BC0BB2A60351900BDC713 /* recommend_temp_basal_start_low_end_high.json */; };
@@ -894,10 +873,6 @@
 		E9DFB92C24E634E800468917 /* ExpandablePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DFB92B24E634E800468917 /* ExpandablePicker.swift */; };
 		E9DFB92E24E8A75C00468917 /* iob_from_multiple_curves_output.json in Resources */ = {isa = PBXBuildFile; fileRef = E9DFB92D24E8A75C00468917 /* iob_from_multiple_curves_output.json */; };
 		E9DFB93524E8CD5800468917 /* LegacyInsulinDeliveryTableViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E9DFB93324E8CD5800468917 /* LegacyInsulinDeliveryTableViewController.storyboard */; };
-		E9E5E56524D362E900B5DFFE /* dynamic_glucose_effect_none_observed_output.json in Resources */ = {isa = PBXBuildFile; fileRef = E9E5E56124D362E800B5DFFE /* dynamic_glucose_effect_none_observed_output.json */; };
-		E9E5E56624D362E900B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json in Resources */ = {isa = PBXBuildFile; fileRef = E9E5E56224D362E800B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json */; };
-		E9E5E56724D362E900B5DFFE /* dynamic_glucose_effect_partially_observed_output.json in Resources */ = {isa = PBXBuildFile; fileRef = E9E5E56324D362E800B5DFFE /* dynamic_glucose_effect_partially_observed_output.json */; };
-		E9E5E56824D362E900B5DFFE /* dynamic_glucose_effect_fully_observed_output.json in Resources */ = {isa = PBXBuildFile; fileRef = E9E5E56424D362E900B5DFFE /* dynamic_glucose_effect_fully_observed_output.json */; };
 		E9E5E56A24D5CCE800B5DFFE /* OverrideViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E5E56924D5CCE800B5DFFE /* OverrideViewCell.swift */; };
 		E9F54F5E25802D5E0034795E /* InsulinType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9F54F5D25802D5E0034795E /* InsulinType.swift */; };
 		E9F54FBA258052130034795E /* InsulinType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9F54F5D25802D5E0034795E /* InsulinType.swift */; };
@@ -1202,7 +1177,6 @@
 		4353D16E203D104F007B4ECD /* CarbStoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarbStoreError.swift; sourceTree = "<group>"; };
 		4353D172203D3E7E007B4ECD /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		4359E74D1EEA1FBC0022EF0C /* FoodEmojiDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodEmojiDataSource.swift; sourceTree = "<group>"; };
-		4359E74F1EED04330022EF0C /* ice_35_min_partial_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_35_min_partial_output.json; sourceTree = "<group>"; };
 		435D2924205F3A670026F401 /* counteraction_effect_falling_glucose_almost_duplicates_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = counteraction_effect_falling_glucose_almost_duplicates_input.json; sourceTree = "<group>"; };
 		435D2926205F3C750026F401 /* counteraction_effect_falling_glucose_double_entries._input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = counteraction_effect_falling_glucose_double_entries._input.json; sourceTree = "<group>"; };
 		435D2927205F3C750026F401 /* momentum_effect_rising_glucose_double_entries_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = momentum_effect_rising_glucose_double_entries_input.json; sourceTree = "<group>"; };
@@ -1234,9 +1208,6 @@
 		439706E822D2E94800C81566 /* BoundSwitchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundSwitchTableViewCell.swift; sourceTree = "<group>"; };
 		43971A3F1C8CABFF0013154F /* GlucoseSampleValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlucoseSampleValue.swift; sourceTree = "<group>"; };
 		43971A411C8CAEF20013154F /* momentum_effect_display_only_glucose_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = momentum_effect_display_only_glucose_input.json; sourceTree = "<group>"; };
-		439BCD8D1EEDD22900100EAA /* ice_35_min_none_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_35_min_none_output.json; sourceTree = "<group>"; };
-		439BCD8F1EEDD2AD00100EAA /* ice_1_hour_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_1_hour_output.json; sourceTree = "<group>"; };
-		439BCD911EEDD33F00100EAA /* ice_slow_absorption_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_slow_absorption_output.json; sourceTree = "<group>"; };
 		43A0670E1F23CAC700E9E90F /* DoseType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoseType.swift; sourceTree = "<group>"; };
 		43A067121F245A2F00E9E90F /* DoseStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoseStoreTests.swift; sourceTree = "<group>"; };
 		43A8EC3B210CEEA500A81379 /* CGMManagerUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGMManagerUI.swift; sourceTree = "<group>"; };
@@ -1296,10 +1267,6 @@
 		43D8FE1A1C72906E0073BE78 /* BasalRateScheduleTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasalRateScheduleTests.swift; sourceTree = "<group>"; };
 		43D8FE1B1C72906E0073BE78 /* NSDateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDateTests.swift; sourceTree = "<group>"; };
 		43D8FE1C1C72906E0073BE78 /* QuantityScheduleTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuantityScheduleTests.swift; sourceTree = "<group>"; };
-		43D8FE411C7291900073BE78 /* CarbMathTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbMathTests.swift; sourceTree = "<group>"; };
-		43D8FE441C7291A60073BE78 /* carb_effect_from_history_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = carb_effect_from_history_input.json; sourceTree = "<group>"; };
-		43D8FE451C7291A60073BE78 /* carb_effect_from_history_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = carb_effect_from_history_output.json; sourceTree = "<group>"; };
-		43D8FE461C7291A60073BE78 /* carbs_on_board_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = carbs_on_board_output.json; sourceTree = "<group>"; };
 		43D8FE4A1C7291BD0073BE78 /* CarbEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbEntry.swift; sourceTree = "<group>"; };
 		43D8FE4B1C7291BD0073BE78 /* CarbMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbMath.swift; sourceTree = "<group>"; };
 		43D8FE4C1C7291BD0073BE78 /* CarbStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbStore.swift; sourceTree = "<group>"; };
@@ -1360,10 +1327,6 @@
 		43DFE27C1CB1D6A600EFBE95 /* PumpEvent+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PumpEvent+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		43DFE27F1CB1E12D00EFBE95 /* PumpEventType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PumpEventType.swift; sourceTree = "<group>"; };
 		43DFE2811CB1FB8500EFBE95 /* InsulinValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsulinValue.swift; sourceTree = "<group>"; };
-		43EBE4471EAC77290073A0B5 /* grouped_by_overlapping_absorption_times_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = grouped_by_overlapping_absorption_times_input.json; sourceTree = "<group>"; };
-		43EBE4481EAC77290073A0B5 /* grouped_by_overlapping_absorption_times_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = grouped_by_overlapping_absorption_times_output.json; sourceTree = "<group>"; };
-		43EBE44B1EAC7F0C0073A0B5 /* grouped_by_overlapping_absorption_times_border_case_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = grouped_by_overlapping_absorption_times_border_case_output.json; sourceTree = "<group>"; };
-		43EBE44C1EAC7F0C0073A0B5 /* grouped_by_overlapping_absorption_times_border_case_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = grouped_by_overlapping_absorption_times_border_case_input.json; sourceTree = "<group>"; };
 		43F5034A21051FCD009FA89A /* KeychainManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		43F5034C210599CC009FA89A /* AuthenticationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticationViewController.swift; sourceTree = "<group>"; };
 		43F5034E210599DF009FA89A /* ValidatingIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValidatingIndicatorView.swift; sourceTree = "<group>"; };
@@ -1527,10 +1490,6 @@
 		89FC688C245A2D680075CF59 /* ScheduleItemPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScheduleItemPicker.swift; sourceTree = "<group>"; };
 		89FC688D245A2D680075CF59 /* ScheduleEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScheduleEditor.swift; sourceTree = "<group>"; };
 		89FC688E245A2D680075CF59 /* ScheduleItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScheduleItemView.swift; sourceTree = "<group>"; };
-		9E78433E236653F00016C583 /* ice_35_min_none_piecewiselinear_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ice_35_min_none_piecewiselinear_output.json; sourceTree = "<group>"; };
-		9E784340236656770016C583 /* ice_35_min_partial_piecewiselinear_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ice_35_min_partial_piecewiselinear_output.json; sourceTree = "<group>"; };
-		9E784342236659BD0016C583 /* ice_slow_absorption_piecewiselinear_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ice_slow_absorption_piecewiselinear_output.json; sourceTree = "<group>"; };
-		9E78434423665B5A0016C583 /* ice_35_min_partial_piecewiselinear_adaptiverate_output.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ice_35_min_partial_piecewiselinear_adaptiverate_output.json; sourceTree = "<group>"; };
 		A9012EB125BA3861000813AD /* SetupUIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupUIResult.swift; sourceTree = "<group>"; };
 		A91263862790B45300C6C950 /* NewPumpEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPumpEventTests.swift; sourceTree = "<group>"; };
 		A912BE28245B9CD500CBE199 /* SettingsObject+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsObject+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -1686,7 +1645,6 @@
 		C109240E286A4AD500FAD2B8 /* AutomaticDosingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDosingStrategy.swift; sourceTree = "<group>"; };
 		C10B8078297E498E00446CDD /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C10BD98429C7867600FE2BDC /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C1110E981EE98CF5009BB852 /* ice_35_min_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_35_min_input.json; sourceTree = "<group>"; };
 		C121D8D329C7866D00DA0520 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C121D8D429C7866D00DA0520 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C122DF0129BBFAAE00321F8D /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
@@ -1701,7 +1659,6 @@
 		C13493B6297E498700D87305 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C13493B7297E498700D87305 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1394BA6297E49630042F1A9 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C13E6D291EEB1CB9006F5880 /* ice_slow_absorption.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_slow_absorption.json; sourceTree = "<group>"; };
 		C13F89C4297E495B00C71398 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C140DFFE260276BF000A4FF7 /* ManualBolusRecommendation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManualBolusRecommendation.swift; sourceTree = "<group>"; };
 		C140E0512602908A000A4FF7 /* SettingsPresentationMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsPresentationMode.swift; sourceTree = "<group>"; };
@@ -1735,7 +1692,6 @@
 		C16529002981EE40000B130A /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C168CA78280DD00F002BD2A7 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		C168CA79280DD00F002BD2A7 /* Modelv4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Modelv4.xcdatamodel; sourceTree = "<group>"; };
-		C16BC0B62A5FAB6E00BDC713 /* DoseMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseMathTests.swift; sourceTree = "<group>"; };
 		C16BC0B92A60351900BDC713 /* far_future_high_bg_forecast_after_6_hours.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = far_future_high_bg_forecast_after_6_hours.json; sourceTree = "<group>"; };
 		C16BC0BA2A60351900BDC713 /* recommend_temp_basal_no_change_glucose.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recommend_temp_basal_no_change_glucose.json; sourceTree = "<group>"; };
 		C16BC0BB2A60351900BDC713 /* recommend_temp_basal_start_low_end_high.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recommend_temp_basal_start_low_end_high.json; sourceTree = "<group>"; };
@@ -1763,7 +1719,6 @@
 		C17F39C623CD256000FA1113 /* PersistentDeviceLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentDeviceLog.swift; sourceTree = "<group>"; };
 		C17F39C823CD269200FA1113 /* DeviceLogEntryType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceLogEntryType.swift; sourceTree = "<group>"; };
 		C17F39CF23CE34B100FA1113 /* StoredDeviceLogEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredDeviceLogEntry.swift; sourceTree = "<group>"; };
-		C17F4CB21EE9B6DF005079B1 /* carb_entry_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = carb_entry_input.json; sourceTree = "<group>"; };
 		C1814B83225B9ED5008D2D8E /* LoopNotificationCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopNotificationCategory.swift; sourceTree = "<group>"; };
 		C1814B8B226371DF008D2D8E /* WeakSynchronizedDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakSynchronizedDelegate.swift; sourceTree = "<group>"; };
 		C1821688297E55A7001EB097 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Main.strings; sourceTree = "<group>"; };
@@ -1837,7 +1792,6 @@
 		C1BCB5BB298309C4001C50FF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C1C685F929C786B70002E063 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1CAB9E826A3254800A57273 /* StoredInsulinModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredInsulinModel.swift; sourceTree = "<group>"; };
-		C1CBF61B1EEA2A1E001E4851 /* ice_1_hour_input.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_1_hour_input.json; sourceTree = "<group>"; };
 		C1D107B7297E499D008905A6 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1D107B8297E499D008905A6 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1D107B9297E499D008905A6 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1950,10 +1904,6 @@
 		E9DFB94524E8CD8300468917 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/LegacyInsulinDeliveryTableViewController.strings; sourceTree = "<group>"; };
 		E9DFB94724E8CD8400468917 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LegacyInsulinDeliveryTableViewController.strings; sourceTree = "<group>"; };
 		E9DFB94924E8CD8600468917 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/LegacyInsulinDeliveryTableViewController.strings; sourceTree = "<group>"; };
-		E9E5E56124D362E800B5DFFE /* dynamic_glucose_effect_none_observed_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dynamic_glucose_effect_none_observed_output.json; sourceTree = "<group>"; };
-		E9E5E56224D362E800B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dynamic_glucose_effect_never_fully_observed_output.json; sourceTree = "<group>"; };
-		E9E5E56324D362E800B5DFFE /* dynamic_glucose_effect_partially_observed_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dynamic_glucose_effect_partially_observed_output.json; sourceTree = "<group>"; };
-		E9E5E56424D362E900B5DFFE /* dynamic_glucose_effect_fully_observed_output.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dynamic_glucose_effect_fully_observed_output.json; sourceTree = "<group>"; };
 		E9E5E56924D5CCE800B5DFFE /* OverrideViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverrideViewCell.swift; sourceTree = "<group>"; };
 		E9F54F5D25802D5E0034795E /* InsulinType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinType.swift; sourceTree = "<group>"; };
 		E9F54FC52581C50C0034795E /* ExpandableDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableDatePicker.swift; sourceTree = "<group>"; };
@@ -2632,7 +2582,6 @@
 				1DFB99D5245CB2E900DCC8C9 /* AlertTests.swift */,
 				43D8FE1A1C72906E0073BE78 /* BasalRateScheduleTests.swift */,
 				A95A1D8A2460FD620079378D /* BolusRecommendationTests.swift */,
-				43D8FE411C7291900073BE78 /* CarbMathTests.swift */,
 				437AFF192039F149008C4892 /* CarbStoreTests.swift */,
 				A95A1D842460CAD50079378D /* CarbValueTests.swift */,
 				A9B0D97D273313EB00D96D93 /* CGMManagerStatusTests.swift */,
@@ -2643,7 +2592,6 @@
 				A9BFA03D245CCCB9001E4AE3 /* DailyQuantityScheduleTests.swift */,
 				891A3FD6224BE62100378B27 /* DailyValueScheduleTests.swift */,
 				A95A1D8C246101760079378D /* DoseEntryTests.swift */,
-				C16BC0B62A5FAB6E00BDC713 /* DoseMathTests.swift */,
 				B4CEE2A4256E91290093111B /* DoseProgressTests.swift */,
 				43A067121F245A2F00E9E90F /* DoseStoreTests.swift */,
 				A971C8A323C6B1890099BEFC /* DosingDecisionStoreTests.swift */,
@@ -2706,36 +2654,6 @@
 				4346D1FB1C79481E00ABAFE3 /* NSUserDefaults.swift */,
 				43D8FE4E1C7291BD0073BE78 /* StoredCarbEntry.swift */,
 				A9E1E6A824E1B6700073CA39 /* SyncCarbObject.swift */,
-			);
-			path = CarbKit;
-			sourceTree = "<group>";
-		};
-		43D8FE431C7291930073BE78 /* CarbKit */ = {
-			isa = PBXGroup;
-			children = (
-				E9E5E56424D362E900B5DFFE /* dynamic_glucose_effect_fully_observed_output.json */,
-				E9E5E56224D362E800B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json */,
-				E9E5E56124D362E800B5DFFE /* dynamic_glucose_effect_none_observed_output.json */,
-				E9E5E56324D362E800B5DFFE /* dynamic_glucose_effect_partially_observed_output.json */,
-				43D8FE441C7291A60073BE78 /* carb_effect_from_history_input.json */,
-				43D8FE451C7291A60073BE78 /* carb_effect_from_history_output.json */,
-				C17F4CB21EE9B6DF005079B1 /* carb_entry_input.json */,
-				43D8FE461C7291A60073BE78 /* carbs_on_board_output.json */,
-				43EBE44C1EAC7F0C0073A0B5 /* grouped_by_overlapping_absorption_times_border_case_input.json */,
-				43EBE44B1EAC7F0C0073A0B5 /* grouped_by_overlapping_absorption_times_border_case_output.json */,
-				43EBE4471EAC77290073A0B5 /* grouped_by_overlapping_absorption_times_input.json */,
-				43EBE4481EAC77290073A0B5 /* grouped_by_overlapping_absorption_times_output.json */,
-				C1CBF61B1EEA2A1E001E4851 /* ice_1_hour_input.json */,
-				439BCD8F1EEDD2AD00100EAA /* ice_1_hour_output.json */,
-				C1110E981EE98CF5009BB852 /* ice_35_min_input.json */,
-				439BCD8D1EEDD22900100EAA /* ice_35_min_none_output.json */,
-				4359E74F1EED04330022EF0C /* ice_35_min_partial_output.json */,
-				439BCD911EEDD33F00100EAA /* ice_slow_absorption_output.json */,
-				C13E6D291EEB1CB9006F5880 /* ice_slow_absorption.json */,
-				9E78433E236653F00016C583 /* ice_35_min_none_piecewiselinear_output.json */,
-				9E784340236656770016C583 /* ice_35_min_partial_piecewiselinear_output.json */,
-				9E784342236659BD0016C583 /* ice_slow_absorption_piecewiselinear_output.json */,
-				9E78434423665B5A0016C583 /* ice_35_min_partial_piecewiselinear_adaptiverate_output.json */,
 			);
 			path = CarbKit;
 			sourceTree = "<group>";
@@ -2876,7 +2794,6 @@
 			children = (
 				C1FFF5462ADF3A4100274183 /* AlgorithmTests */,
 				C16BC0B82A6034FA00BDC713 /* DoseMathTests */,
-				43D8FE431C7291930073BE78 /* CarbKit */,
 				43D8FE9B1C7293EB0073BE78 /* GlucoseKit */,
 				43D8FECA1C7294670073BE78 /* InsulinKit */,
 				43D8FEF41C7295490073BE78 /* basal.json */,
@@ -3588,7 +3505,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1210;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1520;
 				ORGANIZATIONNAME = "LoopKit Authors";
 				TargetAttributes = {
 					1DEE226824A676A300693C32 = {
@@ -3756,9 +3673,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4322B795202FA3CC0002837D /* carbs_on_board_output.json in Resources */,
 				B46FA3F4253F00DD00D993E2 /* momentum_effect_impossible_rising_glucose_input.json in Resources */,
-				4322B7A0202FA3CC0002837D /* ice_slow_absorption.json in Resources */,
 				437874BE202FDD2D00A3D8B9 /* iob_from_bolus_180min_output.json in Resources */,
 				C1FFF5542AE06D2900274183 /* carbs_with_isf_change_recommendation.json in Resources */,
 				4322B7A6202FA3D20002837D /* momentum_effect_falling_glucose_output.json in Resources */,
@@ -3773,22 +3688,18 @@
 				43D988A61C87FFA300DA4467 /* glucose_from_effects_momentum_flat_glucose_input.json in Resources */,
 				C16BC0CF2A60351B00BDC713 /* recommended_temp_start_low_end_just_above_range.json in Resources */,
 				C16BC0D22A60351B00BDC713 /* recommend_temp_basal_correct_low_at_min.json in Resources */,
-				9E784341236656770016C583 /* ice_35_min_partial_piecewiselinear_output.json in Resources */,
 				437874D5202FDD2D00A3D8B9 /* suspend_dose_reconciled_normalized.json in Resources */,
 				435D2925205F3A670026F401 /* counteraction_effect_falling_glucose_almost_duplicates_input.json in Resources */,
 				437874CD202FDD2D00A3D8B9 /* reconcile_history_output.json in Resources */,
 				4322B7A2202FA3D20002837D /* momentum_effect_bouncing_glucose_output.json in Resources */,
 				4322B7A4202FA3D20002837D /* momentum_effect_duplicate_glucose_input.json in Resources */,
-				4322B79F202FA3CC0002837D /* ice_slow_absorption_output.json in Resources */,
 				43DC87BE1C8AD41D005BC30D /* glucose_from_effects_non_zero_output.json in Resources */,
-				4322B79B202FA3CC0002837D /* ice_1_hour_output.json in Resources */,
 				43DC87B81C8AD058005BC30D /* glucose_from_effects_non_zero_glucose_input.json in Resources */,
 				C16BC0CE2A60351B00BDC713 /* read_selected_basal_profile.json in Resources */,
 				C16BC0D02A60351B00BDC713 /* recommend_temp_basal_dropping_then_rising.json in Resources */,
 				C16BC0CA2A60351B00BDC713 /* far_future_high_bg_forecast_after_6_hours.json in Resources */,
 				437874D1202FDD2D00A3D8B9 /* reservoir_history_with_rewind_and_prime_input.json in Resources */,
 				43C9805A212BDEE4003B5D17 /* ice_minus_carb_effect_with_gaps_output.json in Resources */,
-				4322B797202FA3CC0002837D /* grouped_by_overlapping_absorption_times_border_case_output.json in Resources */,
 				437874CA202FDD2D00A3D8B9 /* normalized_doses.json in Resources */,
 				4322B7A7202FA3D20002837D /* momentum_effect_incomplete_glucose_input.json in Resources */,
 				437874D7202FDD2D00A3D8B9 /* suspend_dose.json in Resources */,
@@ -3803,14 +3714,11 @@
 				437874CB202FDD2D00A3D8B9 /* normalized_reservoir_history_output.json in Resources */,
 				435D2928205F3C760026F401 /* counteraction_effect_falling_glucose_double_entries._input.json in Resources */,
 				437874B9202FDD2D00A3D8B9 /* doses_overlay_basal_profile_output.json in Resources */,
-				4322B79C202FA3CC0002837D /* ice_35_min_input.json in Resources */,
 				E93E865A24DC744300FF40C8 /* effect_from_basal_output_exponential.json in Resources */,
 				43D988AC1C87FFA300DA4467 /* glucose_from_effects_momentum_blend_glucose_input.json in Resources */,
 				43DC87BC1C8AD0ED005BC30D /* glucose_from_effects_non_zero_carb_input.json in Resources */,
-				4322B79A202FA3CC0002837D /* ice_1_hour_input.json in Resources */,
 				437874C8202FDD2D00A3D8B9 /* normalize_edge_case_doses_input.json in Resources */,
 				437874B7202FDD2D00A3D8B9 /* basal_dose.json in Resources */,
-				4322B799202FA3CC0002837D /* grouped_by_overlapping_absorption_times_output.json in Resources */,
 				435D292D205F48750026F401 /* counteraction_effect_falling_glucose_insulin.json in Resources */,
 				437874D3202FDD2D00A3D8B9 /* short_basal_dose.json in Resources */,
 				C1FAC06328C7B0A100754AE2 /* reservoir_iob_test.json in Resources */,
@@ -3818,23 +3726,19 @@
 				437874D6202FDD2D00A3D8B9 /* suspend_dose_reconciled.json in Resources */,
 				4343951F205EED1F0056DC37 /* counteraction_effect_falling_glucose_output.json in Resources */,
 				43D988AE1C87FFA300DA4467 /* glucose_from_effects_glucose_input.json in Resources */,
-				9E78433F236653F00016C583 /* ice_35_min_none_piecewiselinear_output.json in Resources */,
 				4322B7AA202FA3D20002837D /* momentum_effect_rising_glucose_output.json in Resources */,
 				437874C3202FDD2D00A3D8B9 /* iob_from_bolus_420min_output.json in Resources */,
 				437874C5202FDD2D00A3D8B9 /* iob_from_doses_exponential_output.json in Resources */,
 				437874C2202FDD2D00A3D8B9 /* iob_from_bolus_360min_output.json in Resources */,
 				C16BC0D92A60351B00BDC713 /* recommend_temp_basal_start_low_end_in_range.json in Resources */,
 				43026D642132404900A332E2 /* ice_minus_flat_carb_effect_output.json in Resources */,
-				9E784343236659BD0016C583 /* ice_slow_absorption_piecewiselinear_output.json in Resources */,
 				43DC87BB1C8AD0ED005BC30D /* glucose_from_effects_non_zero_insulin_input.json in Resources */,
 				C1FFF5502AE06A7000274183 /* carbs_with_isf_change_input.json in Resources */,
 				4322B7A1202FA3D20002837D /* momentum_effect_bouncing_glucose_input.json in Resources */,
 				43D988A91C87FFA300DA4467 /* glucose_from_effects_momentum_blend_output.json in Resources */,
 				437874CF202FDD2D00A3D8B9 /* reconcile_resume_before_rewind_output.json in Resources */,
 				4322B7A5202FA3D20002837D /* momentum_effect_falling_glucose_input.json in Resources */,
-				4322B796202FA3CC0002837D /* grouped_by_overlapping_absorption_times_border_case_input.json in Resources */,
 				437874BA202FDD2D00A3D8B9 /* effect_from_basal_output.json in Resources */,
-				4322B798202FA3CC0002837D /* grouped_by_overlapping_absorption_times_input.json in Resources */,
 				C16BC0CB2A60351B00BDC713 /* recommend_temp_basal_no_change_glucose.json in Resources */,
 				E93E866024DC82A600FF40C8 /* dose_history_with_delivered_units.json in Resources */,
 				437874C9202FDD2D00A3D8B9 /* normalize_edge_case_doses_output.json in Resources */,
@@ -3847,45 +3751,35 @@
 				C1FFF54C2ADF3AEA00274183 /* suspend_recommendation.json in Resources */,
 				43D988AA1C87FFA300DA4467 /* glucose_from_effects_momentum_blend_momentum_input.json in Resources */,
 				43439521205F2D910056DC37 /* counteraction_effect_falling_glucose_input.json in Resources */,
-				4322B792202FA3CC0002837D /* carb_effect_from_history_input.json in Resources */,
 				C16BC0DA2A60351B00BDC713 /* far_future_high_bg_forecast.json in Resources */,
 				E93E865C24DC75EF00FF40C8 /* basal_dose_with_expired.json in Resources */,
-				E9E5E56724D362E900B5DFFE /* dynamic_glucose_effect_partially_observed_output.json in Resources */,
 				43D988A41C87FFA300DA4467 /* glucose_from_effects_momentum_flat_output.json in Resources */,
 				E93E866224DC87AE00FF40C8 /* effect_from_history_exponential_delivered_units_output.json in Resources */,
 				437874C1202FDD2D00A3D8B9 /* iob_from_bolus_312min_output.json in Resources */,
 				43D988AF1C87FFA300DA4467 /* glucose_from_effects_carb_effect_input.json in Resources */,
 				A914472527BF04170054A39D /* normalize_edge_case_doses_mutable_input.json in Resources */,
-				4322B793202FA3CC0002837D /* carb_effect_from_history_output.json in Resources */,
 				43D988A51C87FFA300DA4467 /* glucose_from_effects_momentum_flat_input.json in Resources */,
 				43D988A21C87FFA300DA4467 /* glucose_from_effects_momentum_up_output.json in Resources */,
 				C16BC0D82A60351B00BDC713 /* recommend_temp_basal_start_high_end_in_range.json in Resources */,
 				43D988A71C87FFA300DA4467 /* glucose_from_effects_momentum_down_output.json in Resources */,
-				E9E5E56624D362E900B5DFFE /* dynamic_glucose_effect_never_fully_observed_output.json in Resources */,
 				43D8FE691C7292B00073BE78 /* read_carb_ratios.json in Resources */,
 				43D988AB1C87FFA300DA4467 /* glucose_from_effects_momentum_blend_insulin_effect_input.json in Resources */,
 				C16BC0D52A60351B00BDC713 /* recommend_temp_basal_very_low_end_in_range.json in Resources */,
 				A914472727BF044C0054A39D /* normalize_edge_case_doses_mutable_output.json in Resources */,
-				E9E5E56524D362E900B5DFFE /* dynamic_glucose_effect_none_observed_output.json in Resources */,
 				437874C4202FDD2D00A3D8B9 /* iob_from_bolus_exponential_output.json in Resources */,
 				C16BC0CC2A60351B00BDC713 /* recommend_temp_basal_start_low_end_high.json in Resources */,
 				437874CE202FDD2D00A3D8B9 /* reconcile_resume_before_rewind_input.json in Resources */,
-				4322B79E202FA3CC0002837D /* ice_35_min_partial_output.json in Resources */,
 				435D292B205F46180026F401 /* counteraction_effect_falling_glucose_almost_duplicates_output.json in Resources */,
 				B46FA3F3253F00DC00D993E2 /* momentum_effect_impossible_rising_glucose_output.json in Resources */,
-				E9E5E56824D362E900B5DFFE /* dynamic_glucose_effect_fully_observed_output.json in Resources */,
 				4322B7AC202FA3D20002837D /* momentum_effect_stable_glucose_output.json in Resources */,
 				C16BC0D42A60351B00BDC713 /* recommend_temp_basal_high_and_falling.json in Resources */,
 				437874BC202FDD2D00A3D8B9 /* effect_from_history_output.json in Resources */,
 				C16BC0D72A60351B00BDC713 /* recommend_temp_basal_high_and_rising.json in Resources */,
 				437874C7202FDD2D00A3D8B9 /* iob_from_reservoir_output.json in Resources */,
-				4322B794202FA3CC0002837D /* carb_entry_input.json in Resources */,
 				437874B8202FDD2D00A3D8B9 /* bolus_dose.json in Resources */,
 				C16BC0D12A60351B00BDC713 /* recommend_temp_basal_flat_and_high.json in Resources */,
 				43D8FEF71C7295500073BE78 /* basal.json in Resources */,
-				4322B79D202FA3CC0002837D /* ice_35_min_none_output.json in Resources */,
 				C16BC0D32A60351B00BDC713 /* recommend_temp_basal_in_range_and_rising.json in Resources */,
-				9E78434523665B5A0016C583 /* ice_35_min_partial_piecewiselinear_adaptiverate_output.json in Resources */,
 				43D988A31C87FFA300DA4467 /* glucose_from_effects_momentum_up_input.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4423,7 +4317,6 @@
 				437874B5202FDD1200A3D8B9 /* DoseStoreTests.swift in Sources */,
 				A985465125144ABA0099C1A6 /* NotificationSettingsTests.swift in Sources */,
 				B455F4DF2600E0A8000ED456 /* GlucoseRangeTests.swift in Sources */,
-				4322B76C202F9ECD0002837D /* CarbMathTests.swift in Sources */,
 				A9D3FF192A6C2C85000C891D /* PredictedGlucoseChartTests.swift in Sources */,
 				1D70C40D26F01D9F00C62570 /* VersionCheckServiceTests.swift in Sources */,
 				434113B520F2BDB500D05747 /* CachedInsulinDeliveryObjectTests.swift in Sources */,
@@ -4435,7 +4328,6 @@
 				A9DF02C524F6FA5100B7C988 /* PumpEventTests.swift in Sources */,
 				A985464B251442010099C1A6 /* OutputStreamTests.swift in Sources */,
 				A971C8A223C6B17D0099BEFC /* SettingsStoreTests.swift in Sources */,
-				C16BC0B72A5FAB6F00BDC713 /* DoseMathTests.swift in Sources */,
 				C1E7035D24FFFA5C00DAB534 /* CollectionTests.swift in Sources */,
 				1DFB99D6245CB2E900DCC8C9 /* AlertTests.swift in Sources */,
 				B455F35625FC0284000ED456 /* CorrectionRangeOverridesTests.swift in Sources */,
@@ -5245,6 +5137,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -5311,6 +5204,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -5699,6 +5593,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;

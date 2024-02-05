@@ -9,7 +9,7 @@
 import Foundation
 import HealthKit
 import LoopKit
-
+import LoopAlgorithm
 
 class DeviceDataManager {
 

@@ -102,7 +102,7 @@
     {
       "endDate" : "2023-10-17T05:59:08Z",
       "startDate" : "2023-10-17T05:39:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
@@ -114,7 +114,7 @@
     {
       "endDate" : "2023-10-17T06:09:08Z",
       "startDate" : "2023-10-17T06:04:31Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
@@ -186,79 +186,79 @@
     {
       "endDate" : "2023-10-17T07:19:09Z",
       "startDate" : "2023-10-17T07:14:07Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T07:34:07Z",
       "startDate" : "2023-10-17T07:19:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T07:39:08Z",
       "startDate" : "2023-10-17T07:34:07Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T07:59:06Z",
       "startDate" : "2023-10-17T07:39:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T08:19:07Z",
       "startDate" : "2023-10-17T07:59:06Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T08:34:09Z",
       "startDate" : "2023-10-17T08:19:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T08:44:06Z",
       "startDate" : "2023-10-17T08:39:14Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T10:09:13Z",
       "startDate" : "2023-10-17T09:59:17Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T10:39:13Z",
       "startDate" : "2023-10-17T10:19:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T10:59:10Z",
       "startDate" : "2023-10-17T10:39:14Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T11:19:07Z",
       "startDate" : "2023-10-17T10:59:10Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T11:39:08Z",
       "startDate" : "2023-10-17T11:19:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T11:44:09Z",
       "startDate" : "2023-10-17T11:39:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
@@ -306,7 +306,7 @@
     {
       "endDate" : "2023-10-17T12:49:05Z",
       "startDate" : "2023-10-17T12:44:07Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.05
     },
     {
@@ -342,49 +342,49 @@
     {
       "endDate" : "2023-10-17T13:44:12Z",
       "startDate" : "2023-10-17T13:29:15Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T13:49:09Z",
       "startDate" : "2023-10-17T13:44:12Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T13:54:09Z",
       "startDate" : "2023-10-17T13:49:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T13:59:06Z",
       "startDate" : "2023-10-17T13:54:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T14:04:07Z",
       "startDate" : "2023-10-17T13:59:07Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T14:09:09Z",
       "startDate" : "2023-10-17T14:04:07Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T14:14:07Z",
       "startDate" : "2023-10-17T14:09:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T14:24:09Z",
       "startDate" : "2023-10-17T14:14:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.05
     },
     {
@@ -474,19 +474,19 @@
     {
       "endDate" : "2023-10-17T16:09:06Z",
       "startDate" : "2023-10-17T16:04:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T16:14:07Z",
       "startDate" : "2023-10-17T16:09:07Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.05
     },
     {
       "endDate" : "2023-10-17T16:24:07Z",
       "startDate" : "2023-10-17T16:19:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
@@ -534,7 +534,7 @@
     {
       "endDate" : "2023-10-17T17:04:07Z",
       "startDate" : "2023-10-17T16:59:12Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.05
     },
     {
@@ -588,7 +588,7 @@
     {
       "endDate" : "2023-10-17T18:14:07Z",
       "startDate" : "2023-10-17T18:09:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.05
     },
     {
@@ -600,7 +600,7 @@
     {
       "endDate" : "2023-10-17T18:39:09Z",
       "startDate" : "2023-10-17T18:29:07Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.1
     },
     {
@@ -612,49 +612,49 @@
     {
       "endDate" : "2023-10-17T18:54:08Z",
       "startDate" : "2023-10-17T18:49:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.05
     },
     {
       "endDate" : "2023-10-17T18:59:10Z",
       "startDate" : "2023-10-17T18:54:09Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.05
     },
     {
       "endDate" : "2023-10-17T19:09:07Z",
       "startDate" : "2023-10-17T18:59:10Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T19:14:09Z",
       "startDate" : "2023-10-17T19:09:07Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0.05
     },
     {
       "endDate" : "2023-10-17T19:34:08Z",
       "startDate" : "2023-10-17T19:14:10Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T19:54:07Z",
       "startDate" : "2023-10-17T19:34:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T20:14:17Z",
       "startDate" : "2023-10-17T19:54:08Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {
       "endDate" : "2023-10-17T20:34:08Z",
       "startDate" : "2023-10-17T20:14:17Z",
-      "type" : "tempBasal",
+      "type" : "basal",
       "volume" : 0
     },
     {

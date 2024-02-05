@@ -8,6 +8,7 @@
 
 import XCTest
 import HealthKit
+import LoopAlgorithm
 
 @testable import LoopKit
 
@@ -128,20 +129,20 @@ class BolusRecommendationNoticeCodableTests: XCTestCase {
     }
 }
 
-extension BolusRecommendationNotice: Equatable {
-    public static func == (lhs: BolusRecommendationNotice, rhs: BolusRecommendationNotice) -> Bool {
-        switch (lhs, rhs) {
-        case (.glucoseBelowSuspendThreshold(let lhsGlucoseValue), .glucoseBelowSuspendThreshold(let rhsGlucoseValue)),
-             (.currentGlucoseBelowTarget(let lhsGlucoseValue), .currentGlucoseBelowTarget(let rhsGlucoseValue)),
-             (.predictedGlucoseBelowTarget(let lhsGlucoseValue), .predictedGlucoseBelowTarget(let rhsGlucoseValue)),
-             (.allGlucoseBelowTarget(let lhsGlucoseValue), .allGlucoseBelowTarget(let rhsGlucoseValue)):
-            return lhsGlucoseValue.startDate == rhsGlucoseValue.startDate &&
-                lhsGlucoseValue.endDate == rhsGlucoseValue.endDate &&
-                lhsGlucoseValue.quantity == rhsGlucoseValue.quantity
-        case (.predictedGlucoseInRange, .predictedGlucoseInRange):
-            return true
-        default:
-            return false
-        }
-    }
-}
+//extension BolusRecommendationNotice: Equatable {
+//    public static func == (lhs: BolusRecommendationNotice, rhs: BolusRecommendationNotice) -> Bool {
+//        switch (lhs, rhs) {
+//        case (.glucoseBelowSuspendThreshold(let lhsGlucoseValue), .glucoseBelowSuspendThreshold(let rhsGlucoseValue)),
+//             (.currentGlucoseBelowTarget(let lhsGlucoseValue), .currentGlucoseBelowTarget(let rhsGlucoseValue)),
+//             (.predictedGlucoseBelowTarget(let lhsGlucoseValue), .predictedGlucoseBelowTarget(let rhsGlucoseValue)),
+//             (.allGlucoseBelowTarget(let lhsGlucoseValue), .allGlucoseBelowTarget(let rhsGlucoseValue)):
+//            return lhsGlucoseValue.startDate == rhsGlucoseValue.startDate &&
+//                lhsGlucoseValue.endDate == rhsGlucoseValue.endDate &&
+//                lhsGlucoseValue.quantity == rhsGlucoseValue.quantity
+//        case (.predictedGlucoseInRange, .predictedGlucoseInRange):
+//            return true
+//        default:
+//            return false
+//        }
+//    }
+//}
