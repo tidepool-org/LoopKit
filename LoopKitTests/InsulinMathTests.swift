@@ -101,7 +101,7 @@ class InsulinMathTests: XCTestCase {
                     "unit": "U"
                 ]
             }),
-            options: .prettyPrinted), encoding: .utf8)!)
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]), encoding: .utf8)!)
         print("\n\n")
     }
 
@@ -478,6 +478,8 @@ class InsulinMathTests: XCTestCase {
         let iob = basalRelativeInput.insulinOnBoardTimeline(insulinModelProvider: walshModelSettings, longestEffectDuration: walshModelDuration)
 
         XCTAssertEqual(output.count, iob.count)
+
+        printInsulinValues(iob)
 
         for (expected, calculated) in zip(output, iob) {
             XCTAssertEqual(expected.startDate, calculated.startDate)
