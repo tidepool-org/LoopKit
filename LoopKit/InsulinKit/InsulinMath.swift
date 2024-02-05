@@ -180,7 +180,8 @@ extension Collection where Element: ReservoirValue {
                         startDate: previousValue.startDate,
                         endDate: value.startDate,
                         value: volumeDrop,
-                        unit: .units
+                        unit: .units,
+                        deliveredUnits: volumeDrop
                     ))
                 }
             }
