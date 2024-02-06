@@ -81,7 +81,6 @@
 		4322B774202FA2790002837D /* CarbMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE4B1C7291BD0073BE78 /* CarbMath.swift */; };
 		4322B775202FA2790002837D /* CarbStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4378B6501ED62D8D000AE785 /* CarbStatus.swift */; };
 		4322B776202FA2790002837D /* CarbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE4C1C7291BD0073BE78 /* CarbStore.swift */; };
-		4322B777202FA2790002837D /* CarbValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4378B64E1ED61C64000AE785 /* CarbValue.swift */; };
 		4322B778202FA2790002837D /* HKQuantitySample+CarbKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE4D1C7291BD0073BE78 /* HKQuantitySample+CarbKit.swift */; };
 		4322B779202FA2790002837D /* NewCarbEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FE5B1C7291D80073BE78 /* NewCarbEntry.swift */; };
 		4322B77A202FA2790002837D /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4346D1FB1C79481E00ABAFE3 /* NSUserDefaults.swift */; };
@@ -561,7 +560,6 @@
 		A9E675AA22713F4700E25293 /* ReservoirValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4302F4E81D5066F400F0FCAF /* ReservoirValue.swift */; };
 		A9E675AB22713F4700E25293 /* HKHealthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437AFF23203BE402008C4892 /* HKHealthStore.swift */; };
 		A9E675AC22713F4700E25293 /* Reservoir.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FEE31C7294D50073BE78 /* Reservoir.swift */; };
-		A9E675AE22713F4700E25293 /* CarbValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4378B64E1ED61C64000AE785 /* CarbValue.swift */; };
 		A9E675AF22713F4700E25293 /* PumpEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43DFE27F1CB1E12D00EFBE95 /* PumpEventType.swift */; };
 		A9E675B222713F4700E25293 /* GlucoseRangeSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8FDEB1C7290350073BE78 /* GlucoseRangeSchedule.swift */; };
 		A9E675B322713F4700E25293 /* PersistedPumpEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4302F4EC1D5068CE00F0FCAF /* PersistedPumpEvent.swift */; };
@@ -1172,7 +1170,6 @@
 		4378B6451ED55F8C000AE785 /* suspend_dose_reconciled_normalized.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = suspend_dose_reconciled_normalized.json; sourceTree = "<group>"; };
 		4378B6461ED55F8C000AE785 /* suspend_dose_reconciled.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = suspend_dose_reconciled.json; sourceTree = "<group>"; };
 		4378B64C1ED61C22000AE785 /* AbsorbedCarbValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AbsorbedCarbValue.swift; sourceTree = "<group>"; };
-		4378B64E1ED61C64000AE785 /* CarbValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbValue.swift; sourceTree = "<group>"; };
 		4378B6501ED62D8D000AE785 /* CarbStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbStatus.swift; sourceTree = "<group>"; };
 		4379CFE221102A4100AADC79 /* DeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManager.swift; sourceTree = "<group>"; };
 		437AFEE92036A156008C4892 /* CachedCarbObject+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CachedCarbObject+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -2607,7 +2604,6 @@
 				4378B6501ED62D8D000AE785 /* CarbStatus.swift */,
 				43D8FE4C1C7291BD0073BE78 /* CarbStore.swift */,
 				4353D16E203D104F007B4ECD /* CarbStoreError.swift */,
-				4378B64E1ED61C64000AE785 /* CarbValue.swift */,
 				43D8FE4D1C7291BD0073BE78 /* HKQuantitySample+CarbKit.swift */,
 				43D8FE5B1C7291D80073BE78 /* NewCarbEntry.swift */,
 				4346D1FB1C79481E00ABAFE3 /* NSUserDefaults.swift */,
@@ -4129,7 +4125,6 @@
 				14D906F02A8457AB006EB79A /* StoredFavoriteFood.swift in Sources */,
 				4322B783202FA2AF0002837D /* Reservoir.swift in Sources */,
 				1DA649AB2445174400F61E75 /* Alert.swift in Sources */,
-				4322B777202FA2790002837D /* CarbValue.swift in Sources */,
 				4322B782202FA2AF0002837D /* PumpEventType.swift in Sources */,
 				89AE2228228BC54C00BDFD85 /* TemporaryScheduleOverrideSettings.swift in Sources */,
 				43D8FDFA1C7290350073BE78 /* GlucoseRangeSchedule.swift in Sources */,
@@ -4441,7 +4436,6 @@
 				A9E675AB22713F4700E25293 /* HKHealthStore.swift in Sources */,
 				A9E675AC22713F4700E25293 /* Reservoir.swift in Sources */,
 				C1092410286A4ADB00FAD2B8 /* AutomaticDosingStrategy.swift in Sources */,
-				A9E675AE22713F4700E25293 /* CarbValue.swift in Sources */,
 				C17F39CB23CD2D2F00FA1113 /* DeviceLogEntryType.swift in Sources */,
 				A9E675AF22713F4700E25293 /* PumpEventType.swift in Sources */,
 				C1614F062AAFC36200F636E5 /* CgmEvent.swift in Sources */,
