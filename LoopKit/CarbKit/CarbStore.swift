@@ -107,9 +107,6 @@ public final class CarbStore {
     /// The factor by which the entered absorption time can be extended to accomodate slower-than-expected absorption
     public let absorptionTimeOverrun: Double
     
-    /// Carb absorption model
-    public let carbAbsorptionModel: CarbAbsorptionModel
-
     /// The interval of carb data to keep in cache
     public let cacheLength: TimeInterval
 
@@ -127,8 +124,6 @@ public final class CarbStore {
     
     static let healthKitQueryAnchorMetadataKey = "com.loopkit.CarbStore.hkQueryAnchor"
     
-    var settings: CarbModelSettings
-
     private let provenanceIdentifier: String
 
     /**
@@ -145,7 +140,6 @@ public final class CarbStore {
         absorptionTimeOverrun: Double = CarbMath.defaultAbsorptionTimeOverrun,
         calculationDelta: TimeInterval = GlucoseMath.defaultDelta,
         effectDelay: TimeInterval = CarbMath.defaultEffectDelay,
-        carbAbsorptionModel: CarbAbsorptionModel = .piecewiseLinear,
         provenanceIdentifier: String = HKSource.default().bundleIdentifier,
         test_currentDate: Date? = nil
     ) {
@@ -157,17 +151,8 @@ public final class CarbStore {
         self.delta = calculationDelta
         self.delay = effectDelay
         self.cacheLength = cacheLength
-        self.carbAbsorptionModel = carbAbsorptionModel
         self.provenanceIdentifier = provenanceIdentifier
         self.test_currentDate = test_currentDate
-
-        // Carb model settings based on the selected absorption model
-        switch self.carbAbsorptionModel {
-        case .linear:
-            self.settings = CarbModelSettings(absorptionModel: LinearAbsorption(), initialAbsorptionTimeOverrun: absorptionTimeOverrun, adaptiveAbsorptionRateEnabled: false)
-        case .piecewiseLinear:
-            self.settings = CarbModelSettings(absorptionModel: PiecewiseLinearAbsorption(), initialAbsorptionTimeOverrun: absorptionTimeOverrun, adaptiveAbsorptionRateEnabled: false)
-        }
 
         healthKitSampleStore?.delegate = self
 
@@ -1158,13 +1143,6 @@ extension CarbStore {
     public func generateDiagnosticReport() async -> String {
         await withCheckedContinuation { continuation in
             queue.async {
-                var carbAbsorptionModel: String
-                switch self.carbAbsorptionModel {
-                case .linear:
-                    carbAbsorptionModel = "Linear"
-                case .piecewiseLinear:
-                    carbAbsorptionModel = "Nonlinear"
-                }
 
                 var report: [String] = [
                     "## CarbStore",
@@ -1174,8 +1152,6 @@ extension CarbStore {
                     "* delay: \(self.delay)",
                     "* delta: \(self.delta)",
                     "* absorptionTimeOverrun: \(self.absorptionTimeOverrun)",
-                    "* carbAbsorptionModel: \(carbAbsorptionModel)",
-                    "* Carb absorption model settings: \(self.settings)",
                     "* HealthKit Sample Store: \(self.hkSampleStore?.debugDescription ?? "nil")",
                     "",
                     "cachedCarbEntries:"
