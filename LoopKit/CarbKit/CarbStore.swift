@@ -54,8 +54,6 @@ public final class CarbStore {
     /// Notification posted when carb entries were changed, either via add/replace/delete methods or from HealthKit
     public static let carbEntriesDidChange = NSNotification.Name(rawValue: "com.loopkit.CarbStore.carbEntriesDidChange")
 
-    public typealias DefaultAbsorptionTimes = (fast: TimeInterval, medium: TimeInterval, slow: TimeInterval)
-
     public enum CarbStoreError: Error {
         // The store isn't correctly configured for the requested operation
         case notConfigured
@@ -95,18 +93,6 @@ public final class CarbStore {
         return .gram()
     }
 
-    /// A trio of default carbohydrate absorption times. Defaults to 2, 3, and 4 hours.
-    public let defaultAbsorptionTimes: DefaultAbsorptionTimes
-
-    /// The expected delay in the appearance of glucose effects, accounting for both digestion and sensor lag
-    public let delay: TimeInterval
-
-    /// The interval between effect values to use for the calculated timelines.
-    public let delta: TimeInterval
-
-    /// The factor by which the entered absorption time can be extended to accomodate slower-than-expected absorption
-    public let absorptionTimeOverrun: Double
-    
     /// The interval of carb data to keep in cache
     public let cacheLength: TimeInterval
 
@@ -135,21 +121,13 @@ public final class CarbStore {
         healthKitSampleStore: HealthKitSampleStore? = nil,
         cacheStore: PersistenceController,
         cacheLength: TimeInterval,
-        defaultAbsorptionTimes: DefaultAbsorptionTimes,
         syncVersion: Int = 1,
-        absorptionTimeOverrun: Double = CarbMath.defaultAbsorptionTimeOverrun,
-        calculationDelta: TimeInterval = GlucoseMath.defaultDelta,
-        effectDelay: TimeInterval = CarbMath.defaultEffectDelay,
         provenanceIdentifier: String = HKSource.default().bundleIdentifier,
         test_currentDate: Date? = nil
     ) {
         self.hkSampleStore = healthKitSampleStore
         self.cacheStore = cacheStore
-        self.defaultAbsorptionTimes = defaultAbsorptionTimes
         self.syncVersion = syncVersion
-        self.absorptionTimeOverrun = absorptionTimeOverrun
-        self.delta = calculationDelta
-        self.delay = effectDelay
         self.cacheLength = cacheLength
         self.provenanceIdentifier = provenanceIdentifier
         self.test_currentDate = test_currentDate
@@ -891,10 +869,6 @@ extension CarbStore {
 // MARK: - Math
 
 extension CarbStore {
-    /// The longest expected absorption time interval for carbohydrates. Defaults to 8 hours.
-    public var maximumAbsorptionTimeInterval: TimeInterval {
-        return defaultAbsorptionTimes.slow * 2
-    }
 
     /// Retrieves the total number of recorded carbohydrates for the specified period.
     ///
@@ -1148,10 +1122,6 @@ extension CarbStore {
                     "## CarbStore",
                     "",
                     "* cacheLength: \(self.cacheLength)",
-                    "* defaultAbsorptionTimes: \(self.defaultAbsorptionTimes)",
-                    "* delay: \(self.delay)",
-                    "* delta: \(self.delta)",
-                    "* absorptionTimeOverrun: \(self.absorptionTimeOverrun)",
                     "* HealthKit Sample Store: \(self.hkSampleStore?.debugDescription ?? "nil")",
                     "",
                     "cachedCarbEntries:"
@@ -1173,7 +1143,6 @@ extension CarbStore {
                             String(describing: entry.startDate),
                             String(describing: entry.quantity),
                             entry.foodType ?? "",
-                            String(describing: entry.absorptionTime ?? self.defaultAbsorptionTimes.medium),
                             String(describing: entry.createdByCurrentApp),
                             entry.userCreatedDate != nil ? String(describing: entry.userCreatedDate) : "",
                             entry.userUpdatedDate != nil ? String(describing: entry.userUpdatedDate) : "",

@@ -30,7 +30,6 @@ class DeviceDataManager {
             healthKitSampleStore: carbSampleStore,
             cacheStore: cacheStore,
             cacheLength: observationInterval,
-            defaultAbsorptionTimes: (fast: .minutes(30), medium: .hours(3), slow: .hours(5)),
             provenanceIdentifier: HKSource.default().bundleIdentifier
         )
 
