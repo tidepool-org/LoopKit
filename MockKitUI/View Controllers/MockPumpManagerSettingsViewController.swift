@@ -472,7 +472,7 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
             case .lastReconciliationDate:
                 
                 let resetAction = UIContextualAction(style: .normal, title:  "Reset") {[weak self] _,_,_ in
-                    self?.pumpManager.testLastReconciliation = nil
+                    self?.pumpManager.lastSync = nil
                     tableView.reloadRows(at: [indexPath], with: .automatic)
                 }
                 resetAction.backgroundColor = .systemRed
@@ -494,7 +494,7 @@ extension MockPumpManagerSettingsViewController: DatePickerTableViewCellDelegate
 
         switch SettingsRow(rawValue: row) {
         case .lastReconciliationDate?:
-            pumpManager.testLastReconciliation = cell.date
+            pumpManager.lastSync = cell.date
         default:
             break
         }
