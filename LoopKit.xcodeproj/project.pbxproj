@@ -5891,7 +5891,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/LoopKit/LoopAlgorithm";
 			requirement = {
-				branch = main;
+				branch = dev;
 				kind = branch;
 			};
 		};
