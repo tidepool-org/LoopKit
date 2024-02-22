@@ -230,7 +230,6 @@ class DosingDecisionStorePersistenceTests: PersistenceControllerTestCase, Dosing
         "notice" : {
           "predictedGlucoseBelowTarget" : {
             "minGlucose" : {
-              "endDate" : "2020-05-14T23:03:15Z",
               "quantity" : 75.5,
               "quantityUnit" : "mg/dL",
               "startDate" : "2020-05-14T23:03:15Z"
@@ -837,7 +836,6 @@ class StoredDosingDecisionCodableTests: XCTestCase {
       "notice" : {
         "predictedGlucoseBelowTarget" : {
           "minGlucose" : {
-            "endDate" : "2020-05-14T23:03:15Z",
             "quantity" : 75.5,
             "quantityUnit" : "mg/dL",
             "startDate" : "2020-05-14T23:03:15Z"
