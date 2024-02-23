@@ -76,22 +76,6 @@ public final class DoseStore {
     
     public var longestEffectDuration: TimeInterval
 
-    public var insulinModelProvider: InsulinModelProvider {
-        get {
-            return lockedInsulinModelProvider.value
-        }
-        set {
-            lockedInsulinModelProvider.value = newValue
-
-            persistenceController.managedObjectContext.perform {
-                self.pumpEventQueryAfterDate = max(self.pumpEventQueryAfterDate, self.cacheStartDate)
-
-                self.validateReservoirContinuity()
-            }
-        }
-    }
-    private let lockedInsulinModelProvider: Locked<InsulinModelProvider>
-    
     public var basalProfile: BasalRateSchedule? {
         get {
             return lockedBasalProfile.value
@@ -155,7 +139,6 @@ public final class DoseStore {
         healthKitSampleStore: HealthKitSampleStore? = nil,
         cacheStore: PersistenceController,
         cacheLength: TimeInterval = 24 /* hours */ * 60 /* minutes */ * 60 /* seconds */,
-        insulinModelProvider: InsulinModelProvider,
         longestEffectDuration: TimeInterval = InsulinMath.longestInsulinActivityDuration,
         basalProfile: BasalRateSchedule? = nil,
         insulinSensitivitySchedule: InsulinSensitivitySchedule? = nil,
@@ -172,7 +155,6 @@ public final class DoseStore {
             provenanceIdentifier: provenanceIdentifier,
             test_currentDate: test_currentDate
         )
-        self.lockedInsulinModelProvider = Locked(insulinModelProvider)
         self.longestEffectDuration = longestEffectDuration
         self.lockedBasalProfile = Locked(basalProfile)
         self.persistenceController = cacheStore
@@ -1286,7 +1268,6 @@ extension DoseStore {
         var report: [String] = [
             "## DoseStore",
             "",
-            "* insulinModelProvider: \(String(reflecting: insulinModelProvider))",
             "* basalProfile: \(basalProfile?.debugDescription ?? "")",
             "* areReservoirValuesValid: \(areReservoirValuesValid)",
             "* lastPumpEventsReconciliation: \(String(describing: lastPumpEventsReconciliation))",

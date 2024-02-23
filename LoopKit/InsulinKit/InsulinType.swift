@@ -9,6 +9,15 @@
 import Foundation
 import LoopAlgorithm
 
+public enum InsulinType: Int, Codable, CaseIterable {
+    case novolog
+    case humalog
+    case apidra
+    case fiasp
+    case lyumjev
+    case afrezza
+}
+
 extension InsulinType {
     public var title: String {
         switch self {

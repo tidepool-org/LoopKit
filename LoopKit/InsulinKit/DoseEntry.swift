@@ -19,7 +19,7 @@ public struct DoseEntry: TimelineValue, Equatable {
     public let unit: DoseUnit
     public let deliveredUnits: Double?
     public let description: String?
-    public let insulinType: InsulinType?
+    public var insulinType: InsulinType?
     public let automatic: Bool?
     public let manuallyEntered: Bool
     public internal(set) var syncIdentifier: String?

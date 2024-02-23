@@ -199,7 +199,7 @@ public struct InsulinModelSelection: View {
     }
     
     private func oneUnitBolusEffectPrediction(using modelPreset: ExponentialInsulinModelPreset) -> [GlucoseValue] {
-        let bolus = BasalRelativeDose(type: .bolus, startDate: chartManager.startDate, endDate: chartManager.startDate, volume: 1, insulinType: .novolog)
+        let bolus = BasalRelativeDose(type: .bolus, startDate: chartManager.startDate, endDate: chartManager.startDate, volume: 1, insulinModel: modelPreset.model)
         let startingGlucoseSample = HKQuantitySample(type: HealthKitSampleStore.glucoseType, quantity: startingGlucoseQuantity, start: chartManager.startDate, end: chartManager.startDate)
         let isfTimeline = insulinSensitivitySchedule.quantitiesBetween(
             start: chartManager.startDate,
@@ -207,7 +207,7 @@ public struct InsulinModelSelection: View {
                 InsulinMath.longestInsulinActivityDuration
             )
         )
-        let effects = [bolus].glucoseEffects(insulinModelProvider: StaticInsulinModelProvider(modelPreset), longestEffectDuration: .hours(6), insulinSensitivityTimeline: isfTimeline)
+        let effects = [bolus].glucoseEffects(longestEffectDuration: .hours(6), insulinSensitivityTimeline: isfTimeline)
         return LoopMath.predictGlucose(startingAt: startingGlucoseSample, effects: effects)
     }
 
