@@ -7,7 +7,6 @@
 //
 
 import HealthKit
-import LoopAlgorithm
 
 public struct TemporaryScheduleOverrideSettings: Hashable {
     private var targetRangeInMgdl: DoubleRange?

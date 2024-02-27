@@ -9,7 +9,6 @@
 import Foundation
 import HealthKit
 import LoopKit
-import LoopAlgorithm
 
 public enum ChartConstants {
     public static let minimumChartWidthPerHour: CGFloat = 50

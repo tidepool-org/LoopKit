@@ -9,7 +9,6 @@
 import UIKit
 import HealthKit
 import LoopKit
-import LoopAlgorithm
 
 public enum SaveGlucoseRangeScheduleResult {
     case success

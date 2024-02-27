@@ -9,7 +9,6 @@
 import XCTest
 @testable import LoopKit
 import HealthKit
-import LoopAlgorithm
 
 
 public struct GlucoseFixtureValue: GlucoseSampleValue {

@@ -8,7 +8,6 @@
 import XCTest
 import CoreData
 import HealthKit
-import LoopAlgorithm
 @testable import LoopKit
 
 class DoseStoreTests: PersistenceControllerTestCase {

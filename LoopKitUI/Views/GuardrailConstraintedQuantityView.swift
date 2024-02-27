@@ -9,7 +9,6 @@
 import SwiftUI
 import HealthKit
 import LoopKit
-import LoopAlgorithm
 
 
 public struct GuardrailConstrainedQuantityView: View {
