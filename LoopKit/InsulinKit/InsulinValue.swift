@@ -8,6 +8,7 @@
 
 import Foundation
 import HealthKit
+import LoopAlgorithm
 
 //public struct InsulinValue: TimelineValue, Equatable {
 //    public let startDate: Date

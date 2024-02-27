@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import LoopAlgorithm
 
 public enum InsulinType: Int, Codable, CaseIterable {
     case novolog

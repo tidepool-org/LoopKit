@@ -8,6 +8,7 @@
 
 import Foundation
 import HealthKit
+import LoopAlgorithm
 
 //extension BolusRecommendationNotice: Codable {
 //    public init(from decoder: Decoder) throws {
