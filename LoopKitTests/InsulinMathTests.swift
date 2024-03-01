@@ -29,7 +29,8 @@ extension DoseUnit {
 }
 
 extension DoseEntry {
-    var basalRelativeDose: BasalRelativeDose? {
+
+    func basalRelativeDose(with insulinModel: InsulinModel) -> BasalRelativeDose {
         var basalRelativeDoseType: BasalRelativeDoseType
         switch type {
         case .bolus:
@@ -43,12 +44,13 @@ extension DoseEntry {
                 basalRelativeDoseType = .basal(scheduledRate: 0)  // Seems odd, but this is existing behavior
             }
         }
+
         return BasalRelativeDose(
             type: basalRelativeDoseType,
             startDate: startDate,
             endDate: endDate,
             volume: deliveredUnits ?? programmedUnits,
-            insulinType: insulinType
+            insulinModel: insulinModel
         )
     }
 }
@@ -77,13 +79,11 @@ class InsulinMathTests: XCTestCase {
     
     private let insulinType: InsulinType = .novolog
     
-    private let exponentialModel = ExponentialInsulinModel(actionDuration: TimeInterval(minutes: 360), peakActivityTime: TimeInterval(minutes: 75))
-    
-    let insulinModelSettings = StaticInsulinModelProvider(ExponentialInsulinModelPreset.rapidActingAdult)
-    let insulinModelDuration = ExponentialInsulinModelPreset.rapidActingAdult.effectDuration
-    
-    let walshModelSettings = StaticInsulinModelProvider( WalshInsulinModel(actionDuration: TimeInterval(hours: 4)))
-    let walshModelDuration = WalshInsulinModel(actionDuration: TimeInterval(hours: 4)).effectDuration
+    let exponentialModel = ExponentialInsulinModel(actionDuration: TimeInterval(minutes: 360), peakActivityTime: TimeInterval(minutes: 75))
+
+    let standardInsulinModel = ExponentialInsulinModelPreset.rapidActingAdult.model
+
+    let walshModel = WalshInsulinModel(actionDuration: TimeInterval(hours: 4))
 
     
     private func fixtureDate(_ input: String) -> Date {
@@ -285,7 +285,9 @@ class InsulinMathTests: XCTestCase {
 
         let basalTimeline = basals.between(start: input.first!.startDate, end: input.first!.startDate)
 
-        let normalized = reconciled.annotated(with: basalTimeline)
+        let reconciledWithModel = reconciled.map { $0.toMockInsulinDose(with: walshModel) }
+
+        let normalized = reconciledWithModel.annotated(with: basalTimeline)
 
         XCTAssertEqual(normalizedOutput.count, normalized.count)
 
@@ -295,7 +297,7 @@ class InsulinMathTests: XCTestCase {
             XCTAssertEqual(expected.value, calculated.netBasalUnitsPerHour, accuracy: Double(Float.ulpOfOne))
         }
 
-        let iob = normalized.insulinOnBoardTimeline(insulinModelProvider: walshModelSettings, longestEffectDuration: walshModelDuration)
+        let iob = normalized.insulinOnBoardTimeline(longestEffectDuration: walshModel.effectDuration)
 
         XCTAssertEqual(iobOutput.count, iob.count)
 
@@ -309,13 +311,13 @@ class InsulinMathTests: XCTestCase {
         let input = loadDoseFixture("normalized_doses", insulinType: .novolog)
         let output = loadInsulinValueFixture("iob_from_doses_output")
 
-        let basalRelativeInput = input.map { $0.basalRelativeDose! }
+        let basalRelativeInput = input.map { $0.basalRelativeDose(with: walshModel) }
 
         measure {
-            _ = basalRelativeInput.insulinOnBoardTimeline(insulinModelProvider: walshModelSettings, longestEffectDuration: walshModelDuration)
+            _ = basalRelativeInput.insulinOnBoardTimeline(longestEffectDuration: walshModel.effectDuration)
         }
 
-        let iob = basalRelativeInput.insulinOnBoardTimeline(insulinModelProvider: walshModelSettings, longestEffectDuration: walshModelDuration)
+        let iob = basalRelativeInput.insulinOnBoardTimeline(longestEffectDuration: walshModel.effectDuration)
 
         XCTAssertEqual(output.count, iob.count)
 
@@ -328,9 +330,9 @@ class InsulinMathTests: XCTestCase {
     func testIOBFromNoDoses() {
         let input: [DoseEntry] = []
 
-        let basalRelativeInput = input.map { $0.basalRelativeDose! }
+        let basalRelativeInput = input.map { $0.basalRelativeDose(with: standardInsulinModel) }
 
-        let iob = basalRelativeInput.insulinOnBoardTimeline(insulinModelProvider: insulinModelSettings, longestEffectDuration: insulinModelDuration)
+        let iob = basalRelativeInput.insulinOnBoardTimeline(longestEffectDuration: standardInsulinModel.effectDuration)
 
         XCTAssertEqual(0, iob.count)
     }
@@ -356,19 +358,13 @@ class InsulinMathTests: XCTestCase {
         let input = loadDoseFixture("normalized_doses", insulinType: .novolog)
         let output = loadInsulinValueFixture("iob_from_doses_exponential_output")
 
-        let basalRelativeInput = input.map { $0.basalRelativeDose! }
+        let basalRelativeInput = input.map { $0.basalRelativeDose(with: exponentialModel) }
 
         measure {
-            _ = basalRelativeInput.insulinOnBoardTimeline(
-                insulinModelProvider: insulinModelSettings,
-                longestEffectDuration: insulinModelDuration
-            )
+            _ = basalRelativeInput.insulinOnBoardTimeline(longestEffectDuration: exponentialModel.effectDuration)
         }
         
-        let iob = basalRelativeInput.insulinOnBoardTimeline(
-            insulinModelProvider: insulinModelSettings,
-            longestEffectDuration: insulinModelDuration
-        )
+        let iob = basalRelativeInput.insulinOnBoardTimeline()
 
         XCTAssertEqual(output.count, iob.count)
         
@@ -393,12 +389,9 @@ class InsulinMathTests: XCTestCase {
             DoseEntry(type: .bolus, startDate: f("2018-05-15 14:52:51 +0000"), endDate: f("2018-05-15 15:52:51 +0000"), value: 0.9, unit: .units, syncIdentifier: "01004a004a006d006e22354312", scheduledBasalRate: nil),
         ]
 
-        let basalRelativeInput = doses.map { $0.basalRelativeDose! }
+        let basalRelativeInput = doses.map { $0.basalRelativeDose(with: exponentialModel) }
 
-        let iobWithoutModel = basalRelativeInput.insulinOnBoardTimeline(
-            insulinModelProvider: insulinModelSettings,
-            longestEffectDuration: insulinModelDuration
-        )
+        let iobWithoutModel = basalRelativeInput.insulinOnBoardTimeline()
 
         let dosesWithModel = [
             DoseEntry(type: .basal, startDate: f("2018-05-15 14:42:36 +0000"), endDate: f("2018-05-16 14:42:36 +0000"), value: 0.84999999999999998, unit: .unitsPerHour, syncIdentifier: "7b02646a070f120e2200", scheduledBasalRate: nil),
@@ -408,14 +401,17 @@ class InsulinMathTests: XCTestCase {
             DoseEntry(type: .bolus, startDate: f("2018-05-15 14:52:51 +0000"), endDate: f("2018-05-15 15:52:51 +0000"), value: 0.9, unit: .units, syncIdentifier: "01004a004a006d006e22354312", scheduledBasalRate: nil, insulinType: .novolog),
         ]
 
-        let insulinModelProvider = PresetInsulinModelProvider(defaultRapidActingModel: ExponentialInsulinModelPreset.rapidActingChild)
-        
-        let dosesWithModelRelative = dosesWithModel.map { $0.basalRelativeDose! }
+        let dosesWithModelRelative = dosesWithModel.map { entry in
+            let insulinModel: InsulinModel
+            switch entry.insulinType {
+            case .fiasp:
+                insulinModel = ExponentialInsulinModelPreset.fiasp
+            default:
+                insulinModel = ExponentialInsulinModelPreset.rapidActingChild
+            }
+            return entry.basalRelativeDose(with: insulinModel) }
 
-        let iobWithModel = dosesWithModelRelative.insulinOnBoardTimeline(
-            insulinModelProvider: insulinModelProvider,
-            longestEffectDuration: ExponentialInsulinModelPreset.rapidActingChild.effectDuration
-        )
+        let iobWithModel = dosesWithModelRelative.insulinOnBoardTimeline()
 
         XCTAssertEqual(iobWithoutModel.count, iobWithModel.count)
 
@@ -430,13 +426,13 @@ class InsulinMathTests: XCTestCase {
         let input = loadDoseFixture("normalized_reservoir_history_output")
         let output = loadInsulinValueFixture("iob_from_reservoir_output")
 
-        let basalRelativeInput = input.map { $0.basalRelativeDose! }
+        let basalRelativeInput = input.map { $0.basalRelativeDose(with: walshModel) }
 
         measure {
-            _ = basalRelativeInput.insulinOnBoardTimeline(insulinModelProvider: walshModelSettings, longestEffectDuration: walshModelDuration)
+            _ = basalRelativeInput.insulinOnBoardTimeline(longestEffectDuration: walshModel.effectDuration)
         }
 
-        let iob = basalRelativeInput.insulinOnBoardTimeline(insulinModelProvider: walshModelSettings, longestEffectDuration: walshModelDuration)
+        let iob = basalRelativeInput.insulinOnBoardTimeline(longestEffectDuration: walshModel.effectDuration)
 
         XCTAssertEqual(output.count, iob.count)
 
@@ -455,11 +451,14 @@ class InsulinMathTests: XCTestCase {
 
         let basalTimeline = basals.between(start: input.last!.startDate, end: input.first!.endDate)
 
+        let inputWithModel = input.map { $0.toMockInsulinDose(with: ExponentialInsulinModelPreset.rapidActingAdult.model) }
+
+
         measure {
-            _ = input.annotated(with: basalTimeline)
+            _ = inputWithModel.annotated(with: basalTimeline)
         }
 
-        let doses = input.annotated(with: basalTimeline)
+        let doses = inputWithModel.annotated(with: basalTimeline)
 
         XCTAssertEqual(output.count, doses.count)
 
@@ -489,11 +488,14 @@ class InsulinMathTests: XCTestCase {
 
         let basalTimeline = basals.between(start: input.first!.startDate, end: input.last!.endDate)
 
+        let inputWithModel = input.map { $0.toMockInsulinDose(with: ExponentialInsulinModelPreset.rapidActingAdult.model) }
+
+
         measure {
-            _ = input.annotated(with: basalTimeline)
+            _ = inputWithModel.annotated(with: basalTimeline)
         }
 
-        let doses = input.annotated(with: basalTimeline)
+        let doses = inputWithModel.annotated(with: basalTimeline)
 
         XCTAssertEqual(output.count, doses.count)
 
@@ -511,11 +513,13 @@ class InsulinMathTests: XCTestCase {
 
         let basalTimeline = basals.between(start: input.first!.startDate, end: input.last!.endDate)
 
+        let inputWithModel = input.map { $0.toMockInsulinDose(with: ExponentialInsulinModelPreset.rapidActingAdult.model) }
+
         measure {
-            _ = input.annotated(with: basalTimeline)
+            _ = inputWithModel.annotated(with: basalTimeline)
         }
 
-        let doses = input.annotated(with: basalTimeline)
+        let doses = inputWithModel.annotated(with: basalTimeline)
 
         XCTAssertEqual(output.count, doses.count)
 
@@ -1179,7 +1183,9 @@ class InsulinMathTests: XCTestCase {
 
         let basals = loadBasalRateScheduleFixture("basal").between(start: startDate, end: endDate)
 
-        let splitDoses = [dose].annotated(with: basals)
+        let doseWithModel = dose.toMockInsulinDose(with: ExponentialInsulinModelPreset.rapidActingAdult.model)
+
+        let splitDoses = [doseWithModel].annotated(with: basals)
 
         XCTAssertEqual(2, splitDoses.count)
 
@@ -1207,7 +1213,9 @@ class InsulinMathTests: XCTestCase {
 
         let basals = loadBasalRateScheduleFixture("basal").between(start: startDate, end: endDate)
 
-        let splitDoses = [dose].annotated(with: basals)
+        let doseWithModel = dose.toMockInsulinDose(with: ExponentialInsulinModelPreset.rapidActingAdult.model)
+
+        let splitDoses = [doseWithModel].annotated(with: basals)
 
         XCTAssertEqual(2, splitDoses.count)
 
@@ -1229,5 +1237,29 @@ extension BidirectionalCollection where Element == DoseEntry {
         }
 
         return nil
+    }
+}
+
+struct MockInsulinDose: InsulinDose {
+    var deliveryType: InsulinDeliveryType
+
+    var startDate: Date
+
+    var endDate: Date
+
+    var volume: Double
+
+    var insulinModel: InsulinModel
+}
+
+extension DoseEntry {
+    func toMockInsulinDose(with insulinModel: InsulinModel) -> MockInsulinDose {
+        return MockInsulinDose(
+            deliveryType: type == .bolus ? .bolus : .basal,
+            startDate: startDate,
+            endDate: endDate,
+            volume: deliveredUnits ?? programmedUnits,
+            insulinModel: insulinModel
+        )
     }
 }

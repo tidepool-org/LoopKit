@@ -26,7 +26,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         let doseStore = DoseStore(
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
-            insulinModelProvider: StaticInsulinModelProvider(WalshInsulinModel(actionDuration: .hours(4))),
             longestEffectDuration: .hours(4),
             basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 68400.0]]]),
             insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
@@ -115,7 +114,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         let doseStore = DoseStore(
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
-            insulinModelProvider: StaticInsulinModelProvider(WalshInsulinModel(actionDuration: .hours(4))),
             longestEffectDuration: .hours(4),
             basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [ // Timezone = -0800
                 ["value": 0.75, "startTime": 0.0],       // 0000 - Midnight
@@ -240,7 +238,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         let doseStore = DoseStore(
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
-            insulinModelProvider: StaticInsulinModelProvider(WalshInsulinModel(actionDuration: .hours(4))),
             longestEffectDuration: .hours(4),
             basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 68400.0]]]),
             insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
@@ -407,7 +404,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         // 1. Create a DoseStore
         let doseStore = DoseStore(
             cacheStore: cacheStore,
-            insulinModelProvider: StaticInsulinModelProvider(WalshInsulinModel(actionDuration: .hours(4))),
             longestEffectDuration: .hours(4),
             basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 37800.0]]]),
             insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
@@ -549,7 +545,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         // 1. Create a DoseStore
         let doseStore = DoseStore(
             cacheStore: cacheStore,
-            insulinModelProvider: PresetInsulinModelProvider(defaultRapidActingModel: nil),
             longestEffectDuration: .hours(6),
             basalProfile: BasalRateSchedule(rawValue: ["timeZone": 0, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 61200.0]]]),
             insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": 0, "items": [["value": 40.0, "startTime": 0.0]]]),
@@ -608,7 +603,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         // 1. Create a DoseStore
         let doseStore = DoseStore(
             cacheStore: cacheStore,
-            insulinModelProvider: StaticInsulinModelProvider(WalshInsulinModel(actionDuration: .hours(4))),
             longestEffectDuration: .hours(4),
             basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 37800.0]]]),
             insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
@@ -1017,7 +1011,6 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         super.setUp()
         
         doseStore = DoseStore(cacheStore: cacheStore,
-                              insulinModelProvider: StaticInsulinModelProvider(insulinModel),
                               longestEffectDuration: insulinModel.effectDuration,
                               basalProfile: basalProfile,
                               insulinSensitivitySchedule: insulinSensitivitySchedule,
@@ -1220,7 +1213,6 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
                       PersistedPumpEvent(date: dateFormatter.date(from: "2100-01-02T03:02:00Z")!, persistedDate: persistedDate, dose: nil, isUploaded: false, objectIDURL: url, raw: nil, title: nil, type: nil)]
 
         doseStore = DoseStore(cacheStore: cacheStore,
-                              insulinModelProvider: StaticInsulinModelProvider(insulinModel),
                               longestEffectDuration: insulinModel.effectDuration,
                               basalProfile: basalProfile,
                               insulinSensitivitySchedule: insulinSensitivitySchedule,
@@ -1318,7 +1310,6 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
         doseStore = DoseStore(
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
-            insulinModelProvider: StaticInsulinModelProvider(exponentialInsulinModel),
             longestEffectDuration: exponentialInsulinModel.effectDuration,
             basalProfile: BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0)]),
             insulinSensitivitySchedule: insulinSensitivitySchedule,

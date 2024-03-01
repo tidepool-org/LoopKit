@@ -43,7 +43,6 @@ class DeviceDataManager {
         doseStore = DoseStore(
             healthKitSampleStore: doseSampleStore,
             cacheStore: cacheStore,
-            insulinModelProvider: PresetInsulinModelProvider(defaultRapidActingModel: ExponentialInsulinModelPreset.rapidActingAdult),
             longestEffectDuration: ExponentialInsulinModelPreset.rapidActingAdult.effectDuration,
             basalProfile: basalRateSchedule,
             insulinSensitivitySchedule: insulinSensitivitySchedule,

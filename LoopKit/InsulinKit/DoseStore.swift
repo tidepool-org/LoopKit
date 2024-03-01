@@ -126,7 +126,6 @@ public final class DoseStore {
     ///   - healthKitSampleStore: The HealthKit store for reading & writing insulin delivery
     ///   - cacheStore: The cache store for reading & writing short-term intermediate data
     ///   - cacheLength: Maximum age of data to keep in the store.
-    ///   - insulinModelProvider: A factory for producing insulin models based on insulin type
     ///   - longestEffectDuration: This determines the oldest age of doses to be retrieved for calculating glucose effects
     ///   - basalProfile: The daily schedule of basal insulin rates
     ///   - insulinSensitivitySchedule: The daily schedule of insulin sensitivity (ISF)

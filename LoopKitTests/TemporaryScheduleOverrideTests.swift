@@ -233,12 +233,12 @@ class TemporaryScheduleOverrideTests: XCTestCase {
 
         let start = date(at: "19:25")
 
-        let dose = DoseEntry(
-            type: .tempBasal,
+        let dose = FixtureInsulinDose(
+            deliveryType: .basal,
             startDate: start,
             endDate: date(at: "19:30"),
-            value: 0.8,
-            unit: .units
+            volume: 0.8,
+            insulinType: .novolog
         )
 
         let timeline = schedule.between(start: start, end: start.addingTimeInterval(InsulinMath.longestInsulinActivityDuration))
@@ -246,7 +246,7 @@ class TemporaryScheduleOverrideTests: XCTestCase {
         let annotated = [dose].annotated(with: timeline)
 
         XCTAssertEqual(3, annotated.count)
-        XCTAssertEqual(dose.programmedUnits, annotated.map { $0.volume }.reduce(0, +))
+        XCTAssertEqual(dose.volume, annotated.map { $0.volume }.reduce(0, +))
     }
 
     // MARK: - Target range tests
@@ -639,20 +639,5 @@ class TemporaryOverrideEndCodableTests: XCTestCase {
 
     private struct TestContainer: Codable, Equatable {
         let end: End
-    }
-}
-
-extension DoseEntry: InsulinDose {
-    public var deliveryType: InsulinDeliveryType {
-        switch type {
-        case .bolus:
-            return .bolus
-        default:
-            return .basal
-        }
-    }
-    
-    public var volume: Double {
-        return deliveredUnits ?? programmedUnits
     }
 }
