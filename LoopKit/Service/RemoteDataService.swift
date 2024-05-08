@@ -117,6 +117,13 @@ public protocol RemoteDataService: Service {
      */
     func remoteNotificationWasReceived(_ notification: [String: AnyObject]) async throws
 
+    /**
+     Upload critical event logs
+
+     - Parameter stored: The stored alert data to upload.
+     - Parameter completion: The completion function to call with any success or failure.
+     */
+    func uploadCriticalEventLog(_ url: URL) async throws
 }
 
 public extension RemoteDataService {
