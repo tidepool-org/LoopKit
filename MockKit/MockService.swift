@@ -183,7 +183,4 @@ extension MockService: RemoteDataService {
     
     public func remoteNotificationWasReceived(_ notification: [String: AnyObject]) async throws {
     }
-
-    public func uploadCriticalEventLog(_ url: URL) async throws {
-    }
 }

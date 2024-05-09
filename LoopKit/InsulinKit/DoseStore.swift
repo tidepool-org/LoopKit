@@ -705,13 +705,24 @@ extension DoseStore {
                 self.syncPumpEventsToInsulinDeliveryStore(resolveMutable: true) { _ in
                     completion(DoseStoreError(error: error))
                     self.delegate?.doseStoreHasUpdatedPumpEventData(self)
-                    let lastBolus = events.sorted(by: { $0.date < $1.date }).filter({ $0.type == .bolus}).last?.dose?.programmedUnits
-                    self.log.default("Pump events synchronized to insulin delivery store. Triggering valuesDidChange (lastBolus = %f)", lastBolus ?? 0)
                     NotificationCenter.default.post(name: DoseStore.valuesDidChange, object: self)
                 }
             }
         }
     }
+
+    public func addPumpEvents(_ events: [NewPumpEvent], lastReconciliation: Date?, replacePendingEvents: Bool = true) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.addPumpEvents(events, lastReconciliation: lastReconciliation, replacePendingEvents: replacePendingEvents) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
 
     public func deletePumpEvent(_ event: PersistedPumpEvent, completion: @escaping (_ error: DoseStoreError?) -> Void) {
         persistenceController.managedObjectContext.perform {
@@ -872,7 +883,6 @@ extension DoseStore {
             case .success(let date):
                 // Limit the query behavior to 24 hours
                 let date = max(date, self.recentStartDate)
-                self.log.default("Syncing pump events after %{public}@", String(describing: start ?? date))
                 self.savePumpEventsToInsulinDeliveryStore(after: start ?? date, resolveMutable: resolveMutable, completion: completion)
             case .failure(let error):
                 completion(error)
