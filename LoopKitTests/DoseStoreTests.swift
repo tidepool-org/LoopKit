@@ -653,8 +653,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate = f("2018-12-12 18:05:00 +0000")
         doseStore.insulinDeliveryStore.test_currentDate = f("2018-12-12 18:07:14 +0000")
 
-        let addPumpEvents3 = expectation(description: "addPumpEvents3")
-        addPumpEvents3.expectedFulfillmentCount = 2
         try await doseStore.addPumpEvents(pumpEvents3, lastReconciliation: Date())
         doseEntries = try await doseStore.insulinDeliveryStore.getDoseEntries()
         XCTAssertEqual(doseEntries.count, 1)
@@ -695,8 +693,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate = f("2018-12-12 18:05:00 +0000")
         doseStore.insulinDeliveryStore.test_currentDate = f("2018-12-12 18:17:14 +0000")
 
-        let addPumpEvents4 = expectation(description: "addPumpEvents4")
-        addPumpEvents4.expectedFulfillmentCount = 2
         try await doseStore.addPumpEvents(pumpEvents4, lastReconciliation: Date())
         doseEntries = try await doseStore.insulinDeliveryStore.getDoseEntries()
         XCTAssertEqual(doseEntries.count, 2)
@@ -764,8 +760,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate = f("2018-12-12 18:05:00 +0000")
         doseStore.insulinDeliveryStore.test_currentDate = f("2018-12-12 18:41:14 +0000")
 
-        let addPumpEvents6 = expectation(description: "addPumpEvents6")
-        addPumpEvents6.expectedFulfillmentCount = 2
         try await doseStore.addPumpEvents(pumpEvents6, lastReconciliation: Date())
         doseEntries = try await doseStore.insulinDeliveryStore.getDoseEntries()
         XCTAssertEqual(doseEntries.count, 3)
