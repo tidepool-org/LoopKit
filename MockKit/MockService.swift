@@ -20,7 +20,9 @@ public final class MockService: Service {
     public weak var stateDelegate: StatefulPluggableDelegate?
     
     public weak var serviceDelegate: ServiceDelegate?
-    
+
+    public weak var remoteDataServiceDelegate: RemoteDataServiceDelegate?
+
     public var remoteData: Bool
     
     public var logging: Bool
@@ -169,12 +171,6 @@ extension MockService: RemoteDataService {
     public func uploadCgmEventData(_ stored: [PersistedCgmEvent]) async throws {
         if remoteData {
             record("[RemoteDataService] Upload cgm event data (stored: \(stored.count))")
-        }
-    }
-
-    public func uploadDeviceLogs(_ stored: [StoredDeviceLogEntry], startTime: Date, endTime: Date) async throws {
-        if remoteData {
-            record("[RemoteDataService] Upload device logs (stored: \(stored.count))")
         }
     }
 

@@ -12,7 +12,14 @@
 
 import Foundation
 
+public protocol RemoteDataServiceDelegate: AnyObject {
+    func fetchDeviceLogs(startDate: Date, endDate: Date) async throws -> [StoredDeviceLogEntry]
+}
+
 public protocol RemoteDataService: Service {
+
+    var remoteDataServiceDelegate: RemoteDataServiceDelegate? { get set }
+
 
     /// The maximum number of alert data to upload to the remote data service at one time.
     var alertDataLimit: Int? { get }
@@ -116,16 +123,6 @@ public protocol RemoteDataService: Service {
      - Parameter notification: The push notification dictionary
      */
     func remoteNotificationWasReceived(_ notification: [String: AnyObject]) async throws
-
-    /**
-     Upload device logs to the remote data service.
-
-     - Parameter entries: The device log entries to upload.
-     - Parameter startTime: The start of the period that the supplied log entries cover.
-     - Parameter endTime: The end of the period that the supplied log entries cover.
-     - Parameter completion: The completion function to call with any success or failure.
-     */
-    func uploadDeviceLogs(_ entries: [StoredDeviceLogEntry], startTime: Date, endTime: Date) async throws
 }
 
 public extension RemoteDataService {
