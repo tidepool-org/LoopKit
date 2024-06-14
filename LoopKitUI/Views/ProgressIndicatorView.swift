@@ -69,27 +69,28 @@ public struct ProgressIndicatorView: View {
         }
     }
     
-    
-        
     public var body: some View {
         ZStack {
-            ActivityIndicator(isAnimating: .constant(true), style: .large)
-                .opacity(self.state.showIndeterminantProgress ? 1 : 0)
-                .frame(height: self.state.showIndeterminantProgress ? fullSize : 0)
-
-            ZStack {
-                ProgressView(progress: self.state.showProgressBar ? 1 : 0)
+            if state.showIndeterminantProgress {
+                ActivityIndicator(isAnimating: .constant(true), style: .large)
                     .frame(height: fullSize)
-                    .animation(.linear(duration: self.duration))
             }
-            .opacity(self.state.showProgressBar ? 1 : 0)
-            .frame(height: self.state.showProgressBar ? fullSize : 0)
 
-            Image(frameworkImage: "Checkmark").foregroundColor(Color.accentColor)
-                .opacity(self.state.showCompletion ? 1 : 0)
-                .scaleEffect(self.state.showCompletion ? 1.0 : 0.001)
-                .animation(.spring(dampingFraction: 0.5))
-                .frame(height: self.state.showCompletion ? fullSize : 0)
+            if state.showProgressBar {
+                ZStack {
+                    ProgressView(progress: self.state.showProgressBar ? 1 : 0)
+                        .frame(height: fullSize)
+                        .animation(.linear(duration: self.duration), value: state.showProgressBar)
+                }
+            }
+
+            if state.showCompletion {
+                Image(systemName: "checkmark.circle.fill")
+                    .resizable()
+                    .foregroundColor(.accentColor)
+                    .frame(width: 40, height: 40)
+                    .animation(.spring(dampingFraction: 0.5), value: state.showCompletion)
+            }
         }
         .accessibilityElement(children: .ignore)
         .accessibility(label: Text(self.accessibilityLabel))
