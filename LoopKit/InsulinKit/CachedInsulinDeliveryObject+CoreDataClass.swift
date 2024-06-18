@@ -234,7 +234,7 @@ extension CachedInsulinDeliveryObject {
         self.deliveredUnits = entry.unitsInDeliverableIncrements
         self.scheduledBasalRate = entry.scheduledBasalRate
         self.programmedTempBasalRate = (entry.type == .tempBasal) ? HKQuantity(unit: .internationalUnitsPerHour, doubleValue: entry.unitsPerHour) : nil
-        self.programmedUnits = entry.programmedUnits
+        self.programmedUnits = (entry.type == .bolus) ? entry.programmedUnits : nil
         self.reason = (entry.type == .bolus) ? .bolus : .basal
         self.createdAt = date
         self.deletedAt = nil
@@ -259,7 +259,7 @@ extension CachedInsulinDeliveryObject {
         self.deliveredUnits = entry.unitsInDeliverableIncrements
         self.scheduledBasalRate = entry.scheduledBasalRate
         self.programmedTempBasalRate = (entry.type == .tempBasal) ? HKQuantity(unit: .internationalUnitsPerHour, doubleValue: entry.unitsPerHour) : nil
-        self.programmedUnits = entry.programmedUnits
+        self.programmedUnits = (entry.type == .bolus) ? entry.programmedUnits : nil
         self.reason = (entry.type == .bolus) ? .bolus : .basal
         self.deletedAt = nil
         self.insulinType = entry.insulinType
