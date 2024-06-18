@@ -83,6 +83,22 @@ class CachedInsulinDeliveryObject: NSManagedObject {
             primitiveProgrammedTempBasalRate = NSNumber(value: rate)
         }
     }
+    
+    var programmedUnits: Double? {
+        get {
+            willAccessValue(forKey: "programmedUnits")
+            defer { didAccessValue(forKey: "programmedUnits") }
+            guard let programmedUnits = primitiveProgrammedUnits else {
+                return nil
+            }
+            return programmedUnits as? Double
+        }
+        set {
+            willChangeValue(forKey: "programmedUnits")
+            defer { didChangeValue(forKey: "programmedUnits") }
+            primitiveProgrammedUnits = newValue != nil ? NSNumber(value: newValue!) : nil
+        }
+    }
 
     var insulinType: InsulinType? {
         get {
@@ -154,15 +170,15 @@ extension CachedInsulinDeliveryObject {
 
         let doseValue: Double
         let unit: DoseUnit
-        let deliveredUnits: Double?
+        let deliveredUnits: Double
 
         if let programmedRate = programmedTempBasalRate {
             doseValue = programmedRate.doubleValue(for: .internationalUnitsPerHour)
             unit = .unitsPerHour
             deliveredUnits = self.deliveredUnits
         } else {
-            doseValue = self.programmedUnits
             deliveredUnits = self.deliveredUnits
+            doseValue = self.programmedUnits ?? deliveredUnits
             unit = .units
         }
 
