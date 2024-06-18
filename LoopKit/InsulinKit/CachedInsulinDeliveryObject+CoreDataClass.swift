@@ -159,11 +159,11 @@ extension CachedInsulinDeliveryObject {
         if let programmedRate = programmedTempBasalRate {
             doseValue = programmedRate.doubleValue(for: .internationalUnitsPerHour)
             unit = .unitsPerHour
-            deliveredUnits = value
+            deliveredUnits = self.deliveredUnits
         } else {
-            doseValue = value
+            doseValue = self.programmedUnits
+            deliveredUnits = self.deliveredUnits
             unit = .units
-            deliveredUnits = nil
         }
 
         return DoseEntry(
@@ -193,7 +193,7 @@ extension CachedInsulinDeliveryObject {
         self.startDate = sample.startDate
         self.endDate = sample.endDate
         self.syncIdentifier = sample.syncIdentifier ?? sample.uuid.uuidString // External doses might not have a syncIdentifier, so use the UUID
-        self.value = sample.quantity.doubleValue(for: .internationalUnit())
+        self.deliveredUnits = sample.quantity.doubleValue(for: .internationalUnit())
         self.scheduledBasalRate = sample.scheduledBasalRate
         self.programmedTempBasalRate = sample.programmedTempBasalRate
         self.insulinType = sample.insulinType
@@ -215,9 +215,10 @@ extension CachedInsulinDeliveryObject {
         self.startDate = entry.startDate
         self.endDate = entry.endDate
         self.syncIdentifier = entry.syncIdentifier
-        self.value = entry.unitsInDeliverableIncrements
+        self.deliveredUnits = entry.unitsInDeliverableIncrements
         self.scheduledBasalRate = entry.scheduledBasalRate
         self.programmedTempBasalRate = (entry.type == .tempBasal) ? HKQuantity(unit: .internationalUnitsPerHour, doubleValue: entry.unitsPerHour) : nil
+        self.programmedUnits = entry.programmedUnits
         self.reason = (entry.type == .bolus) ? .bolus : .basal
         self.createdAt = date
         self.deletedAt = nil
@@ -239,9 +240,10 @@ extension CachedInsulinDeliveryObject {
         self.startDate = entry.startDate
         self.endDate = entry.endDate
         self.syncIdentifier = entry.syncIdentifier
-        self.value = entry.unitsInDeliverableIncrements
+        self.deliveredUnits = entry.unitsInDeliverableIncrements
         self.scheduledBasalRate = entry.scheduledBasalRate
         self.programmedTempBasalRate = (entry.type == .tempBasal) ? HKQuantity(unit: .internationalUnitsPerHour, doubleValue: entry.unitsPerHour) : nil
+        self.programmedUnits = entry.programmedUnits
         self.reason = (entry.type == .bolus) ? .bolus : .basal
         self.deletedAt = nil
         self.insulinType = entry.insulinType

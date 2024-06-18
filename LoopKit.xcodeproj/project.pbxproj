@@ -1529,6 +1529,7 @@
 		B42C950C24A3BD4B00857C73 /* MeasurementFrequencyTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeasurementFrequencyTableViewController.swift; sourceTree = "<group>"; };
 		B43606E42A28D8F00026F677 /* TimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeView.swift; sourceTree = "<group>"; };
 		B43DA43E24D49AA400CAFF4E /* GuidanceColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidanceColors.swift; sourceTree = "<group>"; };
+		B44E84C32C21B164000B7C76 /* Modelv5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Modelv5.xcdatamodel; sourceTree = "<group>"; };
 		B451D10C2A161A3E004878F1 /* MockPumpManagerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPumpManagerSettingsView.swift; sourceTree = "<group>"; };
 		B451D10F2A161B84004878F1 /* OpenMockPumpSettingsOnLongPressGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMockPumpSettingsOnLongPressGesture.swift; sourceTree = "<group>"; };
 		B451D1112A165DA0004878F1 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
@@ -5911,10 +5912,11 @@
 		C168CA77280DD00F002BD2A7 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				B44E84C32C21B164000B7C76 /* Modelv5.xcdatamodel */,
 				C168CA78280DD00F002BD2A7 /* Model.xcdatamodel */,
 				C168CA79280DD00F002BD2A7 /* Modelv4.xcdatamodel */,
 			);
-			currentVersion = C168CA79280DD00F002BD2A7 /* Modelv4.xcdatamodel */;
+			currentVersion = B44E84C32C21B164000B7C76 /* Modelv5.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
