@@ -85,7 +85,7 @@ class MockCGMManagerSettingsViewModel: ObservableObject {
     init(cgmManager: MockCGMManager, displayGlucosePreference: DisplayGlucosePreference) {
         self.cgmManager = cgmManager
         self.displayGlucosePreference = displayGlucosePreference
-                
+
         lastGlucoseDate = cgmManager.cgmManagerStatus.lastCommunicationDate
         lastGlucoseTrend = cgmManager.mockSensorState.trendType
         setLastGlucoseTrend(cgmManager.mockSensorState.trendRate)

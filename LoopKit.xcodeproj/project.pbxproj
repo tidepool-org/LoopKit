@@ -664,6 +664,8 @@
 		B4D4C20D25F95A8700DA809D /* DisplayGlucosePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D4C20C25F95A8700DA809D /* DisplayGlucosePreference.swift */; };
 		C109240F286A4AD500FAD2B8 /* AutomaticDosingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C109240E286A4AD500FAD2B8 /* AutomaticDosingStrategy.swift */; };
 		C1092410286A4ADB00FAD2B8 /* AutomaticDosingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C109240E286A4AD500FAD2B8 /* AutomaticDosingStrategy.swift */; };
+		C1349A232BC587EB00F807A3 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1349A222BC587EB00F807A3 /* Data.swift */; };
+		C1349A262BC5944500F807A3 /* HeartbeatFobPairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1349A242BC593C000F807A3 /* HeartbeatFobPairingView.swift */; };
 		C140E0522602908A000A4FF7 /* SettingsPresentationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140E0512602908A000A4FF7 /* SettingsPresentationMode.swift */; };
 		C1475B33264C30800040C7B1 /* LoopKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43BA7154201E484D0058961E /* LoopKitUI.framework */; };
 		C14A7E7E295F43AB00CD87B4 /* ConfigurationPageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14A7E7D295F43AB00CD87B4 /* ConfigurationPageScrollView.swift */; };
@@ -1600,6 +1602,8 @@
 		C13493B5297E498700D87305 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C13493B6297E498700D87305 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C13493B7297E498700D87305 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C1349A222BC587EB00F807A3 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
+		C1349A242BC593C000F807A3 /* HeartbeatFobPairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatFobPairingView.swift; sourceTree = "<group>"; };
 		C1394BA6297E49630042F1A9 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C13F89C4297E495B00C71398 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C140E0512602908A000A4FF7 /* SettingsPresentationMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsPresentationMode.swift; sourceTree = "<group>"; };
@@ -3022,6 +3026,19 @@
 				C17F39CF23CE34B100FA1113 /* StoredDeviceLogEntry.swift */,
 			);
 			path = DeviceLog;
+			sourceTree = "<group>";
+		};
+		C1B379852BBDE9AF00071F22 /* HeartbeatFob */ = {
+			isa = PBXGroup;
+			children = (
+				C1B379862BBDF19D00071F22 /* BluetoothServices.swift */,
+				C1B379882BBDF6AF00071F22 /* BluetoothManager.swift */,
+				C1B3798A2BBDF90800071F22 /* PeripheralManager.swift */,
+				C1B3798E2BBDF9B900071F22 /* CBPeripheral.swift */,
+				C1B379902BBDFAA600071F22 /* Locked.swift */,
+				C1B379922BC05DBF00071F22 /* HeartbeatFob.swift */,
+			);
+			path = HeartbeatFob;
 			sourceTree = "<group>";
 		};
 		C1CEBFDD29BB6C84007FD8A3 /* Resources */ = {

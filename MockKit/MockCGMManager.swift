@@ -34,8 +34,11 @@ public struct MockCGMState: GlucoseDisplayable {
 
     public var samplesShouldBeUploaded: Bool
 
+    public var heartbeatFobId: String?
+
     private var cgmLowerLimitValue: Double
-       
+
+
     // HKQuantity isn't codable
     public var cgmLowerLimit: HKQuantity {
         get {
@@ -347,7 +350,7 @@ public final class MockCGMManager: TestingCGMManager {
             lockedMockSensorState.value
         }
         set {
-            lockedMockSensorState.mutate { $0 = newValue }
+            let _ = lockedMockSensorState.mutate { $0 = newValue }
             self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
         }
     }
@@ -396,15 +399,18 @@ public final class MockCGMManager: TestingCGMManager {
             lockedDataSource.value
         }
         set {
-            lockedDataSource.mutate { $0 = newValue }
+            let _ = lockedDataSource.mutate { $0 = newValue }
             self.notifyStatusObservers(cgmManagerStatus: self.cgmManagerStatus)
         }
     }
 
+    public var heartbeatFob: HeartbeatFob
+
     private var glucoseUpdateTimer: Timer?
 
     public init() {
-        setupGlucoseUpdateTimer()
+        self.heartbeatFob = HeartbeatFob(fobId: nil)
+        setupGlucoseUpdateTrigger()
     }
 
     // MARK: Handling CGM Manager Status observers
@@ -433,8 +439,11 @@ public final class MockCGMManager: TestingCGMManager {
         if let mockSensorStateRawValue = rawState["mockSensorState"] as? MockCGMState.RawValue,
             let mockSensorState = MockCGMState(rawValue: mockSensorStateRawValue) {
             self.lockedMockSensorState.value = mockSensorState
+            self.heartbeatFob = HeartbeatFob(fobId: mockSensorState.heartbeatFobId)
         } else {
-            self.lockedMockSensorState.value = MockCGMState(isStateValid: true)
+            let newState = MockCGMState(isStateValid: true)
+            self.lockedMockSensorState.value = newState
+            self.heartbeatFob = HeartbeatFob(fobId: nil)
         }
 
         if let dataSourceRawValue = rawState["dataSource"] as? MockCGMDataSource.RawValue,
@@ -444,7 +453,7 @@ public final class MockCGMManager: TestingCGMManager {
             self.lockedDataSource.value = MockCGMDataSource(model: .sineCurve(parameters: (baseGlucose: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 110), amplitude: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 20), period: TimeInterval(hours: 6), referenceDate: Date())))
         }
 
-        setupGlucoseUpdateTimer()
+        setupGlucoseUpdateTrigger()
     }
 
     deinit {
@@ -583,10 +592,10 @@ public final class MockCGMManager: TestingCGMManager {
     
     public func updateGlucoseUpdateTimer() {
         glucoseUpdateTimer?.invalidate()
-        setupGlucoseUpdateTimer()
+        setupGlucoseUpdateTrigger()
     }
     
-    private func setupGlucoseUpdateTimer() {
+    private func setupGlucoseUpdateTrigger() {
         glucoseUpdateTimer = Timer.scheduledTimer(withTimeInterval: dataSource.dataPointFrequency.frequency, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             self.fetchNewDataIfNeeded() { result in
@@ -820,7 +829,9 @@ extension MockCGMState: RawRepresentable {
         self.highGlucoseThresholdValue = highGlucoseThresholdValue
         self.cgmLowerLimitValue = cgmLowerLimitValue
         self.cgmUpperLimitValue = cgmUpperLimitValue
-        
+
+        self.heartbeatFobId = rawValue["heartbeatFobId"] as? String
+
         if let glucoseRangeCategoryRawValue = rawValue["glucoseRangeCategory"] as? GlucoseRangeCategory.RawValue {
             self.glucoseRangeCategory = GlucoseRangeCategory(rawValue: glucoseRangeCategoryRawValue)
         }
@@ -872,11 +883,11 @@ extension MockCGMState: RawRepresentable {
             "cgmUpperLimitValue": cgmUpperLimitValue,
         ]
 
-        if let glucoseRangeCategory = glucoseRangeCategory {
+        if let glucoseRangeCategory {
             rawValue["glucoseRangeCategory"] = glucoseRangeCategory.rawValue
         }
         
-        if let cgmStatusHighlight = cgmStatusHighlight {
+        if let cgmStatusHighlight {
             rawValue["localizedMessage"] = cgmStatusHighlight.localizedMessage
             rawValue["alertIdentifier"] = cgmStatusHighlight.alertIdentifier
         }
@@ -885,22 +896,26 @@ extension MockCGMState: RawRepresentable {
             rawValue["statusBadgeType"] = cgmStatusBadgeType.rawValue
         }
         
-        if let cgmLifecycleProgress = cgmLifecycleProgress {
+        if let cgmLifecycleProgress {
             rawValue["cgmLifecycleProgress"] = cgmLifecycleProgress.rawValue
         }
         
-        if let progressWarningThresholdPercentValue = progressWarningThresholdPercentValue {
+        if let progressWarningThresholdPercentValue {
             rawValue["progressWarningThresholdPercentValue"] = progressWarningThresholdPercentValue
         }
         
-        if let progressCriticalThresholdPercentValue = progressCriticalThresholdPercentValue {
+        if let progressCriticalThresholdPercentValue {
             rawValue["progressCriticalThresholdPercentValue"] = progressCriticalThresholdPercentValue
         }
         
-        if let cgmBatteryChargeRemaining = cgmBatteryChargeRemaining {
+        if let cgmBatteryChargeRemaining {
             rawValue["cgmBatteryChargeRemaining"] = cgmBatteryChargeRemaining
         }
-        
+
+        if let heartbeatFobId {
+            rawValue["heartbeatFobId"] = heartbeatFobId
+        }
+
         rawValue["trendRateValue"] = trendRate?.doubleValue(for: .milligramsPerDeciliterPerMinute)
         rawValue["trendType"] = trendType?.rawValue
         rawValue["currentGlucoseValue"] = currentGlucose?.doubleValue(for: .milligramsPerDeciliter)
@@ -929,6 +944,7 @@ extension MockCGMState: CustomDebugStringConvertible {
         * progressWarningThresholdPercentValue: \(progressWarningThresholdPercentValue as Any)
         * progressCriticalThresholdPercentValue: \(progressCriticalThresholdPercentValue as Any)
         * cgmBatteryChargeRemaining: \(cgmBatteryChargeRemaining as Any)
+        * heartbeatFobId: \(heartbeatFobId as Any)
         """
     }
 }

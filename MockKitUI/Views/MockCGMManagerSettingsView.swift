@@ -207,6 +207,15 @@ struct MockCGMManagerSettingsView: View {
         }
     }
 
+    private var heartbeatSubSection: some View {
+        Section(header: SectionHeader(label: "BLE Heartbeat")) {
+            NavigationLink(destination: HeartbeatFobPairingView(heartbeatFob: viewModel.cgmManager.heartbeatFob)) {
+                LabeledValueView(label: "Status", value: "Not Paired")
+            }
+        }
+    }
+
+
     private var lastReadingSection: some View {
         Section(header: SectionHeader(label: "Last Reading")) {
             LabeledValueView(label: "Glucose", value: viewModel.lastGlucoseValueWithUnitFormatted)
