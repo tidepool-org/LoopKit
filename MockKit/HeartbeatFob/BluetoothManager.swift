@@ -10,6 +10,7 @@ import Foundation
 import CoreBluetooth
 import Foundation
 import os.log
+import LoopKit
 
 protocol BluetoothManagerDelegate: AnyObject {
 
