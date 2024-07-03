@@ -95,6 +95,8 @@ extension ChartAxisValuesStaticGenerator {
     }
     
     // This is the same as SwiftChart ChartAxisValuesStaticGenerator.generateYAxisValuesWithChartPoints(...) with the exception that the `firstValue` calculation has been corrected
+    //   such that the comment `The first axis value will be less than or equal to the first scalar value, aligned with the desired multiple` is true for negative values. the original
+    //    code produced a value LARGER than the first scalar value
     public static func generateYAxisValuesWithChartPointsUpdated(_ chartPoints: [ChartPoint], minSegmentCount: Double, maxSegmentCount: Double, multiple: Double = 10, axisValueGenerator: ChartAxisValueStaticGenerator, addPaddingSegmentIfEdge: Bool) -> [ChartAxisValue] {
         let axisPicker: (ChartPoint) -> ChartAxisValue = { $0.y }
 
