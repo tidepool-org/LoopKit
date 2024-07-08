@@ -37,7 +37,7 @@ public struct QuantityPicker: View {
         guardrail: Guardrail<HKQuantity>,
         formatter: NumberFormatter? = nil,
         isUnitLabelVisible: Bool = true,
-        guidanceColors: GuidanceColors = GuidanceColors()
+        guidanceColors: GuidanceColors
     ) {
         let selectableValues = guardrail.allValues(forUnit: unit)
         self.init(value: value,

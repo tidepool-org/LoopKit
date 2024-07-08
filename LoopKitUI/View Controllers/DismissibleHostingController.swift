@@ -72,7 +72,7 @@ public class DismissibleHostingController<Content: View>: UIHostingController<_D
         dismissalMode: DismissalMode = .modalDismiss,
         isModalInPresentation: Bool = true,
         onDisappear: @escaping () -> Void = {},
-        guidanceColors: GuidanceColors = GuidanceColors(),
+        guidanceColors: GuidanceColors,
         carbTintColor: Color = .green,
         glucoseTintColor: Color = Color(.systemTeal),
         insulinTintColor: Color = .orange
