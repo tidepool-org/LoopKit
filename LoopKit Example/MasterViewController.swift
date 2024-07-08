@@ -184,7 +184,7 @@ class MasterViewController: UITableViewController {
                 })
                     .environmentObject(DisplayGlucosePreference(displayGlucoseUnit: .milligramsPerDeciliter))
 
-                let scheduleVC = DismissibleHostingController(content: view, dismissalMode: .pop(to:  type(of: self)), isModalInPresentation: false)
+                let scheduleVC = DismissibleHostingController(content: view, dismissalMode: .pop(to:  type(of: self)), isModalInPresentation: false, guidanceColors: GuidanceColors())
                 show(scheduleVC, sender: sender)
             case .insulinSensitivity:
                 let unit = dataManager?.insulinSensitivitySchedule?.unit ?? HKUnit.milligramsPerDeciliter

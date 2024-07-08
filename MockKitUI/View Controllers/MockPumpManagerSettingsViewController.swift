@@ -384,9 +384,9 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
                 let view = InsulinTypeSetting(initialValue: pumpManager.state.insulinType, supportedInsulinTypes: InsulinType.allCases, allowUnsetInsulinType: true) { (newType) in
                     self.pumpManager.state.insulinType = newType
                 }
-                let vc = DismissibleHostingController(content: view) {
+                let vc = DismissibleHostingController(content: view, onDisappear: {
                     tableView.reloadRows(at: [indexPath], with: .automatic)
-                }
+                }, guidanceColors: GuidanceColors())
                 vc.title = LocalizedString("Insulin Type", comment: "Controller title for insulin type selection screen")
                 show(vc, sender: sender)
             case .reservoirRemaining:
