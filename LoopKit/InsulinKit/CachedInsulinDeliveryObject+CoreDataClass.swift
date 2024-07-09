@@ -83,7 +83,7 @@ class CachedInsulinDeliveryObject: NSManagedObject {
             primitiveProgrammedTempBasalRate = NSNumber(value: rate)
         }
     }
-    
+
     var programmedUnits: Double? {
         get {
             willAccessValue(forKey: "programmedUnits")
@@ -115,7 +115,7 @@ class CachedInsulinDeliveryObject: NSManagedObject {
             primitiveInsulinType = newValue != nil ? NSNumber(value: newValue!.rawValue) : nil
         }
     }
-    
+
     var automaticallyIssued: Bool? {
         get {
             willAccessValue(forKey: "automaticallyIssued")
@@ -172,18 +172,22 @@ extension CachedInsulinDeliveryObject {
         let unit: DoseUnit
         let deliveredUnits: Double
 
-        if type == .basal,
-           let programmedRate = scheduledBasalRate
+        if type == .tempBasal,
+           let programmedRate = programmedTempBasalRate
         {
             deliveredUnits = self.deliveredUnits
             programmedValue = programmedRate.doubleValue(for: .internationalUnitsPerHour)
             unit = .unitsPerHour
-        } else if type == .tempBasal,
-                  let programmedRate = programmedTempBasalRate
+        } else if type == .basal,
+                  let programmedRate = scheduledBasalRate
         {
             deliveredUnits = self.deliveredUnits
             programmedValue = programmedRate.doubleValue(for: .internationalUnitsPerHour)
             unit = .unitsPerHour
+        } else if type == .suspend {
+            deliveredUnits = 0
+            programmedValue = 0
+            unit = .units
         } else {
             deliveredUnits = self.deliveredUnits
             programmedValue = self.programmedUnits ?? deliveredUnits
