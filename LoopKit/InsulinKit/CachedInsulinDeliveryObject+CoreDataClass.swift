@@ -168,17 +168,25 @@ extension CachedInsulinDeliveryObject {
             fatalError("CachedInsulinDeliveryObject has unexpected reason value: \(String(describing: reason))")
         }
 
-        let doseValue: Double
+        let programmedValue: Double
         let unit: DoseUnit
         let deliveredUnits: Double
 
-        if let programmedRate = programmedTempBasalRate {
-            doseValue = programmedRate.doubleValue(for: .internationalUnitsPerHour)
-            unit = .unitsPerHour
+        if type == .basal,
+           let programmedRate = scheduledBasalRate
+        {
             deliveredUnits = self.deliveredUnits
+            programmedValue = programmedRate.doubleValue(for: .internationalUnitsPerHour)
+            unit = .unitsPerHour
+        } else if type == .tempBasal,
+                  let programmedRate = programmedTempBasalRate
+        {
+            deliveredUnits = self.deliveredUnits
+            programmedValue = programmedRate.doubleValue(for: .internationalUnitsPerHour)
+            unit = .unitsPerHour
         } else {
             deliveredUnits = self.deliveredUnits
-            doseValue = self.programmedUnits ?? deliveredUnits
+            programmedValue = self.programmedUnits ?? deliveredUnits
             unit = .units
         }
 
@@ -186,7 +194,7 @@ extension CachedInsulinDeliveryObject {
             type: type,
             startDate: startDate,
             endDate: endDate,
-            value: doseValue,
+            value: programmedValue,
             unit: unit,
             deliveredUnits: !isMutable ? deliveredUnits : nil,
             description: nil,
