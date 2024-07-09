@@ -5908,7 +5908,7 @@
 			);
 			currentVersion = B41E10522C3D314600E186F7 /* Modelv5.xcdatamodel */;
 			name = Model.xcdatamodeld;
-			path = "/Users/nathanielhamming/Tidepool/Code/LoopWorkspace-1.2.0/Common/LoopKit/LoopKit/Persistence/Model.xcdatamodeld";
+			path = "Model.xcdatamodeld";
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
