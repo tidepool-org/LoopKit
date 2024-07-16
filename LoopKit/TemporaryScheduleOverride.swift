@@ -457,6 +457,14 @@ extension Array where Element == TemporaryScheduleOverride {
         }
     }
 
+    /// Takes a history of scheduled targets and applies this set of overrides to it, returning a new timeline adjusted for
+    /// the current or next future override, based on date.
+    ///
+    /// - Parameters:
+    ///   - timeline: A timeline of scheduled targets.
+    ///   - date: The date indicating the current time for use in a forecast creation
+    ///
+    /// - returns: A new timeline with an override applied, if one is applicable.
     public func applyTarget(over timeline: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>], at date: Date) -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
 
         guard timeline.count > 0 else {
@@ -471,6 +479,7 @@ extension Array where Element == TemporaryScheduleOverride {
             if override.scheduledEndDate > date && override.startDate < scheduleEndDate {
                 // override is active or future
                 applicableOverride = override
+                break
             }
         }
 
@@ -492,7 +501,6 @@ extension Array where Element == TemporaryScheduleOverride {
                     } else {
                         result.append(entry)
                     }
-                    continue
                 }
 
             }
