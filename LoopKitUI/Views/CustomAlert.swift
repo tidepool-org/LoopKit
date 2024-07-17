@@ -49,9 +49,9 @@ public struct CustomAlertPresenter: UIViewControllerRepresentable {
     }
     
     public class CustomAlertPresentingViewController: UIViewController {
-        var alertController: UIAlertController?
+        private var alertController: UIAlertController?
         
-        let alertBinding: Binding<CustomAlert?>
+        private let alertBinding: Binding<CustomAlert?>
         
         public init(alertBinding: Binding<CustomAlert?>) {
             self.alertBinding = alertBinding
@@ -62,7 +62,7 @@ public struct CustomAlertPresenter: UIViewControllerRepresentable {
             fatalError()
         }
         
-        var alert: CustomAlert? {
+        fileprivate var alert: CustomAlert? {
             didSet {
                 if let alert {
                     alertController = UIAlertController(title: alert.title, message: alert.message, preferredStyle: .alert)
@@ -101,7 +101,7 @@ public struct CustomAlertPresenter: UIViewControllerRepresentable {
         }
     }
     
-    @Binding var alert: CustomAlert?
+    @Binding fileprivate var alert: CustomAlert?
     
     public func makeUIViewController(context: Context) -> CustomAlertPresentingViewController {
         CustomAlertPresentingViewController(alertBinding: $alert)
