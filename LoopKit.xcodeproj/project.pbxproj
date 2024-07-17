@@ -270,6 +270,7 @@
 		43FB610720DDF19B002B996B /* PumpManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43FB610620DDF19B002B996B /* PumpManagerError.swift */; };
 		4B67E2CB289B4EDB002D92AF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4B67E2C9289B4EDB002D92AF /* InfoPlist.strings */; };
 		7D68A9AE1FE0A3D000522C49 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7D68A9B01FE0A3D000522C49 /* Localizable.strings */; };
+		84023F1D2C483F5E00386D38 /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84023F1C2C483F5B00386D38 /* CustomAlert.swift */; };
 		840A2F112C0F9882003D5E90 /* LoopCompletionFreshness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840A2F102C0F9882003D5E90 /* LoopCompletionFreshness.swift */; };
 		840A2F122C0F9A88003D5E90 /* LoopCompletionFreshness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840A2F102C0F9882003D5E90 /* LoopCompletionFreshness.swift */; };
 		849B110D2C19E2A40083B30A /* NumberCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B110C2C19E2A40083B30A /* NumberCircle.swift */; };
@@ -1294,6 +1295,7 @@
 		7D68AAB91FE31A2800522C49 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InsulinKit.strings; sourceTree = "<group>"; };
 		7D68AABC1FE31BE700522C49 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		7D68AAC61FE31BE900522C49 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		84023F1C2C483F5B00386D38 /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
 		840A2F102C0F9882003D5E90 /* LoopCompletionFreshness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopCompletionFreshness.swift; sourceTree = "<group>"; };
 		849B110C2C19E2A40083B30A /* NumberCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberCircle.swift; sourceTree = "<group>"; };
 		84AAB1E42C347EEA0054D304 /* Environment+InvestigationalDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+InvestigationalDevice.swift"; sourceTree = "<group>"; };
@@ -2128,6 +2130,7 @@
 		4369F090208B0D68000E3E45 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				84023F1C2C483F5B00386D38 /* CustomAlert.swift */,
 				B4C004B2241085DB00B40429 /* ActionButton.swift */,
 				89AF78C524482268002B4FCC /* ActionButtonStyle.swift */,
 				C1E4B307242E995200E70CCB /* ActivityIndicator.swift */,
@@ -3866,6 +3869,7 @@
 				898E6E722241EDC10019E459 /* DateAndDurationTableViewController.swift in Sources */,
 				B455F48125FF9A8B000ED456 /* InsulinSensitivityScheduleEditorViewModel.swift in Sources */,
 				A9D3FEFF2A6C1944000C891D /* DoseChart.swift in Sources */,
+				84023F1D2C483F5E00386D38 /* CustomAlert.swift in Sources */,
 				43BA716D201E49220058961E /* DatePickerTableViewCell.swift in Sources */,
 				A9D3FF022A6C1944000C891D /* COBChart.swift in Sources */,
 				E9C58A6E24DA65E400487A17 /* HistoricalOverrideDetailView.swift in Sources */,
