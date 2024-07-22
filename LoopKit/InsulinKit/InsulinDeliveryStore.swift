@@ -334,15 +334,9 @@ extension InsulinDeliveryStore {
     /// - Parameters:
     ///   - completion: A closure called when the date has been retrieved with date.
     ///   - result: The date, or error.
-    func getLastImmutableBasalEndDate(_ completion: @escaping (_ result: Result<Date, Error>) -> Void) {
+    func getLastImmutableBasalEndDate(_ completion: @escaping (Date?) -> Void) {
         queue.async {
-            switch self.lastImmutableBasalEndDate {
-            case .some(let date):
-                completion(.success(date))
-            case .none:
-                // TODO: send a proper error
-                completion(.failure(DoseStore.DoseStoreError.initializationError(description: "lastImmutableBasalEndDate has not been set", recoverySuggestion: "Avoid accessing InsulinDeliveryStore until initialization is complete")))
-            }
+            completion(self.lastImmutableBasalEndDate)
         }
     }
 
@@ -369,7 +363,9 @@ extension InsulinDeliveryStore {
             }
         }
 
-        self.lastImmutableBasalEndDate = endDate ?? .distantPast
+        if let endDate {
+            self.lastImmutableBasalEndDate = endDate
+        }
     }
 }
 
