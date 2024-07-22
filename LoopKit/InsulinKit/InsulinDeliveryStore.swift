@@ -356,15 +356,11 @@ extension InsulinDeliveryStore {
 
             do {
                 let objects = try self.cacheStore.managedObjectContext.fetch(request)
-
                 endDate = objects.first?.endDate
+                self.lastImmutableBasalEndDate = endDate
             } catch let error {
                 self.log.error("Unable to fetch latest insulin delivery objects: %@", String(describing: error))
             }
-        }
-
-        if let endDate {
-            self.lastImmutableBasalEndDate = endDate
         }
     }
 }
