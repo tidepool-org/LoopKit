@@ -889,7 +889,7 @@ extension DoseStore {
                             return
                         }
                     } catch {
-
+                        completion(error)
                     }
                 }
             }
