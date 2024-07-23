@@ -22,18 +22,25 @@ class CoreDataMigrationTests: XCTestCase {
         // create model V4
         let modelV4Container = try startPersistentContainer("Modelv4")
         
-        let modelV4Description = NSEntityDescription.entity(forEntityName: "CachedInsulinDeliveryObject", in: modelV4Container.viewContext)!
-        XCTAssertTrue(modelV4Description.propertiesByName.keys.contains("value"))
-        XCTAssertFalse(modelV4Description.propertiesByName.keys.contains("deliveredUnits"))
-        XCTAssertFalse(modelV4Description.propertiesByName.keys.contains("programmedUnits"))
+        let modelV4CachedInsulinDeliveryObjectDescription = NSEntityDescription.entity(forEntityName: "CachedInsulinDeliveryObject", in: modelV4Container.viewContext)!
+        XCTAssertTrue(modelV4CachedInsulinDeliveryObjectDescription.propertiesByName.keys.contains("value"))
+        XCTAssertFalse(modelV4CachedInsulinDeliveryObjectDescription.propertiesByName.keys.contains("deliveredUnits"))
+        XCTAssertFalse(modelV4CachedInsulinDeliveryObjectDescription.propertiesByName.keys.contains("programmedUnits"))
+        
+        let modelV4CachedCarbObjectDescription = NSEntityDescription.entity(forEntityName: "CachedCarbObject", in: modelV4Container.viewContext)!
+        XCTAssertFalse(modelV4CachedCarbObjectDescription.propertiesByName.keys.contains("favoriteFoodID"))
         
         // migrate V4 -> V5
         let modelV5Container = try migrate(container: modelV4Container, to: "Modelv5")
         
-        let modelV5Description = NSEntityDescription.entity(forEntityName: "CachedInsulinDeliveryObject", in: modelV5Container.viewContext)!
-        XCTAssertFalse(modelV5Description.propertiesByName.keys.contains("value"))
-        XCTAssertTrue(modelV5Description.propertiesByName.keys.contains("deliveredUnits"))
-        XCTAssertTrue(modelV5Description.propertiesByName.keys.contains("programmedUnits"))
+        let modelV5CachedInsulinDeliveryObjectDescription = NSEntityDescription.entity(forEntityName: "CachedInsulinDeliveryObject", in: modelV5Container.viewContext)!
+        XCTAssertFalse(modelV5CachedInsulinDeliveryObjectDescription.propertiesByName.keys.contains("value"))
+        XCTAssertTrue(modelV5CachedInsulinDeliveryObjectDescription.propertiesByName.keys.contains("deliveredUnits"))
+        XCTAssertTrue(modelV5CachedInsulinDeliveryObjectDescription.propertiesByName.keys.contains("programmedUnits"))
+        
+        let modelV5CachedCarbObjectDescription = NSEntityDescription.entity(forEntityName: "CachedCarbObject", in: modelV5Container.viewContext)!
+        XCTAssertTrue(modelV5CachedCarbObjectDescription.propertiesByName.keys.contains("favoriteFoodID"))
+
     }
 }
     
