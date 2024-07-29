@@ -84,11 +84,17 @@ class BluetoothManager: NSObject {
     private var centralManager: CBCentralManager! = nil
 
     /// Isolated to `managerQueue`
+    private var discoveredPeripherals: Set<CBPeripheral> = []
+
+    /// Isolated to `managerQueue`
     private var peripheral: CBPeripheral? {
         get {
             return peripheralManager?.peripheral
         }
     }
+
+    /// Isolated to `managerQueue`
+    private var isScanningEnabled = false
 
     var peripheralIdentifier: UUID? {
         get {
@@ -118,14 +124,6 @@ class BluetoothManager: NSObject {
     }
 
     // MARK: - Actions
-
-    func scanForPeripheral() {
-        dispatchPrecondition(condition: .notOnQueue(managerQueue))
-
-        managerQueue.sync {
-            self.managerQueue_scanForPeripheral()
-        }
-    }
 
     func forgetPeripheral() {
         managerQueue.sync {
@@ -163,6 +161,21 @@ class BluetoothManager: NSObject {
         }
     }
 
+    public func setScanningEnabled(_ enabled: Bool) {
+        managerQueue.sync {
+            self.isScanningEnabled = enabled
+
+            if case .poweredOn = self.centralManager.state {
+                if enabled {
+                    self.managerQueue_scanForPeripheral()
+                } else if self.centralManager.isScanning {
+                    self.centralManager.stopScan()
+                }
+            }
+        }
+    }
+
+
     private func managerQueue_scanForPeripheral() {
         dispatchPrecondition(condition: .onQueue(managerQueue))
 
@@ -188,11 +201,7 @@ class BluetoothManager: NSObject {
 
         if peripheral == nil {
             log.debug("Scanning for peripherals")
-            centralManager.scanForPeripherals(withServices: [
-                HeartbeatFobUUID.heartbeatService.cbUUID
-                ],
-                options: nil
-            )
+            centralManager.scanForPeripherals()
             delegate?.bluetoothManagerScanningStatusDidChange(self)
         }
     }
@@ -222,11 +231,19 @@ class BluetoothManager: NSObject {
     private func handleDiscoveredPeripheral(_ peripheral: CBPeripheral) {
         dispatchPrecondition(condition: .onQueue(managerQueue))
 
+        discoveredPeripherals.insert(peripheral)
+
+        connectToPeripheralIfSelected(peripheral)
+    }
+
+    private func connectToPeripheralIfSelected(_ peripheral: CBPeripheral) {
+        dispatchPrecondition(condition: .onQueue(managerQueue))
+
         if let delegate = delegate {
             Task {
                 if await delegate.bluetoothManager(self, shouldConnectPeripheral: peripheral) {
                     log.debug("Making peripheral active: %{public}@", peripheral.identifier.uuidString)
-                    
+
                     if let peripheralManager {
                         peripheralManager.peripheral = peripheral
                     } else {
@@ -252,6 +269,12 @@ class BluetoothManager: NSObject {
 }
 
 
+extension CBCentralManager {
+    func scanForPeripherals(withOptions options: [String: Any]? = nil) {
+        scanForPeripherals(withServices: [HeartbeatFobUUID.heartbeatService.cbUUID], options: options)
+    }
+}
+
 extension BluetoothManager: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         dispatchPrecondition(condition: .onQueue(managerQueue))
@@ -261,7 +284,9 @@ extension BluetoothManager: CBCentralManagerDelegate {
 
         switch central.state {
         case .poweredOn:
-            managerQueue_scanForPeripheral()
+            if isScanningEnabled {
+                managerQueue_scanForPeripheral()
+            }
         case .resetting, .poweredOff, .unauthorized, .unknown, .unsupported:
             fallthrough
         @unknown default:
@@ -278,8 +303,19 @@ extension BluetoothManager: CBCentralManagerDelegate {
 
         if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
             for peripheral in peripherals {
-                log.default("Restoring peripheral from state: %{public}@", peripheral.identifier.uuidString)
+                log.default("Restoring peripheral %{public}@ from state: %{public}@", peripheral.name ?? "Unknown", peripheral.identifier.uuidString)
                 handleDiscoveredPeripheral(peripheral)
+            }
+        }
+    }
+
+    func peripheralSelectionDidChange() {
+
+        disconnect()
+
+        managerQueue.async {
+            for peripheral in self.discoveredPeripherals {
+                self.connectToPeripheralIfSelected(peripheral)
             }
         }
     }

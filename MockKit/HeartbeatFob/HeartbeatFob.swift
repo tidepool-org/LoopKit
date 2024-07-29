@@ -13,20 +13,24 @@ import Combine
 
 public protocol HeartbeatFobDelegate: AnyObject {
     func heartbeatFobTriggeredHeartbeat(_ fob: HeartbeatFob)
-    func heartbeatFobIdChanged(name: String)
+    func heartbeatFobIdChanged(id: Int)
 }
 
 public struct DiscoveredFob: Identifiable {
-    public var name: String
+    public var id: Int
     public var isSelected: Bool
-    public var isConnected: Bool
-    public var id: UUID
+    public var peripheralState: CBPeripheralState
+    public var peripheralId: UUID
+
+    public var displayName: String {
+        return "Heartbeat Fob \(id)"
+    }
 }
 
 @MainActor
 public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
 
-    @Published var fobId: String?
+    @Published var pairedFobId: Int?
 
     @Published public var discoveredFobs: [DiscoveredFob] = []
 
@@ -51,32 +55,34 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
 
     private let delegateQueue = DispatchQueue(label: "com.loopkit.HeartbeatFob.delegateQueue", qos: .unspecified)
 
-    public func setFobId(_ newId: String) {
-        self.fobId = newId
-        delegate?.heartbeatFobIdChanged(name: newId)
+    public func setFobId(_ newId: Int) {
+        self.pairedFobId = newId
+
+        discoveredFobs.indices.forEach { discoveredFobs[$0].isSelected = newId == discoveredFobs[$0].id }
+
+        bluetoothManager.peripheralSelectionDidChange()
+
+        delegate?.heartbeatFobIdChanged(id: newId)
     }
 
-    nonisolated
-    public init(fobId: String?) {
-        Task { @MainActor in
-            self.fobId = fobId
-            bluetoothManager.delegate = self
-        }
+    public init(fobId: Int?) {
+        self.pairedFobId = fobId
+        bluetoothManager.delegate = self
     }
 
     public func scanForNewSensor() {
-        self.fobId = nil
+        self.pairedFobId = nil
         bluetoothManager.disconnect()
         bluetoothManager.forgetPeripheral()
-        bluetoothManager.scanForPeripheral()
+        resumeScanning()
     }
 
     public func resumeScanning() {
-        bluetoothManager.scanForPeripheral()
+        bluetoothManager.setScanningEnabled(true)
     }
 
     public func stopScanning() {
-        bluetoothManager.disconnect()
+        bluetoothManager.setScanningEnabled(false)
     }
 
     // MARK: - BluetoothManagerDelegate
@@ -84,7 +90,7 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
     func bluetoothManager(_ manager: BluetoothManager, readied peripheralManager: PeripheralManager) async -> Bool {
         var shouldStopScanning = false;
 
-        if let fobId = fobId, fobId == peripheralManager.peripheral.name {
+        if let pairedFobId, let fobId = extractIdFromName(peripheralManager.peripheral.name), fobId == pairedFobId {
             shouldStopScanning = true
             connected = true
         }
@@ -98,12 +104,59 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
         }
     }
 
-    nonisolated func peripheralDidDisconnect(_ manager: BluetoothManager, peripheralManager: PeripheralManager, wasRemoteDisconnect: Bool) {
+    nonisolated func peripheralDidConnect(_ manager: BluetoothManager, peripheralManager: PeripheralManager, wasRemoteDisconnect: Bool) {
         Task { @MainActor in
-            if let sensorID = fobId, sensorID == peripheralManager.peripheral.name {
+            if let pairedFobId, let newFobId = extractIdFromName(peripheralManager.peripheral.name), pairedFobId == newFobId {
                 connected = false
             }
+
+            discoveredFobs.indices.forEach {
+                if discoveredFobs[$0].peripheralId == peripheralManager.peripheral.identifier {
+                    discoveredFobs[$0].peripheralState = peripheralManager.peripheral.state
+                }
+            }
         }
+    }
+
+
+    nonisolated func peripheralDidDisconnect(_ manager: BluetoothManager, peripheralManager: PeripheralManager, wasRemoteDisconnect: Bool) {
+        Task { @MainActor in
+            if let pairedFobId, let newFobId = extractIdFromName(peripheralManager.peripheral.name), pairedFobId == newFobId {
+                connected = false
+            }
+
+            discoveredFobs.indices.forEach {
+                if discoveredFobs[$0].peripheralId == peripheralManager.peripheral.identifier {
+                    discoveredFobs[$0].peripheralState = peripheralManager.peripheral.state
+                }
+            }
+        }
+    }
+
+    func extractIdFromName(_ name: String?) -> Int? {
+        guard let name else { return nil }
+
+        if name.hasPrefix("HeartbeatFob") {
+            let pattern = "\\d+$"
+
+            // Create a regex object
+            guard let regex = try? NSRegularExpression(pattern: pattern) else {
+                return nil
+            }
+
+            // Search for the first match
+            let nsString = name as NSString
+            let results = regex.matches(in: name, range: NSRange(location: 0, length: nsString.length))
+
+            // Extract the matched substring and convert it to an Int
+            if let match = results.first, let extractedId = Int(nsString.substring(with: match.range)) {
+                log.debug("Mapped peripheral name %@ to fob ID %d", name, extractedId)
+                return extractedId
+            }
+        }
+        log.default("Unable to extract id from peripheral name %@", name)
+        return nil
+
     }
 
     func bluetoothManager(_ manager: BluetoothManager, shouldConnectPeripheral peripheral: CBPeripheral) async -> Bool {
@@ -113,15 +166,16 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
             return false
         }
 
-        let index = discoveredFobs.firstIndex{ $0.id == peripheral.identifier }
-        if index == nil {
-            let device = DiscoveredFob(name: name, isSelected: name == fobId, isConnected: peripheral.state == .connected, id: peripheral.identifier)
+        let index = discoveredFobs.firstIndex{ $0.peripheralId == peripheral.identifier }
+        if index == nil, let newFobId = extractIdFromName(name) {
+            let device = DiscoveredFob(id: newFobId, isSelected: newFobId == pairedFobId, peripheralState: peripheral.state, peripheralId: peripheral.identifier)
             discoveredFobs.append(device)
         }
 
-        if name.hasPrefix("Heartbeat") {
-            return fobId == name
+        if let id = extractIdFromName(name) {
+            return pairedFobId == id
         }
+
 
         log.info("Not connecting to peripheral: %{public}@", name)
         return false

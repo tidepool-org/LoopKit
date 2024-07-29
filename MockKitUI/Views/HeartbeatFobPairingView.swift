@@ -17,29 +17,28 @@ struct HeartbeatFobPairingView: View {
     var body: some View {
         List {
             Section(header: HStack {
-                Text(LocalizedString("Devices", comment: "Header for devices section of RileyLinkSetupView"))
+                Text(LocalizedString("Heartbeat Fob Devices", comment: "Header for devices section of HeartbeatFobPairingView"))
                 Spacer()
                 ProgressView()
             }) {
                 ForEach(heartbeatFob.discoveredFobs) { device in
                     HStack {
-                        Text(device.name)
+                        Text(device.displayName)
                         Spacer()
 
                         if device.isSelected {
-                            if device.isConnected {
+                            switch device.peripheralState {
+                            case .connected:
                                 Image(systemName: "wifi")
                                     .imageScale(.large)
-                            } else {
-                                Image(systemName: "wifi.slash")
-                                    .imageScale(.large)
-                                    .foregroundColor(guidanceColors.warning)
+                            default:
+                                ProgressView()
                             }
                         }
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        heartbeatFob.setFobId(device.name)
+                        heartbeatFob.setFobId(device.id)
                     }
                 }
             }

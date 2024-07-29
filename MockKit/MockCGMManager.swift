@@ -34,7 +34,7 @@ public struct MockCGMState: GlucoseDisplayable {
 
     public var samplesShouldBeUploaded: Bool
 
-    public var heartbeatFobId: String?
+    public var heartbeatFobId: Int?
 
     private var cgmLowerLimitValue: Double
 
@@ -404,12 +404,15 @@ public final class MockCGMManager: TestingCGMManager {
         }
     }
 
-    public var heartbeatFob: HeartbeatFob
+    public var heartbeatFob: HeartbeatFob?
 
     private var glucoseUpdateTimer: Timer?
 
     public init() {
-        self.heartbeatFob = HeartbeatFob(fobId: nil)
+        Task { @MainActor in
+            self.heartbeatFob = HeartbeatFob(fobId: nil)
+            self.heartbeatFob?.delegate = self
+        }
         setupGlucoseUpdateTrigger()
     }
 
@@ -436,14 +439,16 @@ public final class MockCGMManager: TestingCGMManager {
     }
     
     public init?(rawState: RawStateValue) {
+        let fobId: Int?
+
         if let mockSensorStateRawValue = rawState["mockSensorState"] as? MockCGMState.RawValue,
             let mockSensorState = MockCGMState(rawValue: mockSensorStateRawValue) {
             self.lockedMockSensorState.value = mockSensorState
-            self.heartbeatFob = HeartbeatFob(fobId: mockSensorState.heartbeatFobId)
+            fobId = mockSensorState.heartbeatFobId
         } else {
             let newState = MockCGMState(isStateValid: true)
             self.lockedMockSensorState.value = newState
-            self.heartbeatFob = HeartbeatFob(fobId: nil)
+            fobId = nil
         }
 
         if let dataSourceRawValue = rawState["dataSource"] as? MockCGMDataSource.RawValue,
@@ -452,6 +457,8 @@ public final class MockCGMManager: TestingCGMManager {
         } else {
             self.lockedDataSource.value = MockCGMDataSource(model: .sineCurve(parameters: (baseGlucose: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 110), amplitude: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 20), period: TimeInterval(hours: 6), referenceDate: Date())))
         }
+
+        setupHeartbeatFob(fobId)
 
         setupGlucoseUpdateTrigger()
     }
@@ -465,6 +472,12 @@ public final class MockCGMManager: TestingCGMManager {
             "mockSensorState": mockSensorState.rawValue,
             "dataSource": dataSource.rawValue
         ]
+    }
+
+    public func setupHeartbeatFob(_ fobId: Int?) {
+        Task { @MainActor in
+            self.heartbeatFob = HeartbeatFob(fobId: fobId)
+        }
     }
 
     public let isOnboarded = true   // No distinction between created and onboarded
@@ -830,7 +843,7 @@ extension MockCGMState: RawRepresentable {
         self.cgmLowerLimitValue = cgmLowerLimitValue
         self.cgmUpperLimitValue = cgmUpperLimitValue
 
-        self.heartbeatFobId = rawValue["heartbeatFobId"] as? String
+        self.heartbeatFobId = rawValue["heartbeatFobId"] as? Int
 
         if let glucoseRangeCategoryRawValue = rawValue["glucoseRangeCategory"] as? GlucoseRangeCategory.RawValue {
             self.glucoseRangeCategory = GlucoseRangeCategory(rawValue: glucoseRangeCategoryRawValue)
@@ -947,4 +960,16 @@ extension MockCGMState: CustomDebugStringConvertible {
         * heartbeatFobId: \(heartbeatFobId as Any)
         """
     }
+}
+
+extension MockCGMManager: HeartbeatFobDelegate {
+    public func heartbeatFobTriggeredHeartbeat(_ fob: HeartbeatFob) {
+        self.logDeviceComms(.receive, message: "received heartbeat")
+    }
+    
+    public func heartbeatFobIdChanged(id: Int) {
+        self.mockSensorState.heartbeatFobId = id
+    }
+    
+
 }
