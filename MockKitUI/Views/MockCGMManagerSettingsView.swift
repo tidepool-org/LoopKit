@@ -213,7 +213,7 @@ struct MockCGMManagerSettingsView: View {
         Section(header: SectionHeader(label: "BLE Heartbeat")) {
             if let heartbeatFob = viewModel.cgmManager.heartbeatFob {
                 NavigationLink(destination: HeartbeatFobPairingView(heartbeatFob: heartbeatFob)) {
-                    LabeledValueView(label: "Status", value: "Not Paired")
+                    LabeledValueView(label: "Status", value: viewModel.bleHeartbeatStatus)
                 }
             }
         }

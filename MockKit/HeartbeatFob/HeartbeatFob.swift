@@ -88,14 +88,16 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
     // MARK: - BluetoothManagerDelegate
 
     func bluetoothManager(_ manager: BluetoothManager, readied peripheralManager: PeripheralManager) async -> Bool {
-        var shouldStopScanning = false;
-
         if let pairedFobId, let fobId = extractIdFromName(peripheralManager.peripheral.name), fobId == pairedFobId {
-            shouldStopScanning = true
             connected = true
+            discoveredFobs.indices.forEach {
+                if discoveredFobs[$0].id == fobId {
+                    discoveredFobs[$0].peripheralState = peripheralManager.peripheral.state
+                }
+            }
         }
 
-        return shouldStopScanning
+        return false
     }
 
     nonisolated func bluetoothManager(_ manager: BluetoothManager, readyingFailed peripheralManager: PeripheralManager, with error: Error) {
@@ -103,21 +105,6 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
             connectionError = error
         }
     }
-
-    nonisolated func peripheralDidConnect(_ manager: BluetoothManager, peripheralManager: PeripheralManager, wasRemoteDisconnect: Bool) {
-        Task { @MainActor in
-            if let pairedFobId, let newFobId = extractIdFromName(peripheralManager.peripheral.name), pairedFobId == newFobId {
-                connected = false
-            }
-
-            discoveredFobs.indices.forEach {
-                if discoveredFobs[$0].peripheralId == peripheralManager.peripheral.identifier {
-                    discoveredFobs[$0].peripheralState = peripheralManager.peripheral.state
-                }
-            }
-        }
-    }
-
 
     nonisolated func peripheralDidDisconnect(_ manager: BluetoothManager, peripheralManager: PeripheralManager, wasRemoteDisconnect: Bool) {
         Task { @MainActor in
@@ -170,6 +157,7 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
         if index == nil, let newFobId = extractIdFromName(name) {
             let device = DiscoveredFob(id: newFobId, isSelected: newFobId == pairedFobId, peripheralState: peripheral.state, peripheralId: peripheral.identifier)
             discoveredFobs.append(device)
+            discoveredFobs.sort(by: { $0.id < $1.id })
         }
 
         if let id = extractIdFromName(name) {

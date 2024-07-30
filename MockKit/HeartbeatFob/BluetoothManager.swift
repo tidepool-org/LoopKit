@@ -162,6 +162,7 @@ class BluetoothManager: NSObject {
     }
 
     public func setScanningEnabled(_ enabled: Bool) {
+        log.debug("Set scanning enabled: %{public}@", String(describing: enabled))
         managerQueue.sync {
             self.isScanningEnabled = enabled
 
@@ -183,27 +184,9 @@ class BluetoothManager: NSObject {
             return
         }
 
-        let currentState = peripheral?.state ?? .disconnected
-        guard currentState != .connected else {
-            return
-        }
-
-        if let peripheralID = peripheralIdentifier, let peripheral = centralManager.retrievePeripherals(withIdentifiers: [peripheralID]).first {
-            log.debug("Retrieved peripheral %{public}@", peripheral.identifier.uuidString)
-            handleDiscoveredPeripheral(peripheral)
-        } else {
-            for peripheral in centralManager.retrieveConnectedPeripherals(withServices: [
-                HeartbeatFobUUID.heartbeatService.cbUUID
-            ]) {
-                handleDiscoveredPeripheral(peripheral)
-            }
-        }
-
-        if peripheral == nil {
-            log.debug("Scanning for peripherals")
-            centralManager.scanForPeripherals()
-            delegate?.bluetoothManagerScanningStatusDidChange(self)
-        }
+        log.debug("Scanning for peripherals")
+        centralManager.scanForPeripherals()
+        delegate?.bluetoothManagerScanningStatusDidChange(self)
     }
 
     // MARK: - Accessors
@@ -284,6 +267,17 @@ extension BluetoothManager: CBCentralManagerDelegate {
 
         switch central.state {
         case .poweredOn:
+            if let peripheralID = peripheralIdentifier, let peripheral = centralManager.retrievePeripherals(withIdentifiers: [peripheralID]).first {
+                log.debug("Retrieved peripheral %{public}@", peripheral.identifier.uuidString)
+                handleDiscoveredPeripheral(peripheral)
+            } else {
+                for peripheral in centralManager.retrieveConnectedPeripherals(withServices: [
+                    HeartbeatFobUUID.heartbeatService.cbUUID
+                ]) {
+                    handleDiscoveredPeripheral(peripheral)
+                }
+            }
+
             if isScanningEnabled {
                 managerQueue_scanForPeripheral()
             }
@@ -367,7 +361,10 @@ extension BluetoothManager: CBCentralManagerDelegate {
                 remoteDisconnect = false
             }
             self.delegate?.peripheralDidDisconnect(self, peripheralManager: peripheralManager, wasRemoteDisconnect: remoteDisconnect)
+
         }
+
+        connectToPeripheralIfSelected(peripheral)
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {

@@ -16,10 +16,15 @@ struct HeartbeatFobPairingView: View {
 
     var body: some View {
         List {
+            Image(frameworkImage: "Heartbeat Fob")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 150)
+                .frame(maxWidth: .infinity,maxHeight: .infinity)
             Section(header: HStack {
-                Text(LocalizedString("Heartbeat Fob Devices", comment: "Header for devices section of HeartbeatFobPairingView"))
-                Spacer()
+                Text(LocalizedString("Scanning", comment: "Header for devices section of HeartbeatFobPairingView"))
                 ProgressView()
+                    .padding(.leading, 5)
             }) {
                 ForEach(heartbeatFob.discoveredFobs) { device in
                     HStack {
@@ -29,8 +34,16 @@ struct HeartbeatFobPairingView: View {
                         if device.isSelected {
                             switch device.peripheralState {
                             case .connected:
-                                Image(systemName: "wifi")
-                                    .imageScale(.large)
+                                if #available(iOSApplicationExtension 17.0, *) {
+                                    Image(systemName: "dot.radiowaves.left.and.right")
+                                        .imageScale(.large)
+                                        .symbolRenderingMode(.multicolor)
+                                        .symbolEffect(.variableColor, options: .speed(1), isActive: true)
+                                } else {
+                                    Image(systemName: "dot.radiowaves.left.and.right")
+                                        .imageScale(.large)
+                                        .symbolRenderingMode(.multicolor)
+                                }
                             default:
                                 ProgressView()
                             }
@@ -49,6 +62,7 @@ struct HeartbeatFobPairingView: View {
                 heartbeatFob.stopScanning()
             }
         }
+        .navigationTitle(LocalizedString("Heartbeat Pairing", comment: "Navigation title for Heartbeat Fob Pairing View"))
 
     }
 
