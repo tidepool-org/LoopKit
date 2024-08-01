@@ -35,6 +35,7 @@ public struct MockCGMState: GlucoseDisplayable {
     public var samplesShouldBeUploaded: Bool
 
     public var heartbeatFobId: Int?
+    public var heartbeatFobPeripheralIdentifier: UUID?
 
     private var cgmLowerLimitValue: Double
 
@@ -410,7 +411,7 @@ public final class MockCGMManager: TestingCGMManager {
 
     public init() {
         Task { @MainActor in
-            self.heartbeatFob = HeartbeatFob(fobId: nil)
+            self.heartbeatFob = HeartbeatFob(fobId: nil, peripheralIdentifier: nil)
             self.heartbeatFob?.delegate = self
         }
         setupGlucoseUpdateTrigger()
@@ -473,7 +474,10 @@ public final class MockCGMManager: TestingCGMManager {
 
     public func setupHeartbeatFob() {
         Task { @MainActor in
-            let fob = HeartbeatFob(fobId: self.mockSensorState.heartbeatFobId)
+            let fob = HeartbeatFob(
+                fobId: self.mockSensorState.heartbeatFobId,
+                peripheralIdentifier: mockSensorState.heartbeatFobPeripheralIdentifier
+            )
             fob.delegate = self
             self.heartbeatFob = fob
         }
@@ -844,6 +848,10 @@ extension MockCGMState: RawRepresentable {
 
         self.heartbeatFobId = rawValue["heartbeatFobId"] as? Int
 
+        if let rawHeartbeatFobPeripheralIdentifier = rawValue["heartbeatFobIdPeripheralIdentifier"] as? String {
+            self.heartbeatFobPeripheralIdentifier = UUID(uuidString: rawHeartbeatFobPeripheralIdentifier)
+        }
+
         if let glucoseRangeCategoryRawValue = rawValue["glucoseRangeCategory"] as? GlucoseRangeCategory.RawValue {
             self.glucoseRangeCategory = GlucoseRangeCategory(rawValue: glucoseRangeCategoryRawValue)
         }
@@ -928,6 +936,10 @@ extension MockCGMState: RawRepresentable {
             rawValue["heartbeatFobId"] = heartbeatFobId
         }
 
+        if let heartbeatFobPeripheralIdentifier {
+            rawValue["heartbeatFobIdPeripheralIdentifier"] = heartbeatFobPeripheralIdentifier.uuidString
+        }
+
         rawValue["trendRateValue"] = trendRate?.doubleValue(for: .milligramsPerDeciliterPerMinute)
         rawValue["trendType"] = trendType?.rawValue
         rawValue["currentGlucoseValue"] = currentGlucose?.doubleValue(for: .milligramsPerDeciliter)
@@ -966,8 +978,9 @@ extension MockCGMManager: HeartbeatFobDelegate {
         self.logDeviceComms(.receive, message: "received heartbeat")
     }
     
-    public func heartbeatFobIdChanged(id: Int?) {
+    public func heartbeatFobSelectionChanged(id: Int?, peripheralIdentifier: UUID?) {
         self.mockSensorState.heartbeatFobId = id
+        self.mockSensorState.heartbeatFobPeripheralIdentifier = peripheralIdentifier
     }
 
 }

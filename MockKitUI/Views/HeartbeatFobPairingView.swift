@@ -92,5 +92,5 @@ struct HeartbeatFobPairingView: View {
 }
 
 #Preview {
-    HeartbeatFobPairingView(heartbeatFob: HeartbeatFob(fobId: nil))
+    HeartbeatFobPairingView(heartbeatFob: HeartbeatFob(fobId: nil, peripheralIdentifier: nil))
 }

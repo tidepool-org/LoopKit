@@ -13,7 +13,7 @@ import Combine
 
 public protocol HeartbeatFobDelegate: AnyObject {
     func heartbeatFobTriggeredHeartbeat(_ fob: HeartbeatFob)
-    func heartbeatFobIdChanged(id: Int?)
+    func heartbeatFobSelectionChanged(id: Int?, peripheralIdentifier: UUID?)
 }
 
 public struct DiscoveredFob: Identifiable {
@@ -48,7 +48,7 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
 
     private let log = OSLog(category: "HeartbeatFob")
 
-    private let bluetoothManager = BluetoothManager()
+    private let bluetoothManager: BluetoothManager
 
     private let delegateQueue = DispatchQueue(label: "com.loopkit.HeartbeatFob.delegateQueue", qos: .unspecified)
 
@@ -61,15 +61,25 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
             self.pairedFobId = selectedId
         }
 
-        discoveredFobs.indices.forEach { discoveredFobs[$0].isSelected = self.pairedFobId == discoveredFobs[$0].id }
+        var peripheralIdentifier: UUID?
+
+        discoveredFobs.indices.forEach {
+            if discoveredFobs[$0].id == self.pairedFobId {
+                discoveredFobs[$0].isSelected = true
+                peripheralIdentifier = discoveredFobs[$0].peripheralId
+            } else {
+                discoveredFobs[$0].isSelected = false
+            }
+        }
 
         bluetoothManager.peripheralSelectionDidChange()
 
-        delegate?.heartbeatFobIdChanged(id: self.pairedFobId)
+        delegate?.heartbeatFobSelectionChanged(id: self.pairedFobId, peripheralIdentifier: peripheralIdentifier)
     }
 
-    public init(fobId: Int?) {
+    public init(fobId: Int?, peripheralIdentifier: UUID?) {
         self.pairedFobId = fobId
+        bluetoothManager = BluetoothManager(peripheralIdentifier: peripheralIdentifier)
         bluetoothManager.delegate = self
     }
 

@@ -101,7 +101,7 @@ class BluetoothManager: NSObject {
             return lockedPeripheralIdentifier.value
         }
     }
-    private let lockedPeripheralIdentifier: Locked<UUID?> = Locked(nil)
+    private let lockedPeripheralIdentifier: Locked<UUID?>
 
     /// Isolated to `managerQueue`
     private var peripheralManager: PeripheralManager? {
@@ -115,7 +115,8 @@ class BluetoothManager: NSObject {
 
     private let managerQueue = DispatchQueue(label: "org.loopkit.HeartbeatFob.bluetoothManagerQueue", qos: .unspecified)
 
-    override init() {
+    init(peripheralIdentifier: UUID?) {
+        self.lockedPeripheralIdentifier = Locked(peripheralIdentifier)
         super.init()
 
         managerQueue.sync {
