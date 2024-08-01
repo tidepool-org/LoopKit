@@ -153,12 +153,6 @@ class BluetoothManager: NSObject {
         dispatchPrecondition(condition: .notOnQueue(managerQueue))
 
         managerQueue.sync {
-            if centralManager.isScanning {
-                log.debug("Stopping scan on disconnect")
-                centralManager.stopScan()
-                delegate?.bluetoothManagerScanningStatusDidChange(self)
-            }
-
             if let peripheral = peripheral {
                 centralManager.cancelPeripheralConnection(peripheral)
             }
