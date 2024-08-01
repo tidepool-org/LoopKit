@@ -23,7 +23,7 @@ protocol BluetoothManagerDelegate: AnyObject {
 
      - returns: True if scanning should stop
      */
-    func bluetoothManager(_ manager: BluetoothManager, readied peripheralManager: PeripheralManager) async -> Bool
+    func bluetoothManager(_ manager: BluetoothManager, readied peripheralManager: PeripheralManager) async
 
     /**
      Tells the delegate that the bluetooth manager encountered an error while connecting to and discovering required services of a peripheral
@@ -124,6 +124,10 @@ class BluetoothManager: NSObject {
     }
 
     // MARK: - Actions
+
+    func triggerBatteryRead() {
+        peripheralManager?.readBatteryLevel()
+    }
 
     func forgetPeripheral() {
         managerQueue.sync {
@@ -331,14 +335,6 @@ extension BluetoothManager: CBCentralManagerDelegate {
 
         if let peripheralManager, peripheralManager.peripheral == peripheral {
             peripheralManager.centralManager(central, didConnect: peripheral)
-
-            if let delegate = delegate, case .poweredOn = centralManager.state, case .connected = peripheral.state {
-                Task {
-                    if await delegate.bluetoothManager(self, readied: peripheralManager) {
-                        stopScanning()
-                    }
-                }
-            }
         }
     }
 
@@ -390,6 +386,9 @@ extension BluetoothManager: PeripheralManagerDelegate {
     }
 
     func completeConfiguration(for manager: PeripheralManager) throws {
+        Task {
+            await delegate?.bluetoothManager(self, readied: manager)
+        }
     }
 
     func peripheralManager(_ manager: PeripheralManager, didUpdateValueFor characteristic: CBCharacteristic) {
@@ -397,13 +396,20 @@ extension BluetoothManager: PeripheralManagerDelegate {
             return
         }
 
-        switch HeartbeatServiceCharacteristicUUID(rawValue: characteristic.uuid.uuidString.uppercased()) {
-        case .batteryLevel:
-            self.delegate?.bluetoothManager(self, peripheralManager: manager, didReceiveBatteryLevel: value)
-        case .value:
-            self.delegate?.bluetoothManager(self, peripheralManager: manager, didReceiveHeartbeat: value)
-        default:
-            return
+        if let heartbeatCharacteristic = HeartbeatServiceCharacteristicUUID(rawValue: characteristic.uuid.uuidString.uppercased()) {
+            switch heartbeatCharacteristic {
+            case .value:
+                self.delegate?.bluetoothManager(self, peripheralManager: manager, didReceiveHeartbeat: value)
+            default:
+                return
+            }
+        }
+
+        if let batteryCharacteristic = BatteryServiceCharacteristicUUID(rawValue: characteristic.uuid.uuidString.uppercased()) {
+            switch batteryCharacteristic {
+            case .batteryLevel:
+                self.delegate?.bluetoothManager(self, peripheralManager: manager, didReceiveBatteryLevel: value)
+            }
         }
     }
 }

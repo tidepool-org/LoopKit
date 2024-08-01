@@ -966,7 +966,7 @@ extension MockCGMManager: HeartbeatFobDelegate {
         self.logDeviceComms(.receive, message: "received heartbeat")
     }
     
-    public func heartbeatFobIdChanged(id: Int) {
+    public func heartbeatFobIdChanged(id: Int?) {
         self.mockSensorState.heartbeatFobId = id
     }
 

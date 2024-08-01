@@ -325,6 +325,9 @@ extension PeripheralManager {
 
     /// - Throws: PeripheralManagerError
     func readValue(for characteristic: CBCharacteristic, timeout: TimeInterval) throws -> Data? {
+
+        log.debug("read value for %@", String(describing: characteristic))
+
         try runCommand(timeout: timeout) {
             addCondition(.valueUpdate(characteristic: characteristic, matching: nil))
 
@@ -332,6 +335,12 @@ extension PeripheralManager {
         }
 
         return characteristic.value
+    }
+
+    func readBatteryLevel() {
+        if let char = self.peripheral.getBatteryServiceCharacteristicWithUUID(.batteryLevel) {
+            peripheral.readValue(for: char)
+        }
     }
 
     /// - Throws: PeripheralManagerError
@@ -387,6 +396,9 @@ extension PeripheralManager: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         commandLock.lock()
 
+        log.debug("Did discover characteristics for %@", String(describing: service))
+
+
         if let index = commandConditions.firstIndex(where: { (condition) -> Bool in
             if case .discoverCharacteristicsForService(serviceUUID: service.uuid) = condition {
                 return true
@@ -407,6 +419,8 @@ extension PeripheralManager: CBPeripheralDelegate {
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
         commandLock.lock()
+
+        log.debug("didUpdateNotificationStateFor for %@", String(describing: characteristic))
 
         if let index = commandConditions.firstIndex(where: { (condition) -> Bool in
             if case .notificationStateUpdate(characteristicUUID: characteristic.uuid, enabled: characteristic.isNotifying) = condition {
@@ -449,6 +463,8 @@ extension PeripheralManager: CBPeripheralDelegate {
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         commandLock.lock()
+
+        log.debug("didUpdateValueFor %@", String(describing: characteristic))
 
         var notifyDelegate = false
 
@@ -560,6 +576,11 @@ fileprivate extension CBPeripheral {
     func getCharacteristicWithUUID(_ uuid: HeartbeatServiceCharacteristicUUID) -> CBCharacteristic? {
         return getCharacteristicForServiceUUID(.heartbeatService, withUUIDString: uuid.rawValue)
     }
+
+    func getBatteryServiceCharacteristicWithUUID(_ uuid: BatteryServiceCharacteristicUUID) -> CBCharacteristic? {
+        return getCharacteristicForServiceUUID(.batteryService, withUUIDString: uuid.rawValue)
+    }
+
 }
 
 extension Collection where Element: CBAttribute {

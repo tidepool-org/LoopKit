@@ -28,35 +28,58 @@ struct HeartbeatFobPairingView: View {
             }) {
                 ForEach(heartbeatFob.discoveredFobs) { device in
                     HStack {
-                        Text(device.displayName)
-                        Spacer()
+                        Image(systemName: device.isSelected ? "largecircle.fill.circle" : "circle")
+                            .renderingMode(.original)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 18, height: 18)
+                            .padding(.trailing, 5)
+                        VStack {
+                            HStack {
+                                Text(device.displayName)
+                                Spacer()
 
-                        if device.isSelected {
-                            switch device.peripheralState {
-                            case .connected:
-                                if #available(iOSApplicationExtension 17.0, *) {
-                                    Image(systemName: "dot.radiowaves.left.and.right")
-                                        .imageScale(.large)
-                                        .symbolRenderingMode(.multicolor)
-                                        .symbolEffect(.variableColor, options: .speed(1), isActive: true)
-                                } else {
-                                    Image(systemName: "dot.radiowaves.left.and.right")
-                                        .imageScale(.large)
-                                        .symbolRenderingMode(.multicolor)
+                                if device.isSelected {
+                                    switch device.peripheralState {
+                                    case .connected:
+                                        if #available(iOSApplicationExtension 17.0, *) {
+                                            Image(systemName: "dot.radiowaves.left.and.right")
+                                                .imageScale(.large)
+                                                .symbolRenderingMode(.multicolor)
+                                                .symbolEffect(.variableColor, options: .speed(1), isActive: true)
+                                        } else {
+                                            Image(systemName: "dot.radiowaves.left.and.right")
+                                                .imageScale(.large)
+                                                .symbolRenderingMode(.multicolor)
+                                        }
+                                    default:
+                                        ProgressView()
+                                    }
                                 }
-                            default:
-                                ProgressView()
+                            }
+                            HStack {
+                                if let imageName = device.batteryImageName, let percent = device.batteryPercent {
+                                    Text("\(percent)% Battery")
+                                        .foregroundStyle(.secondary)
+                                    Image(systemName: imageName)
+                                        .padding(.leading, 5)
+                                } else {
+                                    Text("Battery Level Unknown")
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
                             }
                         }
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        heartbeatFob.setFobId(device.id)
+                        heartbeatFob.toggleFobSelection(device.id)
                     }
                 }
             }
             .onAppear {
                 heartbeatFob.resumeScanning()
+                heartbeatFob.triggerBatteryLevelRead()
             }
             .onDisappear {
                 heartbeatFob.stopScanning()

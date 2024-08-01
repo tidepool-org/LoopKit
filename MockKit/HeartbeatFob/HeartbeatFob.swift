@@ -13,7 +13,7 @@ import Combine
 
 public protocol HeartbeatFobDelegate: AnyObject {
     func heartbeatFobTriggeredHeartbeat(_ fob: HeartbeatFob)
-    func heartbeatFobIdChanged(id: Int)
+    func heartbeatFobIdChanged(id: Int?)
 }
 
 public struct DiscoveredFob: Identifiable {
@@ -21,6 +21,7 @@ public struct DiscoveredFob: Identifiable {
     public var isSelected: Bool
     public var peripheralState: CBPeripheralState
     public var peripheralId: UUID
+    public var batteryPercent: UInt8?
 
     public var displayName: String {
         return "Heartbeat Fob \(id)"
@@ -34,13 +35,9 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
 
     @Published public var discoveredFobs: [DiscoveredFob] = []
 
-    @Published var connected: Bool = false
-
     @Published var scanning: Bool = false
 
     @Published var connectionError: Error?
-
-    @Published var batteryPercent: UInt16?
 
     public weak var delegate: HeartbeatFobDelegate?
 
@@ -55,26 +52,25 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
 
     private let delegateQueue = DispatchQueue(label: "com.loopkit.HeartbeatFob.delegateQueue", qos: .unspecified)
 
-    public func setFobId(_ newId: Int) {
-        self.pairedFobId = newId
+    public func toggleFobSelection(_ selectedId: Int) {
 
-        discoveredFobs.indices.forEach { discoveredFobs[$0].isSelected = newId == discoveredFobs[$0].id }
+        if selectedId == self.pairedFobId {
+            self.pairedFobId = nil
+            bluetoothManager.disconnect()
+        } else {
+            self.pairedFobId = selectedId
+        }
+
+        discoveredFobs.indices.forEach { discoveredFobs[$0].isSelected = self.pairedFobId == discoveredFobs[$0].id }
 
         bluetoothManager.peripheralSelectionDidChange()
 
-        delegate?.heartbeatFobIdChanged(id: newId)
+        delegate?.heartbeatFobIdChanged(id: self.pairedFobId)
     }
 
     public init(fobId: Int?) {
         self.pairedFobId = fobId
         bluetoothManager.delegate = self
-    }
-
-    public func scanForNewSensor() {
-        self.pairedFobId = nil
-        bluetoothManager.disconnect()
-        bluetoothManager.forgetPeripheral()
-        resumeScanning()
     }
 
     public func resumeScanning() {
@@ -87,17 +83,19 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
 
     // MARK: - BluetoothManagerDelegate
 
-    func bluetoothManager(_ manager: BluetoothManager, readied peripheralManager: PeripheralManager) async -> Bool {
+    func bluetoothManager(_ manager: BluetoothManager, readied peripheralManager: PeripheralManager) async {
         if let pairedFobId, let fobId = extractIdFromName(peripheralManager.peripheral.name), fobId == pairedFobId {
-            connected = true
             discoveredFobs.indices.forEach {
                 if discoveredFobs[$0].id == fobId {
                     discoveredFobs[$0].peripheralState = peripheralManager.peripheral.state
+                    peripheralManager.readBatteryLevel()
                 }
             }
         }
+    }
 
-        return false
+    public func triggerBatteryLevelRead() {
+        bluetoothManager.triggerBatteryRead()
     }
 
     nonisolated func bluetoothManager(_ manager: BluetoothManager, readyingFailed peripheralManager: PeripheralManager, with error: Error) {
@@ -108,10 +106,6 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
 
     nonisolated func peripheralDidDisconnect(_ manager: BluetoothManager, peripheralManager: PeripheralManager, wasRemoteDisconnect: Bool) {
         Task { @MainActor in
-            if let pairedFobId, let newFobId = extractIdFromName(peripheralManager.peripheral.name), pairedFobId == newFobId {
-                connected = false
-            }
-
             discoveredFobs.indices.forEach {
                 if discoveredFobs[$0].peripheralId == peripheralManager.peripheral.identifier {
                     discoveredFobs[$0].peripheralState = peripheralManager.peripheral.state
@@ -183,11 +177,14 @@ public final class HeartbeatFob: ObservableObject, BluetoothManagerDelegate {
 
     nonisolated func bluetoothManager(_ manager: BluetoothManager, peripheralManager: PeripheralManager, didReceiveBatteryLevel response: Data) {
         Task { @MainActor in
-            let batteryPercent = response.toBigEndian(UInt16.self)
-            self.batteryPercent = batteryPercent
+            discoveredFobs.indices.forEach {
+                if discoveredFobs[$0].peripheralId == peripheralManager.peripheral.identifier {
+                    log.default("Did update battery level for %@ to %@ percent.", peripheralManager.peripheral.name ?? "Unknown", String(describing: response[0]))
+                    discoveredFobs[$0].batteryPercent = response[0]
+                }
+            }
         }
     }
-
 }
 
 

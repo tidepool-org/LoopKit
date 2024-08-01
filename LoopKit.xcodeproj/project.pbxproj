@@ -671,6 +671,7 @@
 		C10DF6E02C2CA4270076DA10 /* PeripheralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10DF6DB2C2CA4270076DA10 /* PeripheralManager.swift */; };
 		C10DF6E32C2CB7FF0076DA10 /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10DF6E22C2CB7FF0076DA10 /* OSLog.swift */; };
 		C10DF6E72C2CBA0D0076DA10 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10DF6E62C2CBA0D0076DA10 /* Data.swift */; };
+		C13FF4262C5ADC8100FD2869 /* DiscoveredFob+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13FF4252C5ADC8100FD2869 /* DiscoveredFob+UI.swift */; };
 		C140E0522602908A000A4FF7 /* SettingsPresentationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140E0512602908A000A4FF7 /* SettingsPresentationMode.swift */; };
 		C1475B33264C30800040C7B1 /* LoopKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43BA7154201E484D0058961E /* LoopKitUI.framework */; };
 		C14A7E7E295F43AB00CD87B4 /* ConfigurationPageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14A7E7D295F43AB00CD87B4 /* ConfigurationPageScrollView.swift */; };
@@ -1616,6 +1617,7 @@
 		C13493B7297E498700D87305 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1394BA6297E49630042F1A9 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C13F89C4297E495B00C71398 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C13FF4252C5ADC8100FD2869 /* DiscoveredFob+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DiscoveredFob+UI.swift"; sourceTree = "<group>"; };
 		C140E0512602908A000A4FF7 /* SettingsPresentationMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsPresentationMode.swift; sourceTree = "<group>"; };
 		C14690CF297E497A00124A99 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1469E02297E498100042439 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2959,6 +2961,7 @@
 			children = (
 				B451D1202A17190C004878F1 /* MockCGMManagerSettingsViewModel.swift */,
 				B451D11A2A16B97C004878F1 /* MockPumpManagerSettingsViewModel.swift */,
+				C13FF4252C5ADC8100FD2869 /* DiscoveredFob+UI.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4309,6 +4312,7 @@
 				892A5D2E222EF69A008961AB /* MockHUDProvider.swift in Sources */,
 				C18733C929B94A6400519CDF /* TimeInterval.swift in Sources */,
 				C18733C529B94A6400519CDF /* NumberFormatter.swift in Sources */,
+				C13FF4262C5ADC8100FD2869 /* DiscoveredFob+UI.swift in Sources */,
 				B451D1102A161B84004878F1 /* OpenMockPumpSettingsOnLongPressGesture.swift in Sources */,
 				B451D1122A165DA0004878F1 /* Image.swift in Sources */,
 				439706E922D2E94800C81566 /* BoundSwitchTableViewCell.swift in Sources */,
