@@ -203,7 +203,7 @@ public final class PersistenceController {
             do {
                 try FileManager.default.ensureDirectoryExists(at: directoryURL, with: FileProtectionType.completeUntilFirstUserAuthentication)
             } catch {
-                // Ignore errors here, let Core Data explain the problem
+                self.log.error("Failed to ensureDirectoryExists: %{public}@ %{public}@", directoryURL.absoluteString, String(describing: error))
             }
 
             let storeURL = directoryURL.appendingPathComponent("Model.sqlite")
