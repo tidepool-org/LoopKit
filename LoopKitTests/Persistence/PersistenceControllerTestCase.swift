@@ -17,6 +17,8 @@ class PersistenceControllerTestCase: XCTestCase {
 
         cacheStore = PersistenceController(directoryURL: URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true).appendingPathComponent(UUID().uuidString, isDirectory: true))
 
+        print("**** Setup cacheStore at \(cacheStore.directoryURL)")
+
         let semaphore = DispatchSemaphore(value: 0)
         cacheStore.onReady { error in
             semaphore.signal()

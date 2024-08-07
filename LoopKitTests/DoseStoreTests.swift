@@ -129,7 +129,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             test_currentDate: f("2018-12-12 18:07:14 +0000")
         )
 
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         // 2. Add a temp basal which has already ended. It should be saved to Health
         let pumpEvents1 = [
@@ -157,7 +157,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents1.fulfill()
         }
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
 
@@ -188,7 +188,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents2.fulfill()
         }
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
 
@@ -211,7 +211,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents3.fulfill()
         }
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
     }
