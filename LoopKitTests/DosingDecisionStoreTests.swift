@@ -418,6 +418,7 @@ class DosingDecisionStoreQueryAnchorTests: XCTestCase {
 
 class DosingDecisionStoreQueryTests: PersistenceControllerTestCase {
 
+    
     var dosingDecisionStore: DosingDecisionStore!
     var completion: XCTestExpectation!
     var queryAnchor: DosingDecisionStore.QueryAnchor!
