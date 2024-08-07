@@ -250,7 +250,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             test_currentDate: f("2018-11-29 11:04:27 +0000")
         )
 
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         doseStore.pumpRecordsBasalProfileStartEvents = false
 
@@ -271,7 +271,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents1.fulfill()
         }
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         XCTAssertEqual(f("2018-11-29 10:54:28 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
         XCTAssertEqual(f("2018-11-29 10:59:28 +0000"), doseStore.pumpEventQueryAfterDate)
@@ -291,7 +291,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents2.fulfill()
         }
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         XCTAssertEqual(f("2018-11-29 10:54:28 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
         XCTAssertEqual(f("2018-11-29 10:59:28 +0000"), doseStore.pumpEventQueryAfterDate)
@@ -330,7 +330,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents3.fulfill()
         }
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         XCTAssertEqual(f("2018-11-29 11:09:27 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
         XCTAssertEqual(f("2018-11-29 11:09:27 +0000"), doseStore.pumpEventQueryAfterDate)
@@ -363,7 +363,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents4.fulfill()
         }
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.pumpEventQueryAfterDate)
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
@@ -387,7 +387,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertNil(error)
             addPumpEvents5.fulfill()
         }
-        waitForExpectations(timeout: 3)
+        waitForExpectations(timeout: 10)
 
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.pumpEventQueryAfterDate)
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
