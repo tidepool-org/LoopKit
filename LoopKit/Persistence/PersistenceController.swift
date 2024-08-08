@@ -229,6 +229,7 @@ public final class PersistenceController {
             }
 
             self.queue.async {
+                self.log.info("Initialized persistenceController. %{public}@ callbacks", String(describing: self.readyCallbacks.count))
                 if let error = error {
                     self.readyState = .error(error)
                 } else {
