@@ -164,7 +164,6 @@ public final class DoseStore {
         self.pumpEventQueryAfterDate = cacheStartDate
 
         persistenceController.onReady { (error) -> Void in
-            self.log.info("persistenceController.onReady: error = %@", String(describing: error))
             guard error == nil else {
                 onReady?(.init(error: error))
                 return
