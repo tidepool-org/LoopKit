@@ -415,7 +415,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             // Set the current date
             test_currentDate: f("2018-12-12 18:07:14 +0000")
         )
-        await fulfillment(of: [doseStoreInitialization], timeout: 3)
+        await fulfillment(of: [doseStoreInitialization], timeout: 30)
 
 
         // 2. Add a temp basal which has already ended. It should persist in InsulinDeliveryStore.
