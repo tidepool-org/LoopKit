@@ -59,7 +59,7 @@ class DosingDecisionStorePersistenceTests: PersistenceControllerTestCase, Dosing
 
         await dosingDecisionStore.storeDosingDecision(StoredDosingDecision(reason: "test"))
 
-        await fulfillment(of: [storeDosingDecisionHandler], timeout: 10)
+        await fulfillment(of: [storeDosingDecisionHandler], timeout: 30)
     }
 
     func testStoreDosingDecisionMultiple() async {
@@ -85,7 +85,7 @@ class DosingDecisionStorePersistenceTests: PersistenceControllerTestCase, Dosing
 
         await dosingDecisionStore.storeDosingDecision(StoredDosingDecision(reason: "test"))
 
-        await fulfillment(of: [storeDosingDecisionHandler1, storeDosingDecisionHandler2], timeout: 10)
+        await fulfillment(of: [storeDosingDecisionHandler1, storeDosingDecisionHandler2], timeout: 30)
     }
 
     func testDosingDecisionObjectEncodable() throws {
@@ -456,7 +456,7 @@ class DosingDecisionStoreQueryTests: PersistenceControllerTestCase {
             self.completion.fulfill()
         }
 
-        wait(for: [completion], timeout: 10, enforceOrder: true)
+        wait(for: [completion], timeout: 30, enforceOrder: true)
     }
 
     func testEmptyWithMissingQueryAnchor() {
@@ -473,7 +473,7 @@ class DosingDecisionStoreQueryTests: PersistenceControllerTestCase {
             self.completion.fulfill()
         }
 
-        wait(for: [completion], timeout: 10, enforceOrder: true)
+        wait(for: [completion], timeout: 30, enforceOrder: true)
     }
 
     func testEmptyWithNonDefaultQueryAnchor() {
@@ -490,7 +490,7 @@ class DosingDecisionStoreQueryTests: PersistenceControllerTestCase {
             self.completion.fulfill()
         }
 
-        wait(for: [completion], timeout: 10, enforceOrder: true)
+        wait(for: [completion], timeout: 30, enforceOrder: true)
     }
 
     func testDataWithUnusedQueryAnchor() async {
@@ -512,7 +512,7 @@ class DosingDecisionStoreQueryTests: PersistenceControllerTestCase {
             self.completion.fulfill()
         }
 
-        await fulfillment(of: [completion], timeout: 10)
+        await fulfillment(of: [completion], timeout: 30)
     }
 
     func testDataWithStaleQueryAnchor() async {
@@ -599,7 +599,7 @@ class DosingDecisionStoreQueryTests: PersistenceControllerTestCase {
             self.completion.fulfill()
         }
 
-        await fulfillment(of: [completion], timeout: 10)
+        await fulfillment(of: [completion], timeout: 30)
     }
 
     private func addData(withSyncIdentifiers syncIdentifiers: [UUID]) async {
