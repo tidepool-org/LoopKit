@@ -26,6 +26,7 @@ public class TherapySettingsViewModel: ObservableObject {
     let sensitivityOverridesEnabled: Bool
     let adultChildInsulinModelSelectionEnabled: Bool
     public var prescription: Prescription?
+    let activeBolusAmount: Double?
 
     private weak var delegate: TherapySettingsViewModelDelegate?
     
@@ -34,12 +35,14 @@ public class TherapySettingsViewModel: ObservableObject {
                 sensitivityOverridesEnabled: Bool = false,
                 adultChildInsulinModelSelectionEnabled: Bool = false,
                 prescription: Prescription? = nil,
+                activeBolusAmount: Double? = nil,
                 delegate: TherapySettingsViewModelDelegate? = nil) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
         self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.adultChildInsulinModelSelectionEnabled = adultChildInsulinModelSelectionEnabled
         self.prescription = prescription
+        self.activeBolusAmount = activeBolusAmount
         self.delegate = delegate
     }
 

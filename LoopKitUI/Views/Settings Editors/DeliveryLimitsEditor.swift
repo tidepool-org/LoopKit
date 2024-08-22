@@ -25,6 +25,17 @@ public struct DeliveryLimitsEditor: View {
     let syncDeliveryLimits: ((_ deliveryLimits: DeliveryLimits) async throws -> DeliveryLimits)?
     let save: (_ deliveryLimits: DeliveryLimits) -> Void
     let mode: SettingsPresentationMode
+    let activeBolusAmount: Double?
+    
+    var maximumBolusAmount: Double? {
+        guard let maximumBolus = value.maximumBolus else { return nil }
+        return maximumBolus.doubleValue(for: .internationalUnit())
+    }
+
+    var isMaximumBolusBelowActiveBolus: Bool {
+        guard let maximumBolusAmount, let activeBolusAmount else { return false }
+        return maximumBolusAmount < activeBolusAmount
+    }
 
     @State var value: DeliveryLimits
     @State private var userDidTap: Bool = false
@@ -44,6 +55,7 @@ public struct DeliveryLimitsEditor: View {
         scheduledBasalRange: ClosedRange<Double>?,
         supportedMaximumBolusVolumes: [Double],
         lowestCarbRatio: Double?,
+        activeBolusAmount: Double? = nil,
         syncDeliveryLimits: @escaping (_ deliveryLimits: DeliveryLimits) async throws -> DeliveryLimits,
         onSave save: @escaping (_ deliveryLimits: DeliveryLimits) -> Void,
         mode: SettingsPresentationMode = .settings
@@ -59,11 +71,13 @@ public struct DeliveryLimitsEditor: View {
         self.save = save
         self.mode = mode
         self.lowestCarbRatio = lowestCarbRatio
+        self.activeBolusAmount = activeBolusAmount
     }
     
     public init(
         mode: SettingsPresentationMode,
         therapySettingsViewModel: TherapySettingsViewModel,
+        activeBolusAmount: Double? = nil,
         didSave: (() -> Void)? = nil
     ) {
         precondition(therapySettingsViewModel.pumpSupportedIncrements() != nil)
@@ -82,6 +96,7 @@ public struct DeliveryLimitsEditor: View {
             scheduledBasalRange: therapySettingsViewModel.therapySettings.basalRateSchedule?.valueRange(),
             supportedMaximumBolusVolumes: therapySettingsViewModel.pumpSupportedIncrements()?.maximumBolusVolumes ?? [],
             lowestCarbRatio: therapySettingsViewModel.therapySettings.carbRatioSchedule?.lowestValue(),
+            activeBolusAmount: activeBolusAmount,
             syncDeliveryLimits: therapySettingsViewModel.syncDeliveryLimits,
             onSave: { [weak therapySettingsViewModel] newLimits in
                 therapySettingsViewModel?.saveDeliveryLimits(limits: newLimits)
@@ -157,6 +172,10 @@ public struct DeliveryLimitsEditor: View {
 
     var saveButtonState: ConfigurationPageActionButtonState {
         guard value.maximumBasalRate != nil, value.maximumBolus != nil else {
+            return .disabled
+        }
+        
+        guard !isMaximumBolusBelowActiveBolus else {
             return .disabled
         }
 
@@ -293,6 +312,8 @@ public struct DeliveryLimitsEditor: View {
         return Group {
             if !crossedThresholds.isEmpty && (userDidTap || mode == .settings) {
                 DeliveryLimitsGuardrailWarning(crossedThresholds: crossedThresholds, value: value)
+            } else if isMaximumBolusBelowActiveBolus {
+                maxBolusBelowActiveWarning
             }
         }
     }
@@ -411,6 +432,12 @@ public struct DeliveryLimitsEditor: View {
             ok: Text(LocalizedString("Continue", comment: "Text for continue action on confirmation alert")
             )
         )
+    }
+    
+    private var maxBolusBelowActiveWarning: some View {
+        WarningView(title: Text(LocalizedString("Low Maximum Bolus", comment: "Title text for maximum bolus below active bolus warning")),
+                    caption: Text(LocalizedString("The value you have entered is lower than your current bolus in progress. Wait for the bolus to finish or cancel it to save this value.", comment: "Caption text for maximum bolus below active bolus warning")),
+                    severity: .critical)
     }
 }
 

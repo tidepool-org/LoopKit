@@ -441,7 +441,7 @@ extension TherapySettingsView {
         case .basalRate:
             BasalRateScheduleEditor(mode: mode, therapySettingsViewModel: viewModel, didSave: dismiss)
         case .deliveryLimits:
-            DeliveryLimitsEditor(mode: mode, therapySettingsViewModel: viewModel, didSave: dismiss)
+            DeliveryLimitsEditor(mode: mode, therapySettingsViewModel: viewModel, activeBolusAmount: viewModel.activeBolusAmount, didSave: dismiss)
         case .insulinModel:
             InsulinModelSelection(mode: mode, therapySettingsViewModel: viewModel, chartColors: chartColorPalette, didSave: dismiss)
         case .carbRatio:
