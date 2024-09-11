@@ -27,8 +27,8 @@ class DoseStoreTests: PersistenceControllerTestCase {
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
             longestEffectDuration: .hours(4),
-            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 68400.0]]]),
-            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
+//            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 68400.0]]]),
+//            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
             syncVersion: 1,
             provenanceIdentifier: Bundle.main.bundleIdentifier!,
             test_currentDate: testingDate
@@ -93,7 +93,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
     }
 
     /// See https://github.com/LoopKit/Loop/issues/853
-    func testOutOfOrderDosesSyncedToHealth() {
+    func testOutOfOrderDosesSyncedToHealth() async throws {
         let formatter = DateFormatter.descriptionFormatter
         let f = { (input) in
             return formatter.date(from: input)!
@@ -115,12 +115,12 @@ class DoseStoreTests: PersistenceControllerTestCase {
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
             longestEffectDuration: .hours(4),
-            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [ // Timezone = -0800
-                ["value": 0.75, "startTime": 0.0],       // 0000 - Midnight
-                ["value": 0.8, "startTime": 10800.0],    // 0300 - 3am
-                ["value": 0.85, "startTime": 32400.0],   // 0900 - 9am
-                ["value": 1.0, "startTime": 68400.0]]]), // 1900 - 7pm
-            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
+//            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [ // Timezone = -0800
+//                ["value": 0.75, "startTime": 0.0],       // 0000 - Midnight
+//                ["value": 0.8, "startTime": 10800.0],    // 0300 - 3am
+//                ["value": 0.85, "startTime": 32400.0],   // 0900 - 9am
+//                ["value": 1.0, "startTime": 68400.0]]]), // 1900 - 7pm
+//            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
             syncVersion: 1,
             provenanceIdentifier: Bundle.main.bundleIdentifier!,
             onReady: { _ in doseStoreInitialization.fulfill() },
@@ -129,7 +129,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             test_currentDate: f("2018-12-12 18:07:14 +0000")
         )
 
-        waitForExpectations(timeout: 30)
+        await fulfillment(of: [doseStoreInitialization], timeout: 30)
 
         // 2. Add a temp basal which has already ended. It should be saved to Health
         let pumpEvents1 = [
@@ -140,7 +140,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate = f("2018-12-12 17:35:58 +0000")
 
         let addPumpEvents1 = expectation(description: "add pumpEvents1")
-        addPumpEvents1.expectedFulfillmentCount = 2
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTAssertEqual(1, objects.count)
             let sample = objects.first as! HKQuantitySample
@@ -153,11 +152,9 @@ class DoseStoreTests: PersistenceControllerTestCase {
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDateDidSet = {
             lastBasalEndDateSetExpectation.fulfill()
         }
-        doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date()) { (error) in
-            XCTAssertNil(error)
-            addPumpEvents1.fulfill()
-        }
-        waitForExpectations(timeout: 30)
+        try await doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date())
+
+        await fulfillment(of: [addPumpEvents1, lastBasalEndDateSetExpectation], timeout: 30)
 
         XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
 
@@ -171,7 +168,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
         ]
 
         let addPumpEvents2 = expectation(description: "add pumpEvents2")
-        addPumpEvents2.expectedFulfillmentCount = 3
+        addPumpEvents2.expectedFulfillmentCount = 2
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTAssertEqual(1, objects.count)
             let sample = objects.first as! HKQuantitySample
@@ -184,11 +181,9 @@ class DoseStoreTests: PersistenceControllerTestCase {
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDateDidSet = {
             addPumpEvents2.fulfill()
         }
-        doseStore.addPumpEvents(pumpEvents2, lastReconciliation: Date()) { (error) in
-            XCTAssertNil(error)
-            addPumpEvents2.fulfill()
-        }
-        waitForExpectations(timeout: 30)
+        try await doseStore.addPumpEvents(pumpEvents2, lastReconciliation: Date())
+
+        await fulfillment(of: [addPumpEvents2], timeout: 30)
 
         XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
 
@@ -201,23 +196,17 @@ class DoseStoreTests: PersistenceControllerTestCase {
             NewPumpEvent(date: f("2018-12-12 18:16:31 +0000"), dose: DoseEntry(type: .tempBasal, startDate: f("2018-12-12 18:16:31 +0000"), endDate: f("2018-12-12 18:46:31 +0000"), value: 0.0, unit: .unitsPerHour), raw: Data(hexadecimalString: "1601df100a4c12")!, title: "TempBasalDurationPumpEvent(length: 7, rawData: 7 bytes, duration: 30, timestamp: calendar: gregorian (fixed) year: 2018 month: 12 day: 12 hour: 10 minute: 16 second: 31 isLeapMonth: false )", type: .tempBasal),
         ]
 
-        let addPumpEvents3 = expectation(description: "add pumpEvents3")
-        addPumpEvents3.expectedFulfillmentCount = 1
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTFail()
         })
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDateDidSet = nil
-        doseStore.addPumpEvents(pumpEvents3, lastReconciliation: Date()) { (error) in
-            XCTAssertNil(error)
-            addPumpEvents3.fulfill()
-        }
-        waitForExpectations(timeout: 30)
+        try await doseStore.addPumpEvents(pumpEvents3, lastReconciliation: Date())
 
         XCTAssertEqual(f("2018-12-12 18:05:58 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
     }
 
     /// https://github.com/LoopKit/Loop/issues/852
-    func testSplitBasalsSyncedToHealth() {
+    func testSplitBasalsSyncedToHealth() async throws {
         let formatter = DateFormatter.descriptionFormatter
         let f = { (input) in
             return formatter.date(from: input)!
@@ -239,8 +228,8 @@ class DoseStoreTests: PersistenceControllerTestCase {
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
             longestEffectDuration: .hours(4),
-            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 68400.0]]]),
-            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
+//            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 68400.0]]]),
+//            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
             syncVersion: 1,
             provenanceIdentifier: Bundle.main.bundleIdentifier!,
 
@@ -250,7 +239,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
             test_currentDate: f("2018-11-29 11:04:27 +0000")
         )
 
-        waitForExpectations(timeout: 30)
+        await fulfillment(of: [doseStoreInitialization], timeout: 30)
 
         doseStore.pumpRecordsBasalProfileStartEvents = false
 
@@ -262,16 +251,10 @@ class DoseStoreTests: PersistenceControllerTestCase {
             NewPumpEvent(date: f("2018-11-29 10:59:28 +0000"), dose: DoseEntry(type: .tempBasal, startDate: f("2018-11-29 10:59:28 +0000"), endDate: f("2018-11-29 11:29:28 +0000"), value: 0.3, unit: .unitsPerHour), raw: Data(hexadecimalString: "5bffc7cace53e48e87f7cfcb")!, title: "TempBasalDurationPumpEvent(length: 7, rawData: 7 bytes, duration: 30, timestamp: calendar: gregorian (fixed) year: 2018 month: 11 day: 29 hour: 2 minute: 59 second: 28 isLeapMonth: false )", type: .tempBasal)
         ]
 
-        let addPumpEvents1 = expectation(description: "add pumpEvents1")
-        addPumpEvents1.expectedFulfillmentCount = 1
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTFail()
         })
-        doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date()) { (error) in
-            XCTAssertNil(error)
-            addPumpEvents1.fulfill()
-        }
-        waitForExpectations(timeout: 30)
+        try await doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date())
 
         XCTAssertEqual(f("2018-11-29 10:54:28 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
         XCTAssertEqual(f("2018-11-29 10:59:28 +0000"), doseStore.pumpEventQueryAfterDate)
@@ -279,19 +262,13 @@ class DoseStoreTests: PersistenceControllerTestCase {
         // Add the next query of the same pump events (no new data) 5 minutes later. Expect the same result
         doseStore.insulinDeliveryStore.test_currentDate = f("2018-11-29 11:09:27 +0000")
 
-        let addPumpEvents2 = expectation(description: "add pumpEvents2")
-        addPumpEvents2.expectedFulfillmentCount = 1
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTFail()
         })
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDateDidSet = {
             XCTFail()
         }
-        doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date()) { (error) in
-            XCTAssertNil(error)
-            addPumpEvents2.fulfill()
-        }
-        waitForExpectations(timeout: 30)
+        try await doseStore.addPumpEvents(pumpEvents1, lastReconciliation: Date())
 
         XCTAssertEqual(f("2018-11-29 10:54:28 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
         XCTAssertEqual(f("2018-11-29 10:59:28 +0000"), doseStore.pumpEventQueryAfterDate)
@@ -306,7 +283,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
         ]
 
         let addPumpEvents3 = expectation(description: "add pumpEvents3")
-        addPumpEvents3.expectedFulfillmentCount = 3
+        addPumpEvents3.expectedFulfillmentCount = 2
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTAssertEqual(2, objects.count)
             let basal = objects[0] as! HKQuantitySample
@@ -326,11 +303,8 @@ class DoseStoreTests: PersistenceControllerTestCase {
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDateDidSet = {
             addPumpEvents3.fulfill()
         }
-        doseStore.addPumpEvents(pumpEvents3, lastReconciliation: Date()) { (error) in
-            XCTAssertNil(error)
-            addPumpEvents3.fulfill()
-        }
-        waitForExpectations(timeout: 30)
+        try await doseStore.addPumpEvents(pumpEvents3, lastReconciliation: Date())
+        await fulfillment(of: [addPumpEvents3], timeout: 30)
 
         XCTAssertEqual(f("2018-11-29 11:09:27 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
         XCTAssertEqual(f("2018-11-29 11:09:27 +0000"), doseStore.pumpEventQueryAfterDate)
@@ -344,7 +318,7 @@ class DoseStoreTests: PersistenceControllerTestCase {
         ]
 
         let addPumpEvents4 = expectation(description: "add pumpEvents4")
-        addPumpEvents4.expectedFulfillmentCount = 3
+        addPumpEvents4.expectedFulfillmentCount = 2
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTAssertEqual(1, objects.count)
             let temp = objects[0] as! HKQuantitySample
@@ -359,11 +333,8 @@ class DoseStoreTests: PersistenceControllerTestCase {
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDateDidSet = {
             addPumpEvents4.fulfill()
         }
-        doseStore.addPumpEvents(pumpEvents4, lastReconciliation: Date()) { (error) in
-            XCTAssertNil(error)
-            addPumpEvents4.fulfill()
-        }
-        waitForExpectations(timeout: 30)
+        try await doseStore.addPumpEvents(pumpEvents4, lastReconciliation: Date())
+        await fulfillment(of: [addPumpEvents4], timeout: 30)
 
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.pumpEventQueryAfterDate)
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
@@ -376,18 +347,14 @@ class DoseStoreTests: PersistenceControllerTestCase {
         ]
 
         let addPumpEvents5 = expectation(description: "add pumpEvents5")
-        addPumpEvents5.expectedFulfillmentCount = 2
         healthStore.setSaveHandler({ (objects, success, error) in
             XCTFail()
         })
         doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDateDidSet = {
             addPumpEvents5.fulfill()
         }
-        doseStore.addPumpEvents(pumpEvents5, lastReconciliation: Date()) { (error) in
-            XCTAssertNil(error)
-            addPumpEvents5.fulfill()
-        }
-        waitForExpectations(timeout: 30)
+        try await doseStore.addPumpEvents(pumpEvents5, lastReconciliation: Date())
+        await fulfillment(of: [addPumpEvents5], timeout: 30)
 
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.pumpEventQueryAfterDate)
         XCTAssertEqual(f("2018-11-29 11:14:28 +0000"), doseStore.insulinDeliveryStore.test_lastImmutableBasalEndDate)
@@ -405,8 +372,8 @@ class DoseStoreTests: PersistenceControllerTestCase {
         let doseStore = DoseStore(
             cacheStore: cacheStore,
             longestEffectDuration: .hours(4),
-            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 37800.0]]]),
-            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
+//            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 37800.0]]]),
+//            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
             syncVersion: 1,
             provenanceIdentifier: Bundle.main.bundleIdentifier!,
 
@@ -517,8 +484,8 @@ class DoseStoreTests: PersistenceControllerTestCase {
         let doseStore = DoseStore(
             cacheStore: cacheStore,
             longestEffectDuration: .hours(6),
-            basalProfile: BasalRateSchedule(rawValue: ["timeZone": 0, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 61200.0]]]),
-            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": 0, "items": [["value": 40.0, "startTime": 0.0]]]),
+//            basalProfile: BasalRateSchedule(rawValue: ["timeZone": 0, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 61200.0]]]),
+//            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": 0, "items": [["value": 40.0, "startTime": 0.0]]]),
             syncVersion: 1,
             provenanceIdentifier: Bundle.main.bundleIdentifier!,
 
@@ -717,8 +684,8 @@ class DoseStoreTests: PersistenceControllerTestCase {
         let doseStore = DoseStore(
             cacheStore: cacheStore,
             longestEffectDuration: .hours(4),
-            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 37800.0]]]),
-            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
+//            basalProfile: BasalRateSchedule(rawValue: ["timeZone": -28800, "items": [["value": 0.75, "startTime": 0.0], ["value": 0.8, "startTime": 10800.0], ["value": 0.85, "startTime": 32400.0], ["value": 1.0, "startTime": 37800.0]]]),
+//            insulinSensitivitySchedule: InsulinSensitivitySchedule(rawValue: ["unit": "mg/dL", "timeZone": -28800, "items": [["value": 40.0, "startTime": 0.0], ["value": 35.0, "startTime": 21600.0], ["value": 40.0, "startTime": 57600.0]]]),
             syncVersion: 1,
             provenanceIdentifier: Bundle.main.bundleIdentifier!,
 
@@ -1049,8 +1016,8 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         
         doseStore = DoseStore(cacheStore: cacheStore,
                               longestEffectDuration: insulinModel.effectDuration,
-                              basalProfile: basalProfile,
-                              insulinSensitivitySchedule: insulinSensitivitySchedule,
+//                              basalProfile: basalProfile,
+//                              insulinSensitivitySchedule: insulinSensitivitySchedule,
                               provenanceIdentifier: Bundle.main.bundleIdentifier!)
 
         let semaphore = DispatchSemaphore(value: 0)
@@ -1253,8 +1220,8 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
 
         doseStore = DoseStore(cacheStore: cacheStore,
                               longestEffectDuration: insulinModel.effectDuration,
-                              basalProfile: basalProfile,
-                              insulinSensitivitySchedule: insulinSensitivitySchedule,
+//                              basalProfile: basalProfile,
+//                              insulinSensitivitySchedule: insulinSensitivitySchedule,
                               provenanceIdentifier: Bundle.main.bundleIdentifier!, onReady: { error in
                                     semaphore.signal()
                                 }
@@ -1262,9 +1229,11 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
 
         semaphore.wait()
 
-        XCTAssertNil(doseStore.addPumpEvents(events: events))
-
-
+        Task {
+            try await doseStore.addPumpEvents(events: events)
+            semaphore.signal()
+        }
+        semaphore.wait()
 
         outputStream = MockOutputStream()
         progress = Progress()
@@ -1358,8 +1327,8 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
             longestEffectDuration: exponentialInsulinModel.effectDuration,
-            basalProfile: BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0)]),
-            insulinSensitivitySchedule: insulinSensitivitySchedule,
+//            basalProfile: BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0)]),
+//            insulinSensitivitySchedule: insulinSensitivitySchedule,
             provenanceIdentifier: Bundle.main.bundleIdentifier!,
             test_currentDate: startDate
         )
@@ -1410,7 +1379,7 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
         }
     }
 
-    func injectDoseEvents(from fixture: String) {
+    func injectDoseEvents(from fixture: String) async throws {
         let events = loadDoseFixture(fixture).map {
             NewPumpEvent(
                 date: $0.startDate,
@@ -1420,15 +1389,6 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
                 type: $0.type.pumpEventType
             )
         }
-
-        let updateGroup = DispatchGroup()
-        updateGroup.enter()
-        doseStore.addPumpEvents(events, lastReconciliation: nil) { error in
-            if error != nil {
-                XCTFail("Doses should be added successfully to dose store")
-            }
-            updateGroup.leave()
-        }
-        updateGroup.wait()
+        try await doseStore.addPumpEvents(events, lastReconciliation: nil)
     }
 }

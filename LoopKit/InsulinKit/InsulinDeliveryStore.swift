@@ -340,6 +340,14 @@ extension InsulinDeliveryStore {
         }
     }
 
+    func getLastImmutableBasalEndDate() async -> Date? {
+        return await withCheckedContinuation { continuation in
+            getLastImmutableBasalEndDate { date in
+                continuation.resume(returning: date)
+            }
+        }
+    }
+
     private func updateLastImmutableBasalEndDate() {
         dispatchPrecondition(condition: .onQueue(queue))
 
@@ -471,6 +479,14 @@ extension InsulinDeliveryStore {
             self.delegate?.insulinDeliveryStoreHasUpdatedDoseData(self)
 
             completion(.success(()))
+        }
+    }
+
+    func addDoseEntries(_ entries: [DoseEntry], from device: HKDevice?, syncVersion: Int, resolveMutable: Bool = false) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            addDoseEntries(entries, from: device, syncVersion: syncVersion, resolveMutable: resolveMutable) { result in
+                continuation.resume(with: result)
+            }
         }
     }
 
@@ -699,6 +715,18 @@ extension InsulinDeliveryStore {
             self.handleUpdatedDoseData()
             self.delegate?.insulinDeliveryStoreHasUpdatedDoseData(self)
             completion(doseStoreError)
+        }
+    }
+
+    public func deleteAllManuallyEnteredDoses(since startDate: Date) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> Void in
+            deleteAllManuallyEnteredDoses(since: startDate) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
         }
     }
 }

@@ -321,39 +321,45 @@ extension Collection where Element == DoseEntry {
     /// that includes scheduled and temp basals. Boluses are not included in the returned array.
     ///
     /// - Parameters:
-    ///   - basalHistory: A history of scheduled basal rates. The first record should have a timestamp matching or earlier than the start date of the first DoseEntry in this array.
+    ///   - basalTimeline: A history of scheduled basal rates. The first record should have a timestamp matching or earlier than the start date of the first DoseEntry in this array.
     ///   - endDate: Infill to this date, if supplied. If not supplied, infill will stop at the last DoseEntry.
     ///   - gapPatchInterval: if the gap between two temp basals is less than this, then the start date of the second dose will be fudged to fill the gap. Used for display purposes.
     /// - Returns: An array of doses, with new doses created for any gaps between basalHistory.first.startDate and the end date.
-    public func infill(with basalHistory: [AbsoluteScheduleValue<Double>], endDate: Date? = nil, gapPatchInterval: TimeInterval = 0) -> [DoseEntry] {
-        guard basalHistory.count > 0 else {
+    public func overlayBasal(_ basalTimeline: [AbsoluteScheduleValue<Double>], endDate: Date? = nil, gapPatchInterval: TimeInterval = 0) -> [DoseEntry] {
+        let dateFormatter = ISO8601DateFormatter()  // GMT-based ISO formatting
+
+        guard basalTimeline.count > 0 else {
             return Array(self)
         }
 
         var newEntries = [DoseEntry]()
-        var curBasalIdx = basalHistory.startIndex
-        var lastDate = basalHistory[curBasalIdx].startDate
+        var curBasalIdx = basalTimeline.startIndex
+        var lastDate = basalTimeline[curBasalIdx].startDate
 
         func addBasalsBetween(startDate: Date, endDate: Date) {
             while lastDate < endDate {
                 let entryEnd: Date
                 let nextBasalIdx = curBasalIdx + 1
-                let curRate = basalHistory[curBasalIdx].value
-                if nextBasalIdx < basalHistory.endIndex && basalHistory[nextBasalIdx].startDate < endDate {
-                    entryEnd = Swift.max(startDate, basalHistory[nextBasalIdx].startDate)
+                let curRate = basalTimeline[curBasalIdx].value
+                if nextBasalIdx < basalTimeline.endIndex && basalTimeline[nextBasalIdx].startDate < endDate {
+                    entryEnd = Swift.max(startDate, basalTimeline[nextBasalIdx].startDate)
                     curBasalIdx = nextBasalIdx
                 } else {
                     entryEnd = endDate
                 }
 
                 if lastDate != entryEnd {
+                    let syncIdentifier = "BasalRateSchedule \(dateFormatter.string(from: lastDate)) \(dateFormatter.string(from: entryEnd))"
+
                     newEntries.append(
                         DoseEntry(
                             type: .basal,
                             startDate: lastDate,
                             endDate: entryEnd,
                             value: curRate,
-                            unit: .unitsPerHour))
+                            unit: .unitsPerHour,
+                            syncIdentifier: syncIdentifier,
+                            scheduledBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: curRate)))
 
                     lastDate = entryEnd
                 }
@@ -373,9 +379,12 @@ extension Collection where Element == DoseEntry {
                     type: dose.type,
                     startDate: doseStart,
                     endDate: dose.endDate,
-                    value: dose.unitsPerHour,
-                    unit: .unitsPerHour)
-                )
+                    value: dose.value,
+                    unit: dose.unit,
+                    syncIdentifier: dose.syncIdentifier,
+                    scheduledBasalRate: dose.scheduledBasalRate,
+                    insulinType: dose.insulinType,
+                    automatic: dose.automatic))
                 lastDate = dose.endDate
             case .resume:
                 assertionFailure("No resume events should be present in reconciled doses")
@@ -402,7 +411,7 @@ extension Collection where Element == DoseEntry {
     ///   - end: The latest date to include. Doses must end before this time to be included.
     ///   - insertingBasalEntries: Whether basal doses should be created from the schedule. Pass true only for pump models that do not report their basal rates in event history.
     /// - Returns: An array of doses,
-    public func overlayBasalSchedule(_ basalSchedule: BasalRateSchedule, startingAt start: Date, endingAt end: Date = .distantFuture, insertingBasalEntries: Bool) -> [DoseEntry] {
+    public func oldOverlayBasalSchedule(_ basalSchedule: BasalRateSchedule, startingAt start: Date, endingAt end: Date = .distantFuture, insertingBasalEntries: Bool) -> [DoseEntry] {
         let dateFormatter = ISO8601DateFormatter()  // GMT-based ISO formatting
         var newEntries = [DoseEntry]()
         var lastBasal: DoseEntry?
