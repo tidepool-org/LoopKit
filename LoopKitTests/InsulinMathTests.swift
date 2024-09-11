@@ -622,7 +622,7 @@ class InsulinMathTests: XCTestCase {
             endDate: start.addingTimeInterval(.hours(6))
         )
 
-        printDoses(output)
+        printDoses(doses)
 
         XCTAssertEqual(output.count, doses.count)
 
