@@ -606,7 +606,7 @@ extension DoseStore {
             return
         }
 
-        let now = Date()
+        let now = self.currentDate()
         self.log.debug("addPumpEvents: lastReconciliation = %@ (%@ hours ago)", String(describing: lastReconciliation), String(describing: now.timeIntervalSince(lastReconciliation ?? now).hours))
 
         for event in events {
@@ -872,7 +872,7 @@ extension DoseStore {
         let basalHistory = try await delegate.scheduledBasalHistory(from: startingAt, to: endingAt)
 
         self.log.debug("Overlaying basal schedule for %d doses starting at %@", doses.count, String(describing: startingAt))
-        return doses.overlayBasal(basalHistory, endDate: endingAt)
+        return doses.overlayBasal(basalHistory, endDate: endingAt, lastPumpEventsReconciliation: endingAt)
     }
 
     /// Fetches manually entered doses.
@@ -1109,7 +1109,7 @@ extension DoseStore {
                 return doses.map { dose in
                     var dose = dose
                     if dose.type == .suspend && dose.startDate == dose.endDate {
-                        dose.endDate = end ?? Date()
+                        dose.endDate = end ?? self.currentDate()
                     }
                     return dose
                 }

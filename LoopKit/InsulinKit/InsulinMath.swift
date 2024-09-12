@@ -318,14 +318,15 @@ extension Collection where Element == DoseEntry {
 
     /// Fills any missing gaps in basal delivery with new doses based on the supplied basal history. Compared to `overlayBasalSchedule`, this uses a history of
     /// of basal rates, rather than a daily schedule, so it can work across multiple schedule changes.  This method is suitable for generating a display of basal delivery
-    /// that includes scheduled and temp basals. Boluses are not included in the returned array.
+    /// that includes scheduled and temp basals.
     ///
     /// - Parameters:
     ///   - basalTimeline: A history of scheduled basal rates. The first record should have a timestamp matching or earlier than the start date of the first DoseEntry in this array.
     ///   - endDate: Infill to this date, if supplied. If not supplied, infill will stop at the last DoseEntry.
+    ///   - lastPumpEventsReconciliation: date at which pump manager has verified doses up to; doses with an end time of this or later are mutable
     ///   - gapPatchInterval: if the gap between two temp basals is less than this, then the start date of the second dose will be fudged to fill the gap. Used for display purposes.
     /// - Returns: An array of doses, with new doses created for any gaps between basalHistory.first.startDate and the end date.
-    public func overlayBasal(_ basalTimeline: [AbsoluteScheduleValue<Double>], endDate: Date? = nil, gapPatchInterval: TimeInterval = 0) -> [DoseEntry] {
+    public func overlayBasal(_ basalTimeline: [AbsoluteScheduleValue<Double>], endDate: Date? = nil, lastPumpEventsReconciliation: Date, gapPatchInterval: TimeInterval = 0) -> [DoseEntry] {
         let dateFormatter = ISO8601DateFormatter()  // GMT-based ISO formatting
 
         guard basalTimeline.count > 0 else {
@@ -349,6 +350,10 @@ extension Collection where Element == DoseEntry {
                 }
 
                 if lastDate != entryEnd {
+                    if entryEnd.timeIntervalSince(lastDate).hours > 24 {
+                        print("here")
+                    }
+
                     let syncIdentifier = "BasalRateSchedule \(dateFormatter.string(from: lastDate)) \(dateFormatter.string(from: entryEnd))"
 
                     newEntries.append(
@@ -359,7 +364,8 @@ extension Collection where Element == DoseEntry {
                             value: curRate,
                             unit: .unitsPerHour,
                             syncIdentifier: syncIdentifier,
-                            scheduledBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: curRate)))
+                            scheduledBasalRate: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: curRate),
+                            isMutable: entryEnd >= lastPumpEventsReconciliation))
 
                     lastDate = entryEnd
                 }
@@ -384,11 +390,14 @@ extension Collection where Element == DoseEntry {
                     syncIdentifier: dose.syncIdentifier,
                     scheduledBasalRate: dose.scheduledBasalRate,
                     insulinType: dose.insulinType,
-                    automatic: dose.automatic))
+                    automatic: dose.automatic,
+                    isMutable: dose.isMutable,
+                    wasProgrammedByPumpUI: dose.wasProgrammedByPumpUI))
                 lastDate = dose.endDate
             case .resume:
                 assertionFailure("No resume events should be present in reconciled doses")
             case .bolus:
+                newEntries.append(dose)
                 break
             }
         }
