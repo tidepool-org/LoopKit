@@ -603,6 +603,7 @@ extension DoseStore {
         lastPumpEventsReconciliation = lastReconciliation
 
         guard events.count > 0 else {
+            try await syncPumpEventsToInsulinDeliveryStore(resolveMutable: true)
             return
         }
 
