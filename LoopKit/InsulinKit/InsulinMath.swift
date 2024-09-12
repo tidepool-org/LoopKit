@@ -354,7 +354,7 @@ extension Collection where Element == DoseEntry {
                         print("here")
                     }
 
-                    let syncIdentifier = "BasalRateSchedule \(dateFormatter.string(from: lastDate)) \(dateFormatter.string(from: entryEnd))"
+                    let syncIdentifier = "BasalRateSchedule \(dateFormatter.string(from: lastDate))"
 
                     newEntries.append(
                         DoseEntry(
