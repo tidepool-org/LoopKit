@@ -1101,8 +1101,6 @@ class DoseStoreQueryTests: PersistenceControllerTestCase {
         
         doseStore = DoseStore(cacheStore: cacheStore,
                               longestEffectDuration: insulinModel.effectDuration,
-//                              basalProfile: basalProfile,
-//                              insulinSensitivitySchedule: insulinSensitivitySchedule,
                               provenanceIdentifier: Bundle.main.bundleIdentifier!)
 
         let semaphore = DispatchSemaphore(value: 0)
@@ -1305,8 +1303,6 @@ class DoseStoreCriticalEventLogTests: PersistenceControllerTestCase {
 
         doseStore = DoseStore(cacheStore: cacheStore,
                               longestEffectDuration: insulinModel.effectDuration,
-//                              basalProfile: basalProfile,
-//                              insulinSensitivitySchedule: insulinSensitivitySchedule,
                               provenanceIdentifier: Bundle.main.bundleIdentifier!, onReady: { error in
                                     semaphore.signal()
                                 }
@@ -1412,8 +1408,6 @@ class DoseStoreEffectTests: PersistenceControllerTestCase {
             healthKitSampleStore: sampleStore,
             cacheStore: cacheStore,
             longestEffectDuration: exponentialInsulinModel.effectDuration,
-//            basalProfile: BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: .hours(0), value: 1.0)]),
-//            insulinSensitivitySchedule: insulinSensitivitySchedule,
             provenanceIdentifier: Bundle.main.bundleIdentifier!,
             test_currentDate: startDate
         )

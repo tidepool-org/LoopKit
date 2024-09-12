@@ -44,8 +44,6 @@ class DeviceDataManager {
             healthKitSampleStore: doseSampleStore,
             cacheStore: cacheStore,
             longestEffectDuration: ExponentialInsulinModelPreset.rapidActingAdult.effectDuration,
-//            basalProfile: basalRateSchedule,
-//            insulinSensitivitySchedule: insulinSensitivitySchedule,
             provenanceIdentifier: HKSource.default().bundleIdentifier
         )
 
