@@ -350,10 +350,6 @@ extension Collection where Element == DoseEntry {
                 }
 
                 if lastDate != entryEnd {
-                    if entryEnd.timeIntervalSince(lastDate).hours > 24 {
-                        print("here")
-                    }
-
                     let syncIdentifier = "BasalRateSchedule \(dateFormatter.string(from: lastDate))"
 
                     newEntries.append(
