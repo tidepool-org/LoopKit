@@ -18,9 +18,13 @@ class DoseStoreDelegateMock: DoseStoreDelegate {
     func doseStoreHasUpdatedPumpEventData(_ doseStore: LoopKit.DoseStore) {
         updateCount += 1
     }
-    
+
     func scheduledBasalHistory(from start: Date, to end: Date) async throws -> [AbsoluteScheduleValue<Double>] {
         return basal.trimmed(from: start, to: end)
+    }
+
+    func automationHistory(from start: Date, to end: Date) async throws -> [AbsoluteScheduleValue<Bool>] {
+        return []
     }
 }
 
