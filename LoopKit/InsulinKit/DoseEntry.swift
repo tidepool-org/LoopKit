@@ -66,6 +66,10 @@ extension DoseEntry {
         return endDate.timeIntervalSince(startDate).hours
     }
 
+    public var duration: TimeInterval {
+        return endDate.timeIntervalSince(startDate)
+    }
+
     public var programmedUnits: Double {
         switch unit {
         case .units:

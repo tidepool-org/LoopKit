@@ -315,16 +315,11 @@ extension Collection where Element == DoseEntry {
         return reconciled.map { $0.resolvingDelivery }
     }
 
-    /// Assigns an automation status to any dose where automation
-    /// of basal rates, rather than a daily schedule, so it can work across multiple schedule changes.  This method is suitable for generating a display of basal delivery
-    /// that includes scheduled and temp basals.
+    /// Assigns an automation status to any dose where automation is not already specified
     ///
     /// - Parameters:
-    ///   - basalTimeline: A history of scheduled basal rates. The first record should have a timestamp matching or earlier than the start date of the first DoseEntry in this array.
-    ///   - endDate: Infill to this date, if supplied. If not supplied, infill will stop at the last DoseEntry.
-    ///   - lastPumpEventsReconciliation: date at which pump manager has verified doses up to; doses with an end time of this or later are mutable
-    ///   - gapPatchInterval: if the gap between two temp basals is less than this, then the start date of the second dose will be fudged to fill the gap. Used for display purposes.
-    /// - Returns: An array of doses, with new doses created for any gaps between basalHistory.first.startDate and the end date.
+    ///   - automationHistory: A history of automation periods.
+    /// - Returns: An array of doses, with the automation flag set based on automation history. Doses will be split if the automation state changes mid-dose.
 
     public func overlayAutomationHistory(
         _ automationHistory: [AbsoluteScheduleValue<Bool>]
@@ -340,6 +335,9 @@ extension Collection where Element == DoseEntry {
                     var newDose = dose
                     newDose.startDate = Swift.max(period.startDate, dose.startDate)
                     newDose.endDate = Swift.min(period.endDate, dose.endDate)
+                    if let delivered = dose.deliveredUnits {
+                        newDose.deliveredUnits = newDose.duration / dose.duration * delivered
+                    }
                     newDose.automatic = period.value
                     newEntries.append(newDose)
                     addedCount += 1
