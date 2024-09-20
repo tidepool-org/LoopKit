@@ -325,12 +325,23 @@ extension Collection where Element == DoseEntry {
         _ automationHistory: [AbsoluteScheduleValue<Bool>]
     ) -> [DoseEntry] {
 
+        guard count > 0 else {
+            return []
+        }
+
         var newEntries = [DoseEntry]()
+
+        var automation = automationHistory
+
+        // Assume automation if doses start before automationHistory
+        if let firstAutomation = automation.first, firstAutomation.startDate > first!.startDate {
+            automation.insert(AbsoluteScheduleValue(startDate: first!.startDate, endDate: firstAutomation.startDate, value: true), at: 0)
+        }
 
         // Overlay automation periods
         func annotateDoseWithAutomation(dose: DoseEntry) {
             var addedCount = 0
-            for period in automationHistory {
+            for period in automation {
                 if period.endDate > dose.startDate && period.startDate < dose.endDate {
                     var newDose = dose
                     newDose.startDate = Swift.max(period.startDate, dose.startDate)
