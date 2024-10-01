@@ -604,6 +604,40 @@ class InsulinMathTests: XCTestCase {
         XCTAssertTrue(trimmed.last!.isMutable)
     }
 
+    func testOverlayBasalWithUnfinishedSuspend() {
+        let dateFormatter = ISO8601DateFormatter.localTimeDate(timeZone: fixtureTimeZone)
+        let startDate = dateFormatter.date(from: "2015-10-15T22:25:50")!
+        let doses = [
+            DoseEntry(
+                type: .suspend,
+                startDate: startDate,
+                value: 0,
+                unit: .units,
+                description: "Suspend",
+                syncIdentifier: "SuspendSyncIdentifier",
+                manuallyEntered: false,
+                isMutable: true,
+                wasProgrammedByPumpUI: false
+            )
+        ]
+
+        let now = startDate.addingTimeInterval(.hours(1))
+
+        let basals = [
+            AbsoluteScheduleValue(startDate: startDate.addingTimeInterval(.hours(-1)), endDate: now, value: 1.0)
+        ]
+
+        let dosesWithBasal = doses.overlayBasal(basals, endDate: now, lastPumpEventsReconciliation: now)
+
+        XCTAssertEqual(2, dosesWithBasal.count)
+
+        XCTAssertEqual(.basal, dosesWithBasal[0].type)
+        XCTAssertEqual(.hours(1), dosesWithBasal[0].duration)
+
+        XCTAssertEqual(.suspend, dosesWithBasal[1].type)
+        XCTAssertEqual(.hours(1), dosesWithBasal[1].duration)
+    }
+
     func testDosesOverlayBasalProfile() {
         let dateFormatter = ISO8601DateFormatter.localTimeDate(timeZone: fixtureTimeZone)
         let input = loadDoseFixture("reconcile_history_output").sorted { $0.startDate < $1.startDate }

@@ -32,21 +32,13 @@ extension DoseEntry {
             }
         }
 
-        return DoseEntry(
-            type: type,
-            startDate: startDate,
-            endDate: endDate,
-            value: trimmedValue,
-            unit: unit,
-            deliveredUnits: trimmedDeliveredUnits,
-            description: description,
-            syncIdentifier: syncIdentifier,
-            scheduledBasalRate: scheduledBasalRate,
-            insulinType: insulinType,
-            automatic: automatic,
-            isMutable: isMutable,
-            wasProgrammedByPumpUI: wasProgrammedByPumpUI
-        )
+        var newDose = self
+        newDose.startDate = startDate
+        newDose.endDate = endDate
+        newDose.value = trimmedValue
+        newDose.deliveredUnits = trimmedDeliveredUnits
+        newDose.syncIdentifier = syncIdentifier
+        return newDose
     }
 }
 //
@@ -208,106 +200,53 @@ extension Collection where Element == DoseEntry {
                     if endDate > last.startDate {
                         reconciled.append(last.trimmed(from: nil, to: endDate, syncIdentifier: last.syncIdentifier))
                     }
-                } else if let suspend = lastSuspend, dose.type == .tempBasal {
+                } else if var suspend = lastSuspend, dose.type == .tempBasal {
                     // Handle missing resume. Basal following suspend, with no resume.
-                    reconciled.append(DoseEntry(
-                        type: suspend.type,
-                        startDate: suspend.startDate,
-                        endDate: dose.startDate,
-                        value: suspend.value,
-                        unit: suspend.unit,
-                        description: suspend.description ?? dose.description,
-                        syncIdentifier: suspend.syncIdentifier,
-                        insulinType: suspend.insulinType,
-                        automatic: suspend.automatic,
-                        isMutable: suspend.isMutable,
-                        wasProgrammedByPumpUI: suspend.wasProgrammedByPumpUI
-                    ))
+                    suspend.endDate = dose.startDate
+                    suspend.description = suspend.description ?? dose.description
+                    reconciled.append(suspend)
                     lastSuspend = nil
                 }
 
                 lastBasal = dose
             case .resume:
-                if let suspend = lastSuspend {
-
-                    reconciled.append(DoseEntry(
-                        type: suspend.type,
-                        startDate: suspend.startDate,
-                        endDate: dose.startDate,
-                        value: suspend.value,
-                        unit: suspend.unit,
-                        description: suspend.description ?? dose.description,
-                        syncIdentifier: suspend.syncIdentifier,
-                        insulinType: suspend.insulinType,
-                        automatic: suspend.automatic,
-                        isMutable: suspend.isMutable,
-                        wasProgrammedByPumpUI: suspend.wasProgrammedByPumpUI
-                    ))
-
+                if var suspend = lastSuspend {
+                    suspend.endDate = dose.startDate
+                    suspend.description = suspend.description ?? dose.description
+                    reconciled.append(suspend)
                     lastSuspend = nil
 
                     // Continue temp basals that may have started before suspending
-                    if let last = lastBasal {
+                    if var last = lastBasal {
                         if last.endDate > dose.endDate {
-                            lastBasal = DoseEntry(
-                                type: last.type,
-                                startDate: dose.endDate,
-                                endDate: last.endDate,
-                                value: last.value,
-                                unit: last.unit,
-                                description: last.description,
-                                // We intentionally use the resume's identifier, as the basal entry has already been entered
-                                syncIdentifier: dose.syncIdentifier,
-                                insulinType: last.insulinType,
-                                automatic: last.automatic,
-                                isMutable: last.isMutable,
-                                wasProgrammedByPumpUI: last.wasProgrammedByPumpUI
-                            )
+                            last.startDate = dose.endDate
+                            // We intentionally use the resume's identifier, as the basal entry has already been entered
+                            last.syncIdentifier = dose.syncIdentifier
+                            lastBasal = last
                         } else {
                             lastBasal = nil
                         }
                     }
                 }
             case .suspend:
-                if let last = lastBasal {
-
-                    reconciled.append(DoseEntry(
-                        type: last.type,
-                        startDate: last.startDate,
-                        endDate: Swift.min(last.endDate, dose.startDate),
-                        value: last.value,
-                        unit: last.unit,
-                        description: last.description,
-                        syncIdentifier: last.syncIdentifier,
-                        insulinType: last.insulinType,
-                        automatic: last.automatic,
-                        isMutable: last.isMutable,
-                        wasProgrammedByPumpUI: last.wasProgrammedByPumpUI
-                    ))
-
+                if var last = lastBasal {
                     if last.endDate <= dose.startDate {
                         lastBasal = nil
                     }
+
+                    last.endDate = Swift.min(last.endDate, dose.startDate)
+                    reconciled.append(last)
+
                 }
 
                 lastSuspend = dose
             }
         }
 
-        if let suspend = lastSuspend {
-            reconciled.append(DoseEntry(
-                type: suspend.type,
-                startDate: suspend.startDate,
-                endDate: nil,
-                value: suspend.value,
-                unit: suspend.unit,
-                description: suspend.description,
-                syncIdentifier: suspend.syncIdentifier,
-                insulinType: suspend.insulinType,
-                automatic: suspend.automatic,
-                isMutable: true,  // Consider mutable until paired resume
-                wasProgrammedByPumpUI: suspend.wasProgrammedByPumpUI
-            ))
+        if var suspend = lastSuspend {
+            suspend.endDate = suspend.startDate
+            suspend.isMutable = true // Consider mutable until paired resume
+            reconciled.append(suspend)
         } else if let last = lastBasal, last.endDate > last.startDate {
             reconciled.append(last)
         }
@@ -373,7 +312,7 @@ extension Collection where Element == DoseEntry {
             }
         }
 
-        for dose in self {
+        for (idx, dose) in self.enumerated() {
             switch dose.type {
             case .tempBasal, .basal, .suspend:
                 var doseStart = dose.startDate
@@ -382,19 +321,14 @@ extension Collection where Element == DoseEntry {
                 } else {
                     doseStart = lastDate
                 }
-                newEntries.append(DoseEntry(
-                    type: dose.type,
-                    startDate: doseStart,
-                    endDate: dose.endDate,
-                    value: dose.value,
-                    unit: dose.unit,
-                    syncIdentifier: dose.syncIdentifier,
-                    scheduledBasalRate: dose.scheduledBasalRate,
-                    insulinType: dose.insulinType,
-                    automatic: dose.automatic,
-                    isMutable: dose.isMutable,
-                    wasProgrammedByPumpUI: dose.wasProgrammedByPumpUI))
-                lastDate = dose.endDate
+                var newDose = dose
+                newDose.startDate = lastDate
+
+                if let endDate, dose.type == .suspend, idx+1 == self.count, dose.endDate < endDate {
+                    newDose.endDate = endDate
+                }
+                newEntries.append(newDose)
+                lastDate = newDose.endDate
             case .resume:
                 assertionFailure("No resume events should be present in reconciled doses")
             case .bolus:
