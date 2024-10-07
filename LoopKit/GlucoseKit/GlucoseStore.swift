@@ -434,63 +434,41 @@ extension GlucoseStore {
     }
 
 
-    private func saveSamplesToHealthKit() {
-        dispatchPrecondition(condition: .onQueue(queue))
-        var error: Error?
-        
+    private func saveSamplesToHealthKit() async {
         guard let hkSampleStore else {
             return
         }
 
-        cacheStore.managedObjectContext.performAndWait {
-            do {
+        do {
+            let objects = try await cacheStore.managedObjectContext.perform {
                 let request: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
                 request.predicate = NSPredicate(format: "healthKitEligibleDate <= %@", Date() as NSDate)
                 request.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]   // Maintains modificationCounter order
 
-                let objects = try self.cacheStore.managedObjectContext.fetch(request)
-                guard !objects.isEmpty else {
-                    return
-                }
-                
-                if objects.contains(where: { $0.uuid != nil }) {
-                    self.log.error("Found CachedGlucoseObjects with non-nil uuid. Should never happen, but HealthKit should be able to resolve it.")
-                    // Note: UUIDs will be overwritten below, but since the syncIdentifiers will match then HealthKit can resolve correctly via replacement
-                }
-                    
-                let quantitySamples = objects.map { $0.quantitySample }
-                
-                let dispatchGroup = DispatchGroup()
-                dispatchGroup.enter()
-                hkSampleStore.healthStore.save(quantitySamples) { (_, healthKitError) in
-                    error = healthKitError
-                    dispatchGroup.leave()
-                }
-                dispatchGroup.wait()
+                return try self.cacheStore.managedObjectContext.fetch(request)
+            }
 
-                // If there is an error writing to HealthKit, then do not persist uuids and retry later
-                guard error == nil else {
-                    return
-                }
+            guard !objects.isEmpty else {
+                return
+            }
 
+            let quantitySamples = objects.map { $0.quantitySample }
+
+            try await hkSampleStore.healthStore.save(quantitySamples)
+
+            try await cacheStore.managedObjectContext.perform {
                 for (object, quantitySample) in zip(objects, quantitySamples) {
                     object.uuid = quantitySample.uuid
                     object.healthKitEligibleDate = nil
                     object.updateModificationCounter()  // Maintains modificationCounter order
                 }
-
-                error = self.cacheStore.save()
-                guard error == nil else {
-                    return
+                if let error = self.cacheStore.save() {
+                    throw error
                 }
-                
-                self.log.default("Stored %d eligible glucose samples to HealthKit", objects.count)
-            } catch let coreDataError {
-                error = coreDataError
             }
-        }
+            self.log.default("Stored %d eligible glucose samples to HealthKit", objects.count)
 
-        if let error = error {
+        } catch {
             self.log.error("Error saving samples to HealthKit: %{public}@", String(describing: error))
         }
     }
@@ -706,7 +684,9 @@ extension GlucoseStore {
 
         self.purgeExpiredCachedGlucoseObjects()
         self.updateLatestGlucose()
-        self.saveSamplesToHealthKit()
+        Task {
+            await self.saveSamplesToHealthKit()
+        }
 
         NotificationCenter.default.post(name: GlucoseStore.glucoseSamplesDidChange, object: self)
         delegate?.glucoseStoreHasUpdatedGlucoseData(self)

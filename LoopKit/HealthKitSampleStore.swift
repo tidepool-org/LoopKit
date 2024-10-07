@@ -18,6 +18,7 @@ public protocol HKHealthStoreProtocol {
 #endif
     func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus
     func save(_ objects: [HKObject], withCompletion completion: @escaping (Bool, Error?) -> Void)
+    func save(_ objects: [HKObject]) async throws
     func save(_ object: HKObject, withCompletion completion: @escaping (Bool, Error?) -> Void)
     func deleteObjects(of objectType: HKObjectType, predicate: NSPredicate, withCompletion completion: @escaping (Bool, Int, Error?) -> Void)
 
