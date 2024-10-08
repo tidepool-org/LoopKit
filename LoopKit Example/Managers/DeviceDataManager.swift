@@ -55,7 +55,7 @@ class DeviceDataManager {
             observationStart: Date().addingTimeInterval(-observationInterval),
             observationEnabled: false)
 
-        glucoseStore = GlucoseStore(
+        glucoseStore = await GlucoseStore(
             healthKitSampleStore: glucoseSampleStore,
             cacheStore: cacheStore,
             provenanceIdentifier: HKSource.default().bundleIdentifier)

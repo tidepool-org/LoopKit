@@ -223,7 +223,10 @@ class InsulinDeliveryStoreTests: InsulinDeliveryStoreTestsBase {
         XCTAssertEqual(entries[2].syncIdentifier, self.entry2.syncIdentifier)
         XCTAssertEqual(entries[2].scheduledBasalRate, self.entry2.scheduledBasalRate)
 
-        entries = try await insulinDeliveryStore.getDoseEntries(start: Date(timeIntervalSinceNow: -.minutes(3.75)), end: Date(timeIntervalSinceNow: -.minutes(1.75)))
+        let start = entry3.startDate.addingTimeInterval(.minutes(0.25))
+        let end = entry2.startDate.addingTimeInterval(.minutes(0.25))
+
+        entries = try await insulinDeliveryStore.getDoseEntries(start: start, end: end)
         XCTAssertEqual(entries.count, 2)
         XCTAssertEqual(entries[0].type, self.entry3.type)
         XCTAssertEqual(entries[0].startDate, self.entry3.startDate)
