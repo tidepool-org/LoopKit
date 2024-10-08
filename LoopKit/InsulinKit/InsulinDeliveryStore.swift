@@ -555,7 +555,6 @@ extension InsulinDeliveryStore {
 
 
     private func saveEntriesToHealthKit(_ sampleObjects: [(HKQuantitySample, CachedInsulinDeliveryObject)]) {
-        dispatchPrecondition(condition: .onQueue(queue))
 
         guard storeSamplesToHealthKit, !sampleObjects.isEmpty, let hkSampleStore else {
             return

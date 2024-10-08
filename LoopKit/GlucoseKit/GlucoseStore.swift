@@ -434,7 +434,7 @@ extension GlucoseStore {
     }
 
 
-    private func saveSamplesToHealthKit() async {
+    func saveSamplesToHealthKit() async {
         guard let hkSampleStore else {
             return
         }
@@ -556,6 +556,15 @@ extension GlucoseStore {
         }
     }
 
+    public func getSyncGlucoseSamples(start: Date? = nil, end: Date? = nil) async throws -> [StoredGlucoseSample] {
+        try await withCheckedThrowingContinuation { continuation in
+            getSyncGlucoseSamples(start: start, end: end) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+
     /// Store glucose samples in Watch extension
     public func setSyncGlucoseSamples(_ objects: [StoredGlucoseSample], completion: @escaping (Error?) -> Void) {
         queue.async {
@@ -583,6 +592,19 @@ extension GlucoseStore {
             completion(nil)
         }
     }
+
+    public func setSyncGlucoseSamples(_ objects: [StoredGlucoseSample]) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            setSyncGlucoseSamples(objects) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
 }
 
 // MARK: - Cache Management
@@ -619,6 +641,19 @@ extension GlucoseStore {
         }
     }
 
+    public func purgeAllGlucoseSamples(healthKitPredicate: NSPredicate) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            purgeAllGlucoseSamples(healthKitPredicate: healthKitPredicate) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+
     private func purgeExpiredCachedGlucoseObjects() {
         purgeCachedGlucoseObjects(before: earliestCacheDate)
     }
@@ -636,6 +671,18 @@ extension GlucoseStore {
             }
             self.handleUpdatedGlucoseData()
             completion(nil)
+        }
+    }
+
+    public func purgeCachedGlucoseObjects(before date: Date? = nil) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            purgeCachedGlucoseObjects(before: date) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
         }
     }
 
