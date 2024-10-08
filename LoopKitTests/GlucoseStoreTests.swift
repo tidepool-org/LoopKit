@@ -16,28 +16,22 @@ class GlucoseStoreTests: PersistenceControllerTestCase {
     var healthStore: HKHealthStoreMock!
     var glucoseStore: GlucoseStore!
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         
         healthStore = HKHealthStoreMock()
         glucoseStore = GlucoseStore(cacheStore: cacheStore,
                                     provenanceIdentifier: Bundle.main.bundleIdentifier!)
-        let semaphore = DispatchSemaphore(value: 0)
-        cacheStore.onReady { (error) in
-            semaphore.signal()
-        }
-        semaphore.wait()
     }
     
-    override func tearDown() {
+    override func tearDown() async throws {
         glucoseStore = nil
         healthStore = nil
 
-        super.tearDown()
+        try await super.tearDown()
     }
     
-    func testLatestGlucoseIsSetAfterStoreAndClearedAfterPurge() {
-        let storeCompletion = expectation(description: "Storage completion")
+    func testLatestGlucoseIsSetAfterStoreAndClearedAfterPurge() async throws {
         let storedQuantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 80)
         let device = HKDevice(name: "Unit Test Mock CGM",
             manufacturer: "Device Manufacturer",
@@ -48,28 +42,10 @@ class GlucoseStoreTests: PersistenceControllerTestCase {
             localIdentifier: "Device Local Identifier",
             udiDeviceIdentifier: "Device UDI Device Identifier")
         let sample = NewGlucoseSample(date: Date(), quantity: storedQuantity, condition: nil, trend: nil, trendRate: nil, isDisplayOnly: false, wasUserEntered: false, syncIdentifier: "random", device: device)
-        glucoseStore.addGlucoseSamples([sample]) { (result) in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let samples):
-                XCTAssertEqual(storedQuantity, samples.first!.quantity)
-            }
-            storeCompletion.fulfill()
-        }
-        wait(for: [storeCompletion], timeout: 30)
-        XCTAssertEqual(storedQuantity, self.glucoseStore.latestGlucose?.quantity)
+        let samples = try await glucoseStore.addGlucoseSamples([sample])
+        XCTAssertEqual(storedQuantity, samples.first!.quantity)
 
-        let purgeCompletion = expectation(description: "Storage completion")
-        
-        let predicate = HKQuery.predicateForObjects(from: [device])
-        glucoseStore.purgeAllGlucoseSamples(healthKitPredicate: predicate) { (error) in
-            if let error = error {
-                XCTFail("Unexpected failure: \(error)")
-            }
-            purgeCompletion.fulfill()
-        }
-        wait(for: [purgeCompletion], timeout: 30)
+        try await glucoseStore.purgeAllGlucose(for: device)
         XCTAssertNil(self.glucoseStore.latestGlucose)
     }
 }
@@ -122,29 +98,25 @@ class GlucoseStoreRemoteDataServiceQueryTests: PersistenceControllerTestCase {
     var queryAnchor: GlucoseStore.QueryAnchor!
     var limit: Int!
 
-    override func setUp() {
-        super.setUp()
-        
+    override func setUp() async throws {
+        try await super.setUp()
+
         glucoseStore = GlucoseStore(cacheStore: cacheStore,
                                     provenanceIdentifier: Bundle.main.bundleIdentifier!)
-        let semaphore = DispatchSemaphore(value: 0)
-        cacheStore.onReady { (error) in
-            semaphore.signal()
-        }
-        semaphore.wait()
+
         completion = expectation(description: "Completion")
         queryAnchor = GlucoseStore.QueryAnchor()
         limit = Int.max
     }
     
-    override func tearDown() {
+    override func tearDown() async throws {
         limit = nil
         queryAnchor = nil
         completion = nil
         glucoseStore = nil
         healthStore = nil
 
-        super.tearDown()
+        try await super.tearDown()
     }
 
     func testEmptyWithDefaultQueryAnchor() {
@@ -335,8 +307,8 @@ class GlucoseStoreCriticalEventLogExportTests: PersistenceControllerTestCase {
     var outputStream: MockOutputStream!
     var progress: Progress!
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
 
         let samples = [NewGlucoseSample(date: dateFormatter.date(from: "2100-01-02T03:08:00Z")!, quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 111), condition: nil, trend: nil, trendRate: nil, isDisplayOnly: false, wasUserEntered: false, syncIdentifier: "18CF3948-0B3D-4B12-8BFE-14986B0E6784", syncVersion: 1),
                        NewGlucoseSample(date: dateFormatter.date(from: "2100-01-02T03:10:00Z")!, quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 112), condition: nil, trend: .up, trendRate: HKQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: 1.0), isDisplayOnly: false, wasUserEntered: false, syncIdentifier: "C86DEB61-68E9-464E-9DD5-96A9CB445FD3", syncVersion: 2),
@@ -347,22 +319,16 @@ class GlucoseStoreCriticalEventLogExportTests: PersistenceControllerTestCase {
         glucoseStore = GlucoseStore(cacheStore: cacheStore,
                                     provenanceIdentifier: Bundle.main.bundleIdentifier!)
 
-        let dispatchGroup = DispatchGroup()
-        dispatchGroup.enter()
-        glucoseStore.addNewGlucoseSamples(samples: samples) { error in
-            XCTAssertNil(error)
-            dispatchGroup.leave()
-        }
-        dispatchGroup.wait()
+        try await glucoseStore.addNewGlucoseSamples(samples: samples)
 
         outputStream = MockOutputStream()
         progress = Progress()
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         glucoseStore = nil
 
-        super.tearDown()
+        try await super.tearDown()
     }
     
     func testExportProgressTotalUnitCount() {

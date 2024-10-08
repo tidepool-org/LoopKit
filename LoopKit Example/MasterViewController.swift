@@ -19,8 +19,10 @@ class MasterViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
-            dataManager = DeviceDataManager()
+        Task {
+            if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+                dataManager = await DeviceDataManager()
+            }
         }
     }
 

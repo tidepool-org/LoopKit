@@ -133,8 +133,8 @@ public final class DoseStore {
         provenanceIdentifier: String = HKSource.default().bundleIdentifier,
         onReady: ((DoseStoreError?) -> Void)? = nil,
         test_currentDate: Date? = nil
-    ) {
-        self.insulinDeliveryStore = InsulinDeliveryStore(
+    ) async {
+        self.insulinDeliveryStore = await InsulinDeliveryStore(
             healthKitSampleStore: healthKitSampleStore,
             cacheStore: cacheStore,
             cacheLength: cacheLength,
@@ -837,11 +837,7 @@ extension DoseStore {
             self.log.debug("Adding dose to insulin delivery store: %@", String(describing: dose))
         }
 
-        try await withCheckedThrowingContinuation { continuation in
-            self.insulinDeliveryStore.addDoseEntries(doses, from: self.device, syncVersion: self.syncVersion, resolveMutable: resolveMutable) { (result) in
-                continuation.resume(with: result)
-            }
-        }
+        try await insulinDeliveryStore.addDoseEntries(doses, from: self.device, syncVersion: self.syncVersion, resolveMutable: resolveMutable)
     }
 
     /// Fetches a timeline of doses, filling in gaps between delivery changes with the scheduled basal delivery

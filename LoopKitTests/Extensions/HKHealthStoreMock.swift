@@ -42,6 +42,7 @@ class MockHKAnchoredObjectQuery: HKAnchoredObjectQuery {
 
 class HKHealthStoreMock: HKHealthStoreProtocol {
 
+
     func stop(_ query: HKQuery) {
     }
 
@@ -125,6 +126,15 @@ class HKHealthStoreMock: HKHealthStoreProtocol {
             completion(self.deleteError == nil, 0, self.deleteError)
         }
     }
+
+    func deleteObjects(of objectType: HKObjectType, predicate: NSPredicate) async throws -> Int {
+        self.deleteObjectsHandler?(objectType, predicate, self.deleteError == nil, 0, self.deleteError)
+        if let deleteError {
+            throw deleteError
+        }
+        return 0
+    }
+
 
     func setSaveHandler(_ saveHandler: ((_ objects: [HKObject], _ success: Bool, _ error: Error?) -> Void)?) {
         queue.sync {

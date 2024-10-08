@@ -330,7 +330,6 @@ extension GlucoseStore {
     }
 
     private func updateLatestGlucose() {
-        dispatchPrecondition(condition: .onQueue(queue))
 
         cacheStore.managedObjectContext.performAndWait {
             var latestGlucose: StoredGlucoseSample?
@@ -346,7 +345,9 @@ extension GlucoseStore {
                 self.log.error("Unable to fetch latest glucose object: %{public}@", String(describing: error))
             }
 
-            self.latestGlucose = latestGlucose
+            queue.async {
+                self.latestGlucose = latestGlucose
+            }
         }
     }
 }
@@ -614,45 +615,31 @@ extension GlucoseStore {
         return Date(timeIntervalSinceNow: -cacheLength)
     }
 
-    /// Purge all glucose samples from the glucose store and HealthKit (matching the specified device predicate).
+    /// Purge all glucose samples from the glucose store and HealthKit (matching the specified device ).
     ///
     /// - Parameters:
-    ///   - healthKitPredicate: The predicate to use in matching HealthKit glucose objects.
-    ///   - completion: The completion handler returning any error.
-    public func purgeAllGlucoseSamples(healthKitPredicate: NSPredicate, completion: @escaping (Error?) -> Void) {
-        queue.async {
-            let storeError = self.purgeCachedGlucoseObjects()
-            if let hkSampleStore = self.hkSampleStore {
-                hkSampleStore.healthStore.deleteObjects(of: HealthKitSampleStore.glucoseType, predicate: healthKitPredicate) { _, _, healthKitError in
-                    self.queue.async {
-                        if let error = storeError ?? healthKitError {
-                            completion(error)
-                            return
-                        }
-
-                        self.handleUpdatedGlucoseData()
-                        completion(nil)
-                    }
-                }
-            } else {
-                self.handleUpdatedGlucoseData()
-                completion(storeError)
-            }
+    ///   - device: The device to use in matching HealthKit glucose objects.
+    public func purgeAllGlucose(for device: HKDevice) async throws {
+        try await purgeCachedGlucoseObjects()
+        if let hkSampleStore = self.hkSampleStore {
+            let predicate = HKQuery.predicateForObjects(from: [device])
+            let _ = try await hkSampleStore.healthStore.deleteObjects(of: HealthKitSampleStore.glucoseType, predicate: predicate)
         }
+        self.handleUpdatedGlucoseData()
     }
 
-    public func purgeAllGlucoseSamples(healthKitPredicate: NSPredicate) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            purgeAllGlucoseSamples(healthKitPredicate: healthKitPredicate) { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
-            }
+    /// Purge all glucose samples from the glucose store and HealthKit (matching the specified source ).
+    ///
+    /// - Parameters:
+    ///   - device: The source to use in matching HealthKit glucose objects.
+    public func purgeAllGlucose(for source: HKSource) async throws {
+        try await purgeCachedGlucoseObjects()
+        if let hkSampleStore = self.hkSampleStore {
+            let predicate = HKQuery.predicateForObjects(from: [source])
+            let _ = try await hkSampleStore.healthStore.deleteObjects(of: HealthKitSampleStore.glucoseType, predicate: predicate)
         }
+        self.handleUpdatedGlucoseData()
     }
-
 
     private func purgeExpiredCachedGlucoseObjects() {
         purgeCachedGlucoseObjects(before: earliestCacheDate)
@@ -688,7 +675,6 @@ extension GlucoseStore {
 
     @discardableResult
     private func purgeCachedGlucoseObjects(before date: Date? = nil) -> Error? {
-        dispatchPrecondition(condition: .onQueue(queue))
 
         var error: Error?
 
@@ -727,8 +713,6 @@ extension GlucoseStore {
     }
 
     private func handleUpdatedGlucoseData() {
-        dispatchPrecondition(condition: .onQueue(queue))
-
         self.purgeExpiredCachedGlucoseObjects()
         self.updateLatestGlucose()
         Task {
@@ -919,7 +903,20 @@ extension GlucoseStore {
             completion(nil)
         }
     }
+
+    public func addNewGlucoseSamples(samples: [NewGlucoseSample]) async throws {
+        try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Void, Error>) -> Void in
+            self.addNewGlucoseSamples(samples: samples) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        })
+    }
 }
+
 
 // MARK: - Issue Report
 

@@ -21,6 +21,7 @@ public protocol HKHealthStoreProtocol {
     func save(_ objects: [HKObject]) async throws
     func save(_ object: HKObject, withCompletion completion: @escaping (Bool, Error?) -> Void)
     func deleteObjects(of objectType: HKObjectType, predicate: NSPredicate, withCompletion completion: @escaping (Bool, Int, Error?) -> Void)
+    func deleteObjects(of objectType: HKObjectType, predicate: NSPredicate) async throws -> Int
 
     func cachedPreferredUnits(for quantityTypeIdentifier: HKQuantityTypeIdentifier) async -> HKUnit?
 }
@@ -239,6 +240,7 @@ public class HealthKitSampleStore {
 
     // Observation will not start until this is called. Pass nil to receive all the matching samples and recently deleted objects
     func setInitialQueryAnchor(_ anchor: HKQueryAnchor?) {
+        print("Set initial query anchor: \(anchor)")
         queryAnchor = anchor
     }
 

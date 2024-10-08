@@ -13,7 +13,7 @@ import LoopAlgorithm
 
 class DeviceDataManager {
 
-    init() {
+    init() async {
         healthStore = HKHealthStore()
         let cacheStore = PersistenceController(directoryURL: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!)
 
@@ -40,7 +40,7 @@ class DeviceDataManager {
             observationStart: Date().addingTimeInterval(-observationInterval),
             observationEnabled: false)
 
-        doseStore = DoseStore(
+        doseStore = await DoseStore(
             healthKitSampleStore: doseSampleStore,
             cacheStore: cacheStore,
             longestEffectDuration: ExponentialInsulinModelPreset.rapidActingAdult.effectDuration,
