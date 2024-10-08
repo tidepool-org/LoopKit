@@ -107,33 +107,6 @@ public final class GlucoseStore {
 
     public var healthKitStorageDelay: TimeInterval = 0
 
-    // MARK: - ReadyState
-    private enum ReadyState {
-        case waiting
-        case ready
-        case error(Error)
-    }
-
-    public typealias ReadyCallback = (_ error: Error?) -> Void
-
-    private var readyCallbacks: [ReadyCallback] = []
-
-    private var readyState: ReadyState = .waiting
-
-    public func onReady(_ callback: @escaping ReadyCallback) {
-        queue.async {
-            switch self.readyState {
-            case .waiting:
-                self.readyCallbacks.append(callback)
-            case .ready:
-                callback(nil)
-            case .error(let error):
-                callback(error)
-            }
-        }
-    }
-
-    
     // If HealthKit sharing is not authorized, `nil` will prevent later storage
     var healthKitStorageDelayIfAllowed: TimeInterval? {
         guard let hkSampleStore, hkSampleStore.sharingAuthorized else {
@@ -150,7 +123,7 @@ public final class GlucoseStore {
         cacheLength: TimeInterval = 60 /* minutes */ * 60 /* seconds */,
         momentumDataInterval: TimeInterval = GlucoseMath.momentumDataInterval,
         provenanceIdentifier: String = HKSource.default().bundleIdentifier
-    ) {
+    ) async {
         let cacheLength = max(cacheLength, momentumDataInterval)
 
         self.cacheStore = cacheStore
@@ -161,30 +134,21 @@ public final class GlucoseStore {
 
         healthKitSampleStore?.delegate = self
 
-        cacheStore.onReady { (error) in
-            guard error == nil else {
-                self.queue.async {
-                    self.readyState = .error(error!)
-                    for callback in self.readyCallbacks {
-                        callback(error)
+        do {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> Void in
+                cacheStore.onReady { (error) in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
                     }
-                    self.readyCallbacks = []
-                }
-                return
-            }
-
-            cacheStore.fetchAnchor(key: GlucoseStore.healthKitQueryAnchorMetadataKey) { (anchor) in
-                self.queue.async {
-                    self.hkSampleStore?.setInitialQueryAnchor(anchor)
-                    self.updateLatestGlucose()
-                    self.readyState = .ready
-                    for callback in self.readyCallbacks {
-                        callback(error)
-                    }
-                    self.readyCallbacks = []
-
                 }
             }
+            let anchor = await cacheStore.fetchAnchor(key: GlucoseStore.healthKitQueryAnchorMetadataKey)
+            self.hkSampleStore?.setInitialQueryAnchor(anchor)
+            await self.updateLatestGlucose()
+        } catch {
+            log.error("CacheStore initialization failed: %{public}@", String(describing: error))
         }
     }
 }
@@ -247,7 +211,9 @@ extension GlucoseStore: HealthKitSampleStoreDelegate {
                 self.purgeExpiredManagedDataFromHealthKit(before: newestStartDate)
             }
 
-            self.handleUpdatedGlucoseData()
+            Task {
+                await self.handleUpdatedGlucoseData()
+            }
             completion(true)
         }
     }
@@ -329,25 +295,21 @@ extension GlucoseStore {
         return try self.cacheStore.managedObjectContext.fetch(request)
     }
 
-    private func updateLatestGlucose() {
-
-        cacheStore.managedObjectContext.performAndWait {
-            var latestGlucose: StoredGlucoseSample?
-
-            do {
+    private func updateLatestGlucose() async {
+        do {
+            let latestGlucose = try await cacheStore.managedObjectContext.perform {
                 let request: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
                 request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: false)]
                 request.fetchLimit = 1
 
                 let objects = try self.cacheStore.managedObjectContext.fetch(request)
-                latestGlucose = objects.first.map { StoredGlucoseSample(managedObject: $0) }
-            } catch let error {
-                self.log.error("Unable to fetch latest glucose object: %{public}@", String(describing: error))
+                return objects.first.map { StoredGlucoseSample(managedObject: $0) }
             }
-
-            queue.async {
+            queue.sync {
                 self.latestGlucose = latestGlucose
             }
+        } catch {
+            self.log.error("Unable to fetch latest glucose object: %{public}@", String(describing: error))
         }
     }
 }
@@ -359,81 +321,56 @@ extension GlucoseStore {
     ///
     /// - Parameters:
     ///   - samples: The new glucose samples to add to the store.
-    ///   - completion: A closure called once the glucose samples have been stored.
-    ///   - result: An array of glucose samples that were stored, or error.
-    public func addGlucoseSamples(_ samples: [NewGlucoseSample], completion: @escaping (_ result: Result<[StoredGlucoseSample], Error>) -> Void) {
-        guard !samples.isEmpty else {
-            completion(.success([]))
-            return
-        }
-
-        queue.async {
-            var storedSamples: [StoredGlucoseSample] = []
-            var error: Error?
-
-            self.cacheStore.managedObjectContext.performAndWait {
-                do {
-                    // Filter samples to ensure no duplicate sync identifiers nor existing sample with matching sync identifier for our provenance identifier
-                    var syncIdentifiers = Set<String>()
-                    let samples: [NewGlucoseSample] = try samples.compactMap { sample in
-                        guard syncIdentifiers.insert(sample.syncIdentifier).inserted else {
-                            self.log.default("Skipping adding glucose sample due to duplicate sync identifier: %{public}@", sample.syncIdentifier)
-                            return nil
-                        }
-
-                        let request: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
-                        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [NSPredicate(format: "provenanceIdentifier == %@", self.provenanceIdentifier),
-                                                                                                NSPredicate(format: "syncIdentifier == %@", sample.syncIdentifier)])
-                        request.fetchLimit = 1
-
-                        guard try self.cacheStore.managedObjectContext.count(for: request) == 0 else {
-                            self.log.default("Skipping adding glucose sample due to existing cached sync identifier: %{public}@", sample.syncIdentifier)
-                            return nil
-                        }
-
-                        return sample
-                    }
-                    guard !samples.isEmpty else {
-                        return
-                    }
-
-                    let objects: [CachedGlucoseObject] = samples.map { sample in
-                        let object = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
-                        object.create(from: sample,
-                                      provenanceIdentifier: self.provenanceIdentifier,
-                                      healthKitStorageDelay: self.healthKitStorageDelayIfAllowed)
-                        return object
-                    }
-
-                    error = self.cacheStore.save()
-                    guard error == nil else {
-                        return
-                    }
-
-                    storedSamples = objects.map { StoredGlucoseSample(managedObject: $0) }
-                } catch let coreDataError {
-                    error = coreDataError
-                }
-            }
-
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            self.handleUpdatedGlucoseData()
-            completion(.success(storedSamples))
-        }
-    }
-
+    ///   - returns: An array of glucose samples that were stored.
     public func addGlucoseSamples(_ samples: [NewGlucoseSample]) async throws -> [StoredGlucoseSample] {
-        try await withCheckedThrowingContinuation { continuation in
-            addGlucoseSamples(samples) { result in
-                continuation.resume(with: result)
-            }
+        guard !samples.isEmpty else {
+            return []
         }
-    }
 
+        let storedSamples: [StoredGlucoseSample] = try await self.cacheStore.managedObjectContext.perform {
+            // Filter samples to ensure no duplicate sync identifiers nor existing sample with matching sync identifier for our provenance identifier
+            var syncIdentifiers = Set<String>()
+            let samples: [NewGlucoseSample] = try samples.compactMap { sample in
+                guard syncIdentifiers.insert(sample.syncIdentifier).inserted else {
+                    self.log.default("Skipping adding glucose sample due to duplicate sync identifier: %{public}@", sample.syncIdentifier)
+                    return nil
+                }
+
+                let request: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
+                request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [NSPredicate(format: "provenanceIdentifier == %@", self.provenanceIdentifier),
+                                                                                        NSPredicate(format: "syncIdentifier == %@", sample.syncIdentifier)])
+                request.fetchLimit = 1
+
+                guard try self.cacheStore.managedObjectContext.count(for: request) == 0 else {
+                    self.log.default("Skipping adding glucose sample due to existing cached sync identifier: %{public}@", sample.syncIdentifier)
+                    return nil
+                }
+
+                return sample
+            }
+
+            guard !samples.isEmpty else {
+                return []
+            }
+
+            let objects: [CachedGlucoseObject] = samples.map { sample in
+                let object = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
+                object.create(from: sample,
+                              provenanceIdentifier: self.provenanceIdentifier,
+                              healthKitStorageDelay: self.healthKitStorageDelayIfAllowed)
+                return object
+            }
+
+            if let error = self.cacheStore.save() {
+                throw error
+            }
+
+            return objects.map { StoredGlucoseSample(managedObject: $0) }
+        }
+
+        await self.handleUpdatedGlucoseData()
+        return storedSamples
+    }
 
     func saveSamplesToHealthKit() async {
         guard let hkSampleStore else {
@@ -567,45 +504,25 @@ extension GlucoseStore {
 
 
     /// Store glucose samples in Watch extension
-    public func setSyncGlucoseSamples(_ objects: [StoredGlucoseSample], completion: @escaping (Error?) -> Void) {
-        queue.async {
-            var error: Error?
-
-            self.cacheStore.managedObjectContext.performAndWait {
-                guard !objects.isEmpty else {
-                    return
-                }
-
-                objects.forEach {
-                    let object = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
-                    object.update(from: $0)
-                }
-
-                error = self.cacheStore.save()
-            }
-
-            if let error = error {
-                completion(error)
-                return
-            }
-
-            self.handleUpdatedGlucoseData()
-            completion(nil)
-        }
-    }
-
     public func setSyncGlucoseSamples(_ objects: [StoredGlucoseSample]) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            setSyncGlucoseSamples(objects) { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
+        guard !objects.isEmpty else {
+            return
+        }
+
+        try await self.cacheStore.managedObjectContext.perform {
+
+            objects.forEach {
+                let object = CachedGlucoseObject(context: self.cacheStore.managedObjectContext)
+                object.update(from: $0)
+            }
+
+            if let error = self.cacheStore.save() {
+                throw error
             }
         }
-    }
 
+        await self.handleUpdatedGlucoseData()
+    }
 }
 
 // MARK: - Cache Management
@@ -625,7 +542,7 @@ extension GlucoseStore {
             let predicate = HKQuery.predicateForObjects(from: [device])
             let _ = try await hkSampleStore.healthStore.deleteObjects(of: HealthKitSampleStore.glucoseType, predicate: predicate)
         }
-        self.handleUpdatedGlucoseData()
+        await self.handleUpdatedGlucoseData()
     }
 
     /// Purge all glucose samples from the glucose store and HealthKit (matching the specified source ).
@@ -638,61 +555,35 @@ extension GlucoseStore {
             let predicate = HKQuery.predicateForObjects(from: [source])
             let _ = try await hkSampleStore.healthStore.deleteObjects(of: HealthKitSampleStore.glucoseType, predicate: predicate)
         }
-        self.handleUpdatedGlucoseData()
+        await self.handleUpdatedGlucoseData()
     }
 
-    private func purgeExpiredCachedGlucoseObjects() {
-        purgeCachedGlucoseObjects(before: earliestCacheDate)
+    private func purgeExpiredCachedGlucoseObjects() async {
+        do {
+            try await internal_purgeCachedGlucoseObjects(before: earliestCacheDate)
+        } catch {
+            self.log.error("Error purging expired glucose objects: %{public}@", String(describing: error))
+        }
     }
 
     /// Purge cached glucose objects from the glucose store.
     ///
     /// - Parameters:
     ///   - date: Purge cached glucose objects with start date before this date.
-    ///   - completion: The completion handler returning any error.
-    public func purgeCachedGlucoseObjects(before date: Date? = nil, completion: @escaping (Error?) -> Void) {
-        queue.async {
-            if let error = self.purgeCachedGlucoseObjects(before: date) {
-                completion(error)
-                return
-            }
-            self.handleUpdatedGlucoseData()
-            completion(nil)
-        }
-    }
-
     public func purgeCachedGlucoseObjects(before date: Date? = nil) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            purgeCachedGlucoseObjects(before: date) { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
-            }
-        }
+        try await self.internal_purgeCachedGlucoseObjects(before: date)
+        await self.handleUpdatedGlucoseData()
     }
 
-    @discardableResult
-    private func purgeCachedGlucoseObjects(before date: Date? = nil) -> Error? {
-
-        var error: Error?
-
-        cacheStore.managedObjectContext.performAndWait {
-            do {
-                var predicate: NSPredicate?
-                if let date = date {
-                    predicate = NSPredicate(format: "startDate < %@", date as NSDate)
-                }
-                let count = try cacheStore.managedObjectContext.purgeObjects(of: CachedGlucoseObject.self, matching: predicate)
-                self.log.default("Purged %d CachedGlucoseObjects", count)
-            } catch let coreDataError {
-                self.log.error("Unable to purge CachedGlucoseObjects: %{public}@", String(describing: error))
-                error = coreDataError
+    private func internal_purgeCachedGlucoseObjects(before date: Date? = nil) async throws {
+        try await cacheStore.managedObjectContext.perform {
+            var predicate: NSPredicate?
+            if let date = date {
+                predicate = NSPredicate(format: "startDate < %@", date as NSDate)
             }
+            let count = try self.cacheStore.managedObjectContext.purgeObjects(of: CachedGlucoseObject.self, matching: predicate)
+            self.log.default("Purged %d CachedGlucoseObjects", count)
         }
-
-        return error
     }
 
     private func purgeExpiredManagedDataFromHealthKit(before date: Date) {
@@ -712,9 +603,9 @@ extension GlucoseStore {
         }
     }
 
-    private func handleUpdatedGlucoseData() {
-        self.purgeExpiredCachedGlucoseObjects()
-        self.updateLatestGlucose()
+    private func handleUpdatedGlucoseData() async {
+        await self.purgeExpiredCachedGlucoseObjects()
+        await self.updateLatestGlucose()
         Task {
             await self.saveSamplesToHealthKit()
         }

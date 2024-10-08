@@ -240,7 +240,6 @@ public class HealthKitSampleStore {
 
     // Observation will not start until this is called. Pass nil to receive all the matching samples and recently deleted objects
     func setInitialQueryAnchor(_ anchor: HKQueryAnchor?) {
-        print("Set initial query anchor: \(anchor)")
         queryAnchor = anchor
     }
 
