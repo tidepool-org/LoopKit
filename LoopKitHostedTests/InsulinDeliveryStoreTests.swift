@@ -77,19 +77,31 @@ class InsulinDeliveryStoreTestsBase: PersistenceControllerTestCase {
     }
 }
 
-class InsulinDeliveryStoreTestsAuthorized: InsulinDeliveryStoreTestsBase {
-    override func setUp() async throws {
-        authorizationStatus = .sharingAuthorized
-        try await super.setUp()
-    }
-    
-    func testObserverQueryStartup() {
-        // Check that an observer query is registered when authorization is already determined.
-        XCTAssertFalse(hkSampleStore.authorizationRequired);
+class InsulinDeliveryStoreTestsAuthorized: PersistenceControllerTestCase {
+    var mockHealthStore: HKHealthStoreMock!
+    var insulinDeliveryStore: InsulinDeliveryStore!
+    var hkSampleStore: HealthKitSampleStore!
 
+    func testObserverQueryStartup() async throws {
+        // Check that an observer query is registered when authorization is already determined.
+
+        mockHealthStore = HKHealthStoreMock()
         mockHealthStore.observerQueryStartedExpectation = expectation(description: "observer query started")
 
-        waitForExpectations(timeout: 30)
+        hkSampleStore = HealthKitSampleStore(healthStore: mockHealthStore, type: HealthKitSampleStore.insulinQuantityType)
+        hkSampleStore.observerQueryType = MockHKObserverQuery.self
+        hkSampleStore.anchoredObjectQueryType = MockHKAnchoredObjectQuery.self
+
+        mockHealthStore.authorizationStatus = .sharingAuthorized
+
+        insulinDeliveryStore = await InsulinDeliveryStore(healthKitSampleStore: hkSampleStore,
+                                                    cacheStore: cacheStore,
+                                                    cacheLength: .hours(1),
+                                                    provenanceIdentifier: HKSource.default().bundleIdentifier)
+
+        XCTAssertFalse(hkSampleStore.authorizationRequired);
+
+        await fulfillment(of: [mockHealthStore.observerQueryStartedExpectation!], timeout: 30)
 
         XCTAssertNotNil(mockHealthStore.observerQuery)
     }
