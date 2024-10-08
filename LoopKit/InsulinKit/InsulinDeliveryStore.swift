@@ -334,7 +334,6 @@ extension InsulinDeliveryStore {
         })
     }
 
-
     /// Returns the end date of the most recent basal dose entry.
     ///
     /// - Parameters:
@@ -356,19 +355,20 @@ extension InsulinDeliveryStore {
 
     private func updateLastImmutableBasalEndDate() async {
         do {
-            try await cacheStore.managedObjectContext.perform {
-                try self.queue.sync {
-                    let request: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
-                    request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [NSPredicate(format: "deletedAt == NIL"),
-                                                                                            NSPredicate(format: "reason == %d", HKInsulinDeliveryReason.basal.rawValue),
-                                                                                            NSPredicate(format: "hasLoopKitOrigin == YES"),
-                                                                                            NSPredicate(format: "isMutable == NO")])
-                    request.sortDescriptors = [NSSortDescriptor(key: "endDate", ascending: false)]
-                    request.fetchLimit = 1
+            let endDate = try await cacheStore.managedObjectContext.perform {
+                let request: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
+                request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [NSPredicate(format: "deletedAt == NIL"),
+                                                                                        NSPredicate(format: "reason == %d", HKInsulinDeliveryReason.basal.rawValue),
+                                                                                        NSPredicate(format: "hasLoopKitOrigin == YES"),
+                                                                                        NSPredicate(format: "isMutable == NO")])
+                request.sortDescriptors = [NSSortDescriptor(key: "endDate", ascending: false)]
+                request.fetchLimit = 1
 
-                    let objects = try self.cacheStore.managedObjectContext.fetch(request)
-                    self.lastImmutableBasalEndDate = objects.first?.endDate
-                }
+                let objects = try self.cacheStore.managedObjectContext.fetch(request)
+                return objects.first?.endDate
+            }
+            self.queue.sync {
+                self.lastImmutableBasalEndDate = endDate
             }
         } catch {
             self.log.error("updateLastImmutableBasalEndDate failed: %@", String(describing: error))
