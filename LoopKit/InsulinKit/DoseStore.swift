@@ -1217,40 +1217,29 @@ extension DoseStore {
         case failure(Error)
     }
     
-    public func executePumpEventQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (PumpEventQueryResult) -> Void) {
+    public func executePumpEventQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int) async throws -> (QueryAnchor, [PersistedPumpEvent]) {
         var queryAnchor = queryAnchor ?? QueryAnchor()
         var queryResult = [PersistedPumpEvent]()
-        var queryError: Error?
 
         guard limit > 0 else {
-            completion(.success(queryAnchor, []))
-            return
+            return (queryAnchor, [])
         }
 
-        persistenceController.managedObjectContext.performAndWait {
+        try await persistenceController.managedObjectContext.perform {
             let storedRequest: NSFetchRequest<PumpEvent> = PumpEvent.fetchRequest()
 
             storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter)
             storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
             storedRequest.fetchLimit = limit
 
-            do {
-                let stored = try self.persistenceController.managedObjectContext.fetch(storedRequest)
-                if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                    queryAnchor.modificationCounter = modificationCounter
-                }
-                queryResult.append(contentsOf: stored.compactMap { $0.persistedPumpEvent })
-            } catch let error {
-                queryError = error
+            let stored = try self.persistenceController.managedObjectContext.fetch(storedRequest)
+            if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                queryAnchor.modificationCounter = modificationCounter
             }
+            queryResult.append(contentsOf: stored.compactMap { $0.persistedPumpEvent })
         }
 
-        if let queryError = queryError {
-            completion(.failure(queryError))
-            return
-        }
-
-        completion(.success(queryAnchor, queryResult))
+        return (queryAnchor, queryResult)
     }
 }
 

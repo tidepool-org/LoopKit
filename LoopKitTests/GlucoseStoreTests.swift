@@ -94,7 +94,6 @@ class GlucoseStoreRemoteDataServiceQueryAnchorTests: XCTestCase {
 class GlucoseStoreRemoteDataServiceQueryTests: PersistenceControllerTestCase {
     var healthStore: HKHealthStoreMock!
     var glucoseStore: GlucoseStore!
-    var completion: XCTestExpectation!
     var queryAnchor: GlucoseStore.QueryAnchor!
     var limit: Int!
 
@@ -104,7 +103,6 @@ class GlucoseStoreRemoteDataServiceQueryTests: PersistenceControllerTestCase {
         glucoseStore = await GlucoseStore(cacheStore: cacheStore,
                                     provenanceIdentifier: Bundle.main.bundleIdentifier!)
 
-        completion = expectation(description: "Completion")
         queryAnchor = GlucoseStore.QueryAnchor()
         limit = Int.max
     }
@@ -112,173 +110,98 @@ class GlucoseStoreRemoteDataServiceQueryTests: PersistenceControllerTestCase {
     override func tearDown() async throws {
         limit = nil
         queryAnchor = nil
-        completion = nil
         glucoseStore = nil
         healthStore = nil
 
         try await super.tearDown()
     }
 
-    func testEmptyWithDefaultQueryAnchor() {
-        glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 0)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 30, enforceOrder: true)
+    func testEmptyWithDefaultQueryAnchor() async throws {
+        let (anchor, data) = try await glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit)
+        XCTAssertEqual(anchor.modificationCounter, 0)
+        XCTAssertEqual(data.count, 0)
     }
     
-    func testEmptyWithMissingQueryAnchor() {
-        queryAnchor = nil
-
-        glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 0)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 30, enforceOrder: true)
+    func testEmptyWithMissingQueryAnchor() async throws {
+        let (anchor, data) = try await glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit)
+        XCTAssertEqual(anchor.modificationCounter, 0)
+        XCTAssertEqual(data.count, 0)
     }
     
-    func testEmptyWithNonDefaultQueryAnchor() {
+    func testEmptyWithNonDefaultQueryAnchor() async throws {
         queryAnchor.modificationCounter = 1
 
-        glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 1)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 30, enforceOrder: true)
+        let (anchor, data) = try await glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit)
+        XCTAssertEqual(anchor.modificationCounter, 1)
+        XCTAssertEqual(data.count, 0)
     }
     
-    func testDataWithUnusedQueryAnchor() {
+    func testDataWithUnusedQueryAnchor() async throws {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
         
         addData(withSyncIdentifiers: syncIdentifiers)
         
-        glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 3)
-                XCTAssertEqual(data.count, 3)
-                for (index, syncIdentifier) in syncIdentifiers.enumerated() {
-                    XCTAssertEqual(data[index].syncIdentifier, syncIdentifier)
-                    XCTAssertEqual(data[index].syncVersion, index)
-                }
-            }
-            self.completion.fulfill()
+        let (anchor, data) = try await glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit)
+        XCTAssertEqual(anchor.modificationCounter, 3)
+        XCTAssertEqual(data.count, 3)
+        for (index, syncIdentifier) in syncIdentifiers.enumerated() {
+            XCTAssertEqual(data[index].syncIdentifier, syncIdentifier)
+            XCTAssertEqual(data[index].syncVersion, index)
         }
-        
-        wait(for: [completion], timeout: 30, enforceOrder: true)
     }
     
-    func testDataWithStaleQueryAnchor() {
+    func testDataWithStaleQueryAnchor() async throws {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
         
         addData(withSyncIdentifiers: syncIdentifiers)
         
         queryAnchor.modificationCounter = 2
         
-        glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 3)
-                XCTAssertEqual(data.count, 1)
-                XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[2])
-                XCTAssertEqual(data[0].syncVersion, 2)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 30, enforceOrder: true)
+        let (anchor, data) = try await glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit)
+        XCTAssertEqual(anchor.modificationCounter, 3)
+        XCTAssertEqual(data.count, 1)
+        XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[2])
+        XCTAssertEqual(data[0].syncVersion, 2)
     }
     
-    func testDataWithCurrentQueryAnchor() {
+    func testDataWithCurrentQueryAnchor() async throws {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
         
         addData(withSyncIdentifiers: syncIdentifiers)
         
         queryAnchor.modificationCounter = 3
         
-        glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 3)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 30, enforceOrder: true)
+        let (anchor, data) = try await glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit)
+        XCTAssertEqual(anchor.modificationCounter, 3)
+        XCTAssertEqual(data.count, 0)
     }
 
-    func testDataWithLimitZero() {
+    func testDataWithLimitZero() async throws {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
 
         addData(withSyncIdentifiers: syncIdentifiers)
 
         limit = 0
 
-        glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 0)
-                XCTAssertEqual(data.count, 0)
-            }
-            self.completion.fulfill()
-        }
-
-        wait(for: [completion], timeout: 30, enforceOrder: true)
+        let (anchor, data) = try await glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit)
+        XCTAssertEqual(anchor.modificationCounter, 0)
+        XCTAssertEqual(data.count, 0)
     }
 
-    func testDataWithLimitCoveredByData() {
+    func testDataWithLimitCoveredByData() async throws {
         let syncIdentifiers = [generateSyncIdentifier(), generateSyncIdentifier(), generateSyncIdentifier()]
         
         addData(withSyncIdentifiers: syncIdentifiers)
         
         limit = 2
         
-        glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit) { result in
-            switch result {
-            case .failure(let error):
-                XCTFail("Unexpected failure: \(error)")
-            case .success(let anchor, let data):
-                XCTAssertEqual(anchor.modificationCounter, 2)
-                XCTAssertEqual(data.count, 2)
-                XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[0])
-                XCTAssertEqual(data[0].syncVersion, 0)
-                XCTAssertEqual(data[1].syncIdentifier, syncIdentifiers[1])
-                XCTAssertEqual(data[1].syncVersion, 1)
-            }
-            self.completion.fulfill()
-        }
-        
-        wait(for: [completion], timeout: 30, enforceOrder: true)
+        let (anchor, data) = try await glucoseStore.executeGlucoseQuery(fromQueryAnchor: queryAnchor, limit: limit)
+        XCTAssertEqual(anchor.modificationCounter, 2)
+        XCTAssertEqual(data.count, 2)
+        XCTAssertEqual(data[0].syncIdentifier, syncIdentifiers[0])
+        XCTAssertEqual(data[0].syncVersion, 0)
+        XCTAssertEqual(data[1].syncIdentifier, syncIdentifiers[1])
+        XCTAssertEqual(data[1].syncVersion, 1)
     }
     
     private func addData(withSyncIdentifiers syncIdentifiers: [String]) {

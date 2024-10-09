@@ -230,56 +230,12 @@ extension GlucoseStore {
     ///   - end: The latest date of glucose samples to retrieve, if provided.
     ///   - returns: An array of glucose samples, in chronological order by startDate, or error.
     public func getGlucoseSamples(start: Date? = nil, end: Date? = nil) async throws -> [StoredGlucoseSample] {
-        try await withCheckedThrowingContinuation { continuation in
-            queue.async {
-                let result = self.getGlucoseSamples(start: start, end: end)
-                switch result {
-                case .success(let samples):
-                    continuation.resume(returning: samples)
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+        try await cacheStore.managedObjectContext.perform {
+            try self.getCachedGlucoseObjects(start: start, end: end).map { StoredGlucoseSample(managedObject: $0) }
         }
-    }
-
-    /// Retrieves glucose samples within the specified date range.
-    ///
-    /// - Parameters:
-    ///   - start: The earliest date of glucose samples to retrieve, if provided.
-    ///   - end: The latest date of glucose samples to retrieve, if provided.
-    ///   - completion: A closure called once the glucose samples have been retrieved.
-    ///   - result: An array of glucose samples, in chronological order by startDate, or error.
-    public func getGlucoseSamples(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[StoredGlucoseSample], Error>) -> Void) {
-        queue.async {
-            completion(self.getGlucoseSamples(start: start, end: end))
-        }
-    }
-
-    private func getGlucoseSamples(start: Date? = nil, end: Date? = nil) -> Result<[StoredGlucoseSample], Error> {
-        dispatchPrecondition(condition: .onQueue(queue))
-
-        var samples: [StoredGlucoseSample] = []
-        var error: Error?
-
-        cacheStore.managedObjectContext.performAndWait {
-            do {
-                samples = try self.getCachedGlucoseObjects(start: start, end: end).map { StoredGlucoseSample(managedObject: $0) }
-            } catch let coreDataError {
-                error = coreDataError
-            }
-        }
-
-        if let error = error {
-            return .failure(error)
-        }
-
-        return .success(samples)
     }
 
     private func getCachedGlucoseObjects(start: Date? = nil, end: Date? = nil) throws -> [CachedGlucoseObject] {
-        dispatchPrecondition(condition: .onQueue(queue))
-
         var predicates: [NSPredicate] = []
         if let start = start {
             predicates.append(NSPredicate(format: "startDate >= %@", start as NSDate))
@@ -446,23 +402,16 @@ extension GlucoseStore {
     /// - Parameters:
     ///   - since: Only consider glucose valid after or at this date
     /// - Returns: The latest CGM glucose, if available in the time period specified
-    public func getLatestCGMGlucose(since: Date, completion: @escaping (_ result: Result<StoredGlucoseSample?, Error>) -> Void) {
-        queue.async {
-            self.cacheStore.managedObjectContext.performAndWait {
-                let request: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
-                request.predicate = NSPredicate(format: "startDate >= %@ AND wasUserEntered == NO", since as NSDate)
-                request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: false)]
-                request.fetchLimit = 1
+    public func getLatestCGMGlucose(since: Date) async throws -> StoredGlucoseSample? {
+        try await self.cacheStore.managedObjectContext.perform {
+            let request: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
+            request.predicate = NSPredicate(format: "startDate >= %@ AND wasUserEntered == NO", since as NSDate)
+            request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: false)]
+            request.fetchLimit = 1
 
-                do {
-                    let objects = try self.cacheStore.managedObjectContext.fetch(request)
-                    let samples = objects.map { StoredGlucoseSample(managedObject: $0) }
-                    completion(.success(samples.first))
-                } catch let error {
-                    self.log.error("Error in getLatestCGMGlucose: %{public}@", String(describing: error))
-                    completion(.failure(error))
-                }
-            }
+            let objects = try self.cacheStore.managedObjectContext.fetch(request)
+            let samples = objects.map { StoredGlucoseSample(managedObject: $0) }
+            return samples.first
         }
     }
 }
@@ -472,36 +421,11 @@ extension GlucoseStore {
 extension GlucoseStore {
 
     /// Get glucose samples in main app to deliver to Watch extension
-    public func getSyncGlucoseSamples(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[StoredGlucoseSample], Error>) -> Void) {
-        queue.async {
-            var samples: [StoredGlucoseSample] = []
-            var error: Error?
-
-            self.cacheStore.managedObjectContext.performAndWait {
-                do {
-                    samples = try self.getCachedGlucoseObjects(start: start, end: end).map { StoredGlucoseSample(managedObject: $0) }
-                } catch let coreDataError {
-                    error = coreDataError
-                }
-            }
-
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            completion(.success(samples))
-        }
-    }
-
     public func getSyncGlucoseSamples(start: Date? = nil, end: Date? = nil) async throws -> [StoredGlucoseSample] {
-        try await withCheckedThrowingContinuation { continuation in
-            getSyncGlucoseSamples(start: start, end: end) { result in
-                continuation.resume(with: result)
-            }
+        try await self.cacheStore.managedObjectContext.perform {
+            try self.getCachedGlucoseObjects(start: start, end: end).map { StoredGlucoseSample(managedObject: $0) }
         }
     }
-
 
     /// Store glucose samples in Watch extension
     public func setSyncGlucoseSamples(_ objects: [StoredGlucoseSample]) async throws {
@@ -606,9 +530,7 @@ extension GlucoseStore {
     private func handleUpdatedGlucoseData() async {
         await self.purgeExpiredCachedGlucoseObjects()
         await self.updateLatestGlucose()
-        Task {
-            await self.saveSamplesToHealthKit()
-        }
+        await self.saveSamplesToHealthKit()
 
         NotificationCenter.default.post(name: GlucoseStore.glucoseSamplesDidChange, object: self)
         delegate?.glucoseStoreHasUpdatedGlucoseData(self)
@@ -646,43 +568,29 @@ extension GlucoseStore {
         case failure(Error)
     }
 
-    public func executeGlucoseQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int, completion: @escaping (GlucoseQueryResult) -> Void) {
-        queue.async {
-            var queryAnchor = queryAnchor ?? QueryAnchor()
-            var queryResult = [StoredGlucoseSample]()
-            var queryError: Error?
+    public func executeGlucoseQuery(fromQueryAnchor queryAnchor: QueryAnchor?, limit: Int) async throws -> (QueryAnchor, [StoredGlucoseSample]) {
+        var queryAnchor = queryAnchor ?? QueryAnchor()
+        var queryResult = [StoredGlucoseSample]()
 
-            guard limit > 0 else {
-                completion(.success(queryAnchor, []))
-                return
-            }
-
-            self.cacheStore.managedObjectContext.performAndWait {
-                let storedRequest: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
-
-                storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter)
-                storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
-                storedRequest.fetchLimit = limit
-
-                do {
-                    let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
-                    if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
-                        queryAnchor.modificationCounter = modificationCounter
-                    }
-                    queryResult.append(contentsOf: stored.compactMap { StoredGlucoseSample(managedObject: $0) })
-                } catch let error {
-                    queryError = error
-                    return
-                }
-            }
-
-            if let queryError = queryError {
-                completion(.failure(queryError))
-                return
-            }
-
-            completion(.success(queryAnchor, queryResult))
+        guard limit > 0 else {
+            return (queryAnchor, [])
         }
+
+        try await self.cacheStore.managedObjectContext.perform {
+            let storedRequest: NSFetchRequest<CachedGlucoseObject> = CachedGlucoseObject.fetchRequest()
+
+            storedRequest.predicate = NSPredicate(format: "modificationCounter > %d", queryAnchor.modificationCounter)
+            storedRequest.sortDescriptors = [NSSortDescriptor(key: "modificationCounter", ascending: true)]
+            storedRequest.fetchLimit = limit
+
+            let stored = try self.cacheStore.managedObjectContext.fetch(storedRequest)
+            if let modificationCounter = stored.max(by: { $0.modificationCounter < $1.modificationCounter })?.modificationCounter {
+                queryAnchor.modificationCounter = modificationCounter
+            }
+            queryResult.append(contentsOf: stored.compactMap { StoredGlucoseSample(managedObject: $0) })
+        }
+
+        return (queryAnchor, queryResult)
     }
 }
 
@@ -818,33 +726,29 @@ extension GlucoseStore {
     ///
     /// - parameter completionHandler: A closure called once the report has been generated. The closure takes a single argument of the report string.
     public func generateDiagnosticReport() async -> String {
-        await withCheckedContinuation { continuation in
-            queue.async {
-                var report: [String] = [
-                    "## GlucoseStore",
-                    "",
-                    "* latestGlucoseValue: \(String(reflecting: self.latestGlucose))",
-                    "* managedDataInterval: \(self.managedDataInterval ?? 0)",
-                    "* cacheLength: \(self.cacheLength)",
-                    "* momentumDataInterval: \(self.momentumDataInterval)",
-                    "* HealthKitSampleStore: \(self.hkSampleStore?.debugDescription ?? "nil")",
-                    "",
-                    "### cachedGlucoseSamples",
-                ]
+        var report: [String] = [
+            "## GlucoseStore",
+            "",
+            "* latestGlucoseValue: \(String(reflecting: self.latestGlucose))",
+            "* managedDataInterval: \(self.managedDataInterval ?? 0)",
+            "* cacheLength: \(self.cacheLength)",
+            "* momentumDataInterval: \(self.momentumDataInterval)",
+            "* HealthKitSampleStore: \(self.hkSampleStore?.debugDescription ?? "nil")",
+            "",
+            "### cachedGlucoseSamples",
+        ]
 
-                switch self.getGlucoseSamples(start: Date(timeIntervalSinceNow: -.hours(24))) {
-                case .failure(let error):
-                    report.append("Error: \(error)")
-                case .success(let samples):
-                    for sample in samples {
-                        report.append(String(describing: sample))
-                    }
-                }
-
-                report.append("")
-
-                continuation.resume(returning: report.joined(separator: "\n"))
+        do {
+            let samples = try await self.getGlucoseSamples(start: Date(timeIntervalSinceNow: -.hours(24)))
+            for sample in samples {
+                report.append(String(describing: sample))
             }
+        } catch {
+            report.append("Error: \(error)")
         }
+
+        report.append("")
+
+        return report.joined(separator: "\n")
     }
 }
