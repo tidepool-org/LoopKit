@@ -862,11 +862,6 @@ extension DoseStore {
             try self.getNormalizedPumpEventDoseEntriesForSavingToInsulinDeliveryStore(basalStart: startingAt, end: self.currentDate())
         }
 
-        guard !doses.isEmpty else
-        {
-            return []
-        }
-
         guard let delegate = self.delegate else {
             throw DoseStoreError.configurationError
         }

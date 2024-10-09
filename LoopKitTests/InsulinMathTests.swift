@@ -604,6 +604,40 @@ class InsulinMathTests: XCTestCase {
         XCTAssertTrue(trimmed.last!.isMutable)
     }
 
+    func testOverlayBasalWithUnfinishedSuspend() {
+        let dateFormatter = ISO8601DateFormatter.localTimeDate(timeZone: fixtureTimeZone)
+        let startDate = dateFormatter.date(from: "2015-10-15T22:25:50")!
+        let doses = [
+            DoseEntry(
+                type: .suspend,
+                startDate: startDate,
+                value: 0,
+                unit: .units,
+                description: "Suspend",
+                syncIdentifier: "SuspendSyncIdentifier",
+                manuallyEntered: false,
+                isMutable: true,
+                wasProgrammedByPumpUI: false
+            )
+        ]
+
+        let now = startDate.addingTimeInterval(.hours(1))
+
+        let basals = [
+            AbsoluteScheduleValue(startDate: startDate.addingTimeInterval(.hours(-1)), endDate: now, value: 1.0)
+        ]
+
+        let dosesWithBasal = doses.overlayBasal(basals, endDate: now, lastPumpEventsReconciliation: now)
+
+        XCTAssertEqual(2, dosesWithBasal.count)
+
+        XCTAssertEqual(.basal, dosesWithBasal[0].type)
+        XCTAssertEqual(.hours(1), dosesWithBasal[0].duration)
+
+        XCTAssertEqual(.suspend, dosesWithBasal[1].type)
+        XCTAssertEqual(.hours(1), dosesWithBasal[1].duration)
+    }
+
     func testDosesOverlayBasalProfile() {
         let dateFormatter = ISO8601DateFormatter.localTimeDate(timeZone: fixtureTimeZone)
         let input = loadDoseFixture("reconcile_history_output").sorted { $0.startDate < $1.startDate }
@@ -784,11 +818,11 @@ class InsulinMathTests: XCTestCase {
 
         let scheduledBasalRate = HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.2)
         let expected = [
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:00:00 +0000"), endDate: f("2018-07-11 04:07:15 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T04:00:00Z", scheduledBasalRate: scheduledBasalRate, automatic: true),
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:00:00 +0000"), endDate: f("2018-07-11 04:07:15 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T04:00:00Z", scheduledBasalRate: scheduledBasalRate),
             DoseEntry(type: .tempBasal, startDate: f("2018-07-11 04:07:15 +0000"), endDate: f("2018-07-11 04:12:15 +0000"), value: 0.67500000000000004, unit: .unitsPerHour),
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:12:15 +0000"), endDate: f("2018-07-11 04:31:55 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T04:12:15Z", scheduledBasalRate: scheduledBasalRate, automatic: true),
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 04:12:15 +0000"), endDate: f("2018-07-11 04:31:55 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T04:12:15Z", scheduledBasalRate: scheduledBasalRate),
             DoseEntry(type: .suspend,   startDate: f("2018-07-11 04:31:55 +0000"), endDate: f("2018-07-11 05:01:14 +0000"), value: 0.0, unit: .units),
-            DoseEntry(type: .basal,     startDate: f("2018-07-11 05:01:14 +0000"), endDate: f("2018-07-11 05:02:15 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T05:01:14Z", scheduledBasalRate: scheduledBasalRate, automatic: true),
+            DoseEntry(type: .basal,     startDate: f("2018-07-11 05:01:14 +0000"), endDate: f("2018-07-11 05:02:15 +0000"), value: 1.2, unit: .unitsPerHour, syncIdentifier: "BasalRateSchedule 2018-07-11T05:01:14Z", scheduledBasalRate: scheduledBasalRate),
             DoseEntry(type: .tempBasal, startDate: f("2018-07-11 05:02:15 +0000"), endDate: f("2018-07-11 05:32:15 +0000"), value: 0.0, unit: .unitsPerHour)
         ]
 
@@ -1209,7 +1243,6 @@ class InsulinMathTests: XCTestCase {
         XCTAssertEqual(delivery * 1.0/5.0, splitDoses[0].volume, accuracy: .ulpOfOne)
         XCTAssertEqual(delivery * 4.0/5.0, splitDoses[1].volume, accuracy: .ulpOfOne)
     }
-
 }
 
 
