@@ -183,15 +183,15 @@ extension InsulinDeliveryStore {
     ///   - end: The latest date of dose entries to retrieve, if provided.
     ///   - includeMutable: Whether to include mutable dose entries or not. Defaults to false.
     ///   - returns: An array of dose entries, in chronological order by startDate, or error.
-    public func getDoseEntries(start: Date? = nil, end: Date? = nil, includeMutable: Bool = false) async throws -> [DoseEntry] {
+    public func getDoseEntries(start: Date? = nil, end: Date? = nil, includeMutable: Bool = false, includesDeleted: Bool = false) async throws -> [DoseEntry] {
         try await withCheckedThrowingContinuation { continuation in
             queue.async {
-                continuation.resume(with: self.getDoseEntriesInternal(start: start, end: end, includeMutable: includeMutable))
+                continuation.resume(with: self.getDoseEntriesInternal(start: start, end: end, includeMutable: includeMutable, includesDeleted: includesDeleted))
             }
         }
     }
 
-    private func getDoseEntriesInternal(start: Date? = nil, end: Date? = nil, includeMutable: Bool = false) -> Result<[DoseEntry], Error> {
+    private func getDoseEntriesInternal(start: Date? = nil, end: Date? = nil, includeMutable: Bool = false, includesDeleted: Bool = false) -> Result<[DoseEntry], Error> {
         dispatchPrecondition(condition: .onQueue(queue))
 
         var entries: [DoseEntry] = []
@@ -199,7 +199,7 @@ extension InsulinDeliveryStore {
 
         cacheStore.managedObjectContext.performAndWait {
             do {
-                entries = try self.getCachedInsulinDeliveryObjects(start: start, end: end, includeMutable: includeMutable).map { $0.dose }
+                entries = try self.getCachedInsulinDeliveryObjects(start: start, end: end, includeMutable: includeMutable, includesDeleted: includesDeleted).map { $0.dose }
             } catch let coreDataError {
                 error = coreDataError
             }
@@ -213,12 +213,12 @@ extension InsulinDeliveryStore {
         return .success(entries)
     }
 
-    private func getCachedInsulinDeliveryObjects(start: Date? = nil, end: Date? = nil, includeMutable: Bool = false) throws -> [CachedInsulinDeliveryObject] {
+    private func getCachedInsulinDeliveryObjects(start: Date? = nil, end: Date? = nil, includeMutable: Bool = false, includesDeleted: Bool = false) throws -> [CachedInsulinDeliveryObject] {
         dispatchPrecondition(condition: .onQueue(queue))
 
         // Match all doses whose start OR end dates fall in the start and end date range, if specified. Therefore, we ensure the
         // dose end date is AFTER the start date, if specified, and the dose start date is BEFORE the end date, if specified.
-        var predicates = [NSPredicate(format: "deletedAt == NIL")]
+        var predicates: [NSPredicate] = []
         if let start = start {
             predicates.append(NSPredicate(format: "endDate >= %@", start as NSDate))
         }
@@ -227,6 +227,9 @@ extension InsulinDeliveryStore {
         }
         if !includeMutable {
             predicates.append(NSPredicate(format: "isMutable == NO"))
+        }
+        if !includesDeleted {
+            predicates.append(NSPredicate(format: "deletedAt == NIL"))
         }
 
         let request: NSFetchRequest<CachedInsulinDeliveryObject> = CachedInsulinDeliveryObject.fetchRequest()
@@ -827,7 +830,7 @@ extension InsulinDeliveryStore {
         ]
 
         do {
-            let entries = try await getDoseEntries(start: Date(timeIntervalSinceNow: -.hours(24)), includeMutable: true)
+            let entries = try await getDoseEntries(start: Date(timeIntervalSinceNow: -.hours(24)), includeMutable: true, includesDeleted: true)
             for entry in entries {
                 report.append(String(describing: entry))
             }
