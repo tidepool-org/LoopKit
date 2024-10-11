@@ -244,7 +244,7 @@ class CachedInsulinDeliveryObjectDoseTests: PersistenceControllerTestCase {
             XCTAssertEqual(dose!.value, 1.5)
             XCTAssertEqual(dose!.unit, .unitsPerHour)
             XCTAssertEqual(dose!.deliveredUnits, 0.75)
-            XCTAssertEqual(dose!.description, nil)
+            XCTAssertEqual(dose!.description, "deletedAt: Optional(2020-01-02 04:34:06 +0000)")
             XCTAssertEqual(dose!.syncIdentifier, nil)
             XCTAssertEqual(dose!.scheduledBasalRate, HKQuantity(unit: .internationalUnitsPerHour, doubleValue: 1.0))
             XCTAssertFalse(dose!.isMutable)
