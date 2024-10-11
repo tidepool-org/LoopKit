@@ -201,7 +201,7 @@ extension CachedInsulinDeliveryObject {
             value: programmedValue,
             unit: unit,
             deliveredUnits: !isMutable ? deliveredUnits : nil,
-            description: nil,
+            description: deletedAt == nil ? nil : "deletedAt: \(String(describing: deletedAt))",
             syncIdentifier: syncIdentifier,
             scheduledBasalRate: scheduledBasalRate,
             insulinType: insulinType,
