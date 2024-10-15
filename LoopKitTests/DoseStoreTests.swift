@@ -725,7 +725,6 @@ class DoseStoreTests: PersistenceControllerTestCase {
             0.3,
             0.0,
             95.0,
-            0.0,
             0.53,
             180,  // Actual rate is 90U/h, but time quantization to seconds makes this high
             90,
@@ -743,6 +742,90 @@ class DoseStoreTests: PersistenceControllerTestCase {
             XCTAssertEqual(rate, expectedRate, accuracy: 0.05)
         }
 
+    }
+
+
+    func testReservoirSingleValueUsed() async throws {
+        let now = testingDate("2024-10-14 16:37:08 +0000")
+        let doseStore = await defaultStore(testingDate: now)
+
+        let pumpEvents = [
+            NewPumpEvent(
+                date: testingDate("2024-10-14 16:22:07 +0000"),
+                dose: DoseEntry(
+                    type: .tempBasal,
+                    startDate: testingDate("2024-10-14 16:22:07 +0000"),
+                    endDate: testingDate("2024-10-14 16:27:07 +0000"),
+                    value: 2.65,
+                    unit: .unitsPerHour,
+                    deliveredUnits: 0.02,
+                    syncIdentifier: "74656d70426173616c20312e33323520323032342d31302d31345431363a32323a30375a",
+                    automatic: true,
+                    isMutable: false
+                ),
+                raw: Data("74656d70426173616c20312e33323520323032342d31302d31345431363a32323a30375a".utf8),
+                title: "temp basal 1",
+                type: .tempBasal),
+            NewPumpEvent(
+                date: testingDate("2024-10-14 16:27:07 +0000"),
+                dose: DoseEntry(
+                    type: .tempBasal,
+                    startDate: testingDate(" 2024-10-14 16:27:07 +0000"),
+                    endDate: testingDate("2024-10-14 16:36:20 +0000"),
+                    value: 5.0,
+                    unit: .unitsPerHour,
+                    deliveredUnits: 0.75,
+                    syncIdentifier: "74656d70426173616c20322e3520323032342d31302d31345431363a32373a30375a",
+                    automatic: true,
+                    isMutable: false
+                ),
+                raw: Data("74656d70426173616c20322e3520323032342d31302d31345431363a32373a30375a".utf8),
+                title: "temp basal 1",
+                type: .tempBasal)
+        ]
+
+        // pump events reconciliation happened just before last reservoir reading
+        let lastPumpEventsReconciliation = testingDate("2024-10-14 16:37:08 +0000").addingTimeInterval(-0.1)
+        try await doseStore.addPumpEvents(pumpEvents, lastReconciliation: lastPumpEventsReconciliation)
+
+
+        var reservoirReadings = [
+            NewReservoirValue(startDate: testingDate("2024-10-14 16:37:08 +0000"), unitVolume: 102.55000000000132),
+            NewReservoirValue(startDate: testingDate("2024-10-14 16:32:07 +0000"), unitVolume: 103.30000000000132),
+            NewReservoirValue(startDate: testingDate("2024-10-14 16:27:07 +0000"), unitVolume: 103.50000000000132),
+            NewReservoirValue(startDate: testingDate("2024-10-14 16:17:07 +0000"), unitVolume: 103.95000000000132),
+            NewReservoirValue(startDate: testingDate("2024-10-14 16:07:07 +0000"), unitVolume: 104.40000000000133),
+            NewReservoirValue(startDate: testingDate("2024-10-14 16:02:07 +0000"), unitVolume: 104.50000000000132),
+            NewReservoirValue(startDate: testingDate("2024-10-14 15:52:07 +0000"), unitVolume: 104.70000000000132),
+            NewReservoirValue(startDate: testingDate("2024-10-14 15:47:07 +0000"), unitVolume: 104.80000000000132),
+            NewReservoirValue(startDate: testingDate("2024-10-14 15:37:07 +0000"), unitVolume: 104.90000000000131),
+            NewReservoirValue(startDate: testingDate("2024-10-14 15:27:07 +0000"), unitVolume: 105.10000000000132),
+            NewReservoirValue(startDate: testingDate("2024-10-14 15:17:07 +0000"), unitVolume: 105.20000000000131),
+            NewReservoirValue(startDate: testingDate("2024-10-14 15:07:07 +0000"), unitVolume: 105.3000000000013),
+            NewReservoirValue(startDate: testingDate("2024-10-14 14:57:07 +0000"), unitVolume: 105.4000000000013),
+            NewReservoirValue(startDate: testingDate("2024-10-14 14:42:07 +0000"), unitVolume: 105.7500000000013),
+            NewReservoirValue(startDate: testingDate("2024-10-14 14:37:07 +0000"), unitVolume: 105.85000000000129),
+            NewReservoirValue(startDate: testingDate("2024-10-14 14:27:07 +0000"), unitVolume: 106.10000000000129),
+            NewReservoirValue(startDate: testingDate("2024-10-14 14:22:07 +0000"), unitVolume: 106.20000000000128),
+            NewReservoirValue(startDate: testingDate("2024-10-14 14:17:07 +0000"), unitVolume: 106.30000000000128),
+            NewReservoirValue(startDate: testingDate("2024-10-14 14:12:07 +0000"), unitVolume: 106.40000000000127)
+        ]
+
+        // Add more entries to make the reservoir history go back long enough to be considered continuous
+        var date = reservoirReadings.last!.startDate
+        var value = reservoirReadings.last!.unitVolume
+        while date > now.addingTimeInterval(-.hours(6)) {
+            date = date.addingTimeInterval(-.minutes(5))
+            value -= 0.05
+            reservoirReadings.append(NewReservoirValue(startDate: date, unitVolume: value))
+        }
+
+        for reading in reservoirReadings.reversed() {
+            let (_, _, _) = try await doseStore.addReservoirValue(reading.unitVolume, at: reading.startDate)
+        }
+
+        let doses = try await doseStore.getNormalizedDoseEntries(start: now.addingTimeInterval(-.hours(6)), end: now)
+        XCTAssertEqual(3, doses.count)
     }
 
 
