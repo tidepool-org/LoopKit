@@ -826,6 +826,10 @@ class DoseStoreTests: PersistenceControllerTestCase {
 
         let doses = try await doseStore.getNormalizedDoseEntries(start: now.addingTimeInterval(-.hours(6)), end: now)
         XCTAssertEqual(3, doses.count)
+
+        XCTAssertEqual(0.02, doses[0].deliveredUnits!, accuracy: 0.01) // First temp basal
+        XCTAssertEqual(0.41, doses[1].deliveredUnits!, accuracy: 0.01) // Part of second temp
+        XCTAssertEqual(0.75, doses[2].deliveredUnits!, accuracy: 0.01) // Reservoir
     }
 
 
