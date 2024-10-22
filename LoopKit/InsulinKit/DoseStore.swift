@@ -1016,7 +1016,7 @@ extension DoseStore {
         // Ignore any doses that are not a bolus which have not yet ended by the specified date.
         // Also, since we are retrieving dosing history older than basalStart for
         // reconciliation purposes, we need to filter that out after reconciliation.
-        assert(doses.contains(where: { $0.endDate > end && !$0.isMutable }), "There is a dose that ends in the future but is immutable")
+        assert(!doses.contains(where: { $0.endDate > end && !$0.isMutable }), "There is a dose that ends in the future but is immutable")
         let normalizedDoses = doses.reconciled().filter({ $0.type == .bolus || $0.endDate <= end || $0.isMutable }).filter({ $0.startDate >= basalStart || $0.type == .bolus })
 
         return normalizedDoses
