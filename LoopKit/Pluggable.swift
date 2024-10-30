@@ -16,10 +16,10 @@ public protocol Pluggable: AnyObject {
     
     /// A plugin may require another plugin. This callback informs this dependency.
     /// Often this is called as apart of `initializationComplete(for pluggables: [Pluggable])`
-    func isDependency(_ isDependency: Bool)
+    func markAsDepedency(_ isDependency: Bool)
 }
 
 public extension Pluggable {
     func initializationComplete(for pluggables: [Pluggable]) { } // optional
-    func isDependency(_ isDependency: Bool) { } // optional
+    func markAsDepedency(_ isDependency: Bool) { } // optional
 }
