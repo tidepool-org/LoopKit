@@ -12,6 +12,58 @@ import LoopAlgorithm
 
 @testable import LoopKit
 
+fileprivate struct SimpleInsulinDose: InsulinDose {
+    var deliveryType: InsulinDeliveryType
+    var startDate: Date
+    var endDate: Date
+    var volume: Double
+    var insulinModel: InsulinModel
+}
+
+fileprivate struct StoredDataAlgorithmInput: AlgorithmInput {
+    typealias CarbType = StoredCarbEntry
+
+    typealias GlucoseType = StoredGlucoseSample
+
+    typealias InsulinDoseType = SimpleInsulinDose
+
+    var glucoseHistory: [StoredGlucoseSample]
+    
+    var doses: [SimpleInsulinDose]
+
+    var carbEntries: [StoredCarbEntry]
+    
+    var predictionStart: Date
+    
+    var basal: [AbsoluteScheduleValue<Double>]
+    
+    var sensitivity: [AbsoluteScheduleValue<LoopQuantity>]
+    
+    var carbRatio: [AbsoluteScheduleValue<Double>]
+    
+    var target: GlucoseRangeTimeline
+    
+    var suspendThreshold: LoopQuantity?
+    
+    var maxBolus: Double
+    
+    var maxBasalRate: Double
+    
+    var useIntegralRetrospectiveCorrection: Bool
+    
+    var includePositiveVelocityAndRC: Bool
+    
+    var carbAbsorptionModel: CarbAbsorptionModel
+    
+    var recommendationInsulinModel: InsulinModel
+    
+    var recommendationType: DoseRecommendationType
+    
+    var automaticBolusApplicationFactor: Double?
+
+    let useMidAbsorptionISF: Bool = true
+}
+
 extension TimeZone {
     static var fixtureTimeZone: TimeZone {
         return TimeZone(secondsFromGMT: 25200)! // -0700
@@ -366,7 +418,7 @@ class TemporaryScheduleOverrideTests: XCTestCase {
         XCTAssertEqual(expectedValues, values)
     }
 
-    func testTargetOverride() {
+    func testTargetOverridePremeal() {
         let scheduledRange = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 100)...LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 110)
         let overrideRange = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 80)...LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 90)
 
@@ -443,6 +495,189 @@ class TemporaryScheduleOverrideTests: XCTestCase {
 
         values = applied.map { $0.value }
         XCTAssertEqual([scheduledRange], values)
+    }
+    
+    func testTargetOverrideWorkoutPrediction() {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        let now = startOfDay.addingTimeInterval(.hours(12))
+        let scheduledRange = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 100)...LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 110)
+        let overrideRange = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 140)...LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 160)
+
+        let overrideDuration = TimeInterval(hours: 2)
+        var overrides: [TemporaryScheduleOverride] = [
+            .init(
+                context: .legacyWorkout,
+                settings: .init(targetRange: overrideRange),
+                startDate: now,
+                duration: .finite(overrideDuration),
+                enactTrigger: .local,
+                syncIdentifier: UUID()
+            )
+        ]
+
+        // sensitivity with overrides
+        let sensitivity1Value = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 45)
+        let sensitivity2Value = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 55)
+        let sensitivity1End = TimeInterval(hours: 9)
+        let sensitivity2End = TimeInterval(hours: 24)
+        let sensitivity: [AbsoluteScheduleValue<LoopQuantity>] = [
+            AbsoluteScheduleValue(startDate: startOfDay, endDate: startOfDay.addingTimeInterval(sensitivity1End), value: sensitivity1Value),
+            AbsoluteScheduleValue(startDate: startOfDay.addingTimeInterval(.hours(9)), endDate: startOfDay.addingTimeInterval(sensitivity2End), value: sensitivity2Value),
+        ]
+        let sensitivityWithOverrides = overrides.applySensitivity(over: sensitivity)
+        XCTAssertEqual(sensitivityWithOverrides.count, 4)
+        XCTAssertEqual(sensitivityWithOverrides[0].startDate, startOfDay)
+        XCTAssertEqual(sensitivityWithOverrides[0].endDate, startOfDay.addingTimeInterval(sensitivity1End))
+        XCTAssertEqual(sensitivityWithOverrides[0].value, sensitivity1Value)
+        XCTAssertEqual(sensitivityWithOverrides[1].startDate, startOfDay.addingTimeInterval(sensitivity1End))
+        XCTAssertEqual(sensitivityWithOverrides[1].endDate, now)
+        XCTAssertEqual(sensitivityWithOverrides[1].value, sensitivity2Value)
+        XCTAssertEqual(sensitivityWithOverrides[2].startDate, now)
+        XCTAssertEqual(sensitivityWithOverrides[2].endDate, now.addingTimeInterval(overrideDuration))
+        XCTAssertEqual(sensitivityWithOverrides[2].value, sensitivity2Value)
+        XCTAssertEqual(sensitivityWithOverrides[3].startDate, now.addingTimeInterval(overrideDuration))
+        XCTAssertEqual(sensitivityWithOverrides[3].endDate, startOfDay.addingTimeInterval(sensitivity2End))
+        XCTAssertEqual(sensitivityWithOverrides[3].value, sensitivity2Value)
+
+        // Basal with overrides
+        let basal1Value = 1.0
+        let basal2Value = 0.85
+        let basal1End = TimeInterval(hours: 17)
+        let basal2End = TimeInterval(hours: 24)
+        let basal: [AbsoluteScheduleValue<Double>] = [
+            AbsoluteScheduleValue(startDate: startOfDay, endDate: startOfDay.addingTimeInterval(basal1End), value: basal1Value),
+            AbsoluteScheduleValue(startDate: startOfDay.addingTimeInterval(basal1End), endDate: startOfDay.addingTimeInterval(basal2End), value: basal2Value),
+        ]
+        let basalWithOverrides = overrides.applyBasal(over: basal)
+        XCTAssertEqual(basalWithOverrides.count, 4)
+        XCTAssertEqual(basalWithOverrides[0].startDate, startOfDay)
+        XCTAssertEqual(basalWithOverrides[0].endDate, now)
+        XCTAssertEqual(basalWithOverrides[0].value, basal1Value)
+        XCTAssertEqual(basalWithOverrides[1].startDate, now)
+        XCTAssertEqual(basalWithOverrides[1].endDate, now.addingTimeInterval(overrideDuration))
+        XCTAssertEqual(basalWithOverrides[1].value, basal1Value)
+        XCTAssertEqual(basalWithOverrides[2].startDate, now.addingTimeInterval(overrideDuration))
+        XCTAssertEqual(basalWithOverrides[2].endDate, startOfDay.addingTimeInterval(basal1End))
+        XCTAssertEqual(basalWithOverrides[2].value, basal1Value)
+        XCTAssertEqual(basalWithOverrides[3].startDate, startOfDay.addingTimeInterval(basal1End))
+        XCTAssertEqual(basalWithOverrides[3].endDate, startOfDay.addingTimeInterval(basal2End))
+        XCTAssertEqual(basalWithOverrides[3].value, basal2Value)
+        
+        // carb ratio with overrides
+        let carbRatio1Value = 10.0
+        let carbRatio1End = TimeInterval(hours: 24)
+        let carbRatio: [AbsoluteScheduleValue<Double>] = [
+            AbsoluteScheduleValue(startDate: startOfDay, endDate: startOfDay.addingTimeInterval(carbRatio1End), value: carbRatio1Value),
+        ]
+        let carbRatioWithOverrides = overrides.applyBasal(over: carbRatio)
+        XCTAssertEqual(carbRatioWithOverrides.count, 3)
+        XCTAssertEqual(carbRatioWithOverrides[0].startDate, startOfDay)
+        XCTAssertEqual(carbRatioWithOverrides[0].endDate, now)
+        XCTAssertEqual(carbRatioWithOverrides[0].value, carbRatio1Value)
+        XCTAssertEqual(carbRatioWithOverrides[1].startDate, now)
+        XCTAssertEqual(carbRatioWithOverrides[1].endDate, now.addingTimeInterval(overrideDuration))
+        XCTAssertEqual(carbRatioWithOverrides[1].value, carbRatio1Value)
+        XCTAssertEqual(carbRatioWithOverrides[2].startDate, now.addingTimeInterval(overrideDuration))
+        XCTAssertEqual(carbRatioWithOverrides[2].endDate, startOfDay.addingTimeInterval(carbRatio1End))
+        XCTAssertEqual(carbRatioWithOverrides[2].value, carbRatio1Value)
+        
+        // target with overrides
+        let targetDuration = TimeInterval.hours(8)
+        let target = [
+            AbsoluteScheduleValue(
+                startDate: now.addingTimeInterval(-overrideDuration),
+                endDate: now.addingTimeInterval(targetDuration),
+                value: scheduledRange
+            ),
+        ]
+        
+        var targetWithOverrides = overrides.applyTarget(over: target, at: now)
+        var expetedRange = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 100.0)...LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 110.0)
+        XCTAssertEqual(targetWithOverrides.count, 2)
+        XCTAssertEqual(targetWithOverrides.first?.value, expetedRange)
+        XCTAssertEqual(targetWithOverrides.first?.startDate, now.addingTimeInterval(-overrideDuration))
+        expetedRange = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 140.0)...LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 160.0)
+        XCTAssertEqual(targetWithOverrides.first?.endDate, now)
+        XCTAssertEqual(targetWithOverrides.last?.value, expetedRange)
+        XCTAssertEqual(targetWithOverrides.last?.startDate, now)
+        XCTAssertEqual(targetWithOverrides.last?.endDate, now.addingTimeInterval(targetDuration))
+        
+        // algorithm input
+        let doses: [DoseEntry] = [
+            DoseEntry(type: .tempBasal, startDate: now.addingTimeInterval(-overrideDuration), value: 0, unit: .unitsPerHour),
+            DoseEntry(type: .tempBasal, startDate: now.addingTimeInterval(-(overrideDuration - .minutes(30)*1)), value: 1.15, unit: .unitsPerHour),
+            DoseEntry(type: .basal, startDate: now.addingTimeInterval(-(overrideDuration - .minutes(30)*2)), value: 1, unit: .unitsPerHour),
+            DoseEntry(type: .tempBasal, startDate: now.addingTimeInterval(-(overrideDuration - .minutes(30)*3)), value: 0.95, unit: .unitsPerHour),
+            DoseEntry(type: .tempBasal, startDate: now.addingTimeInterval(-(overrideDuration - .minutes(30)*4)), value: 0.80, unit: .unitsPerHour),
+        ]
+        let dosesWithModel = doses.map { SimpleInsulinDose(deliveryType: $0.type == .bolus ? .bolus : .basal, startDate: $0.startDate, endDate: $0.endDate, volume: $0.deliveredUnits ?? $0.programmedUnits, insulinModel: ExponentialInsulinModelPreset.rapidActingAdult.model) }
+
+        let correctionRange = target.closestPrior(to: now)?.value
+        let carbEntry = StoredCarbEntry(startDate: now, quantity: LoopQuantity(unit: .gram, doubleValue: 10.0))
+        
+        let glucoseValues: [Double] = [146, 143, 141, 137, 134, 131, 128, 124, 121, 117,
+                                       114, 110, 107, 104, 101, 98, 95, 92, 90, 88,
+                                       86, 84, 83, 82, 81, 80, 80, 80, 80, 81,
+                                       81, 81, 82, 82, 83, 84, 85, 85, 87, 87,
+                                       89, 89, 90, 91, 91, 92, 94, 94, 98]
+        let timeIntervalStepSize = TimeInterval(minutes: 5)
+        var glucoseHistory: [StoredGlucoseSample] = []
+        var currentDate = Date().addingTimeInterval(-1*timeIntervalStepSize*Double(glucoseValues.count))
+        for (index, glucoseValue) in glucoseValues.enumerated() {
+            let uuid = UUID()
+            currentDate = currentDate.addingTimeInterval(timeIntervalStepSize)
+            var trendRate = 4.0/timeIntervalStepSize
+            if index < glucoseValues.count - 1 {
+                trendRate = (glucoseValues[index+1] - glucoseValues[index])/timeIntervalStepSize
+            }
+            glucoseHistory.append(
+                StoredGlucoseSample(uuid: uuid,
+                                    provenanceIdentifier: "org.tidepool.Loop",
+                                    syncIdentifier: uuid.uuidString,
+                                    syncVersion: 1,
+                                    startDate: currentDate,
+                                    quantity: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: glucoseValue),
+                                    trend: trendRate > 0 ? .upUp : .downDown,
+                                    trendRate: LoopQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: trendRate)))
+        }
+        
+        let effectiveBolusApplicationFactor: Double? = LoopAlgorithm.defaultBolusPartialApplicationFactor
+        
+        let input = StoredDataAlgorithmInput(
+            glucoseHistory: glucoseHistory,
+            doses: dosesWithModel,
+            carbEntries: [carbEntry],
+            predictionStart: now,
+            basal: basalWithOverrides,
+            sensitivity: sensitivityWithOverrides,
+            carbRatio: carbRatioWithOverrides,
+            target: targetWithOverrides,
+            suspendThreshold: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 75),
+            maxBolus: 10,
+            maxBasalRate: 5,
+            useIntegralRetrospectiveCorrection: false,
+            includePositiveVelocityAndRC: true,
+            carbAbsorptionModel: .linear,
+            recommendationInsulinModel: ExponentialInsulinModel(actionDuration: 21600, peakActivityTime: 4500, delay: 600),
+            recommendationType: .manualBolus,
+            automaticBolusApplicationFactor: effectiveBolusApplicationFactor)
+        
+        let prediction = LoopAlgorithm.generatePrediction(
+            start: input.predictionStart,
+            glucoseHistory: input.glucoseHistory,
+            doses: input.doses,
+            carbEntries: input.carbEntries,
+            basal: input.basal,
+            sensitivity: input.sensitivity,
+            carbRatio: input.carbRatio,
+            algorithmEffectsOptions: .all,
+            useIntegralRetrospectiveCorrection: input.useIntegralRetrospectiveCorrection,
+            includingPositiveVelocityAndRC: input.includePositiveVelocityAndRC,
+            useMidAbsorptionISF: input.useMidAbsorptionISF,
+            carbAbsorptionModel: input.carbAbsorptionModel.model)
+        print("!!! prediction.glucose.last!.quantity \(prediction.glucose.last!.quantity)")
+        XCTAssertTrue(prediction.glucose.last!.quantity > overrideRange.lowerBound)
+        XCTAssertTrue(prediction.glucose.last!.quantity < overrideRange.upperBound)
     }
 
     func testPreMealPreset() {
