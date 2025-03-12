@@ -770,6 +770,7 @@
 		C1A174EC23DEAD670034DF11 /* DeviceLogEntry+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8403723DB84B700673141 /* DeviceLogEntry+CoreDataClass.swift */; };
 		C1A174ED23DEAD6A0034DF11 /* DeviceLogEntry+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F8403823DB84B700673141 /* DeviceLogEntry+CoreDataProperties.swift */; };
 		C1A85A9C2A1C6E4500430101 /* HealthKitSampleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B8E6E42A1BB14E00AF38D0 /* HealthKitSampleStore.swift */; };
+		C1AC03982D6E2842004D4D2B /* Environment+TherapySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AC03972D6E283C004D4D2B /* Environment+TherapySettings.swift */; };
 		C1B431C62B90E31400D1DA9F /* LoopAlgorithm in Frameworks */ = {isa = PBXBuildFile; productRef = C1B431C52B90E31400D1DA9F /* LoopAlgorithm */; };
 		C1B431C82B90E3C800D1DA9F /* LoopAlgorithm in Frameworks */ = {isa = PBXBuildFile; productRef = C1B431C72B90E3C800D1DA9F /* LoopAlgorithm */; };
 		C1B8E6E52A1BB14E00AF38D0 /* HealthKitSampleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B8E6E42A1BB14E00AF38D0 /* HealthKitSampleStore.swift */; };
@@ -1752,6 +1753,7 @@
 		C1A4ED662981EE36008F4B1A /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Main.strings; sourceTree = "<group>"; };
 		C1AA4E0F2981EE4400888F32 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C1ABE38D2245CFCD00570E82 /* UnfairLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfairLock.swift; sourceTree = "<group>"; };
+		C1AC03972D6E283C004D4D2B /* Environment+TherapySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+TherapySettings.swift"; sourceTree = "<group>"; };
 		C1B0CFDB29C786BF0045B04D /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1B2679E2995824000BCB7C1 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C1B761F229C786D90098916A /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2931,6 +2933,7 @@
 				1D498E4624D892B0000627F2 /* Environment+Authenticate.swift */,
 				B45AF6EF24D4355A00EEAA4D /* Environment+Colors.swift */,
 				89BE75C62464B4A900B145D9 /* Environment+Dismiss.swift */,
+				C1AC03972D6E283C004D4D2B /* Environment+TherapySettings.swift */,
 				B429D66B24BF7204003E1B4A /* GlucoseTrend.swift */,
 				89186C0624BF7FC70003D0F3 /* Guardrail+UI.swift */,
 				C18733A929B9492300519CDF /* HKUnit.swift */,
@@ -4013,6 +4016,7 @@
 				C1E4B305242E98E900E70CCB /* ProgressView.swift in Sources */,
 				C16DA84522E9330A008624C2 /* LoopUIPlugin.swift in Sources */,
 				E93C86A624C8F7D90073089B /* ChartSettings+LoopKitUI.swift in Sources */,
+				C1AC03982D6E2842004D4D2B /* Environment+TherapySettings.swift in Sources */,
 				B46B62AD23FF0A87001E69BA /* LabeledDateView.swift in Sources */,
 				895FE06E22011E9A00FCF18A /* OverrideEmojiDataSource.swift in Sources */,
 				1452F4B02A85219100F8B9E4 /* AbsorptionTimePickerRow.swift in Sources */,
