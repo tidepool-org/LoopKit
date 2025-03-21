@@ -69,8 +69,8 @@ public struct TherapySettings: Equatable {
     }
 }
 
-public protocol TherapySettingsProvider {
-    var therapySettings: TherapySettings { get }
+public protocol OnboardingTherapySettingsProvider {
+    var onboardingTherapySettings: TherapySettings { get }
 }
 
 extension TherapySettings: Codable {
