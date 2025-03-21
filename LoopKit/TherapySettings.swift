@@ -69,10 +69,6 @@ public struct TherapySettings: Equatable {
     }
 }
 
-public protocol OnboardingTherapySettingsProvider {
-    var onboardingTherapySettings: TherapySettings { get }
-}
-
 extension TherapySettings: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

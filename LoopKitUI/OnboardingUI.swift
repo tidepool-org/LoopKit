@@ -121,6 +121,10 @@ public protocol ServiceProvider: AnyObject {
     var availableServices: [ServiceDescriptor] { get }
 }
 
+public protocol OnboardingTherapySettingsProvider {
+    var onboardingTherapySettings: TherapySettings { get }
+}
+
 public protocol SupportProvider: AnyObject {
     var availableSupports: [SupportUI] { get }
 }
