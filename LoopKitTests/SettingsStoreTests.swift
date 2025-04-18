@@ -930,10 +930,10 @@ fileprivate extension StoredSettings {
                                                                                                       end: dateFormatter.date(from: "2020-05-14T14:48:15Z")!))
         let preMealTargetRange = DoubleRange(minValue: 80.0, maxValue: 90.0).quantityRange(for: .milligramsPerDeciliter)
         let workoutTargetRange = DoubleRange(minValue: 150.0, maxValue: 160.0).quantityRange(for: .milligramsPerDeciliter)
-        let overridePresets = [TemporaryScheduleOverridePreset(id: UUID(uuidString: "2A67A303-5203-4CB8-8263-79498265368E")!,
+        let overridePresets = [TemporaryPreset(id: UUID(uuidString: "2A67A303-5203-4CB8-8263-79498265368E")!,
                                                                symbol: "🍎",
                                                                name: "Apple",
-                                                               settings: TemporaryScheduleOverrideSettings(unit: .milligramsPerDeciliter,
+                                                               settings: TemporaryPresetSettings(unit: .milligramsPerDeciliter,
                                                                                                            targetRange: DoubleRange(minValue: 130.0, maxValue: 140.0),
                                                                                                            insulinNeedsScaleFactor: 2.0),
                                                                duration: .finite(.minutes(60)))]
