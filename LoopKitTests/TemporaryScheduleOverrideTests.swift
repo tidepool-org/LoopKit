@@ -558,6 +558,7 @@ class TemporaryScheduleOverrideContextCodableTests: XCTestCase {
         "duration" : "indefinite",
         "id" : "238E41EA-9576-4981-A1A4-51E10228584F",
         "name" : "Rocket",
+        "repeatOptions" : 0,
         "settings" : {
           "targetRangeInMgdl" : {
             "maxValue" : 100,

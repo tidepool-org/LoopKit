@@ -285,6 +285,7 @@ class SettingsStorePersistenceTests: PersistenceControllerTestCase, SettingsStor
         },
         "id" : "2A67A303-5203-4CB8-8263-79498265368E",
         "name" : "Apple",
+        "repeatOptions" : 0,
         "settings" : {
           "insulinNeedsScaleFactor" : 2,
           "targetRangeInMgdl" : {
@@ -854,6 +855,7 @@ class StoredSettingsCodableTests: XCTestCase {
       },
       "id" : "2A67A303-5203-4CB8-8263-79498265368E",
       "name" : "Apple",
+      "repeatOptions" : 0,
       "settings" : {
         "insulinNeedsScaleFactor" : 2,
         "targetRangeInMgdl" : {
