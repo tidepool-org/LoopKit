@@ -81,10 +81,12 @@ open class ChartsTableViewController: UITableViewController, UIGestureRecognizer
 
     open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-
-        Task {
-            await reloadData(animated: false)
-            tableView.reloadData() // needed to have cells load properly on orientation change
+        
+        coordinator.animate { _ in } completion: { [weak self] _ in
+            Task {
+                await self?.reloadData(animated: false)
+                self?.tableView.reloadData() // needed to have cells load properly on orientation change
+            }
         }
     }
 
