@@ -14,7 +14,8 @@ public enum PumpManagerResult<T> {
 }
 
 public enum AutomatedTreatmentState: Equatable {
-    case neutral
+    case neutralNoOverride
+    case neutralOverride
     case increasedInsulin
     case decreasedInsulin
     case minimumDelivery

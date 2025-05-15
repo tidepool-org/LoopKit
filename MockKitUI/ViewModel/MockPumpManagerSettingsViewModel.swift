@@ -97,12 +97,14 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
     @Published private(set) var automatedTreatmentState: AutomatedTreatmentState
     var basalDisplayStateString: String {
         switch automatedTreatmentState {
-        case .neutral:
-            return LocalizedString("Neutral\nbasal", comment: "Label for neutral basal")
+        case .neutralOverride:
+            return LocalizedString("Preset\nDelivery", comment: "Label for neutral basal with override")
+        case .neutralNoOverride:
+            return LocalizedString("Scheduled\nBasal", comment: "Label for neutral basal without override")
         case .increasedInsulin:
-            return LocalizedString("Increased\ndelivery", comment: "Label for when temp basal is above the neutral basal")
+            return LocalizedString("Increased\nDelivery", comment: "Label for when temp basal is above the neutral basal")
         default:
-            return LocalizedString("Decreased\ndelivery", comment: "Label for when temp basal is below the neutral basal")
+            return LocalizedString("Decreased\nDelivery", comment: "Label for when temp basal is below the neutral basal")
         }
     }
 
@@ -134,7 +136,7 @@ class MockPumpManagerSettingsViewModel: ObservableObject {
         basalDeliveryState = pumpManager.status.basalDeliveryState
         basalDeliveryRate = pumpManager.state.basalDeliveryRate(at: now)
         basalDeliveryRateDate = now
-        automatedTreatmentState = pumpManager.pumpManagerDelegate?.automatedTreatmentState ?? .neutral
+        automatedTreatmentState = pumpManager.pumpManagerDelegate?.automatedTreatmentState ?? .neutralNoOverride
         setSuspenededAtString()
         
         pumpManager.addStateObserver(self, queue: .main)
@@ -185,7 +187,7 @@ extension MockPumpManagerSettingsViewModel: MockPumpManagerStateObserver {
         basalDeliveryRateDate = now
         basalDeliveryRate = state.basalDeliveryRate(at: now)
         basalDeliveryState = manager.status.basalDeliveryState
-        automatedTreatmentState = manager.pumpManagerDelegate?.automatedTreatmentState ?? .neutral
+        automatedTreatmentState = manager.pumpManagerDelegate?.automatedTreatmentState ?? .neutralNoOverride
     }
     
     func mockPumpManager(_ manager: MockKit.MockPumpManager, didUpdate status: LoopKit.PumpManagerStatus, oldStatus: LoopKit.PumpManagerStatus) {

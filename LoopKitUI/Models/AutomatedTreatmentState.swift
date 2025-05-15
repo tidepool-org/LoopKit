@@ -10,7 +10,7 @@ import LoopKit
 extension AutomatedTreatmentState {
     public var imageName: String {
         switch self {
-        case .neutral: return "arrow.right.square.fill"
+        case .neutralNoOverride, .neutralOverride: return "arrow.right.square.fill"
         case .increasedInsulin: return "arrow.up.square.fill"
         case .decreasedInsulin, .minimumDelivery: return "arrow.down.square.fill"
         }
