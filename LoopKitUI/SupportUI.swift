@@ -66,6 +66,7 @@ public struct DeviceWhitelist: Hashable {
     }
 }
 
+@MainActor
 public protocol SupportUI: Pluggable {
 
     typealias RawStateValue = [String: Any]

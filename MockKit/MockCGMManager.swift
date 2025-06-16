@@ -683,13 +683,15 @@ extension MockCGMManager {
         }
         delegate.notifyDelayed(by: delay ?? 0) { delegate in
             self.logDeviceComms(.delegate, message: "\(#function): \(identifier) \(trigger)")
-            delegate?.issueAlert(Alert(identifier: Alert.Identifier(managerIdentifier: self.pluginIdentifier, alertIdentifier: identifier),
-                                       foregroundContent: alert.foregroundContent,
-                                       backgroundContent: alert.backgroundContent,
-                                       trigger: trigger,
-                                       interruptionLevel: alert.interruptionLevel,
-                                       sound: alert.sound,
-                                       metadata: metadata))
+            Task {
+                await delegate?.issueAlert(Alert(identifier: Alert.Identifier(managerIdentifier: self.pluginIdentifier, alertIdentifier: identifier),
+                                           foregroundContent: alert.foregroundContent,
+                                           backgroundContent: alert.backgroundContent,
+                                           trigger: trigger,
+                                           interruptionLevel: alert.interruptionLevel,
+                                           sound: alert.sound,
+                                           metadata: metadata))
+            }
         }
 
         // updating the status highlight
@@ -716,8 +718,13 @@ extension MockCGMManager {
     }
 
     public func retractAlert(identifier: Alert.AlertIdentifier) {
-        delegate.notify { $0?.retractAlert(identifier: Alert.Identifier(managerIdentifier: self.pluginIdentifier, alertIdentifier: identifier)) }
         
+        delegate.notify { delegate in
+            Task {
+                await delegate?.retractAlert(identifier: Alert.Identifier(managerIdentifier: self.pluginIdentifier, alertIdentifier: identifier))
+            }
+        }
+
         // updating the status highlight
         if  mockSensorState.cgmStatusHighlight?.alertIdentifier == identifier {
             setStatusHighlight(nil)
@@ -772,7 +779,9 @@ extension MockCGMManager {
                           interruptionLevel: interruptionLevel)
 
         delegate.notify { delegate in
-            delegate?.issueAlert(alert)
+            Task {
+                await delegate?.issueAlert(alert)
+            }
         }
     }
 }

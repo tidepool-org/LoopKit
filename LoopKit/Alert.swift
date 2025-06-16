@@ -11,8 +11,10 @@ import Foundation
 /// Protocol that describes any class that issues and retract Alerts.
 public protocol AlertIssuer: AnyObject {
     /// Issue (post) the given alert, according to its trigger schedule.
+    @MainActor
     func issueAlert(_ alert: Alert)
     /// Retract any alerts with the given identifier.  This includes both pending and delivered alerts.
+    @MainActor
     func retractAlert(identifier: Alert.Identifier)
 }
 
@@ -36,17 +38,18 @@ public struct PersistedAlert: Equatable {
 }
 
 /// Protocol for recording and looking up alerts persisted in storage
+@MainActor
 public protocol PersistedAlertStore {
     /// Determine if an alert is already issued for a given `Alert.Identifier`.
-    func doesIssuedAlertExist(identifier: Alert.Identifier, completion: @escaping (Swift.Result<Bool, Error>) -> Void)
+    func doesIssuedAlertExist(identifier: Alert.Identifier) async throws -> Bool
 
     /// Look up all issued, but unretracted, alerts for a given `managerIdentifier`.  This is useful for an Alert issuer to see what alerts are extant (outstanding).
     /// NOTE: the completion function may be called on a different queue than the caller.  Callers must be prepared for this.
-    func lookupAllUnretracted(managerIdentifier: String, completion: @escaping (Swift.Result<[PersistedAlert], Error>) -> Void)
+    func lookupAllUnretracted(managerIdentifier: String) async throws -> [PersistedAlert]
 
     /// Look up all issued, but unretracted, and unacknowledged, alerts for a given `managerIdentifier`.  This is useful for an Alert issuer to see what alerts are extant (outstanding).
     /// NOTE: the completion function may be called on a different queue than the caller.  Callers must be prepared for this.
-    func lookupAllUnacknowledgedUnretracted(managerIdentifier: String, completion: @escaping (Swift.Result<[PersistedAlert], Error>) -> Void)
+    func lookupAllUnacknowledgedUnretracted(managerIdentifier: String) async throws -> [PersistedAlert]
 
     /// Records an alert that occurred (likely in the past) but is already retracted. This alert will never be presented to the user by an AlertPresenter. Such a retracted alert has the same date for issued and retracted dates, and there is no acknowledged date
     func recordRetractedAlert(_ alert: Alert, at date: Date)
