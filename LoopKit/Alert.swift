@@ -12,10 +12,10 @@ import Foundation
 public protocol AlertIssuer: AnyObject {
     /// Issue (post) the given alert, according to its trigger schedule.
     @MainActor
-    func issueAlert(_ alert: Alert)
+    func issueAlert(_ alert: Alert) async
     /// Retract any alerts with the given identifier.  This includes both pending and delivered alerts.
     @MainActor
-    func retractAlert(identifier: Alert.Identifier)
+    func retractAlert(identifier: Alert.Identifier) async
 }
 
 /// Protocol that describes something that can deal with a user's response to an alert.

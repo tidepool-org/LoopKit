@@ -82,11 +82,10 @@ public struct TemporaryPreset: Hashable, Sendable {
         // Get the time components from the original schedule start date
         let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: scheduleStartDate)
 
-        // Start checking from the day after the given date
         let startDate = calendar.startOfDay(for: date)
 
-        // Look ahead up to 7 days to find the next occurrence
-        for dayOffset in 0..<7 {
+        // Look ahead up to 7 days (including today) to find the next occurrence
+        for dayOffset in 0..<8 {
             let checkDate = calendar.date(byAdding: .day, value: dayOffset, to: startDate) ?? startDate
             let weekday = calendar.component(.weekday, from: checkDate)
 
