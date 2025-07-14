@@ -706,9 +706,12 @@ extension MockCGMManager {
         retractAlert(identifier: MockCGMManager.signalLoss.identifier)
     }
     
-    public func acknowledgeAlert(alertIdentifier: Alert.AlertIdentifier, completion: @escaping (Error?) -> Void) {
+    public func acknowledgeAlert(alertIdentifier: Alert.AlertIdentifier) async throws {
         self.logDeviceComms(.delegateResponse, message: "\(#function): Alert \(alertIdentifier) acknowledged.")
-        completion(nil)
+    }
+
+    public func handleAlertAction(actionIdentifier: String, from alert: Alert) async throws {
+        self.logDeviceComms(.delegateResponse, message: "\(#function): Alert \(alert) action \(actionIdentifier) handled.")
     }
 
     public func retractCurrentAlert() {
