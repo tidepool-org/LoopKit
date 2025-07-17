@@ -653,21 +653,10 @@ extension CarbStore {
 
     // Fetch latest carb entry, based on startDate
     public func fetchLatestCarbEntry() async throws -> StoredCarbEntry? {
-        return try await withCheckedThrowingContinuation({ continuation in
-            queue.async {
-
-                let request: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
-                request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: false)]
-                request.fetchLimit = 1
-
-                do {
-                    let entries = try self.cacheStore.managedObjectContext.fetch(request).compactMap { StoredCarbEntry(managedObject: $0) }
-                    continuation.resume(returning: entries.first)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
-        })
+        let request: NSFetchRequest<CachedCarbObject> = CachedCarbObject.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "startDate", ascending: false)]
+        request.fetchLimit = 1
+        return try self.cacheStore.managedObjectContext.fetch(request).compactMap { StoredCarbEntry(managedObject: $0) }.first
     }
 
 }
@@ -677,25 +666,9 @@ extension CarbStore {
 extension CarbStore {
 
     /// Get carb objects in main app for syncing to another store
-    public func getSyncCarbObjects(start: Date? = nil, end: Date? = nil, completion: @escaping (_ result: Result<[SyncCarbObject],Error>) -> Void) {
-        queue.async {
-            var objects: [SyncCarbObject] = []
-            var error: CarbStoreError?
-
-            self.cacheStore.managedObjectContext.performAndWait {
-                do {
-                    objects = try self.getActiveCachedCarbObjects(start: start, end: end).map { SyncCarbObject(managedObject: $0) }
-                } catch let coreDataError {
-                    error = .coreDataError(coreDataError)
-                }
-            }
-
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            completion(.success(objects))
+    public func getSyncCarbObjects(start: Date? = nil, end: Date? = nil) async throws -> [SyncCarbObject] {
+        try await self.cacheStore.managedObjectContext.perform {
+            try self.getActiveCachedCarbObjects(start: start, end: end).map { SyncCarbObject(managedObject: $0) }
         }
     }
 
