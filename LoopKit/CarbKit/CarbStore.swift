@@ -322,7 +322,6 @@ extension CarbStore {
     ///   - additionalPredicates: Optionally add additional predicates to the fetch
     /// - Returns: An array of cached carb objects
     private func getActiveCachedCarbObjects(start: Date? = nil, end: Date? = nil, dateAscending: Bool = true, fetchLimit: Int? = nil, additionalPredicates: [NSPredicate] = []) throws -> [CachedCarbObject] {
-        dispatchPrecondition(condition: .onQueue(queue))
 
         var predicates = [NSPredicate(format: "operation != %d", Operation.delete.rawValue),
                           NSPredicate(format: "supercededDate == NIL")]
