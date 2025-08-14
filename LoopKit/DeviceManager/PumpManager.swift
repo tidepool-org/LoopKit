@@ -292,6 +292,20 @@ public extension PumpManager {
         }
     }
 
+    func cancelBolus() async throws -> DoseEntry? {
+        try await withCheckedThrowingContinuation { continuation in
+            cancelBolus() { result in
+                switch result {
+                case .success(let dose):
+                    continuation.resume(returning: dose)
+                case .failure(let pumpManagerError):
+                    continuation.resume(throwing: pumpManagerError)
+                }
+            }
+        }
+    }
+
+
     @discardableResult
     func ensureCurrentPumpData() async -> Date? {
         await withCheckedContinuation { (continuation) in
