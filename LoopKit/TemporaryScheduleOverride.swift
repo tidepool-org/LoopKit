@@ -16,6 +16,10 @@ public struct TemporaryScheduleOverride: Hashable, Sendable {
         case legacyWorkout
         case preset(TemporaryPreset)
         case custom
+
+        public var isPremeal: Bool {
+            return self == .preMeal
+        }
     }
     
     public enum EnactTrigger: Hashable, Sendable {
@@ -64,7 +68,7 @@ public struct TemporaryScheduleOverride: Hashable, Sendable {
         case .early(let endDate):
             return endDate
         case .deleted:
-            return scheduledEndDate
+            return startDate
         }
     }
 
@@ -457,7 +461,7 @@ extension Array where Element == TemporaryScheduleOverride {
 
     public func applyCarbRatio(over timeline: [AbsoluteScheduleValue<Double>]) -> [AbsoluteScheduleValue<Double>] {
         apply(over: timeline) { value, override in
-            value * override.settings.effectiveInsulinNeedsScaleFactor
+            value * (override.settings.carbRatioMultiplier ?? 1)
         }
     }
 
