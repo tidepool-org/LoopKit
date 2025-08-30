@@ -16,10 +16,6 @@ public struct TemporaryScheduleOverride: Hashable, Sendable {
         case legacyWorkout
         case preset(TemporaryPreset)
         case custom
-
-        public var isPremeal: Bool {
-            return self == .preMeal
-        }
     }
     
     public enum EnactTrigger: Hashable, Sendable {
