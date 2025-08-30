@@ -205,7 +205,7 @@ class TemporaryScheduleOverrideTests: XCTestCase {
     }
     
     func testDurationIsInfinite() {
-        let tempOverride = TemporaryScheduleOverride(context: .legacyWorkout,
+        let tempOverride = TemporaryScheduleOverride(context: .custom,
                                                      settings: .init(unit: .milligramsPerDeciliter, targetRange: DoubleRange(minValue: 120, maxValue: 150)),
                                                      startDate: Date(),
                                                      duration: .indefinite,
@@ -595,17 +595,8 @@ class TemporaryScheduleOverrideContextCodableTests: XCTestCase {
         )
     }
 
-    func testCodableLegacyWorkout() throws {
-        try assertTemporaryScheduleOverrideContextCodable(.legacyWorkout, encodesJSON: """
-{
-  "context" : "legacyWorkout"
-}
-"""
-        )
-    }
-
     func testCodablePreset() throws {
-        let preset = TemporaryPreset(id: UUID(uuidString: "238E41EA-9576-4981-A1A4-51E10228584F")!,
+        let preset = TemporaryPreset(id: "238E41EA-9576-4981-A1A4-51E10228584F",
                                                      symbol: "🚀",
                                                      name: "Rocket",
                                                      settings: TemporaryPresetSettings(unit: .milligramsPerDeciliter,
@@ -626,7 +617,11 @@ class TemporaryScheduleOverrideContextCodableTests: XCTestCase {
             "minValue" : 90
           }
         },
-        "symbol" : "🚀"
+        "symbol" : {
+          "symbolType" : "emoji",
+          "tint" : null,
+          "value" : "🚀"
+        }
       }
     }
   }

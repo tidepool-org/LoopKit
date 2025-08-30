@@ -24,19 +24,16 @@ public class TherapySettingsViewModel {
     public var therapySettings: TherapySettings
     
     @ObservationIgnored private let initialTherapySettings: TherapySettings
-    @ObservationIgnored let sensitivityOverridesEnabled: Bool
     @ObservationIgnored public var prescription: Prescription?
 
     @ObservationIgnored private weak var delegate: TherapySettingsViewModelDelegate?
     
     public init(therapySettings: TherapySettings,
                 pumpSupportedIncrements: (() -> PumpSupportedIncrements?)? = nil,
-                sensitivityOverridesEnabled: Bool = false,
                 prescription: Prescription? = nil,
                 delegate: TherapySettingsViewModelDelegate? = nil) {
         self.therapySettings = therapySettings
         self.initialTherapySettings = therapySettings
-        self.sensitivityOverridesEnabled = sensitivityOverridesEnabled
         self.prescription = prescription
         self.delegate = delegate
     }
@@ -61,8 +58,7 @@ public class TherapySettingsViewModel {
     }
 
     var correctionRangeOverrides: CorrectionRangeOverrides {
-        return CorrectionRangeOverrides(preMeal: therapySettings.correctionRangeOverrides?.preMeal,
-                                        workout: therapySettings.correctionRangeOverrides?.workout)
+        return CorrectionRangeOverrides(preMeal: therapySettings.correctionRangeOverrides?.preMeal)
     }
 
     var correctionRangeScheduleRange: ClosedRange<LoopQuantity> {
@@ -136,7 +132,7 @@ extension TherapySettingsViewModel {
         }
 
         if let overrides = therapySettings.correctionRangeOverrides {
-            let adjusted = [overrides.preMeal, overrides.workout].map { item -> ClosedRange<LoopQuantity>? in
+            let adjusted = [overrides.preMeal].map { item -> ClosedRange<LoopQuantity>? in
                 guard let item = item else {
                     return nil
                 }
@@ -145,9 +141,7 @@ extension TherapySettingsViewModel {
                         lower: max(quantity, item.lowerBound),
                         upper:  max(quantity, item.upperBound)))
             }
-            therapySettings.correctionRangeOverrides = CorrectionRangeOverrides(
-                preMeal: adjusted[0],
-                workout: adjusted[1])
+            therapySettings.correctionRangeOverrides = CorrectionRangeOverrides(preMeal: adjusted[0])
         }
 
         if let presets = therapySettings.overridePresets {
