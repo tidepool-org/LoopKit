@@ -13,7 +13,7 @@ public enum PumpManagerResult<T> {
     case failure(PumpManagerError)
 }
 
-public enum AutomatedTreatmentState: Equatable {
+public enum AutomatedTreatmentState: Int, Equatable {
     case neutralNoOverride
     case neutralOverride
     case increasedInsulin
