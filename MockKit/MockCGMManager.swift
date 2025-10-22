@@ -489,6 +489,18 @@ public final class MockCGMManager: TestingCGMManager {
 
     public let isOnboarded = true   // No distinction between created and onboarded
 
+    public var inSignalLoss: Bool {
+        guard case .signalLoss = dataSource.model else {
+            return false
+        }
+        
+        return true
+    }
+    
+    public var isInoperable: Bool {
+        cgmManagerStatus.isInoperable
+    }
+    
     public let appURL: URL? = nil
 
     public let providesBLEHeartbeat = false

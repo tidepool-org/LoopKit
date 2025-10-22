@@ -41,7 +41,7 @@ public enum MockPumpManagerError: LocalizedError {
     }
 }
 
-public final class MockPumpManager: TestingPumpManager {
+public final class MockPumpManager: TestingPumpManager {    
     public static let managerIdentifier = "MockPumpManager"
     
     public var pluginIdentifier: String { Self.managerIdentifier }
@@ -348,6 +348,14 @@ public final class MockPumpManager: TestingPumpManager {
     
     public let isOnboarded = true   // No distinction between created and onboarded
 
+    public var inSignalLoss: Bool {
+        state.inSignalLoss
+    }
+    
+    public var isInoperable: Bool {
+        basalDeliveryState(for: state) == .pumpInoperable
+    }
+    
     private func logDeviceCommunication(_ message: String, type: DeviceLogEntryType = .send) {
         self.delegate.delegate?.deviceManager(self, logEventForDeviceIdentifier: "MockId", type: type, message: message, completion: nil)
     }
