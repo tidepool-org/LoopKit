@@ -72,7 +72,7 @@ public struct Guardrail<Value: Comparable> {
 
     public func classification(for value: Value) -> SafetyClassification {
         let lowerWarning = warningBounds?.lowerBound ?? recommendedBounds.lowerBound
-        let upperWarning = warningBounds?.upperBound ?? recommendedBounds.upperBound
+        let upperWarning = warningBounds?.upperBound ?? absoluteBounds.upperBound
         
         switch value {
         case ...absoluteBounds.lowerBound where absoluteBounds.lowerBound != recommendedBounds.lowerBound:
@@ -85,7 +85,7 @@ public struct Guardrail<Value: Comparable> {
             return .withinRecommendedRange
         case ..<upperWarning:
             return .outsideRecommendedRange(.aboveRecommended)
-        case ..<absoluteBounds.upperBound where upperWarning != recommendedBounds.upperBound:
+        case ..<absoluteBounds.upperBound where upperWarning != absoluteBounds.upperBound:
             return .outsideRecommendedRange(.aboveWarning)
         case absoluteBounds.upperBound...:
             return .outsideRecommendedRange(.maximum)
