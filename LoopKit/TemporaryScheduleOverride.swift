@@ -255,6 +255,26 @@ public struct TemporaryScheduleOverride: Hashable, Sendable {
     public func isActive(at date: Date = Date()) -> Bool {
         return activeInterval.contains(date)
     }
+
+    // LOOP-5439 High Insulin Needs Preset Mitigation
+    static let highInsulinNeedsMitigationCorrrectionRangeLimit = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 110)
+
+    public static func isInMitigationRange(insulinNeedsScaleFactor: Double?) -> Bool {
+        guard let insulinNeedsScaleFactor else { return false }
+        return insulinNeedsScaleFactor * 100 > Guardrail.presetInsulinNeeds.recommendedBounds.upperBound.doubleValue(for: .percent)
+    }
+
+    public var veryHighInsulinNeeds: Bool {
+        return Self.isInMitigationRange(insulinNeedsScaleFactor: settings.insulinNeedsScaleFactor)
+    }
+
+    public func effectiveCorrectionRangeDuring(scheduledRange: ClosedRange<LoopQuantity>) -> ClosedRange<LoopQuantity> {
+        let range = settings.targetRange ?? scheduledRange
+        if veryHighInsulinNeeds {
+            return max(range.lowerBound, Self.highInsulinNeedsMitigationCorrrectionRangeLimit)...max(range.upperBound, Self.highInsulinNeedsMitigationCorrrectionRangeLimit)
+        }
+        return range
+    }
 }
 
 extension TemporaryScheduleOverride: RawRepresentable {
