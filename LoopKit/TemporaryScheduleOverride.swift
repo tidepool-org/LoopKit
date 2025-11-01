@@ -255,9 +255,11 @@ public struct TemporaryScheduleOverride: Hashable, Sendable {
     public func isActive(at date: Date = Date()) -> Bool {
         return activeInterval.contains(date)
     }
+}
 
+extension TemporaryScheduleOverride {
     // LOOP-5439 High Insulin Needs Preset Mitigation
-    static let highInsulinNeedsMitigationCorrrectionRangeLimit = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 110)
+    public static let highInsulinNeedsMitigationCorrrectionRangeLimit = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 110)
 
     public static func isInMitigationRange(insulinNeedsScaleFactor: Double?) -> Bool {
         guard let insulinNeedsScaleFactor else { return false }
@@ -268,14 +270,22 @@ public struct TemporaryScheduleOverride: Hashable, Sendable {
         return Self.isInMitigationRange(insulinNeedsScaleFactor: settings.insulinNeedsScaleFactor)
     }
 
+    // Calculates the correction used when this override is active, including high insulin needs preset mitigation
     public func effectiveCorrectionRangeDuring(scheduledRange: ClosedRange<LoopQuantity>) -> ClosedRange<LoopQuantity> {
         let range = settings.targetRange ?? scheduledRange
         if veryHighInsulinNeeds {
-            return max(range.lowerBound, Self.highInsulinNeedsMitigationCorrrectionRangeLimit)...max(range.upperBound, Self.highInsulinNeedsMitigationCorrrectionRangeLimit)
+            return range.clampedTo(atLeast: Self.highInsulinNeedsMitigationCorrrectionRangeLimit)
         }
         return range
     }
 }
+
+extension ClosedRange<LoopQuantity> {
+    public func clampedTo(atLeast limit: LoopQuantity) -> ClosedRange<LoopQuantity> {
+        return Swift.max(lowerBound, limit)...Swift.max(upperBound, limit)
+    }
+}
+
 
 extension TemporaryScheduleOverride: RawRepresentable {
     public typealias RawValue = [String: Any]
