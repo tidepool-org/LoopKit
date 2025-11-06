@@ -570,11 +570,11 @@ public final class MockPumpManager: TestingPumpManager {
             completion(.failure(error))
         } else {
             state.unfinalizedBolus?.cancel(at: Date())
-            
+            let bolusCanceled = state.unfinalizedBolus != nil ? DoseEntry(state.unfinalizedBolus!) : nil
             storePumpEvents { (_) in
                 DispatchQueue.main.async {
                     self.state.finalizeFinishedDoses()
-                    completion(.success(nil))
+                    completion(.success(bolusCanceled))
                 }
             }
         }
