@@ -56,7 +56,7 @@ public struct PumpManagerStatus: Equatable {
 
     public enum BolusState: Equatable {
         case noBolus
-        case initiating
+        case initiating(_ automatic: Bool)
         case inProgress(_ dose: DoseEntry)
         case canceling
     }
@@ -213,8 +213,6 @@ extension PumpManagerStatus.BolusState: Codable {
             switch string {
             case CodableKeys.noBolus.rawValue, "none": // included for backward compatibility. BolusState.none -> BolusState.noBolus
                 self = .noBolus
-            case CodableKeys.initiating.rawValue:
-                self = .initiating
             case CodableKeys.canceling.rawValue:
                 self = .canceling
             default:
@@ -224,6 +222,8 @@ extension PumpManagerStatus.BolusState: Codable {
             let container = try decoder.container(keyedBy: CodableKeys.self)
             if let inProgress = try container.decodeIfPresent(InProgress.self, forKey: .inProgress) {
                 self = .inProgress(inProgress.dose)
+            } else if let automatic = try container.decodeIfPresent(Bool.self, forKey: .initiating) {
+                self = .initiating(automatic)
             } else {
                 throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "invalid enumeration"))
             }
@@ -235,9 +235,9 @@ extension PumpManagerStatus.BolusState: Codable {
         case .noBolus:
             var container = encoder.singleValueContainer()
             try container.encode(CodableKeys.noBolus.rawValue)
-        case .initiating:
-            var container = encoder.singleValueContainer()
-            try container.encode(CodableKeys.initiating.rawValue)
+        case .initiating(let automatic):
+            var container = encoder.container(keyedBy: CodableKeys.self)
+            try container.encode(automatic, forKey: .initiating)
         case .inProgress(let dose):
             var container = encoder.container(keyedBy: CodableKeys.self)
             try container.encode(InProgress(dose: dose), forKey: .inProgress)
