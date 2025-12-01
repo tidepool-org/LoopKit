@@ -220,7 +220,7 @@ public struct MockPumpManagerState: Equatable {
     }
     
     public var insulinDeliveryDisabled: Bool {
-        occlusionDetected || pumpErrorDetected || pumpBatteryChargeRemaining == 0 || reservoirUnitsRemaining == 0
+        occlusionDetected || pumpErrorDetected || isPumpExpired || pumpBatteryChargeRemaining == 0 || reservoirUnitsRemaining == 0
     }
 
     public init(deliverableIncrements: DeliverableIncrements = .medtronicX22,
