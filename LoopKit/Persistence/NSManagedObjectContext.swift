@@ -62,6 +62,8 @@ extension NSManagedObjectContext {
                     let object = self.object(with: objectID)
                     delete(object)
                 }
+                
+                processPendingChanges()
 
                 if hasChanges {
                     try save()
