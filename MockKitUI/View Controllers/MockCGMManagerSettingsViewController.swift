@@ -247,11 +247,13 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
                 }
             case .scenario:
                 cell.textLabel?.text = "Scenario"
+                cell.accessibilityIdentifier = "cell_Scenario"
                 if case .scenario = cgmManager.dataSource.model {
                     cell.accessoryType = .checkmark
                 }
             case .noData:
                 cell.textLabel?.text = "No Data"
+                cell.accessibilityIdentifier = "cell_NoData"
                 if case .noData = cgmManager.dataSource.model {
                     cell.accessoryType = .checkmark
                 }
@@ -263,6 +265,7 @@ final class MockCGMManagerSettingsViewController: UITableViewController {
                 }
             case .unreliableData:
                 cell.textLabel?.text = "Unreliable Data"
+                cell.accessibilityIdentifier = "cell_UnreliableData"
                 if case .unreliableData = cgmManager.dataSource.model {
                     cell.accessoryType = .checkmark
                 }
