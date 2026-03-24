@@ -331,7 +331,7 @@ extension Collection where Element == DoseEntry {
                 var newDose = dose
                 newDose.startDate = lastDate
 
-                if let endDate, dose.type == .suspend, idx+1 == self.count, dose.startDate != dose.endDate && dose.endDate < endDate {
+                if let endDate, dose.type == .suspend, idx+1 == self.count, dose.endDate < endDate {
                     newDose.endDate = endDate
                 }
                 newEntries.append(newDose)
