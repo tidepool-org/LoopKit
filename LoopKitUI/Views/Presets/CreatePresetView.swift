@@ -41,6 +41,8 @@ struct SettingAdjustmentPreview: View {
             // and is somewhat independent of pump supported rates. 2 digits is generally enough
             // precision here.
             self.valueFormatter.numberFormatter.maximumFractionDigits = 2
+        } else if self.displayUnit == .gramsPerUnit {
+            self.valueFormatter.numberFormatter.maximumFractionDigits = 1
         }
         
         self.highlighted = highlighted
