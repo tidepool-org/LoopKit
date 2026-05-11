@@ -150,9 +150,7 @@ public struct PresetRangeEditor: View {
         .font(.subheadline)
         .sheet(isPresented: $presentInfoView) {
             NavigationStack {
-                CorrectionRangeInformationView(mode: .settings) {
-                    presentInfoView = false
-                }
+                CorrectionRangeInformationView(mode: .settings)
             }
         }
     }
