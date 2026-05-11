@@ -16,9 +16,9 @@ public struct CorrectionRangeInformationView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.appName) var appName
 
-    public init(mode: SettingsPresentationMode = .acceptanceFlow, onExit: (() -> Void)? = nil) {
-        self.mode = mode
+    public init(onExit: (() -> Void)? = nil, mode: SettingsPresentationMode = .acceptanceFlow) {
         self.onExit = onExit
+        self.mode = mode
     }
     
     public var body: some View {

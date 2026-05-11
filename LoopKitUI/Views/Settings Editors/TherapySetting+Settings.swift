@@ -23,7 +23,7 @@ extension TherapySetting {
     public func helpScreen() -> some View {
         switch self {
         case .glucoseTargetRange:
-            CorrectionRangeInformationView(mode: .settings)
+            CorrectionRangeInformationView(onExit: nil, mode: .settings)
         case .preMealCorrectionRangeOverride:
             CorrectionRangeOverrideInformationView(preset: .preMeal, onExit: nil, mode: .settings)
         case .suspendThreshold:
