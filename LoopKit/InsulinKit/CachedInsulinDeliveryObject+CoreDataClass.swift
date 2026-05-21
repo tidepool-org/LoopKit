@@ -276,7 +276,8 @@ extension CachedInsulinDeliveryObject {
         self.endDate = entry.endDate
         self.syncIdentifier = entry.syncIdentifier
         self.deliveredUnits = entry.unitsInDeliverableIncrements
-        self.scheduledBasalRate = entry.scheduledBasalRate
+        // A `.basal` dose's rate is its `value`; preserve it as the rate field so the cache reports the exact rate instead of one derived from a quantized delivered total.
+        self.scheduledBasalRate = entry.scheduledBasalRate ?? (entry.type == .basal ? LoopQuantity(unit: .internationalUnitsPerHour, doubleValue: entry.unitsPerHour) : nil)
         self.programmedTempBasalRate = (entry.type == .tempBasal) ? LoopQuantity(unit: .internationalUnitsPerHour, doubleValue: entry.unitsPerHour) : nil
         self.programmedUnits = (entry.type == .bolus) ? entry.programmedUnits : nil
         self.reason = (entry.type == .bolus) ? .bolus : .basal
@@ -302,7 +303,8 @@ extension CachedInsulinDeliveryObject {
         self.endDate = entry.endDate
         self.syncIdentifier = entry.syncIdentifier
         self.deliveredUnits = entry.unitsInDeliverableIncrements
-        self.scheduledBasalRate = entry.scheduledBasalRate
+        // A `.basal` dose's rate is its `value`; preserve it as the rate field so the cache reports the exact rate instead of one derived from a quantized delivered total.
+        self.scheduledBasalRate = entry.scheduledBasalRate ?? (entry.type == .basal ? LoopQuantity(unit: .internationalUnitsPerHour, doubleValue: entry.unitsPerHour) : nil)
         self.programmedTempBasalRate = (entry.type == .tempBasal) ? LoopQuantity(unit: .internationalUnitsPerHour, doubleValue: entry.unitsPerHour) : nil
         self.programmedUnits = (entry.type == .bolus) ? entry.programmedUnits : nil
         self.reason = (entry.type == .bolus) ? .bolus : .basal
