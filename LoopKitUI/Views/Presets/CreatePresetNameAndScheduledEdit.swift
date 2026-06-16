@@ -55,9 +55,9 @@ struct CreatePresetNameAndScheduledEdit: View {
     ) {
         self._preset = preset
         self._path = path
-        self.isDurationPickerExpanded = isDurationPickerExpanded
         self.selectedRepeatOption = preset.wrappedValue.repeatOptions == .none ? .never : .weekly
         self.onCancel = onCancel
+        self.isDurationPickerExpanded = isDurationPickerExpanded
     }
 
     var body: some View {
