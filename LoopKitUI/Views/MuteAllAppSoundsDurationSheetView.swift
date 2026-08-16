@@ -87,7 +87,7 @@ public struct DurationSheet: View {
                 .readContentHeight(to: $sheetContentHeight)
             }
             
-            VStack(spacing: 12) {
+            FloatingActionArea {
                 Button {
                     durationWasSelected = true
                 } label: {
@@ -105,9 +105,6 @@ public struct DurationSheet: View {
                 .font(.body.bold())
                 .frame(maxWidth: .infinity)
             }
-            .padding([.horizontal, .top])
-            .padding(.bottom, 2)
-            .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5).ignoresSafeArea())
             .readContentHeight(to: $sheetActionContentHeight)
         }
         .sheetDetent(height: sheetContentHeight + sheetActionContentHeight)

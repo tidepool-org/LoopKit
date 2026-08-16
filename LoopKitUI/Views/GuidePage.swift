@@ -22,24 +22,19 @@ public struct GuidePage<Content, ActionAreaContent>: View where Content: View, A
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            List {
-                if self.horizontalSizeClass == .compact {
-                    Section(header: EmptyView(), footer: EmptyView()) {
-                        self.content
-                    }
-                } else {
+        List {
+            if self.horizontalSizeClass == .compact {
+                Section(header: EmptyView(), footer: EmptyView()) {
                     self.content
                 }
+            } else {
+                self.content
             }
-            .insetGroupedListStyle()
-            VStack {
-                self.actionAreaContent
-            }
-            .padding(self.horizontalSizeClass == .regular ? .bottom : [])
-            .background(Color(UIColor.secondarySystemGroupedBackground).shadow(radius: 5))
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .insetGroupedListStyle()
+        .actionAreaInset {
+            self.actionAreaContent
+        }
     }
 }
 
@@ -54,8 +49,8 @@ struct GuidePage_Previews: PreviewProvider {
                 print("Button tapped")
             }) {
                 Text("Action Button")
-                    .actionButtonStyle()
             }
+            .buttonStyle(ActionButtonStyle())
         }
     }
 }

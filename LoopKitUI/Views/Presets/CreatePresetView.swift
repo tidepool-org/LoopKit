@@ -111,7 +111,6 @@ public struct CreatePresetView: View {
 
                 actionArea
             }
-            .edgesIgnoringSafeArea(.bottom)
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
             .navigationDestination(for: CreatePresetPage.self) { page in
@@ -187,11 +186,10 @@ public struct CreatePresetView: View {
     }
 
     private var actionArea: some View {
-        VStack(spacing: 0) {
+        FloatingActionArea {
             guardrailWarningIfNecessary
             actionButton
         }
-        .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
     }
 
     private var actionButton: some View {
@@ -199,7 +197,6 @@ public struct CreatePresetView: View {
             path.append(CreatePresetPage.correctionRange)
         }
         .buttonStyle(ActionButtonStyle(.primary))
-        .padding()
     }
 }
 

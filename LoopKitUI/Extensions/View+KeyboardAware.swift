@@ -15,27 +15,59 @@ extension View {
         onReceive(Keyboard.shared.$state, perform: updateForKeyboardState)
     }
 
-    public func keyboardAware() -> some View {
-        modifier(KeyboardAware())
+    public func keyboardEntryPage() -> some View {
+        modifier(KeyboardEntryPage())
+    }
+
+    public func autoFocusOnFirstAppearance(_ shouldFocus: Binding<Bool>, enabled: @autoclosure @escaping () -> Bool = true) -> some View {
+        modifier(AutoFocusOnFirstAppearance(shouldFocus: shouldFocus, enabled: enabled))
     }
 }
 
-fileprivate struct KeyboardAware: ViewModifier {
-    @State var keyboardHeight: CGFloat = 0
+private struct AutoFocusOnFirstAppearance: ViewModifier {
+    @Binding var shouldFocus: Bool
+    let enabled: () -> Bool
+
+    @State private var hasAutoFocused = false
+    @State private var isVisible = false
+
+    private static var transitionSettleDelay: TimeInterval { 0.5 }
 
     func body(content: Content) -> some View {
         content
-            .padding(.bottom, keyboardHeight)
-            .edgesIgnoringSafeArea(keyboardHeight > 0 ? .bottom : [])
-            .onKeyboardStateChange { state in
-                if state.height == 0 {
-                    // Only animate the transition as the keyboard comes up; animating the opposite direction is jittery.
-                    self.keyboardHeight = 0
-                } else {
-                    withAnimation(.easeInOut(duration: state.animationDuration)) {
-                        self.keyboardHeight = state.height
-                    }
+            .onAppear {
+                isVisible = true
+                guard !hasAutoFocused, enabled() else { return }
+                hasAutoFocused = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + Self.transitionSettleDelay) {
+                    guard isVisible else { return }
+                    shouldFocus = true
                 }
             }
+            .onDisappear {
+                isVisible = false
+                shouldFocus = false
+            }
+    }
+}
+
+private struct KeyboardEntryPage: ViewModifier {
+    @State private var isKeyboardVisible = false
+
+    func body(content: Content) -> some View {
+        content
+            .scrollBounceBehavior(.always)
+            .scrollDismissesKeyboard(.interactively)
+            .interactiveDismissDisabled(isKeyboardVisible)
+            .onKeyboardStateChange { state in
+                isKeyboardVisible = state.height > 0
+            }
+    }
+}
+
+@available(iOSApplicationExtension, unavailable)
+public enum KeyboardDismissal {
+    public static func resignFirstResponder() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
