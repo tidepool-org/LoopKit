@@ -71,7 +71,7 @@ public struct CardList<Trailer: View>: View {
                 }
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color(.systemGroupedBackground).ignoresSafeArea(.container, edges: .bottom))
     }
 
     @ViewBuilder

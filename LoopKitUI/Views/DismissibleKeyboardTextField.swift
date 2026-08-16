@@ -91,6 +91,9 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
                 context.coordinator.didBecomeFirstResponder = true
             }
         } else if !shouldBecomeFirstResponder && context.coordinator.didBecomeFirstResponder {
+            if textField.isFirstResponder {
+                textField.resignFirstResponder()
+            }
             context.coordinator.didBecomeFirstResponder = false
         }
     }
