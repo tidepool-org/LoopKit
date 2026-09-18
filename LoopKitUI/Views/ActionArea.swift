@@ -66,12 +66,36 @@ public extension View {
         )
     }
 
-    @ViewBuilder
     func actionAreaInset<BarContent: View>(@ViewBuilder _ barContent: () -> BarContent) -> some View {
-        if #available(iOS 26.0, *) {
-            safeAreaBar(edge: .bottom, spacing: 0) { ActionArea(content: barContent) }
-        } else {
-            safeAreaInset(edge: .bottom, spacing: 0) { ActionArea(content: barContent) }
-        }
+        modifier(SeatedActionAreaInset(barContent: barContent()))
+    }
+}
+
+private struct SeatedActionAreaInset<BarContent: View>: ViewModifier {
+    let barContent: BarContent
+
+    @State private var isKeyboardVisible = false
+    @State private var keyboardAnimationDuration: TimeInterval = 0.25
+
+    func body(content: Content) -> some View {
+        content
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if !isKeyboardVisible {
+                    ActionArea { barContent }
+                        .hidden()
+                        .accessibilityHidden(true)
+                }
+            }
+            .overlay(alignment: .bottom) {
+                ActionArea { barContent }
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
+                    .opacity(isKeyboardVisible ? 0 : 1)
+                    .allowsHitTesting(!isKeyboardVisible)
+                    .animation(.easeOut(duration: keyboardAnimationDuration), value: isKeyboardVisible)
+            }
+            .onKeyboardStateChange { state in
+                keyboardAnimationDuration = state.animationDuration
+                isKeyboardVisible = state.height > 0
+            }
     }
 }
