@@ -10,11 +10,12 @@ import SwiftUI
 
 public struct LabeledNumberInput: View {
     @Binding var value: Double?
-    let font: UIFont
+    let font: Font
     let label: String
     let placeholder: String
     let allowFractions: Bool
-    let shouldBecomeFirstResponder: Bool
+    let focus: FocusState<Bool>.Binding
+    @State private var enteredValue: String
     
     private var numberFormatter: NumberFormatter {
         let numberFormatter = NumberFormatter()
@@ -22,45 +23,29 @@ public struct LabeledNumberInput: View {
         return numberFormatter
     }
     
-    // seems like the TextField doesn't update the formatted binding until return to tapped. This is the workaround.
-    private var valueString: Binding<String> {
-        Binding<String>(
-            get: { () -> String in
-                guard let value = self.value else {
-                    return ""
-                }
-                return self.numberFormatter.string(from: NSNumber(value: value.rawValue)) ?? ""
-            },
-            set: {
-                if let value = self.numberFormatter.number(from: $0) {
-                    self.value = value.doubleValue
-                }
-            }
-        )
-    }
-    
-    public init(value: Binding<Double?>, font: UIFont = .preferredFont(forTextStyle: .largeTitle), label: String, placeholder: String? = nil, allowFractions: Bool = false, shouldBecomeFirstResponder: Bool = false) {
+    public init(value: Binding<Double?>, font: Font = .largeTitle, label: String, placeholder: String? = nil, allowFractions: Bool = false, focus: FocusState<Bool>.Binding) {
         _value = value
         self.font = font
         self.label = label
         self.placeholder = placeholder ?? LocalizedString("Value", comment: "Placeholder text until value is entered")
         self.allowFractions = allowFractions
-        self.shouldBecomeFirstResponder = shouldBecomeFirstResponder
+        self.focus = focus
+        let formatter = NumberFormatter()
+        formatter.numberStyle = allowFractions ? .decimal : .none
+        self._enteredValue = State(initialValue: value.wrappedValue.flatMap { formatter.string(from: NSNumber(value: $0)) } ?? "")
     }
         
     public var body: some View {
         GeometryReader { geometry in
             HStack(alignment: .bottom, spacing: 5) {
-                DismissibleKeyboardTextField(
-                    text: valueString,
-                    placeholder: placeholder,
-                    font: font,
-                    textAlignment: .right,
-                    keyboardType: allowFractions ? .decimalPad : .numberPad,
-                    shouldBecomeFirstResponder: true,
-                    isDismissible: false
-                )
-                .accessibility(label: Text(String(format: LocalizedString("Enter %1$@ value", comment: "Format string for accessibility label for value entry. (1: value label)"), label)))
+                TextField(placeholder, text: $enteredValue)
+                    .textFieldStyle(.plain)
+                    .font(font)
+                    .multilineTextAlignment(.trailing)
+                    .keyboardType(allowFractions ? .decimalPad : .numberPad)
+                    .inputField(focus: focus)
+                    .accessibilityIdentifier("dismissibleKeyboardTextField")
+                    .accessibility(label: Text(String(format: LocalizedString("Enter %1$@ value", comment: "Format string for accessibility label for value entry. (1: value label)"), label)))
                 Text(self.label)
                     .font(.footnote)
                     .multilineTextAlignment(.leading)
@@ -69,14 +54,31 @@ public struct LabeledNumberInput: View {
                     .frame(width: geometry.size.width/2, alignment: .leading)
             }
         }
+        .onChange(of: enteredValue) { _, text in
+            value = numberFormatter.number(from: text)?.doubleValue
+        }
+        .onChange(of: value) { _, newValue in
+            if !focus.wrappedValue {
+                enteredValue = newValue.flatMap { numberFormatter.string(from: NSNumber(value: $0)) } ?? ""
+            }
+        }
     }
 }
 
 struct LabeledNumberInput_Previews: PreviewProvider {
     static var previews: some View {
-        LabeledNumberInput(
-            value: .constant(nil),
-            label: "mg/dL",
-            allowFractions: true)
+        PreviewWrapper()
+    }
+
+    private struct PreviewWrapper: View {
+        @FocusState private var isFocused: Bool
+
+        var body: some View {
+            LabeledNumberInput(
+                value: .constant(nil),
+                label: "mg/dL",
+                allowFractions: true,
+                focus: $isFocused)
+        }
     }
 }

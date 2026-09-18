@@ -40,6 +40,17 @@ import SwiftUI
 ///     Text("Below dynamic data")
 /// }
 /// ```
+
+/// Matches the corner radius of the system's inset-grouped list cards:
+/// iOS 26 adopted large concentric corners; earlier versions use the classic 10pt.
+public var cardCornerRadius: CGFloat {
+    if #available(iOS 26.0, *) {
+        return 26
+    } else {
+        return 10
+    }
+}
+
 public struct Card: View {
     var hero: AnyView?
     var parts: [AnyView?]
@@ -89,7 +100,7 @@ public struct Card: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(CardBackground(color: backgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
         .padding(.horizontal)
     }
 }
@@ -220,7 +231,7 @@ public struct CardBackground: View {
     }
 
     public var body: some View {
-        RoundedRectangle(cornerRadius: 10, style: .continuous)
+        RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
             .foregroundColor(color)
     }
 }

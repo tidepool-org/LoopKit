@@ -14,6 +14,8 @@ struct InformationView<InformationalContent: View> : View {
     var buttonText: Text
     var onExit: (() -> Void)
     let mode: SettingsPresentationMode
+
+    @State private var scrollViewHeight: CGFloat = 0
     
     init(
         title: Text,
@@ -46,22 +48,31 @@ struct InformationView<InformationalContent: View> : View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                bodyForMode
-                    .padding()
-                    .frame(minHeight: geometry.size.height)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var bodyForMode: some View {
         switch mode {
         case .acceptanceFlow:
-            bodyForAcceptanceFlow
+            ScrollView {
+                bodyForAcceptanceFlow
+                    .padding()
+            }
+            .actionAreaInset {
+                nextPageButton
+            }
         case .settings:
-            bodyForSettings
+            ScrollView {
+                bodyForSettings
+                    .padding()
+                    .frame(minHeight: scrollViewHeight)
+            }
+            .background(
+                GeometryReader { geometry in
+                    let visibleHeight = geometry.size.height - (geometry.frame(in: .global).maxY > UIScreen.main.bounds.height - geometry.safeAreaInsets.bottom + 0.5 ? geometry.safeAreaInsets.bottom : 0)
+                    Color.clear
+                        .onAppear { scrollViewHeight = visibleHeight }
+                        .onChange(of: visibleHeight) { _, height in
+                            scrollViewHeight = height
+                        }
+                }
+            )
         }
     }
     
@@ -70,8 +81,6 @@ struct InformationView<InformationalContent: View> : View {
             titleView
             Divider()
             informationalContent
-            Spacer()
-            nextPageButton
         }
     }
     
@@ -104,7 +113,8 @@ struct InformationView<InformationalContent: View> : View {
     private var nextPageButton: some View {
         Button(action: onExit) {
             buttonText
-            .actionButtonStyle(.primary)
-        }.accessibilityIdentifier("button_continue")
+        }
+        .buttonStyle(ActionButtonStyle(.primary))
+        .accessibilityIdentifier("button_continue")
     }
 }

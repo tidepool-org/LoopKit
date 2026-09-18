@@ -93,7 +93,7 @@ struct CreatePresetNameAndScheduledEdit: View {
 
                         TextField("", text: $preset.name, prompt: Text("Required"))
                             .multilineTextAlignment(.trailing)
-                            .focused($isTextFieldFocused)
+                            .inputField(focus: $isTextFieldFocused)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -239,12 +239,6 @@ struct CreatePresetNameAndScheduledEdit: View {
                         .padding(.top, 4)
                 }
             }
-        } actionArea: {
-            Button("Continue") {
-                path.append(CreatePresetPage.summary)
-            }
-            .disabled(!allowSave)
-            .buttonStyle(ActionButtonStyle(.primary))
         }
         .onChange(of: selectedRepeatOption, { oldValue, newValue in
             if newValue == .weekly {
@@ -260,7 +254,15 @@ struct CreatePresetNameAndScheduledEdit: View {
             }
         })
         .animation(.easeInOut, value: preset.duration)
-
+        .defaultFocus($isTextFieldFocused, preset.savePreset && preset.name.isEmpty)
+        .inputForm(focus: $isTextFieldFocused)
+        .actionAreaInset {
+            Button("Continue") {
+                path.append(CreatePresetPage.summary)
+            }
+            .disabled(!allowSave)
+            .buttonStyle(ActionButtonStyle(.primary))
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Create a Preset")
         .toolbar {
