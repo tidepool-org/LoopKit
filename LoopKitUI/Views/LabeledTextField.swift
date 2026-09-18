@@ -31,6 +31,7 @@ public struct LabeledTextField: View {
                     .multilineTextAlignment(.trailing)
                     .keyboardType(.alphabet)
                     .submitLabel(.done)
+                    .keyboardDismissAccessory()
                     .frame(maxWidth: geometry.size.width/2, alignment: .trailing)
             }
         }

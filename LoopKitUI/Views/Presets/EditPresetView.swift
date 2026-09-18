@@ -274,6 +274,7 @@ public struct EditPresetView: View {
                         .multilineTextAlignment(.trailing)
                         .focused($isTextFieldFocused)
                         .submitLabel(.done)
+                        .keyboardDismissAccessory()
                         .foregroundColor(.secondary)
                 } else {
                     HStack(spacing: 4) {

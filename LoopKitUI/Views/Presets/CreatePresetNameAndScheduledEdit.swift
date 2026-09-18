@@ -94,7 +94,12 @@ struct CreatePresetNameAndScheduledEdit: View {
                         TextField("", text: $preset.name, prompt: Text("Required"))
                             .multilineTextAlignment(.trailing)
                             .focused($isTextFieldFocused)
+                            .autoFocusOnFirstAppearance(
+                                Binding(get: { isTextFieldFocused }, set: { isTextFieldFocused = $0 }),
+                                enabled: preset.name.isEmpty
+                            )
                             .submitLabel(.done)
+                            .keyboardDismissAccessory()
                             .foregroundColor(.secondary)
                     }
                 }

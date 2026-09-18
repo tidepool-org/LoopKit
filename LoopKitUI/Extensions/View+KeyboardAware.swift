@@ -61,9 +61,76 @@ private struct KeyboardEntryPage: ViewModifier {
             .scrollBounceBehavior(.always)
             .scrollDismissesKeyboard(.interactively)
             .interactiveDismissDisabled(isKeyboardVisible)
+            .background(KeyboardModalPinner(isKeyboardVisible: isKeyboardVisible))
             .onKeyboardStateChange { state in
                 isKeyboardVisible = state.height > 0
             }
+    }
+}
+
+private struct KeyboardModalPinner: UIViewControllerRepresentable {
+    let isKeyboardVisible: Bool
+
+    func makeUIViewController(context: Context) -> PinnerController {
+        PinnerController()
+    }
+
+    func updateUIViewController(_ controller: PinnerController, context: Context) {
+        controller.setPinned(isKeyboardVisible)
+    }
+
+    static func dismantleUIViewController(_ controller: PinnerController, coordinator: ()) {
+        controller.setPinned(false)
+    }
+
+    final class PinnerController: UIViewController {
+        private weak var pinnedController: UIViewController?
+        private var valueBeforePinning = false
+
+        override func loadView() {
+            view = UIView()
+            view.isUserInteractionEnabled = false
+        }
+
+        override func didMove(toParent parent: UIViewController?) {
+            super.didMove(toParent: parent)
+            if pendingPin { setPinned(true) }
+        }
+
+        private var pendingPin = false
+
+        func setPinned(_ pinned: Bool) {
+            if pinned {
+                guard pinnedController == nil else { return }
+                guard let presented = presentedRoot() else {
+                    pendingPin = true
+                    return
+                }
+                pendingPin = false
+                pinnedController = presented
+                valueBeforePinning = presented.isModalInPresentation
+                presented.isModalInPresentation = true
+            } else {
+                pendingPin = false
+                guard let presented = pinnedController else { return }
+                if presented.isModalInPresentation {
+                    presented.isModalInPresentation = valueBeforePinning
+                }
+                pinnedController = nil
+            }
+        }
+
+        private func presentedRoot() -> UIViewController? {
+            var candidate: UIViewController? = self
+            var presented: UIViewController?
+            while let current = candidate {
+                if current.presentingViewController != nil {
+                    presented = current
+                }
+                candidate = current.parent
+            }
+            return presented
+        }
     }
 }
 
@@ -147,10 +214,11 @@ private struct KeyboardDismissAccessoryInstaller: UIViewControllerRepresentable 
                 restoreAccessory()
                 textField = field
                 originalAccessory = field.inputAccessoryView
-                accessory = KeyboardDismissAccessory.wantsStrip(field) ? KeyboardDismissAccessory.make(dismissing: field) : nil
+                accessory = KeyboardDismissAccessory.make(for: field)
             }
             
             guard let accessory else { return }
+            (accessory as? KeyboardDismissAccessory.Strip)?.update(for: field)
             
             if field.inputAccessoryView !== accessory {
                 field.inputAccessoryView = accessory

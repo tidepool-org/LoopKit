@@ -124,67 +124,123 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
 public enum KeyboardDismissAccessory {
     static let height: CGFloat = 52
 
-    final class Strip: UIInputView {}
+    final class Strip: UIInputView {
+        private weak var textField: UITextField?
+        private let button: UIButton
+        private var mirrorsReturnKey = false
 
-    public static func wantsStrip(_ textField: UITextField) -> Bool {
-        if textField.inputView != nil || textField.inputViewController != nil { return true }
+        init(for textField: UITextField) {
+            var configuration: UIButton.Configuration
+            if #available(iOS 26.0, *) {
+                configuration = .glass()
+            } else {
+                configuration = .plain()
+            }
+            configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
+                var attributes = attributes
+                attributes.font = UIFont.preferredFont(forTextStyle: .headline)
+                return attributes
+            }
+            configuration.baseForegroundColor = .label
+            configuration.cornerStyle = .capsule
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 9, leading: 16, bottom: 9, trailing: 16)
+            button = UIButton(configuration: configuration)
+
+            super.init(
+                frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: KeyboardDismissAccessory.height),
+                inputViewStyle: .keyboard
+            )
+            allowsSelfSizing = true
+            autoresizingMask = .flexibleWidth
+
+            button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
+            addSubview(button)
+            button.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                heightAnchor.constraint(equalToConstant: KeyboardDismissAccessory.height),
+                button.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+                button.centerYAnchor.constraint(equalTo: centerYAnchor),
+            ])
+            update(for: textField)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) is not supported")
+        }
+
+        func update(for textField: UITextField) {
+            self.textField = textField
+            mirrorsReturnKey = KeyboardDismissAccessory.hasReturnKey(textField)
+                && !Self.isDismissing(textField.returnKeyType)
+            var configuration = button.configuration
+            configuration?.title = mirrorsReturnKey
+                ? Self.title(for: textField.returnKeyType)
+                : LocalizedString("Done", comment: "Title of the keyboard toolbar button that dismisses the keyboard")
+            button.configuration = configuration
+            button.accessibilityHint = mirrorsReturnKey
+                ? nil
+                : LocalizedString("Dismisses the keyboard", comment: "Accessibility hint for the keyboard toolbar Done button")
+        }
+
+        @objc private func tapped() {
+            guard let textField else { return }
+            if mirrorsReturnKey,
+               let delegate = textField.delegate,
+               delegate.responds(to: #selector(UITextFieldDelegate.textFieldShouldReturn(_:))) {
+                _ = delegate.textFieldShouldReturn?(textField)
+            } else {
+                textField.resignFirstResponder()
+            }
+        }
+
+        private static func isDismissing(_ type: UIReturnKeyType) -> Bool {
+            type == .default || type == .done
+        }
+
+        private static func title(for type: UIReturnKeyType) -> String {
+            switch type {
+            case .next:
+                return LocalizedString("Next", comment: "Title of the keyboard toolbar button that moves to the next field")
+            case .continue:
+                return LocalizedString("Continue", comment: "Title of the keyboard toolbar button that continues")
+            case .go:
+                return LocalizedString("Go", comment: "Title of the keyboard toolbar button that submits (Go)")
+            case .search:
+                return LocalizedString("Search", comment: "Title of the keyboard toolbar button that searches")
+            case .send:
+                return LocalizedString("Send", comment: "Title of the keyboard toolbar button that sends")
+            case .join:
+                return LocalizedString("Join", comment: "Title of the keyboard toolbar button that joins")
+            default:
+                return LocalizedString("Done", comment: "Title of the keyboard toolbar button that dismisses the keyboard")
+            }
+        }
+    }
+
+    static func hasReturnKey(_ textField: UITextField) -> Bool {
+        if textField.inputView != nil || textField.inputViewController != nil { return false }
         switch textField.keyboardType {
         case .numberPad, .decimalPad, .phonePad, .asciiCapableNumberPad:
-            return true
-        default:
             return false
+        default:
+            return true
         }
     }
 
     public static func configureDismissal(for textField: UITextField) {
-        if wantsStrip(textField) {
-            guard !(textField.inputAccessoryView is Strip) else { return }
-            textField.inputAccessoryView = make(dismissing: textField)
-            if textField.isFirstResponder { textField.reloadInputViews() }
-        } else {
-            if textField.inputAccessoryView is Strip {
-                textField.inputAccessoryView = nil
-                if textField.isFirstResponder { textField.reloadInputViews() }
-            }
+        if hasReturnKey(textField), textField.returnKeyType == .default {
             textField.returnKeyType = .done
+        }
+        if let strip = textField.inputAccessoryView as? Strip {
+            strip.update(for: textField)
+        } else {
+            textField.inputAccessoryView = make(for: textField)
+            if textField.isFirstResponder { textField.reloadInputViews() }
         }
     }
 
-    public static func make(dismissing responder: UIResponder) -> UIView {
-        let strip = Strip(
-            frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: height),
-            inputViewStyle: .keyboard
-        )
-        strip.allowsSelfSizing = true
-        strip.autoresizingMask = .flexibleWidth
-
-        var configuration: UIButton.Configuration
-        if #available(iOS 26.0, *) {
-            configuration = .glass()
-        } else {
-            configuration = .plain()
-        }
-        configuration.title = LocalizedString("Done", comment: "Title of the keyboard toolbar button that dismisses the keyboard")
-        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
-            var attributes = attributes
-            attributes.font = UIFont.preferredFont(forTextStyle: .headline)
-            return attributes
-        }
-        configuration.baseForegroundColor = .label
-        configuration.cornerStyle = .capsule
-        configuration.contentInsets = NSDirectionalEdgeInsets(top: 9, leading: 16, bottom: 9, trailing: 16)
-        let dismissButton = UIButton(configuration: configuration)
-        dismissButton.accessibilityHint = LocalizedString("Dismisses the keyboard", comment: "Accessibility hint for the keyboard toolbar Done button")
-        dismissButton.addTarget(responder, action: #selector(UIResponder.resignFirstResponder), for: .touchUpInside)
-
-        strip.addSubview(dismissButton)
-        dismissButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            strip.heightAnchor.constraint(equalToConstant: height),
-            dismissButton.trailingAnchor.constraint(equalTo: strip.layoutMarginsGuide.trailingAnchor),
-            dismissButton.centerYAnchor.constraint(equalTo: strip.centerYAnchor),
-        ])
-        return strip
+    public static func make(for textField: UITextField) -> UIView {
+        Strip(for: textField)
     }
 }
 
