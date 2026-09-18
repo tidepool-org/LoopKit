@@ -23,18 +23,14 @@ public enum KeyboardDismissAccessory {
         }
     }
 
+    @available(iOS 26.0, *)
     final class Strip: UIInputView {
         private weak var textField: UITextField?
         private let button: UIButton
         private var nextAction: (() -> Void)?
 
         init(for textField: UITextField, next: (() -> Void)?) {
-            var configuration: UIButton.Configuration
-            if #available(iOS 26.0, *) {
-                configuration = .glass()
-            } else {
-                configuration = .plain()
-            }
+            var configuration = UIButton.Configuration.glass()
             configuration.baseForegroundColor = .label
             configuration.cornerStyle = .capsule
             configuration.buttonSize = .small
@@ -142,6 +138,8 @@ public enum KeyboardDismissAccessory {
         if hasReturnKey(textField) {
             textField.returnKeyType = next == nil ? .done : .next
         }
+        guard #available(iOS 26.0, *) else { return }
+
         if let strip = textField.inputAccessoryView as? Strip {
             strip.update(for: textField, next: next)
         } else {

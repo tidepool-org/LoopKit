@@ -48,12 +48,13 @@ private struct KeyboardToolbar: ViewModifier {
                 actions
             }
         } else {
-            content.safeAreaInset(edge: .bottom, spacing: 0) {
-                actions
-            }
+            content
+                .scrollBounceBehavior(.always)
+                .scrollDismissesKeyboard(.interactively)
         }
     }
 
+    @available(iOS 26.0, *)
     @ViewBuilder
     private var actions: some View {
         if isFocused {
@@ -77,24 +78,16 @@ private struct KeyboardToolbar: ViewModifier {
     }
 }
 
+@available(iOS 26.0, *)
 private struct KeyboardToolbarButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        background(for: configuration.label)
+        paddedLabel(configuration.label)
+            .glassEffect(.regular.interactive(), in: .capsule)
             .frame(minWidth: KeyboardDismissAccessory.minimumHitTarget,
                    minHeight: KeyboardDismissAccessory.minimumHitTarget,
                    alignment: .bottom)
             .contentShape(Rectangle())
             .opacity(configuration.isPressed ? 0.8 : 1)
-    }
-
-    @ViewBuilder
-    private func background(for label: Configuration.Label) -> some View {
-        if #available(iOS 26.0, *) {
-            paddedLabel(label)
-                .glassEffect(.regular.interactive(), in: .capsule)
-        } else {
-            paddedLabel(label)
-        }
     }
 
     private func paddedLabel(_ label: Configuration.Label) -> some View {
