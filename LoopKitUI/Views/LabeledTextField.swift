@@ -30,6 +30,7 @@ public struct LabeledTextField: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.trailing)
                     .keyboardType(.alphabet)
+                    .submitLabel(.done)
                     .frame(maxWidth: geometry.size.width/2, alignment: .trailing)
             }
         }

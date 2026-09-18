@@ -94,6 +94,7 @@ struct CreatePresetNameAndScheduledEdit: View {
                         TextField("", text: $preset.name, prompt: Text("Required"))
                             .multilineTextAlignment(.trailing)
                             .focused($isTextFieldFocused)
+                            .submitLabel(.done)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -260,7 +261,7 @@ struct CreatePresetNameAndScheduledEdit: View {
             }
         })
         .animation(.easeInOut, value: preset.duration)
-
+        .keyboardEntryPage()
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Create a Preset")
         .toolbar {

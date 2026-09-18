@@ -32,7 +32,7 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
         VStack(spacing: 0) {
             CardList(title: title, style: cardListStyle)
 
-            FloatingActionArea {
+            ActionArea {
                 actionAreaContent
                     .transition(AnyTransition.opacity.combined(with: .move(edge: .bottom)))
 

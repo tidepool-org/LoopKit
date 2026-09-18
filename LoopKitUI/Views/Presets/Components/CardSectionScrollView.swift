@@ -29,19 +29,22 @@ public struct CardSectionScrollView<Content: View, ActionAreaContent: View>: Vie
         self.actionArea = nil
     }
 
+    @ViewBuilder
     public var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading) {
-                    content
-                }
-                .padding()
+        if let actionArea {
+            scrollContent
+                .actionAreaInset { actionArea }
+        } else {
+            scrollContent
+        }
+    }
+
+    private var scrollContent: some View {
+        ScrollView {
+            VStack(alignment: .leading) {
+                content
             }
-            if let actionArea {
-                FloatingActionArea {
-                    actionArea
-                }
-            }
+            .padding()
         }
         .background(Color(.systemGroupedBackground))
     }

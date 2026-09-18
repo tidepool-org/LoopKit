@@ -87,7 +87,7 @@ public struct DurationSheet: View {
                 .readContentHeight(to: $sheetContentHeight)
             }
             
-            FloatingActionArea {
+            ActionArea {
                 Button {
                     durationWasSelected = true
                 } label: {

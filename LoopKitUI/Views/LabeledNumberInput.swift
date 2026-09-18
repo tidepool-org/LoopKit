@@ -57,8 +57,7 @@ public struct LabeledNumberInput: View {
                     font: font,
                     textAlignment: .right,
                     keyboardType: allowFractions ? .decimalPad : .numberPad,
-                    shouldBecomeFirstResponder: shouldBecomeFirstResponder,
-                    isDismissible: false
+                    shouldBecomeFirstResponder: shouldBecomeFirstResponder
                 )
                 .accessibility(label: Text(String(format: LocalizedString("Enter %1$@ value", comment: "Format string for accessibility label for value entry. (1: value label)"), label)))
                 Text(self.label)

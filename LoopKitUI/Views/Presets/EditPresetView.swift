@@ -260,6 +260,7 @@ public struct EditPresetView: View {
             } message: { alertState in
                 alertMessage(for: alertState)
             }
+            .keyboardEntryPage()
         }
     }
     
@@ -272,6 +273,7 @@ public struct EditPresetView: View {
                     TextField("", text: $preset.name, prompt: Text("Required"))
                         .multilineTextAlignment(.trailing)
                         .focused($isTextFieldFocused)
+                        .submitLabel(.done)
                         .foregroundColor(.secondary)
                 } else {
                     HStack(spacing: 4) {

@@ -29,6 +29,7 @@ struct RowTextField: UIViewRepresentable {
     func updateUIView(_ textField: CustomInputTextField, context: UIViewRepresentableContext<RowTextField>) {
         textField.text = text
         configuration(textField)
+        KeyboardDismissAccessory.configureDismissal(for: textField)
         DispatchQueue.main.async {
             if isFocused && !textField.isFirstResponder {
                 textField.becomeFirstResponder()
@@ -65,6 +66,13 @@ struct RowTextField: UIViewRepresentable {
             }
         }
         
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            if textField.returnKeyType == .done {
+                textField.resignFirstResponder()
+            }
+            return true
+        }
+
         func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
             if isFocused {
                 isFocused = false

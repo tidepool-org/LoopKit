@@ -100,16 +100,16 @@ public struct CreatePresetView: View {
 
     public var body: some View {
         NavigationStack(path: $path) {
-            VStack(spacing: 0) {
-                Form {
-                    InsulinScaleAdjustView(
-                        insulinMultiplier: $preset.insulinMultiplier,
-                        guardrail: Guardrail.presetInsulinNeeds,
-                        impactForInsulinMultiplier: impactForInsulinMultiplier
-                    )
-                }
-
-                actionArea
+            Form {
+                InsulinScaleAdjustView(
+                    insulinMultiplier: $preset.insulinMultiplier,
+                    guardrail: Guardrail.presetInsulinNeeds,
+                    impactForInsulinMultiplier: impactForInsulinMultiplier
+                )
+            }
+            .actionAreaInset {
+                guardrailWarningIfNecessary
+                actionButton
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
@@ -186,7 +186,7 @@ public struct CreatePresetView: View {
     }
 
     private var actionArea: some View {
-        FloatingActionArea {
+        ActionArea {
             guardrailWarningIfNecessary
             actionButton
         }
