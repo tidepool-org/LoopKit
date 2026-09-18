@@ -22,6 +22,8 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
     var maxLength: Int?
     var doneButtonColor: UIColor
     var isDismissible: Bool
+    var submitLabel: UIReturnKeyType
+    var onSubmit: (() -> Void)?
     var textFieldDidBeginEditing: (() -> Void)?
 
     public init(
@@ -37,6 +39,8 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         maxLength: Int? = nil,
         doneButtonColor: UIColor = .blue,
         isDismissible: Bool = true,
+        submitLabel: UIReturnKeyType = .default,
+        onSubmit: (() -> Void)? = nil,
         textFieldDidBeginEditing: (() -> Void)? = nil
     ) {
         self._text = text
@@ -51,6 +55,8 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         self.maxLength = maxLength
         self.doneButtonColor = doneButtonColor
         self.isDismissible = isDismissible
+        self.submitLabel = submitLabel
+        self.onSubmit = onSubmit
         self.textFieldDidBeginEditing = textFieldDidBeginEditing
     }
 
@@ -72,8 +78,11 @@ public struct DismissibleKeyboardTextField: UIViewRepresentable {
         textField.keyboardType = keyboardType
         textField.autocapitalizationType = autocapitalizationType
         textField.autocorrectionType = autocorrectionType
+        if submitLabel != .default {
+            textField.returnKeyType = submitLabel
+        }
         if isDismissible {
-            KeyboardDismissAccessory.configureDismissal(for: textField)
+            KeyboardDismissAccessory.configureDismissal(for: textField, submit: onSubmit)
         }
 
         if shouldBecomeFirstResponder && !context.coordinator.didBecomeFirstResponder {
@@ -128,6 +137,7 @@ public enum KeyboardDismissAccessory {
         private weak var textField: UITextField?
         private let button: UIButton
         private var mirrorsReturnKey = false
+        private var submitAction: (() -> Void)?
 
         init(for textField: UITextField) {
             var configuration: UIButton.Configuration
@@ -168,10 +178,10 @@ public enum KeyboardDismissAccessory {
             fatalError("init(coder:) is not supported")
         }
 
-        func update(for textField: UITextField) {
+        func update(for textField: UITextField, submit: (() -> Void)? = nil) {
             self.textField = textField
-            mirrorsReturnKey = KeyboardDismissAccessory.hasReturnKey(textField)
-                && !Self.isDismissing(textField.returnKeyType)
+            self.submitAction = submit
+            mirrorsReturnKey = !Self.isDismissing(textField.returnKeyType)
             var configuration = button.configuration
             configuration?.title = mirrorsReturnKey
                 ? Self.title(for: textField.returnKeyType)
@@ -184,9 +194,13 @@ public enum KeyboardDismissAccessory {
 
         @objc private func tapped() {
             guard let textField else { return }
-            if mirrorsReturnKey,
-               let delegate = textField.delegate,
-               delegate.responds(to: #selector(UITextFieldDelegate.textFieldShouldReturn(_:))) {
+            if mirrorsReturnKey, let submitAction {
+                submitAction()
+            } else if mirrorsReturnKey, textField.returnKeyType == .next {
+                KeyboardDismissAccessory.focusNextTextField(after: textField)
+            } else if mirrorsReturnKey,
+                      let delegate = textField.delegate,
+                      delegate.responds(to: #selector(UITextFieldDelegate.textFieldShouldReturn(_:))) {
                 _ = delegate.textFieldShouldReturn?(textField)
             } else {
                 textField.resignFirstResponder()
@@ -227,20 +241,62 @@ public enum KeyboardDismissAccessory {
         }
     }
 
-    public static func configureDismissal(for textField: UITextField) {
+    public static func configureDismissal(for textField: UITextField, submit: (() -> Void)? = nil) {
         if hasReturnKey(textField), textField.returnKeyType == .default {
             textField.returnKeyType = .done
         }
         if let strip = textField.inputAccessoryView as? Strip {
-            strip.update(for: textField)
+            strip.update(for: textField, submit: submit)
         } else {
-            textField.inputAccessoryView = make(for: textField)
+            let strip = Strip(for: textField)
+            strip.update(for: textField, submit: submit)
+            textField.inputAccessoryView = strip
             if textField.isFirstResponder { textField.reloadInputViews() }
         }
     }
 
     public static func make(for textField: UITextField) -> UIView {
         Strip(for: textField)
+    }
+
+    public static func focusNextTextField(after textField: UITextField) {
+        guard let window = textField.window else {
+            textField.resignFirstResponder()
+            return
+        }
+        var candidates: [UITextField] = []
+        func visit(_ view: UIView) {
+            guard !view.isHidden, view.alpha > 0.01 else { return }
+            if let field = view as? UITextField {
+                if field.isEnabled, field.isUserInteractionEnabled, !field.bounds.isEmpty {
+                    candidates.append(field)
+                }
+                return
+            }
+            view.subviews.forEach(visit)
+        }
+        visit(window)
+        let origin = textField.convert(textField.bounds.origin, to: window)
+        var nextField: UITextField?
+        var nextOrigin = CGPoint.zero
+        for candidate in candidates where candidate !== textField {
+            let candidateOrigin = candidate.convert(candidate.bounds.origin, to: window)
+            let isBelow = candidateOrigin.y > origin.y + 1
+            let isTrailingOnSameLine = abs(candidateOrigin.y - origin.y) <= 1 && candidateOrigin.x > origin.x
+            guard isBelow || isTrailingOnSameLine else { continue }
+            let isEarlierThanCurrentBest = nextField == nil
+                || candidateOrigin.y < nextOrigin.y
+                || (candidateOrigin.y == nextOrigin.y && candidateOrigin.x < nextOrigin.x)
+            if isEarlierThanCurrentBest {
+                nextField = candidate
+                nextOrigin = candidateOrigin
+            }
+        }
+        if let nextField {
+            nextField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+        }
     }
 }
 
@@ -260,7 +316,11 @@ extension DismissibleKeyboardTextField.Coordinator: UITextFieldDelegate {
     }
 
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField.returnKeyType == .done {
+        if let onSubmit = parent.onSubmit {
+            onSubmit()
+        } else if textField.returnKeyType == .next {
+            KeyboardDismissAccessory.focusNextTextField(after: textField)
+        } else if textField.returnKeyType == .done {
             textField.resignFirstResponder()
         }
         return true

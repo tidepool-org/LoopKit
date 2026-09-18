@@ -21,8 +21,8 @@ extension View {
         modifier(AutoFocusOnFirstAppearance(shouldFocus: shouldFocus, enabled: enabled))
     }
 
-    public func keyboardDismissAccessory() -> some View {
-        background(KeyboardDismissAccessoryInstaller())
+    public func keyboardDismissAccessory(onSubmit: (() -> Void)? = nil) -> some View {
+        background(KeyboardDismissAccessoryInstaller(onSubmit: onSubmit))
     }
 }
 
@@ -136,8 +136,10 @@ private struct KeyboardModalPinner: UIViewControllerRepresentable {
 
 private struct KeyboardDismissAccessoryInstaller: UIViewControllerRepresentable {
     @Binding private var observed: Void
+    private let onSubmit: (() -> Void)?
 
-    init() {
+    init(onSubmit: (() -> Void)?) {
+        self.onSubmit = onSubmit
         _observed = .constant(())
     }
 
@@ -146,6 +148,7 @@ private struct KeyboardDismissAccessoryInstaller: UIViewControllerRepresentable 
     }
 
     func updateUIViewController(_ controller: InstallerController, context: Context) {
+        controller.submitAction = onSubmit
         controller.refreshSoon()
     }
 
@@ -154,7 +157,8 @@ private struct KeyboardDismissAccessoryInstaller: UIViewControllerRepresentable 
     }
 
     final class InstallerController: UIViewController {
-        
+        var submitAction: (() -> Void)?
+
         private weak var textField: UITextField?
         
         private var originalAccessory: UIView?
@@ -218,7 +222,7 @@ private struct KeyboardDismissAccessoryInstaller: UIViewControllerRepresentable 
             }
             
             guard let accessory else { return }
-            (accessory as? KeyboardDismissAccessory.Strip)?.update(for: field)
+            (accessory as? KeyboardDismissAccessory.Strip)?.update(for: field, submit: submitAction)
             
             if field.inputAccessoryView !== accessory {
                 field.inputAccessoryView = accessory

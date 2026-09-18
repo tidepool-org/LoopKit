@@ -38,25 +38,6 @@ public struct ActionArea<Content: View>: View {
     }
 }
 
-public struct SecondaryActionButton: View {
-    private let title: Text
-    private let action: () -> Void
-
-    public init(_ title: Text, action: @escaping () -> Void) {
-        self.title = title
-        self.action = action
-    }
-
-    public var body: some View {
-        HStack {
-            Spacer()
-            Button(action: action) { title.bold() }
-                .padding(8)
-            Spacer()
-        }
-    }
-}
-
 public extension View {
     func actionAreaShadow() -> some View {
         background(
