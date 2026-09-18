@@ -13,12 +13,8 @@ extension View {
         onReceive(Keyboard.shared.$state, perform: updateForKeyboardState)
     }
 
-    public func keyboardEntryPage(isInteractiveDismissDisabled: Bool = false) -> some View {
-        modifier(KeyboardEntryPage(isInteractiveDismissDisabled: isInteractiveDismissDisabled))
-    }
-
-    public func autoFocusOnFirstAppearance(_ shouldFocus: Binding<Bool>, enabled: @autoclosure @escaping () -> Bool = true) -> some View {
-        modifier(AutoFocusOnFirstAppearance(shouldFocus: shouldFocus, enabled: enabled))
+    public func inputForm(isInteractiveDismissDisabled: Bool = false) -> some View {
+        modifier(InputForm(isInteractiveDismissDisabled: isInteractiveDismissDisabled))
     }
 
     /// Install on the page containing the fields so scrolling content avoids the entire action bar.
@@ -44,9 +40,23 @@ private struct KeyboardToolbar: ViewModifier {
 
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
-            content.safeAreaBar(edge: .bottom, spacing: 0) {
-                actions
-            }
+            content
+                .scrollBounceBehavior(.always)
+                .scrollDismissesKeyboard(.interactively)
+                .safeAreaBar(edge: .bottom, spacing: 0) {
+                    if isFocused {
+                        HStack {
+                            Spacer()
+                            button
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.primary)
+                                .buttonStyle(.glass)
+                                .controlSize(.regular)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                    }
+                }
         } else {
             content
                 .scrollBounceBehavior(.always)
@@ -63,20 +73,6 @@ private struct KeyboardToolbar: ViewModifier {
         }
     }
 
-    @available(iOS 26.0, *)
-    @ViewBuilder
-    private var actions: some View {
-        if isFocused {
-            HStack {
-                Spacer()
-                button
-                    .buttonStyle(KeyboardToolbarButtonStyle())
-            }
-            .padding(.horizontal, KeyboardDismissAccessory.horizontalSpacing)
-            .padding(.vertical, KeyboardDismissAccessory.verticalSpacing)
-        }
-    }
-
     private var button: some View {
         Button(
             next == nil
@@ -87,55 +83,7 @@ private struct KeyboardToolbar: ViewModifier {
     }
 }
 
-@available(iOS 26.0, *)
-private struct KeyboardToolbarButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        paddedLabel(configuration.label)
-            .glassEffect(.regular.interactive(), in: .capsule)
-            .frame(minWidth: KeyboardDismissAccessory.minimumHitTarget,
-                   minHeight: KeyboardDismissAccessory.minimumHitTarget,
-                   alignment: .bottom)
-            .contentShape(Rectangle())
-            .opacity(configuration.isPressed ? 0.8 : 1)
-    }
-
-    private func paddedLabel(_ label: Configuration.Label) -> some View {
-        label
-            .font(.headline)
-            .foregroundStyle(.primary)
-            .padding(.horizontal, KeyboardDismissAccessory.horizontalContentInset)
-            .padding(.vertical, KeyboardDismissAccessory.verticalContentInset)
-    }
-}
-
-private struct AutoFocusOnFirstAppearance: ViewModifier {
-    @Binding var shouldFocus: Bool
-    let enabled: () -> Bool
-
-    @State private var hasAutoFocused = false
-    @State private var isVisible = false
-
-    private static var transitionSettleDelay: TimeInterval { 0.5 }
-
-    func body(content: Content) -> some View {
-        content
-            .onAppear {
-                isVisible = true
-                guard !hasAutoFocused, enabled() else { return }
-                hasAutoFocused = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + Self.transitionSettleDelay) {
-                    guard isVisible else { return }
-                    shouldFocus = true
-                }
-            }
-            .onDisappear {
-                isVisible = false
-                shouldFocus = false
-            }
-    }
-}
-
-private struct KeyboardEntryPage: ViewModifier {
+private struct InputForm: ViewModifier {
     let isInteractiveDismissDisabled: Bool
     @State private var isKeyboardVisible = false
 

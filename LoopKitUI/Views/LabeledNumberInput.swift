@@ -14,8 +14,7 @@ public struct LabeledNumberInput: View {
     let label: String
     let placeholder: String
     let allowFractions: Bool
-    @Binding var isFocused: Bool
-    @FocusState private var textFieldFocused: Bool
+    let focus: FocusState<Bool>.Binding
     @State private var enteredValue: String
     
     private var numberFormatter: NumberFormatter {
@@ -24,13 +23,13 @@ public struct LabeledNumberInput: View {
         return numberFormatter
     }
     
-    public init(value: Binding<Double?>, font: Font = .largeTitle, label: String, placeholder: String? = nil, allowFractions: Bool = false, isFocused: Binding<Bool> = .constant(false)) {
+    public init(value: Binding<Double?>, font: Font = .largeTitle, label: String, placeholder: String? = nil, allowFractions: Bool = false, focus: FocusState<Bool>.Binding) {
         _value = value
         self.font = font
         self.label = label
         self.placeholder = placeholder ?? LocalizedString("Value", comment: "Placeholder text until value is entered")
         self.allowFractions = allowFractions
-        self._isFocused = isFocused
+        self.focus = focus
         let formatter = NumberFormatter()
         formatter.numberStyle = allowFractions ? .decimal : .none
         self._enteredValue = State(initialValue: value.wrappedValue.flatMap { formatter.string(from: NSNumber(value: $0)) } ?? "")
@@ -44,9 +43,7 @@ public struct LabeledNumberInput: View {
                     .font(font)
                     .multilineTextAlignment(.trailing)
                     .keyboardType(allowFractions ? .decimalPad : .numberPad)
-                    .focused($textFieldFocused)
-                    .submitLabel(.done)
-                    .onSubmit { textFieldFocused = false }
+                    .inputField(focus: focus)
                     .accessibilityIdentifier("dismissibleKeyboardTextField")
                     .accessibility(label: Text(String(format: LocalizedString("Enter %1$@ value", comment: "Format string for accessibility label for value entry. (1: value label)"), label)))
                 Text(self.label)
@@ -61,24 +58,27 @@ public struct LabeledNumberInput: View {
             value = numberFormatter.number(from: text)?.doubleValue
         }
         .onChange(of: value) { _, newValue in
-            if !textFieldFocused {
+            if !focus.wrappedValue {
                 enteredValue = newValue.flatMap { numberFormatter.string(from: NSNumber(value: $0)) } ?? ""
             }
-        }
-        .onChange(of: isFocused, initial: true) { _, focused in
-            textFieldFocused = focused
-        }
-        .onChange(of: textFieldFocused) { _, focused in
-            isFocused = focused
         }
     }
 }
 
 struct LabeledNumberInput_Previews: PreviewProvider {
     static var previews: some View {
-        LabeledNumberInput(
-            value: .constant(nil),
-            label: "mg/dL",
-            allowFractions: true)
+        PreviewWrapper()
+    }
+
+    private struct PreviewWrapper: View {
+        @FocusState private var isFocused: Bool
+
+        var body: some View {
+            LabeledNumberInput(
+                value: .constant(nil),
+                label: "mg/dL",
+                allowFractions: true,
+                focus: $isFocused)
+        }
     }
 }

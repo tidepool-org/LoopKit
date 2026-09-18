@@ -12,14 +12,13 @@ public struct LabeledTextField: View {
     var label: String
     var placeholder: String
     @Binding var value: String
-    @Binding var isFocused: Bool
-    @FocusState private var textFieldFocused: Bool
+    let focus: FocusState<Bool>.Binding
     
-    public init(label: String, placeholder: String = "", value: Binding<String>, isFocused: Binding<Bool> = .constant(false)) {
+    public init(label: String, placeholder: String = "", value: Binding<String>, focus: FocusState<Bool>.Binding) {
         self.label = label
         self.placeholder = placeholder
         _value = value
-        _isFocused = isFocused
+        self.focus = focus
     }
     
     public var body: some View {
@@ -33,17 +32,9 @@ public struct LabeledTextField: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.trailing)
                     .keyboardType(.alphabet)
-                    .submitLabel(.done)
-                    .focused($textFieldFocused)
-                    .onSubmit { textFieldFocused = false }
+                    .inputField(focus: focus)
                     .frame(maxWidth: geometry.size.width/2, alignment: .trailing)
             }
-        }
-        .onChange(of: isFocused, initial: true) { _, focused in
-            textFieldFocused = focused
-        }
-        .onChange(of: textFieldFocused) { _, focused in
-            isFocused = focused
         }
     }
 }
@@ -57,8 +48,9 @@ struct LabelTextField_Previews: PreviewProvider {
         
     struct PreviewWrapper: View {
         @State(initialValue: "Overnight") var value: String
+        @FocusState private var isFocused: Bool
         var body: some View {
-            LabeledTextField(label: "Name", placeholder: "Schedule Name", value: $value)
+            LabeledTextField(label: "Name", placeholder: "Schedule Name", value: $value, focus: $isFocused)
         }
     }
 }

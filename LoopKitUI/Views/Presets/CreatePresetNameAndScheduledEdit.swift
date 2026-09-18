@@ -93,13 +93,7 @@ struct CreatePresetNameAndScheduledEdit: View {
 
                         TextField("", text: $preset.name, prompt: Text("Required"))
                             .multilineTextAlignment(.trailing)
-                            .focused($isTextFieldFocused)
-                            .autoFocusOnFirstAppearance(
-                                Binding(get: { isTextFieldFocused }, set: { isTextFieldFocused = $0 }),
-                                enabled: preset.name.isEmpty
-                            )
-                            .submitLabel(.done)
-                            .onSubmit { isTextFieldFocused = false }
+                            .inputField(focus: $isTextFieldFocused)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -260,8 +254,8 @@ struct CreatePresetNameAndScheduledEdit: View {
             }
         })
         .animation(.easeInOut, value: preset.duration)
-        .keyboardEntryPage()
-        .keyboardToolbar(isFocused: isTextFieldFocused, dismiss: { isTextFieldFocused = false })
+        .defaultFocus($isTextFieldFocused, preset.savePreset && preset.name.isEmpty)
+        .inputForm(focus: $isTextFieldFocused)
         .actionAreaInset {
             Button("Continue") {
                 path.append(CreatePresetPage.summary)

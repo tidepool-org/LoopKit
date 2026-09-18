@@ -260,8 +260,7 @@ public struct EditPresetView: View {
             } message: { alertState in
                 alertMessage(for: alertState)
             }
-            .keyboardEntryPage()
-            .keyboardToolbar(isFocused: isTextFieldFocused, dismiss: { isTextFieldFocused = false })
+            .inputForm(focus: $isTextFieldFocused)
         }
     }
     
@@ -273,9 +272,7 @@ public struct EditPresetView: View {
                 if preset.canChangeName {
                     TextField("", text: $preset.name, prompt: Text("Required"))
                         .multilineTextAlignment(.trailing)
-                        .focused($isTextFieldFocused)
-                        .submitLabel(.done)
-                        .onSubmit { isTextFieldFocused = false }
+                        .inputField(focus: $isTextFieldFocused)
                         .foregroundColor(.secondary)
                 } else {
                     HStack(spacing: 4) {

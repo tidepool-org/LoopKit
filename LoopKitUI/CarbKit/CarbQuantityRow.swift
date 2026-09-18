@@ -10,13 +10,15 @@ import SwiftUI
 import LoopKit
 import LoopAlgorithm
 
-public struct CarbQuantityRow: View {
+public struct CarbQuantityRow<Field: Hashable>: View {
     @Binding private var quantity: Double?
-    @Binding private var isFocused: Bool
+    private let focus: FocusState<Field?>.Binding
+    private let field: Field
     
     private let title: String
     private let preferredCarbUnit: LoopUnit
-    private let next: (() -> Void)?
+    private let nextField: Field?
+    private var nextAction: (() -> Void)?
     
     @State private var carbInput: String = ""
     
@@ -27,12 +29,18 @@ public struct CarbQuantityRow: View {
         return formatter
     }()
     
-    public init(quantity: Binding<Double?>, isFocused: Binding<Bool>, title: String, preferredCarbUnit: LoopUnit = .gram, next: (() -> Void)? = nil) {
+    public init(quantity: Binding<Double?>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, preferredCarbUnit: LoopUnit = .gram, next: Field? = nil) {
         self._quantity = quantity
-        self._isFocused = isFocused
+        self.focus = focus
+        self.field = field
         self.title = title
         self.preferredCarbUnit = preferredCarbUnit
-        self.next = next
+        self.nextField = next
+    }
+
+    public init(quantity: Binding<Double?>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, preferredCarbUnit: LoopUnit = .gram, next: @escaping () -> Void) {
+        self.init(quantity: quantity, focus: focus, equals: field, title: title, preferredCarbUnit: preferredCarbUnit)
+        self.nextAction = next
     }
 
     public var body: some View {
@@ -41,15 +49,12 @@ public struct CarbQuantityRow: View {
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            RowTextField(text: $carbInput, isFocused: $isFocused, maxLength: 5, next: next) {
-                $0.textAlignment = .right
-                $0.keyboardType = .decimalPad
-                $0.placeholder = "0"
-                $0.font = .preferredFont(forTextStyle: .body)
-            }
+            textField
+            .multilineTextAlignment(.trailing)
+            .font(.body)
             .onTapGesture {
                 // so that row does not lose focus on cursor move
-                if !isFocused {
+                if focus.wrappedValue != field {
                     rowTapped()
                 }
             }
@@ -69,6 +74,15 @@ public struct CarbQuantityRow: View {
         }
         .onTapGesture {
             rowTapped()
+        }
+    }
+
+    @ViewBuilder
+    private var textField: some View {
+        if let nextAction {
+            KeyboardTextField("0", text: $carbInput, focus: focus, equals: field, keyboardType: .decimalPad, maxLength: 5, next: nextAction)
+        } else {
+            KeyboardTextField("0", text: $carbInput, focus: focus, equals: field, keyboardType: .decimalPad, maxLength: 5, next: nextField)
         }
     }
     
@@ -102,7 +116,7 @@ public struct CarbQuantityRow: View {
     
     private func rowTapped() {
         withAnimation {
-            isFocused.toggle()
+            focus.wrappedValue = focus.wrappedValue == field ? nil : field
         }
     }
 }
