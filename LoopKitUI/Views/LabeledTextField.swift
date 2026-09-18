@@ -12,6 +12,7 @@ public struct LabeledTextField: View {
     var label: String
     var placeholder: String
     @Binding var value: String
+    @FocusState private var isFocused: Bool
     
     public init(label: String, placeholder: String = "", value: Binding<String>) {
         self.label = label
@@ -31,10 +32,12 @@ public struct LabeledTextField: View {
                     .multilineTextAlignment(.trailing)
                     .keyboardType(.alphabet)
                     .submitLabel(.done)
-                    .keyboardDismissAccessory()
+                    .focused($isFocused)
+                    .onSubmit { isFocused = false }
                     .frame(maxWidth: geometry.size.width/2, alignment: .trailing)
             }
         }
+        .keyboardToolbar(isFocused: isFocused, dismiss: { isFocused = false })
     }
 }
 

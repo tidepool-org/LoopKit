@@ -99,7 +99,7 @@ struct CreatePresetNameAndScheduledEdit: View {
                                 enabled: preset.name.isEmpty
                             )
                             .submitLabel(.done)
-                            .keyboardDismissAccessory()
+                            .onSubmit { isTextFieldFocused = false }
                             .foregroundColor(.secondary)
                     }
                 }
@@ -267,6 +267,7 @@ struct CreatePresetNameAndScheduledEdit: View {
         })
         .animation(.easeInOut, value: preset.duration)
         .keyboardEntryPage()
+        .keyboardToolbar(isFocused: isTextFieldFocused, dismiss: { isTextFieldFocused = false })
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Create a Preset")
         .toolbar {

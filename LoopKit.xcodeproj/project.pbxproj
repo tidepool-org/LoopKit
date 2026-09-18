@@ -433,7 +433,7 @@
 		89BE75C72464B4A900B145D9 /* Environment+Dismiss.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BE75C62464B4A900B145D9 /* Environment+Dismiss.swift */; };
 		89BE75CB2464BC2000B145D9 /* AlertContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BE75CA2464BC2000B145D9 /* AlertContent.swift */; };
 		89CA2B38226D4456004D9350 /* DateRelativeQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CA2B37226D4456004D9350 /* DateRelativeQuantity.swift */; };
-		89CAB36B24C9EC25009EE3CE /* DismissibleKeyboardTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CAB36A24C9EC25009EE3CE /* DismissibleKeyboardTextField.swift */; };
+		89CAB36B24C9EC25009EE3CE /* KeyboardDismissAccessory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CAB36A24C9EC25009EE3CE /* KeyboardDismissAccessory.swift */; };
 		89CAB36D24C9EC98009EE3CE /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CAB36C24C9EC98009EE3CE /* Keyboard.swift */; };
 		89CAB36F24C9ECCA009EE3CE /* View+KeyboardAware.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CAB36E24C9ECCA009EE3CE /* View+KeyboardAware.swift */; };
 		89CAB37124CB4DEC009EE3CE /* WarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CAB37024CB4DEC009EE3CE /* WarningView.swift */; };
@@ -1481,7 +1481,7 @@
 		89BE75C62464B4A900B145D9 /* Environment+Dismiss.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Environment+Dismiss.swift"; sourceTree = "<group>"; };
 		89BE75CA2464BC2000B145D9 /* AlertContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertContent.swift; sourceTree = "<group>"; };
 		89CA2B37226D4456004D9350 /* DateRelativeQuantity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRelativeQuantity.swift; sourceTree = "<group>"; };
-		89CAB36A24C9EC25009EE3CE /* DismissibleKeyboardTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissibleKeyboardTextField.swift; sourceTree = "<group>"; };
+		89CAB36A24C9EC25009EE3CE /* KeyboardDismissAccessory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDismissAccessory.swift; sourceTree = "<group>"; };
 		89CAB36C24C9EC98009EE3CE /* Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keyboard.swift; sourceTree = "<group>"; };
 		89CAB36E24C9ECCA009EE3CE /* View+KeyboardAware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+KeyboardAware.swift"; sourceTree = "<group>"; };
 		89CAB37024CB4DEC009EE3CE /* WarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningView.swift; sourceTree = "<group>"; };
@@ -2231,7 +2231,7 @@
 				89904031245B5CA500F1C0A2 /* Deletable.swift */,
 				B451D1132A166403004878F1 /* DemoPlaceHolderView.swift */,
 				B46B62B023FF0CA6001E69BA /* DescriptiveText.swift */,
-				89CAB36A24C9EC25009EE3CE /* DismissibleKeyboardTextField.swift */,
+				89CAB36A24C9EC25009EE3CE /* KeyboardDismissAccessory.swift */,
 				895FE07B22011F0C00FCF18A /* DoubleRangeTableViewCell.swift */,
 				895FE07222011F0B00FCF18A /* DoubleRangeTableViewCell.xib */,
 				89186C0A24BFD6DB0003D0F3 /* DurationPicker.swift */,
@@ -4131,7 +4131,7 @@
 				E949E38924AFC82F00024DA0 /* DeliveryLimitsInformationView.swift in Sources */,
 				1DC9240F2575EF9A004F132A /* QuantityFormatter+Guardrails.swift in Sources */,
 				C18733B429B9492300519CDF /* HKUnit.swift in Sources */,
-				89CAB36B24C9EC25009EE3CE /* DismissibleKeyboardTextField.swift in Sources */,
+				89CAB36B24C9EC25009EE3CE /* KeyboardDismissAccessory.swift in Sources */,
 				E9086B4A24B540B70062F5C8 /* DateFormatter.swift in Sources */,
 				89AC9DCB24529927004A6B8A /* QuantityPicker.swift in Sources */,
 				A9D3FF0E2A6C198C000C891D /* ChartPoint.swift in Sources */,

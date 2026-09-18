@@ -13,16 +13,37 @@ extension View {
         onReceive(Keyboard.shared.$state, perform: updateForKeyboardState)
     }
 
-    public func keyboardEntryPage() -> some View {
-        modifier(KeyboardEntryPage())
+    public func keyboardEntryPage(isInteractiveDismissDisabled: Bool = false) -> some View {
+        modifier(KeyboardEntryPage(isInteractiveDismissDisabled: isInteractiveDismissDisabled))
     }
 
     public func autoFocusOnFirstAppearance(_ shouldFocus: Binding<Bool>, enabled: @autoclosure @escaping () -> Bool = true) -> some View {
         modifier(AutoFocusOnFirstAppearance(shouldFocus: shouldFocus, enabled: enabled))
     }
 
-    public func keyboardDismissAccessory(onSubmit: (() -> Void)? = nil) -> some View {
-        background(KeyboardDismissAccessoryInstaller(onSubmit: onSubmit))
+    public func keyboardToolbar(isFocused: Bool, next: (() -> Void)? = nil, dismiss: @escaping () -> Void) -> some View {
+        toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                if isFocused {
+                    Spacer()
+                    Button(
+                        next == nil
+                            ? LocalizedString("Done", comment: "Keyboard toolbar button that dismisses the keyboard")
+                            : LocalizedString("Next", comment: "Keyboard toolbar button that moves to the next field"),
+                        action: next ?? dismiss
+                    )
+                }
+            }
+        }
+    }
+
+    /// Reject oversized edits instead of truncating numeric values or device identifiers.
+    public func limitTextLength(_ text: Binding<String>, to maximumLength: Int) -> some View {
+        onChange(of: text.wrappedValue) { previous, current in
+            if current.utf16.count > maximumLength {
+                text.wrappedValue = previous
+            }
+        }
     }
 }
 
@@ -54,14 +75,18 @@ private struct AutoFocusOnFirstAppearance: ViewModifier {
 }
 
 private struct KeyboardEntryPage: ViewModifier {
+    let isInteractiveDismissDisabled: Bool
     @State private var isKeyboardVisible = false
 
     func body(content: Content) -> some View {
         content
             .scrollBounceBehavior(.always)
             .scrollDismissesKeyboard(.interactively)
-            .interactiveDismissDisabled(isKeyboardVisible)
-            .background(KeyboardModalPinner(isKeyboardVisible: isKeyboardVisible))
+            .interactiveDismissDisabled(isInteractiveDismissDisabled || isKeyboardVisible)
+            .background(KeyboardModalPinner(
+                isKeyboardVisible: isKeyboardVisible,
+                isInteractiveDismissDisabled: isInteractiveDismissDisabled
+            ))
             .onKeyboardStateChange { state in
                 isKeyboardVisible = state.height > 0
             }
@@ -70,13 +95,14 @@ private struct KeyboardEntryPage: ViewModifier {
 
 private struct KeyboardModalPinner: UIViewControllerRepresentable {
     let isKeyboardVisible: Bool
+    let isInteractiveDismissDisabled: Bool
 
     func makeUIViewController(context: Context) -> PinnerController {
         PinnerController()
     }
 
     func updateUIViewController(_ controller: PinnerController, context: Context) {
-        controller.setPinned(isKeyboardVisible)
+        controller.setPinned(isInteractiveDismissDisabled || isKeyboardVisible)
     }
 
     static func dismantleUIViewController(_ controller: PinnerController, coordinator: ()) {
@@ -101,7 +127,11 @@ private struct KeyboardModalPinner: UIViewControllerRepresentable {
 
         func setPinned(_ pinned: Bool) {
             if pinned {
-                guard pinnedController == nil else { return }
+                if let presented = pinnedController {
+                    // A hosting controller's keyboard observer may have cleared this on hide.
+                    presented.isModalInPresentation = true
+                    return
+                }
                 guard let presented = presentedRoot() else {
                     pendingPin = true
                     return
@@ -131,288 +161,5 @@ private struct KeyboardModalPinner: UIViewControllerRepresentable {
             }
             return presented
         }
-    }
-}
-
-private struct KeyboardDismissAccessoryInstaller: UIViewControllerRepresentable {
-    @Binding private var observed: Void
-    private let onSubmit: (() -> Void)?
-
-    init(onSubmit: (() -> Void)?) {
-        self.onSubmit = onSubmit
-        _observed = .constant(())
-    }
-
-    func makeUIViewController(context: Context) -> InstallerController {
-        InstallerController()
-    }
-
-    func updateUIViewController(_ controller: InstallerController, context: Context) {
-        controller.submitAction = onSubmit
-        controller.refreshSoon()
-    }
-
-    static func dismantleUIViewController(_ controller: InstallerController, coordinator: ()) {
-        controller.stop()
-    }
-
-    final class InstallerController: UIViewController {
-        var submitAction: (() -> Void)?
-
-        private weak var textField: UITextField?
-        
-        private var originalAccessory: UIView?
-        private var accessory: UIView?
-        private var refreshPending = false
-        private var isStopped = false
-        private var keyboardFrame: CGRect?
-
-        override func loadView() {
-            view = UIView()
-            view.isUserInteractionEnabled = false
-
-            let center = NotificationCenter.default
-            center.addObserver(self, selector: #selector(editingBegan), name: UITextField.textDidBeginEditingNotification, object: nil)
-            center.addObserver(self, selector: #selector(textChanged), name: UITextField.textDidChangeNotification, object: nil)
-            center.addObserver(self, selector: #selector(keyboardWillChange), name: UIResponder.keyboardWillShowNotification, object: nil)
-            center.addObserver(self, selector: #selector(keyboardChanged), name: UIResponder.keyboardDidShowNotification, object: nil)
-            center.addObserver(self, selector: #selector(keyboardChanged), name: UIResponder.keyboardDidChangeFrameNotification, object: nil)
-            center.addObserver(self, selector: #selector(keyboardHidden), name: UIResponder.keyboardDidHideNotification, object: nil)
-        }
-
-        override func didMove(toParent parent: UIViewController?) {
-            super.didMove(toParent: parent)
-            
-            refreshSoon()
-        }
-
-        override func viewDidLayoutSubviews() {
-            super.viewDidLayoutSubviews()
-            
-            refresh()
-            refreshSoon()
-        }
-
-        override func viewDidAppear(_ animated: Bool) {
-            super.viewDidAppear(animated)
-            
-            refresh()
-        }
-
-        func refreshSoon() {
-            guard !isStopped, !refreshPending else { return }
-            
-            refreshPending = true
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.refreshPending = false
-                self.refresh()
-            }
-        }
-
-        private func refresh() {
-            guard !isStopped, view.window != nil, let field = findTextField() else { return }
-            
-            if textField !== field {
-                restoreAccessory()
-                textField = field
-                originalAccessory = field.inputAccessoryView
-                accessory = KeyboardDismissAccessory.make(for: field)
-            }
-            
-            guard let accessory else { return }
-            (accessory as? KeyboardDismissAccessory.Strip)?.update(for: field, submit: submitAction)
-            
-            if field.inputAccessoryView !== accessory {
-                field.inputAccessoryView = accessory
-                
-                if field.isFirstResponder, keyboardFrame != nil {
-                    field.reloadInputViews()
-                }
-            }
-        }
-
-        private func findTextField() -> UITextField? {
-            guard !view.bounds.isEmpty else { return nil }
-            
-            var ancestor = view.superview
-            
-            while let container = ancestor {
-                let markerFrame = view.convert(view.bounds, to: container)
-                var matches: [UITextField] = []
-                
-                func visit(_ candidate: UIView) {
-                    guard !candidate.isHidden, candidate.alpha > 0 else { return }
-                    
-                    if let field = candidate as? UITextField {
-                        let frame = field.convert(field.bounds, to: container)
-                        if !frame.isEmpty, markerFrame.insetBy(dx: -1, dy: -1).contains(frame) {
-                            matches.append(field)
-                        }
-                        return
-                    }
-                    
-                    candidate.subviews.forEach(visit)
-                }
-                
-                visit(container)
-                
-                if !matches.isEmpty {
-                    return matches.count == 1 ? matches.first : nil
-                }
-                
-                if container is UICollectionViewCell || container is UITableViewCell {
-                    return nil
-                }
-                
-                ancestor = container.superview
-            }
-            
-            return nil
-        }
-
-        @objc private func editingBegan(_ notification: Notification) {
-            refresh()
-            
-            guard notification.object as? UITextField === textField else { return }
-            
-            refreshSoon()
-        }
-
-        @objc private func textChanged(_ notification: Notification) {
-            guard notification.object as? UITextField === textField else { return }
-            
-            refreshSoon()
-        }
-
-        @objc private func keyboardWillChange(_ notification: Notification) {
-            guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-            
-            let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
-            let curveValue = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt ?? 7
-            
-            keyboardFrame = frame
-            
-            refresh()
-            
-            revealField(animatedOver: duration, options: UIView.AnimationOptions(rawValue: curveValue << 16))
-        }
-
-        @objc private func keyboardChanged(_ notification: Notification) {
-            keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
-            
-            refresh()
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.revealField(animatedOver: 0.15, options: .curveEaseOut)
-            }
-        }
-
-        @objc private func keyboardHidden(_ notification: Notification) {
-            keyboardFrame = nil
-        }
-
-        private func revealField(animatedOver duration: TimeInterval, options: UIView.AnimationOptions) {
-            guard !isStopped, let field = textField, field.isFirstResponder, let window = field.window, let keyboardFrame = keyboardFrame else {
-                return
-            }
-            
-            let keyboard = window.convert(keyboardFrame, from: window.screen.coordinateSpace)
-            
-            guard keyboard.intersects(window.bounds) else {
-                return
-            }
-
-            var row: UIView = field
-            var ancestor = field.superview
-            
-            while let container = ancestor {
-                if let scrollView = container as? UIScrollView {
-                    guard !scrollView.isDragging, !scrollView.isDecelerating else {
-                        return
-                    }
-                    
-                    scrollView.layoutIfNeeded()
-                    
-                    let rowFrame = row.convert(row.bounds, to: scrollView)
-                    let keyboardTop = scrollView.convert(keyboard, from: window).minY
-                    let visibleBottom = min(scrollView.bounds.maxY - scrollView.adjustedContentInset.bottom, keyboardTop)
-                    let clearance: CGFloat = 12
-                    let distance = rowFrame.maxY + clearance - visibleBottom
-                    
-                    guard distance > 0 else {
-                        return
-                    }
-                    
-                    let keyboardOverlap = max(
-                        0,
-                        scrollView.bounds.maxY - keyboardTop
-                    )
-                    
-                    let bottomInset = max(
-                        scrollView.adjustedContentInset.bottom,
-                        keyboardOverlap
-                    )
-                    
-                    let maximumOffset = max(
-                        -scrollView.adjustedContentInset.top,
-                         scrollView.contentSize.height - scrollView.bounds.height + bottomInset
-                    )
-                    
-                    let offset = min(
-                        scrollView.contentOffset.y + distance,
-                        maximumOffset
-                    )
-                    
-                    if offset > scrollView.contentOffset.y + 0.5 {
-                        UIView.animate(
-                            withDuration: duration,
-                            delay: 0,
-                            options: options.union([.beginFromCurrentState, .allowUserInteraction])
-                        ) {
-                            scrollView.setContentOffset(CGPoint(x: scrollView.contentOffset.x, y: offset), animated: false)
-                        }
-                    }
-                    
-                    return
-                }
-                
-                if container is UICollectionViewCell || container is UITableViewCell {
-                    row = container
-                }
-                
-                ancestor = container.superview
-            }
-        }
-
-        private func restoreAccessory() {
-            if let field = textField, let accessory = accessory, field.inputAccessoryView === accessory {
-                field.inputAccessoryView = originalAccessory
-                
-                if field.isFirstResponder {
-                    field.reloadInputViews()
-                }
-            }
-            
-            textField = nil
-            originalAccessory = nil
-            accessory = nil
-        }
-
-        func stop() {
-            isStopped = true
-            
-            NotificationCenter.default.removeObserver(self)
-            
-            restoreAccessory()
-        }
-    }
-}
-
-@available(iOSApplicationExtension, unavailable)
-public enum KeyboardDismissal {
-    public static func resignFirstResponder() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

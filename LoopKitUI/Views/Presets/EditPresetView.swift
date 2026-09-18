@@ -261,6 +261,7 @@ public struct EditPresetView: View {
                 alertMessage(for: alertState)
             }
             .keyboardEntryPage()
+            .keyboardToolbar(isFocused: isTextFieldFocused, dismiss: { isTextFieldFocused = false })
         }
     }
     
@@ -274,7 +275,7 @@ public struct EditPresetView: View {
                         .multilineTextAlignment(.trailing)
                         .focused($isTextFieldFocused)
                         .submitLabel(.done)
-                        .keyboardDismissAccessory()
+                        .onSubmit { isTextFieldFocused = false }
                         .foregroundColor(.secondary)
                 } else {
                     HStack(spacing: 4) {

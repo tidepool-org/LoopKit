@@ -57,18 +57,23 @@ private struct SeatedActionAreaInset<BarContent: View>: ViewModifier {
 
     @State private var isKeyboardVisible = false
     @State private var keyboardAnimationDuration: TimeInterval = 0.25
+    @State private var actionAreaHeight: CGFloat = 0
 
     func body(content: Content) -> some View {
         content
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                if !isKeyboardVisible {
-                    ActionArea { barContent }
-                        .hidden()
-                        .accessibilityHidden(true)
-                }
+                Color.clear
+                    .frame(height: isKeyboardVisible ? 0 : actionAreaHeight)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
             }
             .overlay(alignment: .bottom) {
                 ActionArea { barContent }
+                    .onGeometryChange(for: CGFloat.self) { geometry in
+                        geometry.size.height
+                    } action: { height in
+                        actionAreaHeight = height
+                    }
                     .ignoresSafeArea(.keyboard, edges: .bottom)
                     .opacity(isKeyboardVisible ? 0 : 1)
                     .allowsHitTesting(!isKeyboardVisible)
