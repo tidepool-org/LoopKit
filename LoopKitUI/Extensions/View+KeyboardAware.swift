@@ -51,6 +51,15 @@ private struct KeyboardToolbar: ViewModifier {
             content
                 .scrollBounceBehavior(.always)
                 .scrollDismissesKeyboard(.interactively)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        if isFocused {
+                            Spacer()
+                            button
+                                .fontWeight(.semibold)
+                        }
+                    }
+                }
         }
     }
 

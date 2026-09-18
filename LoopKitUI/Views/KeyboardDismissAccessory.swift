@@ -24,7 +24,7 @@ public enum KeyboardDismissAccessory {
     }
 
     @available(iOS 26.0, *)
-    final class Strip: UIInputView {
+    private final class GlassKeyboardActionBar: UIInputView {
         private weak var textField: UITextField?
         private let button: UIButton
         private var nextAction: (() -> Void)?
@@ -65,10 +65,10 @@ public enum KeyboardDismissAccessory {
                 button.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: KeyboardDismissAccessory.verticalSpacing),
                 button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -KeyboardDismissAccessory.verticalSpacing),
             ])
-            registerForTraitChanges([UITraitPreferredContentSizeCategory.self]) { (strip: Strip, _: UITraitCollection) in
-                strip.updateButtonFont()
-                if strip.textField?.isFirstResponder == true {
-                    strip.textField?.reloadInputViews()
+            registerForTraitChanges([UITraitPreferredContentSizeCategory.self]) { (actionBar: GlassKeyboardActionBar, _: UITraitCollection) in
+                actionBar.updateButtonFont()
+                if actionBar.textField?.isFirstResponder == true {
+                    actionBar.textField?.reloadInputViews()
                 }
             }
             updateButtonFont()
@@ -124,6 +124,54 @@ public enum KeyboardDismissAccessory {
         }
     }
 
+    private final class KeyboardActionToolbar: UIToolbar {
+        private weak var textField: UITextField?
+        private var nextAction: (() -> Void)?
+
+        init(for textField: UITextField, next: (() -> Void)?) {
+            super.init(frame: .zero)
+            autoresizingMask = .flexibleWidth
+            update(for: textField, next: next)
+            sizeToFit()
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) is not supported")
+        }
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            tintColor = textField?.tintColor
+        }
+
+        func update(for textField: UITextField, next: (() -> Void)?) {
+            self.textField = textField
+            self.nextAction = next
+            tintColor = textField.tintColor
+
+            let button: UIBarButtonItem
+            if next != nil {
+                button = UIBarButtonItem(
+                    title: LocalizedString("Next", comment: "Title of the keyboard toolbar button that moves to the next field"),
+                    style: .done,
+                    target: self,
+                    action: #selector(tapped)
+                )
+            } else {
+                button = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(tapped))
+            }
+            items = [UIBarButtonItem(systemItem: .flexibleSpace), button]
+        }
+
+        @objc private func tapped() {
+            if let nextAction {
+                nextAction()
+            } else {
+                textField?.resignFirstResponder()
+            }
+        }
+    }
+
     static func hasReturnKey(_ textField: UITextField) -> Bool {
         if textField.inputView != nil || textField.inputViewController != nil { return false }
         switch textField.keyboardType {
@@ -138,14 +186,19 @@ public enum KeyboardDismissAccessory {
         if hasReturnKey(textField) {
             textField.returnKeyType = next == nil ? .done : .next
         }
-        guard #available(iOS 26.0, *) else { return }
-
-        if let strip = textField.inputAccessoryView as? Strip {
-            strip.update(for: textField, next: next)
+        if #available(iOS 26.0, *) {
+            if let actionBar = textField.inputAccessoryView as? GlassKeyboardActionBar {
+                actionBar.update(for: textField, next: next)
+                return
+            }
+            textField.inputAccessoryView = GlassKeyboardActionBar(for: textField, next: next)
         } else {
-            let strip = Strip(for: textField, next: next)
-            textField.inputAccessoryView = strip
-            if textField.isFirstResponder { textField.reloadInputViews() }
+            if let toolbar = textField.inputAccessoryView as? KeyboardActionToolbar {
+                toolbar.update(for: textField, next: next)
+                return
+            }
+            textField.inputAccessoryView = KeyboardActionToolbar(for: textField, next: next)
         }
+        if textField.isFirstResponder { textField.reloadInputViews() }
     }
 }
