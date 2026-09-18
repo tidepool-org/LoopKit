@@ -21,20 +21,10 @@ extension View {
         modifier(AutoFocusOnFirstAppearance(shouldFocus: shouldFocus, enabled: enabled))
     }
 
+    /// Install on the page containing the fields so scrolling content avoids the entire action bar.
+    /// Apply before `actionAreaInset` so the page's footer stays behind the keyboard.
     public func keyboardToolbar(isFocused: Bool, next: (() -> Void)? = nil, dismiss: @escaping () -> Void) -> some View {
-        toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                if isFocused {
-                    Spacer()
-                    Button(
-                        next == nil
-                            ? LocalizedString("Done", comment: "Keyboard toolbar button that dismisses the keyboard")
-                            : LocalizedString("Next", comment: "Keyboard toolbar button that moves to the next field"),
-                        action: next ?? dismiss
-                    )
-                }
-            }
-        }
+        modifier(KeyboardToolbar(isFocused: isFocused, next: next, dismiss: dismiss))
     }
 
     /// Reject oversized edits instead of truncating numeric values or device identifiers.
@@ -44,6 +34,75 @@ extension View {
                 text.wrappedValue = previous
             }
         }
+    }
+}
+
+private struct KeyboardToolbar: ViewModifier {
+    let isFocused: Bool
+    let next: (() -> Void)?
+    let dismiss: () -> Void
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.safeAreaBar(edge: .bottom, spacing: 0) {
+                actions
+            }
+        } else {
+            content.safeAreaInset(edge: .bottom, spacing: 0) {
+                actions
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var actions: some View {
+        if isFocused {
+            HStack {
+                Spacer()
+                button
+                    .buttonStyle(KeyboardToolbarButtonStyle())
+            }
+            .padding(.horizontal, KeyboardDismissAccessory.horizontalSpacing)
+            .padding(.vertical, KeyboardDismissAccessory.verticalSpacing)
+        }
+    }
+
+    private var button: some View {
+        Button(
+            next == nil
+                ? LocalizedString("Done", comment: "Keyboard toolbar button that dismisses the keyboard")
+                : LocalizedString("Next", comment: "Keyboard toolbar button that moves to the next field"),
+            action: next ?? dismiss
+        )
+    }
+}
+
+private struct KeyboardToolbarButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        background(for: configuration.label)
+            .frame(minWidth: KeyboardDismissAccessory.minimumHitTarget,
+                   minHeight: KeyboardDismissAccessory.minimumHitTarget,
+                   alignment: .bottom)
+            .contentShape(Rectangle())
+            .opacity(configuration.isPressed ? 0.8 : 1)
+    }
+
+    @ViewBuilder
+    private func background(for label: Configuration.Label) -> some View {
+        if #available(iOS 26.0, *) {
+            paddedLabel(label)
+                .glassEffect(.regular.interactive(), in: .capsule)
+        } else {
+            paddedLabel(label)
+        }
+    }
+
+    private func paddedLabel(_ label: Configuration.Label) -> some View {
+        label
+            .font(.headline)
+            .foregroundStyle(.primary)
+            .padding(.horizontal, KeyboardDismissAccessory.horizontalContentInset)
+            .padding(.vertical, KeyboardDismissAccessory.verticalContentInset)
     }
 }
 

@@ -21,7 +21,24 @@ public struct GuidePage<Content, ActionAreaContent>: View where Content: View, A
         self.actionAreaContent = actionAreaContent()
     }
 
+    public init(@ViewBuilder content: @escaping () -> Content) where ActionAreaContent == EmptyView {
+        self.content = content()
+        self.actionAreaContent = EmptyView()
+    }
+
+    @ViewBuilder
     public var body: some View {
+        if ActionAreaContent.self == EmptyView.self {
+            listContent
+        } else {
+            listContent
+                .actionAreaInset {
+                    self.actionAreaContent
+                }
+        }
+    }
+
+    private var listContent: some View {
         List {
             if self.horizontalSizeClass == .compact {
                 Section(header: EmptyView(), footer: EmptyView()) {
@@ -32,9 +49,6 @@ public struct GuidePage<Content, ActionAreaContent>: View where Content: View, A
             }
         }
         .insetGroupedListStyle()
-        .actionAreaInset {
-            self.actionAreaContent
-        }
     }
 }
 
@@ -54,4 +68,3 @@ struct GuidePage_Previews: PreviewProvider {
         }
     }
 }
-

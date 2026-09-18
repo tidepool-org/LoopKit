@@ -16,6 +16,7 @@ public struct CarbQuantityRow: View {
     
     private let title: String
     private let preferredCarbUnit: LoopUnit
+    private let next: (() -> Void)?
     
     @State private var carbInput: String = ""
     
@@ -26,11 +27,12 @@ public struct CarbQuantityRow: View {
         return formatter
     }()
     
-    public init(quantity: Binding<Double?>, isFocused: Binding<Bool>, title: String, preferredCarbUnit: LoopUnit = .gram) {
+    public init(quantity: Binding<Double?>, isFocused: Binding<Bool>, title: String, preferredCarbUnit: LoopUnit = .gram, next: (() -> Void)? = nil) {
         self._quantity = quantity
         self._isFocused = isFocused
         self.title = title
         self.preferredCarbUnit = preferredCarbUnit
+        self.next = next
     }
 
     public var body: some View {
@@ -39,7 +41,7 @@ public struct CarbQuantityRow: View {
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            RowTextField(text: $carbInput, isFocused: $isFocused, maxLength: 5) {
+            RowTextField(text: $carbInput, isFocused: $isFocused, maxLength: 5, next: next) {
                 $0.textAlignment = .right
                 $0.keyboardType = .decimalPad
                 $0.placeholder = "0"

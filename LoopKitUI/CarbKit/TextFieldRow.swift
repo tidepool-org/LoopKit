@@ -14,12 +14,14 @@ public struct TextFieldRow: View {
     
     let title: String
     let placeholder: String
+    private let next: (() -> Void)?
     
-    public init(text: Binding<String>, isFocused: Binding<Bool>, title: String, placeholder: String) {
+    public init(text: Binding<String>, isFocused: Binding<Bool>, title: String, placeholder: String, next: (() -> Void)? = nil) {
         self._text = text
         self._isFocused = isFocused
         self.title = title
         self.placeholder = placeholder
+        self.next = next
     }
 
     public var body: some View {
@@ -29,7 +31,7 @@ public struct TextFieldRow: View {
             
             Spacer()
             
-            RowTextField(text: $text, isFocused: $isFocused) {
+            RowTextField(text: $text, isFocused: $isFocused, next: next) {
                 $0.textAlignment = .right
                 $0.placeholder = placeholder
                 $0.font = .preferredFont(forTextStyle: .body)

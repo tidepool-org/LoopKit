@@ -245,12 +245,6 @@ struct CreatePresetNameAndScheduledEdit: View {
                         .padding(.top, 4)
                 }
             }
-        } actionArea: {
-            Button("Continue") {
-                path.append(CreatePresetPage.summary)
-            }
-            .disabled(!allowSave)
-            .buttonStyle(ActionButtonStyle(.primary))
         }
         .onChange(of: selectedRepeatOption, { oldValue, newValue in
             if newValue == .weekly {
@@ -268,6 +262,13 @@ struct CreatePresetNameAndScheduledEdit: View {
         .animation(.easeInOut, value: preset.duration)
         .keyboardEntryPage()
         .keyboardToolbar(isFocused: isTextFieldFocused, dismiss: { isTextFieldFocused = false })
+        .actionAreaInset {
+            Button("Continue") {
+                path.append(CreatePresetPage.summary)
+            }
+            .disabled(!allowSave)
+            .buttonStyle(ActionButtonStyle(.primary))
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Create a Preset")
         .toolbar {
