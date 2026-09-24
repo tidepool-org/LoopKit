@@ -47,12 +47,7 @@ public struct ActionArea<Content: View>: View {
     public var body: some View {
         if Content.self != EmptyView.self {
             Group {
-                if #available(iOS 27.1, *) {
-                    AdaptiveGlassActionArea(
-                        content: content,
-                        bottomSafeAreaInset: containerBottomSafeAreaInset
-                    )
-                } else if #available(iOS 26.0, *) {
+                if #available(iOS 26.0, *) {
                     GlassActionArea(
                         content: content,
                         bottomPadding: max(16, containerBottomSafeAreaInset - 8)
@@ -232,32 +227,6 @@ private struct GlassActionAreaInset<BarContent: View>: ViewModifier {
                 .accessibilityHidden(isKeyboardVisible)
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
-        }
-    }
-}
-
-@available(iOS 27.1, *)
-private struct AdaptiveGlassActionArea<Content: View>: View {
-    let content: Content
-    let bottomSafeAreaInset: CGFloat
-
-    @Environment(\.toolbarVerticalEdge) private var toolbarVerticalEdge
-    @State private var hasDeviceHinge = false
-
-    var body: some View {
-        // Duo footers keep the compact inset, including sheets with horizontal bars.
-        // Standard iPhones retain their additional home-indicator clearance.
-        GlassActionArea(
-            content: content,
-            bottomPadding: hasDeviceHinge || toolbarVerticalEdge != nil
-                ? 16 : max(16, bottomSafeAreaInset - 8)
-        )
-        .onHingeChange { _, context in
-            // Store only hinge availability so continuous angle updates do not relayout the footer.
-            let hasHinge = context.hinge != nil
-            if hasDeviceHinge != hasHinge {
-                hasDeviceHinge = hasHinge
-            }
         }
     }
 }
