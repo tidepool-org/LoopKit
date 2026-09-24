@@ -23,7 +23,9 @@ public struct ActionButtonStyle: ButtonStyle {
     private let squidge: CGFloat = 1
 
     @Environment(\.isEnabled) private var isEnabled: Bool
-    @Environment(\.actionAreaButtonCornerRadius) private var cornerRadius
+    @Environment(\.actionAreaButtonCornerRadius) private var actionAreaCornerRadius
+
+    private var cornerRadius: CGFloat { actionAreaCornerRadius ?? 26 }
 
     public init(_ style: ButtonType = .primary) {
         switch style {

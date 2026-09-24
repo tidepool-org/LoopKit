@@ -95,6 +95,7 @@ struct CreatePresetNameAndScheduledEdit: View {
                             .multilineTextAlignment(.trailing)
                             .inputField(focus: $isTextFieldFocused)
                             .foregroundColor(.secondary)
+                            .initialFocus($isTextFieldFocused, when: preset.name.isEmpty)
                     }
                 }
             }
@@ -254,7 +255,6 @@ struct CreatePresetNameAndScheduledEdit: View {
             }
         })
         .animation(.easeInOut, value: preset.duration)
-        .defaultFocus($isTextFieldFocused, preset.savePreset && preset.name.isEmpty)
         .inputForm(focus: $isTextFieldFocused)
         .actionAreaInset {
             Button("Continue") {

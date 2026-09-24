@@ -6,8 +6,27 @@
 //
 
 import SwiftUI
+import UIKit
 
 public extension View {
+    /// Requests native focus once, after the page's first appearance transition finishes.
+    /// Apply to the page so returning from another screen does not reopen the keyboard.
+    func initialFocus(
+        _ focus: FocusState<Bool>.Binding,
+        when enabled: Bool = true
+    ) -> some View {
+        modifier(InitialInputFocus(focus: focus, target: true, unfocused: false, enabled: enabled))
+    }
+
+    /// Requests initial focus without replacing a field the user has already focused.
+    func initialFocus<Field: Hashable>(
+        _ focus: FocusState<Field?>.Binding,
+        equals field: Field,
+        when enabled: Bool = true
+    ) -> some View {
+        modifier(InitialInputFocus(focus: focus, target: field, unfocused: nil, enabled: enabled))
+    }
+
     /// Configures one keyboard entry page, including its toolbar, swipe dismissal,
     /// modal protection, and focus cleanup. Apply before `actionAreaInset`.
     func inputForm(
@@ -89,6 +108,60 @@ public extension View {
             )
     }
 
+}
+
+private struct InitialInputFocus<Value: Hashable>: ViewModifier {
+    let focus: FocusState<Value>.Binding
+    let target: Value
+    let unfocused: Value
+    let enabled: Bool
+    @State private var hasAppeared = false
+
+    func body(content: Content) -> some View {
+        content.background {
+            InputAppearanceObserver {
+                guard !hasAppeared else { return }
+                hasAppeared = true
+                guard enabled, focus.wrappedValue == unfocused else { return }
+                focus.wrappedValue = target
+            }
+        }
+    }
+}
+
+/// SwiftUI's onAppear runs before a navigation transition completes. Wait for UIKit's
+/// completed appearance so a coordinator's endEditing call cannot cancel initial focus.
+private struct InputAppearanceObserver: UIViewControllerRepresentable {
+    let onAppear: () -> Void
+
+    func makeUIViewController(context: Context) -> Controller {
+        let controller = Controller()
+        controller.onAppear = onAppear
+        return controller
+    }
+
+    func updateUIViewController(_ controller: Controller, context: Context) {
+        controller.onAppear = onAppear
+    }
+
+    static func dismantleUIViewController(_ controller: Controller, coordinator: ()) {
+        controller.onAppear = nil
+    }
+
+    final class Controller: UIViewController {
+        var onAppear: (() -> Void)?
+
+        override func loadView() {
+            view = UIView()
+            view.backgroundColor = .clear
+            view.isUserInteractionEnabled = false
+        }
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            onAppear?()
+        }
+    }
 }
 
 private struct InputFieldNavigation {

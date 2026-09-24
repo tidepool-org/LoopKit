@@ -15,11 +15,11 @@ public enum ActionAreaAppearanceOverrides {
 }
 
 private struct ActionAreaButtonCornerRadiusKey: EnvironmentKey {
-    static let defaultValue: CGFloat = 10
+    static let defaultValue: CGFloat? = nil
 }
 
 extension EnvironmentValues {
-    var actionAreaButtonCornerRadius: CGFloat {
+    var actionAreaButtonCornerRadius: CGFloat? {
         get { self[ActionAreaButtonCornerRadiusKey.self] }
         set { self[ActionAreaButtonCornerRadiusKey.self] = newValue }
     }
@@ -134,7 +134,7 @@ public extension View {
             } else {
                 Color(.secondarySystemGroupedBackground)
                     .shadow(radius: 5)
-                    .ignoresSafeArea([.container, .keyboard], edges: .bottom)
+                    .ignoresSafeArea([.container, .keyboard], edges: [.bottom, .horizontal])
             }
         }
     }

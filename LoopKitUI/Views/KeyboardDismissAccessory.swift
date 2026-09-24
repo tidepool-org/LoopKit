@@ -11,6 +11,7 @@ public enum KeyboardDismissAccessory {
     private final class KeyboardActionToolbar: UIToolbar {
         private weak var textField: UITextField?
         private var nextAction: (() -> Void)?
+        private var showsNextButton: Bool?
 
         init(for textField: UITextField, next: (() -> Void)?) {
             super.init(frame: .zero)
@@ -25,30 +26,37 @@ public enum KeyboardDismissAccessory {
 
         override func didMoveToWindow() {
             super.didMoveToWindow()
-            tintColor = textField?.tintColor
+            applyTint()
+        }
+
+        private func applyTint() {
+            if #available(iOS 26.0, *) {
+                tintColor = .label
+            } else {
+                tintColor = textField?.tintColor
+            }
         }
 
         func update(for textField: UITextField, next: (() -> Void)?) {
-            let needsUpdatedItems = items == nil || (nextAction == nil) != (next == nil)
             self.textField = textField
             self.nextAction = next
-            if tintColor != textField.tintColor {
-                tintColor = textField.tintColor
-            }
-            // Replacing identical items during a SwiftUI update can trigger another layout.
-            // Always refresh the callback, but rebuild the toolbar only when its label changes.
-            guard needsUpdatedItems else { return }
+            applyTint()
 
+            let showsNextButton = next != nil
+            guard showsNextButton != self.showsNextButton else { return }
+            self.showsNextButton = showsNextButton
+
+            let title = showsNextButton
+                ? LocalizedString("Next", comment: "Title of the keyboard toolbar button that moves to the next field")
+                : LocalizedString("Done", comment: "Title of the keyboard toolbar button that dismisses the keyboard")
             let button: UIBarButtonItem
-            if next != nil {
-                button = UIBarButtonItem(
-                    title: LocalizedString("Next", comment: "Title of the keyboard toolbar button that moves to the next field"),
-                    style: .done,
-                    target: self,
-                    action: #selector(tapped)
-                )
+            if #available(iOS 26.0, *) {
+                button = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(tapped))
+                let font = UIFont.systemFont(ofSize: UIFont.labelFontSize, weight: .semibold)
+                button.setTitleTextAttributes([.font: font], for: .normal)
+                button.setTitleTextAttributes([.font: font], for: .highlighted)
             } else {
-                button = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(tapped))
+                button = UIBarButtonItem(title: title, style: .done, target: self, action: #selector(tapped))
             }
             items = [UIBarButtonItem(systemItem: .flexibleSpace), button]
         }
