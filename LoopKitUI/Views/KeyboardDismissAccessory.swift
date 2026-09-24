@@ -29,9 +29,15 @@ public enum KeyboardDismissAccessory {
         }
 
         func update(for textField: UITextField, next: (() -> Void)?) {
+            let needsUpdatedItems = items == nil || (nextAction == nil) != (next == nil)
             self.textField = textField
             self.nextAction = next
-            tintColor = textField.tintColor
+            if tintColor != textField.tintColor {
+                tintColor = textField.tintColor
+            }
+            // Replacing identical items during a SwiftUI update can trigger another layout.
+            // Always refresh the callback, but rebuild the toolbar only when its label changes.
+            guard needsUpdatedItems else { return }
 
             let button: UIBarButtonItem
             if next != nil {
@@ -68,7 +74,10 @@ public enum KeyboardDismissAccessory {
 
     public static func configureDismissal(for textField: UITextField, next: (() -> Void)? = nil) {
         if hasReturnKey(textField) {
-            textField.returnKeyType = next == nil ? .done : .next
+            let returnKeyType: UIReturnKeyType = next == nil ? .done : .next
+            if textField.returnKeyType != returnKeyType {
+                textField.returnKeyType = returnKeyType
+            }
         }
         if let toolbar = textField.inputAccessoryView as? KeyboardActionToolbar {
             toolbar.update(for: textField, next: next)

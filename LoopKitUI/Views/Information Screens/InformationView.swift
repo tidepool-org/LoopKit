@@ -54,7 +54,7 @@ struct InformationView<InformationalContent: View> : View {
                 bodyForAcceptanceFlow
                     .padding()
             }
-            .actionAreaInset {
+            .actionAreaInset(backgroundColor: Color(.systemBackground)) {
                 nextPageButton
             }
         case .settings:

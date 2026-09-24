@@ -14,6 +14,7 @@ struct RowTextField: UIViewRepresentable {
     @Binding var isFocused: Bool
     var maxLength: Int? = nil
     var next: (() -> Void)? = nil
+    // Creation-only configuration, including any custom input controller.
     var configuration = { (view: CustomInputTextField) in }
     
     func makeCoordinator() -> Coordinator {
@@ -24,13 +25,18 @@ struct RowTextField: UIViewRepresentable {
         let textField = CustomInputTextField(frame: .zero)
         textField.delegate = context.coordinator
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textChanged), for: .editingChanged)
+        configuration(textField)
         return textField
     }
 
     func updateUIView(_ textField: CustomInputTextField, context: UIViewRepresentableContext<RowTextField>) {
-        textField.text = text
-        configuration(textField)
-        textField.returnKeyType = next == nil ? .done : .next
+        if textField.text != text {
+            textField.text = text
+        }
+        let returnKeyType: UIReturnKeyType = next == nil ? .done : .next
+        if textField.returnKeyType != returnKeyType {
+            textField.returnKeyType = returnKeyType
+        }
         context.coordinator.next = next
         KeyboardDismissAccessory.configureDismissal(for: textField, next: next)
         DispatchQueue.main.async {

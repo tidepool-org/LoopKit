@@ -87,7 +87,7 @@ public struct DurationSheet: View {
                 .readContentHeight(to: $sheetContentHeight)
             }
             
-            ActionArea {
+            ActionArea(backgroundColor: Color(.systemBackground)) {
                 Button {
                     durationWasSelected = true
                 } label: {

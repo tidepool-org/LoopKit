@@ -887,6 +887,7 @@
 		E9F54FBA258052130034795E /* InsulinType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9F54F5D25802D5E0034795E /* InsulinType.swift */; };
 		E9F54FC62581C50D0034795E /* ExpandableDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9F54FC52581C50C0034795E /* ExpandableDatePicker.swift */; };
 		FB3933475C6B263D1D70BC83 /* ActionArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15ABBB61554CA19FAA58E419 /* ActionArea.swift */; };
+		AAFADE260000000000000001 /* ActionAreaBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAFADE260000000000000002 /* ActionAreaBackground.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1063,6 +1064,7 @@
 		14D906EF2A8457AB006EB79A /* StoredFavoriteFood.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredFavoriteFood.swift; sourceTree = "<group>"; };
 		14D906F12A845868006EB79A /* FavoriteFoodListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteFoodListRow.swift; sourceTree = "<group>"; };
 		15ABBB61554CA19FAA58E419 /* ActionArea.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActionArea.swift; sourceTree = "<group>"; };
+		AAFADE260000000000000002 /* ActionAreaBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionAreaBackground.swift; sourceTree = "<group>"; };
 		1D096BF924C242300078B6B5 /* CheckmarkListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckmarkListItem.swift; sourceTree = "<group>"; };
 		1D096C0424C624F70078B6B5 /* InsulinModelSettings+LoopKitUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InsulinModelSettings+LoopKitUI.swift"; sourceTree = "<group>"; };
 		1D0E708426BDE3BB00AECF0D /* HKDeviceCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKDeviceCodableTests.swift; sourceTree = "<group>"; };
@@ -2333,6 +2335,7 @@
 				84EE97B02D7A42DB00D5E941 /* ChartPointsScatterBorderedCirclesLayer.swift */,
 				84EE97B22D7A59AE00D5E941 /* ManualBolusDoseChartLayer.swift */,
 				15ABBB61554CA19FAA58E419 /* ActionArea.swift */,
+				AAFADE260000000000000002 /* ActionAreaBackground.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -4156,6 +4159,7 @@
 				89F6E311244A1AAB00CB9E15 /* SettingDescription.swift in Sources */,
 				1DE35E7A24ABEC720086F9AE /* DeviceManagerUI.swift in Sources */,
 				FB3933475C6B263D1D70BC83 /* ActionArea.swift in Sources */,
+				AAFADE260000000000000001 /* ActionAreaBackground.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

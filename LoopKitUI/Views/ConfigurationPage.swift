@@ -29,10 +29,8 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
     var secondaryAction: (() -> Void)?
 
     public var body: some View {
-        VStack(spacing: 0) {
-            CardList(title: title, style: cardListStyle)
-
-            ActionArea {
+        CardList(title: title, style: cardListStyle)
+            .actionAreaInset {
                 actionAreaContent
                     .transition(AnyTransition.opacity.combined(with: .move(edge: .bottom)))
 
@@ -76,7 +74,7 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
                     .accessibilityIdentifier("button_secondaryAction")
                 }
             }
-        }
+            .background(Color(.systemGroupedBackground).ignoresSafeArea(.container))
     }
 }
 

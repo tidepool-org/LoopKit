@@ -13,7 +13,8 @@ public struct ActionButton: ViewModifier {
     private let fontColor: Color
     private let backgroundColor: Color
     private let edgeColor: Color
-    private let cornerRadius: CGFloat = 10
+
+    @Environment(\.actionAreaButtonCornerRadius) private var cornerRadius
     
     public enum ButtonType {
         case primary
