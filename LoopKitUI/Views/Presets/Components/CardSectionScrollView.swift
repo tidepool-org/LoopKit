@@ -13,40 +13,39 @@
 
 import SwiftUI
 
-public struct CardSectionScrollView<Content: View, ActionArea: View>: View {
+public struct CardSectionScrollView<Content: View, ActionAreaContent: View>: View {
     let content: Content
-    let actionArea: ActionArea?
+    let actionArea: ActionAreaContent?
 
     // Initializer for custom view header
-    public init(@ViewBuilder content: () -> Content, @ViewBuilder actionArea: () -> ActionArea) {
+    public init(@ViewBuilder content: () -> Content, @ViewBuilder actionArea: () -> ActionAreaContent) {
         self.content = content()
         self.actionArea = actionArea()
     }
 
     // Initializer for no action area
-    public init(@ViewBuilder content: () -> Content) where ActionArea == Text {
+    public init(@ViewBuilder content: () -> Content) where ActionAreaContent == Text {
         self.content = content()
         self.actionArea = nil
     }
 
+    @ViewBuilder
     public var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading) {
-                    content
-                }
-                .padding()
+        if let actionArea {
+            scrollContent
+                .actionAreaInset { actionArea }
+        } else {
+            scrollContent
+        }
+    }
+
+    private var scrollContent: some View {
+        ScrollView {
+            VStack(alignment: .leading) {
+                content
             }
-            if let actionArea {
-                VStack(spacing: 12) {
-                    actionArea
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
-            }
+            .padding()
         }
         .background(Color(.systemGroupedBackground))
-        .edgesIgnoringSafeArea(actionArea != nil ? .bottom : [])
     }
 }

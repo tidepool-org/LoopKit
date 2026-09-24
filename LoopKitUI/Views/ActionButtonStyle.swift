@@ -20,10 +20,12 @@ public struct ActionButtonStyle: ButtonStyle {
     private let fontColor: Color
     private let backgroundColor: Color
     private let edgeColor: Color
-    private let cornerRadius: CGFloat = 10
     private let squidge: CGFloat = 1
 
     @Environment(\.isEnabled) private var isEnabled: Bool
+    @Environment(\.actionAreaButtonCornerRadius) private var actionAreaCornerRadius
+
+    private var cornerRadius: CGFloat { actionAreaCornerRadius ?? 26 }
 
     public init(_ style: ButtonType = .primary) {
         switch style {

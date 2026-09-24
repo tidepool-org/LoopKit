@@ -29,12 +29,9 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
     var secondaryAction: (() -> Void)?
 
     public var body: some View {
-        VStack(spacing: 0) {
-            CardList(title: title, style: cardListStyle)
-
-            VStack(spacing: 0) {
+        CardList(title: title, style: cardListStyle)
+            .actionAreaInset {
                 actionAreaContent
-                    .padding([.top, .horizontal])
                     .transition(AnyTransition.opacity.combined(with: .move(edge: .bottom)))
 
                 Button(
@@ -54,7 +51,6 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
                 )
                 .buttonStyle(ActionButtonStyle(.primary))
                 .disabled(actionButtonState != .enabled)
-                .padding()
                 .accessibilityIdentifier("button_confirmSave")
                 
                 if let secondaryActionButtonTitle, let secondaryAction {
@@ -75,15 +71,10 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
                     )
                     .buttonStyle(ActionButtonStyle(.secondary))
                     .disabled(secondaryActionButtonState ?? .enabled != .enabled)
-                    .padding([.horizontal, .bottom])
-                    .padding(.top, -6)
                     .accessibilityIdentifier("button_secondaryAction")
                 }
             }
-            .padding(.bottom) // FIXME: unnecessary on iPhone 8 size devices
-            .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5))
-        }
-        .edgesIgnoringSafeArea(.bottom)
+            .background(Color(.systemGroupedBackground).ignoresSafeArea(.container))
     }
 }
 
@@ -103,7 +94,7 @@ extension ConfigurationPage {
         self.actionButtonTitle = actionButtonTitle
         self.secondaryActionButtonTitle = secondaryActionButtonTitle
         self.actionButtonState = actionButtonState
-        self.actionButtonState = actionButtonState
+        self.secondaryActionButtonState = secondaryActionButtonState
         self.cardListStyle = .simple(cards())
         self.actionAreaContent = actionAreaContent()
         self.action = action
