@@ -20,6 +20,7 @@ public enum WarningSeverity: Int, Comparable {
 
 public struct WarningView: View {
     @Environment(\.guidanceColors) var guidanceColors
+    @Environment(\.actionAreaTextPadding) private var actionAreaTextPadding
     var title: Text
     var caption: Text
     var severity: WarningSeverity
@@ -55,6 +56,7 @@ public struct WarningView: View {
 
               Spacer()
           }
+          .padding(actionAreaTextPadding)
     }
 
     private var warningColor: Color {

@@ -18,10 +18,19 @@ private struct ActionAreaButtonCornerRadiusKey: EnvironmentKey {
     static let defaultValue: CGFloat? = nil
 }
 
+private struct ActionAreaTextPaddingKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 0
+}
+
 extension EnvironmentValues {
     var actionAreaButtonCornerRadius: CGFloat? {
         get { self[ActionAreaButtonCornerRadiusKey.self] }
         set { self[ActionAreaButtonCornerRadiusKey.self] = newValue }
+    }
+
+    var actionAreaTextPadding: CGFloat {
+        get { self[ActionAreaTextPaddingKey.self] }
+        set { self[ActionAreaTextPaddingKey.self] = newValue }
     }
 }
 
@@ -360,6 +369,7 @@ private struct GlassActionArea<Content: View>: View {
             horizontalPadding: contentPadding
         )
         .environment(\.actionAreaButtonCornerRadius, roundedButtons ? 26 : 10)
+        .environment(\.actionAreaTextPadding, roundedButtons ? 8 : 0)
         .onPreferenceChange(ActionAreaLeadingContentInsetKey.self) { leadingContentInset = $0 }
         .glassEffect(.regular, in: UnevenRoundedRectangle(
             topLeadingRadius: ActionAreaLayout.topCornerRadius,
