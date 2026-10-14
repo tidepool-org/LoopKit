@@ -864,6 +864,63 @@ class TemporaryOverrideEndCodableTests: XCTestCase {
     }
 }
 
+class TemporaryScheduleOverrideCreatePresetTests: XCTestCase {
+    private let targetRange = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 80)...LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 90)
+
+    private func makeOverride(context: TemporaryScheduleOverride.Context, targetRange: ClosedRange<LoopQuantity>?, insulinNeedsScaleFactor: Double? = nil) -> TemporaryScheduleOverride {
+        TemporaryScheduleOverride(
+            context: context,
+            settings: TemporaryPresetSettings(targetRange: targetRange, insulinNeedsScaleFactor: insulinNeedsScaleFactor),
+            startDate: Date(),
+            duration: .finite(.hours(1)),
+            enactTrigger: .local,
+            syncIdentifier: UUID()
+        )
+    }
+
+    func testPreMealOverrideCreatesPreMealPreset() {
+        let preset = makeOverride(context: .preMeal, targetRange: targetRange).createPreset()
+
+        XCTAssertEqual(preset, .preMeal(range: targetRange))
+    }
+
+    func testPreMealOverrideWithoutTargetRangeKeepsPreMealIdentity() {
+        let preset = makeOverride(context: .preMeal, targetRange: nil, insulinNeedsScaleFactor: 0.8).createPreset()
+
+        XCTAssertEqual(preset.id, "preMeal")
+        XCTAssertEqual(preset.name, SelectablePreset.preMealName)
+        XCTAssertEqual(preset.icon, SelectablePreset.preMealSymbol)
+        XCTAssertNil(preset.correctionRange)
+        XCTAssertEqual(preset.insulinNeedsScaleFactor, 0.8, accuracy: 1e-9)
+    }
+
+    func testSavedPresetOverrideUsesPresetRecordedAtActivation() {
+        let recordedPreset = TemporaryPreset(
+            id: "saved-preset",
+            symbol: .emoji("🏃"),
+            name: "Old Name",
+            settings: TemporaryPresetSettings(targetRange: targetRange),
+            duration: .finite(.hours(1))
+        )
+
+        let preset = makeOverride(context: .preset(recordedPreset), targetRange: targetRange).createPreset()
+
+        XCTAssertEqual(preset, .custom(recordedPreset))
+        XCTAssertEqual(preset.name, "Old Name")
+    }
+
+    func testSingleUseOverrideCreatesSingleUsePreset() {
+        let override = makeOverride(context: .custom, targetRange: targetRange)
+
+        let preset = override.createPreset()
+
+        XCTAssertEqual(preset.id, override.syncIdentifier.uuidString)
+        XCTAssertEqual(preset.name, "Single Use Preset")
+        XCTAssertNil(preset.icon)
+        XCTAssertEqual(preset.correctionRange, targetRange)
+    }
+}
+
 extension AlgorithmInputFixture {
     /// Mocks stable, in range glucose, no insulin, no carbs, with reasonable settings
     static func mock(for now: Date = Date()) -> AlgorithmInputFixture {
