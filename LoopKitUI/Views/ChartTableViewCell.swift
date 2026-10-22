@@ -35,6 +35,9 @@ public final class ChartTableViewCell: UITableViewCell {
     public override func awakeFromNib() {
         titleStackView?.layoutMargins = UIEdgeInsets(top: 11, left: 16, bottom: 0, right: 16)
         titleStackView?.isLayoutMarginsRelativeArrangement = true
+
+        // The supplemental chart is short by design; on small screens it can drop below the default gate.
+        supplementalChartContentView?.minimumChartHeight = 20
     }
 
     public var doesNavigate: Bool = true {
