@@ -14,6 +14,7 @@ class CarbStoreHKQueryTestsBase: PersistenceControllerTestCase {
     var mockHealthStore: HKHealthStoreMock!
     var carbStore: CarbStore!
     var authorizationStatus: HKAuthorizationStatus = .notDetermined
+    var observerQueryStartedExpectation: XCTestExpectation?
     var hkSampleStore: HealthKitSampleStore!
 
     override func setUp() async throws {
@@ -21,6 +22,7 @@ class CarbStoreHKQueryTestsBase: PersistenceControllerTestCase {
 
         mockHealthStore = HKHealthStoreMock()
         mockHealthStore.authorizationStatus = authorizationStatus
+        mockHealthStore.observerQueryStartedExpectation = observerQueryStartedExpectation
 
         hkSampleStore = HealthKitSampleStore(healthStore: mockHealthStore, type: HealthKitSampleStore.carbType)
 
@@ -45,14 +47,14 @@ class CarbStoreHKQueryTestsBase: PersistenceControllerTestCase {
 class CarbStoreHKQueryTestsAuthorized: CarbStoreHKQueryTestsBase {
     override func setUp() async throws {
         authorizationStatus = .sharingAuthorized
+        // CarbStore starts the observer query asynchronously from init, so register before it exists.
+        observerQueryStartedExpectation = expectation(description: "observer query started")
         try await super.setUp()
     }
 
     func testObserverQueryStartup() {
         // Check that an observer query is registered when authorization is already determined.
         XCTAssertFalse(hkSampleStore.authorizationRequired);
-
-        mockHealthStore.observerQueryStartedExpectation = expectation(description: "observer query started")
 
         waitForExpectations(timeout: 30)
 
