@@ -260,6 +260,7 @@ public struct EditPresetView: View {
             } message: { alertState in
                 alertMessage(for: alertState)
             }
+            .inputForm(focus: $isTextFieldFocused)
         }
     }
     
@@ -271,7 +272,7 @@ public struct EditPresetView: View {
                 if preset.canChangeName {
                     TextField("", text: $preset.name, prompt: Text("Required"))
                         .multilineTextAlignment(.trailing)
-                        .focused($isTextFieldFocused)
+                        .inputField(focus: $isTextFieldFocused)
                         .foregroundColor(.secondary)
                 } else {
                     HStack(spacing: 4) {

@@ -61,6 +61,7 @@ public struct VideoPlayView<ThumbnailContent: View>: View {
             thumbnail()
                 .aspectRatio(contentMode: .fill)
                 .frame(maxWidth: .infinity)
+                .clipped()
             
             Image(frameworkImage: "play-button", decorative: true)
         }

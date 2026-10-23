@@ -26,9 +26,8 @@ struct DeliveryUncertaintyRecoveryView: View, HorizontalSizeClassOverride {
                     self.dismiss()
                 }) {
                     Text(LocalizedString("Recover Simulator", comment: "Button title recovering comms"))
-                    .actionButtonStyle()
-                    .padding()
                 }
+                .buttonStyle(ActionButtonStyle())
             }
             .environment(\.horizontalSizeClass, horizontalOverride)
             .navigationBarTitle(Text("Comms Recovery"), displayMode: .large)

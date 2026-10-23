@@ -10,10 +10,9 @@ import LoopKit
 import SwiftUI
 
 public struct DurationSheet: View {
-    
-    @Environment(\.appName) private var appName
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private let allowedDurations: [TimeInterval]
     
     @Binding private var duration: TimeInterval?
@@ -21,96 +20,151 @@ public struct DurationSheet: View {
 
     @State private var sheetContentHeight = Double(0)
     @State private var sheetActionContentHeight = Double(0)
-    
+    @State private var navigationBarHeight: CGFloat = 0
+    @State private var sheetBottomSafeAreaInset: CGFloat = 0
+
     public init(allowedDurations: [TimeInterval], duration: Binding<TimeInterval?>, durationWasSelected: Binding<Bool>) {
         self.allowedDurations = allowedDurations
         self._duration = duration.projectedValue
         self._durationWasSelected = durationWasSelected.projectedValue
     }
     
-    private var formatter: DateComponentsFormatter = {
+    public var body: some View {
+        if #available(iOS 26.0, *) {
+            NavigationStack {
+                VStack(spacing: 0) {
+                    ScrollView {
+                        MuteSoundsDurationForm(allowedDurations: allowedDurations, duration: $duration, showsTitle: false)
+                            .readContentHeight(to: $sheetContentHeight)
+                    }
+
+                    muteButton
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: duration != nil)
+                        .padding(16)
+                        .readContentHeight(to: $sheetActionContentHeight)
+                }
+                .ignoresSafeArea(.container, edges: .bottom)
+                .navigationTitle("Mute All App Sounds")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        cancelButton
+                    }
+                }
+                .onGeometryChange(for: CGFloat.self) { geometry in
+                    geometry.safeAreaInsets.top
+                } action: { height in
+                    navigationBarHeight = height
+                }
+            }
+            .onGeometryChange(for: CGFloat.self) { geometry in
+                geometry.safeAreaInsets.bottom
+            } action: { inset in
+                sheetBottomSafeAreaInset = inset
+            }
+            .sheetDetent(height: max(1, sheetContentHeight + sheetActionContentHeight + Double(navigationBarHeight - sheetBottomSafeAreaInset)))
+        } else {
+            VStack {
+                ScrollView {
+                    MuteSoundsDurationForm(allowedDurations: allowedDurations, duration: $duration, showsTitle: true)
+                        .readContentHeight(to: $sheetContentHeight)
+                }
+
+                ActionArea(backgroundColor: Color(.systemBackground)) {
+                    muteButton
+                    cancelButton
+                        .font(.body.bold())
+                        .frame(maxWidth: .infinity)
+                }
+                .readContentHeight(to: $sheetActionContentHeight)
+            }
+            .sheetDetent(height: sheetContentHeight + sheetActionContentHeight)
+        }
+    }
+
+    private var muteButton: some View {
+        Button {
+            durationWasSelected = true
+        } label: {
+            Text("Mute All App Sounds")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(ActionButtonStyle(.primary))
+        .frame(maxWidth: .infinity)
+        .disabled(duration == nil)
+    }
+
+    private var cancelButton: some View {
+        Button("Cancel") {
+            dismiss()
+            duration = nil
+        }
+    }
+}
+
+private struct MuteSoundsDurationForm: View {
+    @Environment(\.appName) private var appName
+
+    let allowedDurations: [TimeInterval]
+    @Binding var duration: TimeInterval?
+    let showsTitle: Bool
+
+    private static let formatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = .full
         formatter.allowedUnits = [.hour, .minute]
         return formatter
     }()
-    
-    public var body: some View {
-        VStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Mute All App Sounds")
-                        .font(.title2.weight(.bold))
-                        .padding(.horizontal)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(
-                            String(
-                                format: NSLocalizedString(
-                                    "Temporarily silence all sounds from the %1$@ app.",
-                                    comment: "Silence all app sounds description (1: appName)"
-                                ),
-                                appName
-                            )
-                        )
-                        .padding(.horizontal)
-                        
-                        Callout(
-                            .warning,
-                            title: Text("Critical alerts will be muted"),
-                            message: Text("All app sounds, including sounds for all critical alerts such as Urgent Low, Sensor Fail, Pump Expiration, and others will NOT sound for your selected time duration.")
-                        )
-                        
-                        Text("If vibration is enabled on your device, all alerts will still vibrate. Your insulin pump and CGM hardware may still sound.")
-                            .padding(.horizontal)
-                    }
-                    
-                    Picker(selection: $duration) {
-                        Text("Select")
-                            .tag(nil as TimeInterval?)
-                        
-                        ForEach(allowedDurations, id: \.self) { duration in
-                            if let durationString = formatter.string(from: duration) {
-                                Text(durationString)
-                                    .tag(duration as TimeInterval?)
-                            }
-                        }
-                    } label: {
-                        EmptyView()
-                    }
-                    .font(.title3)
-                    .pickerStyle(.wheel)
-                    .frame(height: 170)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if showsTitle {
+                Text("Mute All App Sounds")
+                    .font(.title2.weight(.bold))
                     .padding(.horizontal)
-                }
-                .padding(.top, 32)
-                .readContentHeight(to: $sheetContentHeight)
             }
-            
-            VStack(spacing: 12) {
-                Button {
-                    durationWasSelected = true
-                } label: {
-                    Text("Mute All App Sounds")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(ActionButtonStyle(.primary))
-                .frame(maxWidth: .infinity)
-                .disabled(duration == nil)
-                
-                Button("Cancel") {
-                    dismiss()
-                    duration = nil
-                }
-                .font(.body.bold())
-                .frame(maxWidth: .infinity)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(
+                    String(
+                        format: NSLocalizedString(
+                            "Temporarily silence all sounds from the %1$@ app.",
+                            comment: "Silence all app sounds description (1: appName)"
+                        ),
+                        appName
+                    )
+                )
+                .padding(.horizontal)
+
+                Callout(
+                    .warning,
+                    title: Text("Critical alerts will be muted"),
+                    message: Text("All app sounds, including sounds for all critical alerts such as Urgent Low, Sensor Fail, Pump Expiration, and others will NOT sound for your selected time duration.")
+                )
+
+                Text("If vibration is enabled on your device, all alerts will still vibrate. Your insulin pump and CGM hardware may still sound.")
+                    .padding(.horizontal)
             }
-            .padding([.horizontal, .top])
-            .padding(.bottom, 2)
-            .background(Color(.secondarySystemGroupedBackground).shadow(radius: 5).ignoresSafeArea())
-            .readContentHeight(to: $sheetActionContentHeight)
+
+            Picker(selection: $duration) {
+                Text("Select")
+                    .tag(nil as TimeInterval?)
+
+                ForEach(allowedDurations, id: \.self) { duration in
+                    if let durationString = Self.formatter.string(from: duration) {
+                        Text(durationString)
+                            .tag(duration as TimeInterval?)
+                    }
+                }
+            } label: {
+                EmptyView()
+            }
+            .font(.title3)
+            .pickerStyle(.wheel)
+            .frame(height: 170)
+            .padding(.horizontal)
         }
-        .sheetDetent(height: sheetContentHeight + sheetActionContentHeight)
+        .padding(.top, showsTitle ? 32 : 16)
     }
 }
 

@@ -65,8 +65,8 @@ public struct FavoriteFoodListRow: View {
                     disclosure
                 }
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
             .contentShape(Rectangle())
             .onTapGesture {
                 onTap(food)

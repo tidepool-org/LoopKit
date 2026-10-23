@@ -46,6 +46,14 @@ public struct ProgressIndicatorView: View {
     
     private let fullSize: CGFloat = 35
 
+    private var completionHeight: CGFloat? {
+        guard state.showCompletion else { return 0 }
+        if #available(iOS 26.0, *) {
+            return nil
+        }
+        return fullSize
+    }
+
     // timed progress
     private let timer: Publishers.Autoconnect<Timer.TimerPublisher>
     @State private var progress: Double = 0
@@ -78,18 +86,30 @@ public struct ProgressIndicatorView: View {
                 .frame(height: self.state.showIndeterminantProgress ? fullSize : 0)
 
             ZStack {
-                ProgressView(progress: self.state.showProgressBar ? 1 : 0)
-                    .frame(height: fullSize)
-                    .animation(.linear(duration: self.duration))
+                if #available(iOS 26.0, *) {
+                    ProgressView(progress: self.state.showProgressBar ? 1 : 0)
+                        .frame(height: fullSize)
+                        .animation(.linear(duration: self.duration), value: state.showProgressBar)
+                } else {
+                    ProgressView(progress: self.state.showProgressBar ? 1 : 0)
+                        .frame(height: fullSize)
+                        .animation(.linear(duration: self.duration))
+                }
             }
             .opacity(self.state.showProgressBar ? 1 : 0)
             .frame(height: self.state.showProgressBar ? fullSize : 0)
 
-            Image(frameworkImage: "Checkmark").foregroundColor(Color.accentColor)
-                .opacity(self.state.showCompletion ? 1 : 0)
-                .scaleEffect(self.state.showCompletion ? 1.0 : 0.001)
-                .animation(.spring(dampingFraction: 0.5))
-                .frame(height: self.state.showCompletion ? fullSize : 0)
+            if #available(iOS 26.0, *) {
+                Image(frameworkImage: "Checkmark").foregroundColor(Color.accentColor)
+                    .opacity(self.state.showCompletion ? 1 : 0)
+                    .frame(height: completionHeight)
+            } else {
+                Image(frameworkImage: "Checkmark").foregroundColor(Color.accentColor)
+                    .opacity(self.state.showCompletion ? 1 : 0)
+                    .scaleEffect(self.state.showCompletion ? 1.0 : 0.001)
+                    .animation(.spring(dampingFraction: 0.5))
+                    .frame(height: completionHeight)
+            }
         }
         .accessibilityElement(children: .ignore)
         .accessibility(label: Text(self.accessibilityLabel))
