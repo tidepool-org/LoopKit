@@ -67,6 +67,7 @@ extension TemporaryScheduleOverride {
         switch context {
         case .preMeal:
             guard let range else {
+                // Display-only fallback for a malformed record: it renders as pre-meal but behaves as a custom preset.
                 let preset = TemporaryPreset(
                     id: presetId,
                     symbol: SelectablePreset.preMealSymbol,
@@ -83,7 +84,7 @@ extension TemporaryScheduleOverride {
             let preset = TemporaryPreset(
                 id: syncIdentifier.uuidString,
                 symbol: nil,
-                name: NSLocalizedString("Single Use Preset", comment: "The title shown for a single use preset"),
+                name: SelectablePreset.singleUsePresetName,
                 settings: settings,
                 duration: duration
             )
@@ -124,6 +125,10 @@ public enum SelectablePreset: Hashable, Identifiable {
 
     static var preMealName: String {
         NSLocalizedString("Pre-Meal", comment: "The title of pre-meal preset")
+    }
+
+    static var singleUsePresetName: String {
+        NSLocalizedString("Single Use Preset", comment: "The title shown for a single use preset")
     }
 
     public func hash(into hasher: inout Hasher) {

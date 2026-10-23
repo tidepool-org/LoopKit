@@ -915,7 +915,7 @@ class TemporaryScheduleOverrideCreatePresetTests: XCTestCase {
         let preset = override.createPreset()
 
         XCTAssertEqual(preset.id, override.syncIdentifier.uuidString)
-        XCTAssertEqual(preset.name, "Single Use Preset")
+        XCTAssertEqual(preset.name, SelectablePreset.singleUsePresetName)
         XCTAssertNil(preset.icon)
         XCTAssertEqual(preset.correctionRange, targetRange)
     }
