@@ -194,10 +194,19 @@ private struct InlineActionAreaKey: EnvironmentKey {
     static let defaultValue: AnyView? = nil
 }
 
+private struct InlineActionAreaMarginKey: EnvironmentKey {
+    static let defaultValue: CGFloat? = nil
+}
+
 private extension EnvironmentValues {
     var inlineActionArea: AnyView? {
         get { self[InlineActionAreaKey.self] }
         set { self[InlineActionAreaKey.self] = newValue }
+    }
+
+    var inlineActionAreaMargin: CGFloat? {
+        get { self[InlineActionAreaMarginKey.self] }
+        set { self[InlineActionAreaMarginKey.self] = newValue }
     }
 }
 
@@ -213,12 +222,18 @@ private struct ActionAreaInlineSlotPresentKey: PreferenceKey {
 /// `actionAreaInset` footer is shown here, scrolling with the content instead of covering it.
 public struct ActionAreaInlineSlot: View {
     @Environment(\.inlineActionArea) private var inlineActionArea
+    private let margin: CGFloat
 
-    public init() {}
+    /// - Parameter margin: The space beside and below the footer's iOS 26 card. Pass 0 when the
+    ///   container already insets the slot, as an inset grouped list row does.
+    public init(margin: CGFloat = 16) {
+        self.margin = margin
+    }
 
     public var body: some View {
         if let inlineActionArea {
             inlineActionArea
+                .environment(\.inlineActionAreaMargin, margin)
                 .preference(key: ActionAreaInlineSlotPresentKey.self, value: true)
         }
     }
@@ -413,10 +428,11 @@ private struct GlassActionArea<Content: View>: View {
 
     @AppStorage(ActionAreaAppearanceOverrides.roundedButtonsKey)
     private var roundedButtons = false
+    @Environment(\.inlineActionAreaMargin) private var inlineMargin
     @State private var leadingContentInset: CGFloat = 0
 
     var body: some View {
-        ActionAreaContent(
+        let card = ActionAreaContent(
             content: content,
             topPadding: contentTopPadding,
             bottomPadding: contentPadding,
@@ -425,15 +441,28 @@ private struct GlassActionArea<Content: View>: View {
         .environment(\.actionAreaButtonCornerRadius, roundedButtons ? 26 : 10)
         .environment(\.actionAreaTextPadding, roundedButtons ? 8 : 0)
         .onPreferenceChange(ActionAreaLeadingContentInsetKey.self) { leadingContentInset = $0 }
-        .glassEffect(.regular, in: UnevenRoundedRectangle(
+        .glassEffect(.regular, in: cardShape)
+
+        if let inlineMargin {
+            // Nothing scrolls beneath an inline card, and a list row would clip its shadow.
+            card
+                .clipShape(cardShape)
+                .padding(EdgeInsets(top: 0, leading: inlineMargin, bottom: inlineMargin, trailing: inlineMargin))
+        } else {
+            card
+                .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: -4)
+                .padding(ActionAreaLayout.outerPadding)
+        }
+    }
+
+    private var cardShape: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(
             topLeadingRadius: ActionAreaLayout.topCornerRadius,
             bottomLeadingRadius: ActionAreaLayout.bottomCornerRadius,
             bottomTrailingRadius: ActionAreaLayout.bottomCornerRadius,
             topTrailingRadius: ActionAreaLayout.topCornerRadius,
             style: .continuous
-        ))
-        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: -4)
-        .padding(ActionAreaLayout.outerPadding)
+        )
     }
 
     private var contentTopPadding: CGFloat {
