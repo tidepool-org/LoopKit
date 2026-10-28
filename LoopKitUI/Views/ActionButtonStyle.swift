@@ -8,6 +8,15 @@
 
 import SwiftUI
 
+/// The corner radius of an action button outside an action area: the rounder iOS 26 style,
+/// and the classic 10pt on earlier versions.
+var standaloneActionButtonCornerRadius: CGFloat {
+    if #available(iOS 26.0, *) {
+        return 26
+    } else {
+        return 10
+    }
+}
 
 public struct ActionButtonStyle: ButtonStyle {
     public enum ButtonType {
@@ -25,7 +34,7 @@ public struct ActionButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled: Bool
     @Environment(\.actionAreaButtonCornerRadius) private var actionAreaCornerRadius
 
-    private var cornerRadius: CGFloat { actionAreaCornerRadius ?? 26 }
+    private var cornerRadius: CGFloat { actionAreaCornerRadius ?? standaloneActionButtonCornerRadius }
 
     public init(_ style: ButtonType = .primary) {
         switch style {

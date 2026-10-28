@@ -58,7 +58,6 @@ public struct ActionArea<Content: View>: View {
     }
 }
 
-@available(iOS 26.0, *)
 public struct ActionAreaHeader<Icon: View>: View {
     private let title: Text
     private let messages: [Text]
@@ -191,6 +190,55 @@ private struct ActionAreaLeadingContentInsetKey: PreferenceKey {
     }
 }
 
+private struct InlineActionAreaKey: EnvironmentKey {
+    static let defaultValue: AnyView? = nil
+}
+
+private struct InlineActionAreaMarginKey: EnvironmentKey {
+    static let defaultValue: CGFloat? = nil
+}
+
+private extension EnvironmentValues {
+    var inlineActionArea: AnyView? {
+        get { self[InlineActionAreaKey.self] }
+        set { self[InlineActionAreaKey.self] = newValue }
+    }
+
+    var inlineActionAreaMargin: CGFloat? {
+        get { self[InlineActionAreaMarginKey.self] }
+        set { self[InlineActionAreaMarginKey.self] = newValue }
+    }
+}
+
+private struct ActionAreaInlineSlotPresentKey: PreferenceKey {
+    static var defaultValue: Bool { false }
+
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
+    }
+}
+
+/// Marks the end of a page's scrolling content. At accessibility text sizes the page's
+/// `actionAreaInset` footer is shown here, scrolling with the content instead of covering it.
+public struct ActionAreaInlineSlot: View {
+    @Environment(\.inlineActionArea) private var inlineActionArea
+    private let margin: CGFloat
+
+    /// - Parameter margin: The space beside and below the footer's iOS 26 card. Pass 0 when the
+    ///   container already insets the slot, as an inset grouped list row does.
+    public init(margin: CGFloat = 16) {
+        self.margin = margin
+    }
+
+    public var body: some View {
+        if let inlineActionArea {
+            inlineActionArea
+                .environment(\.inlineActionAreaMargin, margin)
+                .preference(key: ActionAreaInlineSlotPresentKey.self, value: true)
+        }
+    }
+}
+
 public extension View {
     func actionAreaLeadingContentInset(_ inset: CGFloat) -> some View {
         preference(key: ActionAreaLeadingContentInsetKey.self, value: max(0, inset))
@@ -208,6 +256,8 @@ public extension View {
         }
     }
 
+    /// Pins the footer to the bottom of the page. At accessibility text sizes it moves to the page's
+    /// `ActionAreaInlineSlot`, if the page has one.
     func actionAreaInset<BarContent: View>(
         backgroundColor: Color = Color(.systemGroupedBackground),
         @ViewBuilder _ barContent: () -> BarContent
@@ -245,37 +295,56 @@ private struct SeatedActionAreaInset<BarContent: View, Value: Equatable>: ViewMo
     let animationValue: Value
     let animatesChanges: Bool
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var isKeyboardVisible = false
     @State private var actionAreaHeight: CGFloat = 0
+    @State private var pageHasInlineSlot = false
+
+    /// At accessibility text sizes a pinned footer can cover most of a small screen.
+    private var offersInlineActionArea: Bool {
+        isPresented && dynamicTypeSize.isAccessibilitySize
+    }
+
+    private var showsInlineActionArea: Bool {
+        offersInlineActionArea && pageHasInlineSlot
+    }
 
     func body(content: Content) -> some View {
+        let page = content
+            .environment(\.inlineActionArea, offersInlineActionArea
+                ? AnyView(ActionArea(backgroundColor: backgroundColor) { barContent })
+                : nil)
+            .onPreferenceChange(ActionAreaInlineSlotPresentKey.self) { pageHasInlineSlot = $0 }
+
         Group {
             if #available(iOS 26.0, *) {
-                content.modifier(GlassActionAreaInset(
+                page.modifier(GlassActionAreaInset(
                     barContent: barContent,
                     backgroundColor: backgroundColor,
                     isKeyboardVisible: isKeyboardVisible,
-                    isPresented: isPresented,
+                    isPresented: isPresented && !showsInlineActionArea,
                     animationValue: animationValue,
                     animatesChanges: animatesChanges
                 ))
             } else {
-                content
+                page
                     .safeAreaInset(edge: .bottom, spacing: 0) {
                         Color.clear
-                            .frame(height: isKeyboardVisible ? 0 : actionAreaHeight)
+                            .frame(height: isKeyboardVisible || showsInlineActionArea ? 0 : actionAreaHeight)
                             .allowsHitTesting(false)
                             .accessibilityHidden(true)
                     }
                     .overlay {
-                        ActionArea(backgroundColor: backgroundColor) { barContent }
-                            .onGeometryChange(for: CGFloat.self) { geometry in
-                                geometry.size.height
-                            } action: { height in
-                                actionAreaHeight = height
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                            .ignoresSafeArea(.keyboard, edges: .bottom)
+                        if !showsInlineActionArea {
+                            ActionArea(backgroundColor: backgroundColor) { barContent }
+                                .onGeometryChange(for: CGFloat.self) { geometry in
+                                    geometry.size.height
+                                } action: { height in
+                                    actionAreaHeight = height
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                                .ignoresSafeArea(.keyboard, edges: .bottom)
+                        }
                     }
             }
         }
@@ -359,10 +428,11 @@ private struct GlassActionArea<Content: View>: View {
 
     @AppStorage(ActionAreaAppearanceOverrides.roundedButtonsKey)
     private var roundedButtons = false
+    @Environment(\.inlineActionAreaMargin) private var inlineMargin
     @State private var leadingContentInset: CGFloat = 0
 
     var body: some View {
-        ActionAreaContent(
+        let card = ActionAreaContent(
             content: content,
             topPadding: contentTopPadding,
             bottomPadding: contentPadding,
@@ -371,15 +441,28 @@ private struct GlassActionArea<Content: View>: View {
         .environment(\.actionAreaButtonCornerRadius, roundedButtons ? 26 : 10)
         .environment(\.actionAreaTextPadding, roundedButtons ? 8 : 0)
         .onPreferenceChange(ActionAreaLeadingContentInsetKey.self) { leadingContentInset = $0 }
-        .glassEffect(.regular, in: UnevenRoundedRectangle(
+        .glassEffect(.regular, in: cardShape)
+
+        if let inlineMargin {
+            // Nothing scrolls beneath an inline card, and a list row would clip its shadow.
+            card
+                .clipShape(cardShape)
+                .padding(EdgeInsets(top: 0, leading: inlineMargin, bottom: inlineMargin, trailing: inlineMargin))
+        } else {
+            card
+                .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: -4)
+                .padding(ActionAreaLayout.outerPadding)
+        }
+    }
+
+    private var cardShape: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(
             topLeadingRadius: ActionAreaLayout.topCornerRadius,
             bottomLeadingRadius: ActionAreaLayout.bottomCornerRadius,
             bottomTrailingRadius: ActionAreaLayout.bottomCornerRadius,
             topTrailingRadius: ActionAreaLayout.topCornerRadius,
             style: .continuous
-        ))
-        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: -4)
-        .padding(ActionAreaLayout.outerPadding)
+        )
     }
 
     private var contentTopPadding: CGFloat {
