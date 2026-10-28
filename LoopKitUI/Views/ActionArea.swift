@@ -58,7 +58,6 @@ public struct ActionArea<Content: View>: View {
     }
 }
 
-@available(iOS 26.0, *)
 public struct ActionAreaHeader<Icon: View>: View {
     private let title: Text
     private let messages: [Text]

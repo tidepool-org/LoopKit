@@ -16,7 +16,7 @@ public struct ActionButton: ViewModifier {
 
     @Environment(\.actionAreaButtonCornerRadius) private var actionAreaCornerRadius
 
-    private var cornerRadius: CGFloat { actionAreaCornerRadius ?? 10 }
+    private var cornerRadius: CGFloat { actionAreaCornerRadius ?? standaloneActionButtonCornerRadius }
     
     public enum ButtonType {
         case primary
