@@ -47,6 +47,10 @@ public struct GuidePage<Content, ActionAreaContent>: View where Content: View, A
             } else {
                 self.content
             }
+
+            ActionAreaInlineSlot()
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
         }
         .insetGroupedListStyle()
     }

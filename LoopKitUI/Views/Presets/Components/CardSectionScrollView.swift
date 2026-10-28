@@ -45,6 +45,8 @@ public struct CardSectionScrollView<Content: View, ActionAreaContent: View>: Vie
                 content
             }
             .padding()
+
+            ActionAreaInlineSlot()
         }
         .background(Color(.systemGroupedBackground))
     }

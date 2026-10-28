@@ -53,6 +53,8 @@ struct InformationView<InformationalContent: View> : View {
             ScrollView {
                 bodyForAcceptanceFlow
                     .padding()
+
+                ActionAreaInlineSlot()
             }
             .actionAreaInset(backgroundColor: Color(.systemBackground)) {
                 nextPageButton
