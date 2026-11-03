@@ -18,7 +18,6 @@ public extension View {
         modifier(InitialInputFocus(focus: focus, target: true, unfocused: false, enabled: enabled))
     }
 
-    /// Requests initial focus without replacing a field the user has already focused.
     func initialFocus<Field: Hashable>(
         _ focus: FocusState<Field?>.Binding,
         equals field: Field,
@@ -62,7 +61,7 @@ public extension View {
             .onDisappear(perform: dismiss)
     }
 
-    /// Connects a native field to focus and a Done return key without changing its style or data.
+    /// Connects a native field to focus, with a Done or Next return key and toolbar action.
     func inputField(focus: FocusState<Bool>.Binding, next: (() -> Void)? = nil) -> some View {
         focused(focus)
             .submitLabel(next == nil ? .done : .next)

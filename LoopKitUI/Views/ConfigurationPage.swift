@@ -30,7 +30,7 @@ public struct ConfigurationPage<ActionAreaContent: View>: View {
 
     public var body: some View {
         CardList(title: title, style: cardListStyle)
-            .actionAreaInset {
+            .actionAreaInset(inlineAtAccessibilitySizes: true) {
                 actionAreaContent
                     .transition(AnyTransition.opacity.combined(with: .move(edge: .bottom)))
 

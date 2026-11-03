@@ -32,7 +32,7 @@ public struct GuidePage<Content, ActionAreaContent>: View where Content: View, A
             listContent
         } else {
             listContent
-                .actionAreaInset {
+                .actionAreaInset(inlineAtAccessibilitySizes: true) {
                     self.actionAreaContent
                 }
         }
@@ -47,6 +47,10 @@ public struct GuidePage<Content, ActionAreaContent>: View where Content: View, A
             } else {
                 self.content
             }
+
+            ActionAreaInlineSlot(margin: 0)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
         }
         .insetGroupedListStyle()
     }

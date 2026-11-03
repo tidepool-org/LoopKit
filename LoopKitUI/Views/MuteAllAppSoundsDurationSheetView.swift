@@ -70,7 +70,7 @@ public struct DurationSheet: View {
                         .readContentHeight(to: $sheetContentHeight)
                 }
 
-                ActionArea(backgroundColor: Color(.systemBackground)) {
+                ActionArea {
                     muteButton
                     cancelButton
                         .font(.body.bold())
@@ -284,5 +284,21 @@ public extension View {
                     contentHeight.wrappedValue = height
                 }
             }
+    }
+
+    /// Reads the height a scroll view can show, for pinning its content's `minHeight`.
+    /// Some containers report the home-indicator inset even when the view already stops above it,
+    /// so the inset is subtracted only when the view's frame extends beneath it.
+    func readVisibleHeight(to visibleHeight: Binding<CGFloat>) -> some View {
+        background(
+            GeometryReader { geometry in
+                let height = geometry.size.height - (geometry.frame(in: .global).maxY > UIScreen.main.bounds.height - geometry.safeAreaInsets.bottom + 0.5 ? geometry.safeAreaInsets.bottom : 0)
+                Color.clear
+                    .onAppear { visibleHeight.wrappedValue = height }
+                    .onChange(of: height) { _, height in
+                        visibleHeight.wrappedValue = height
+                    }
+            }
+        )
     }
 }

@@ -53,8 +53,10 @@ struct InformationView<InformationalContent: View> : View {
             ScrollView {
                 bodyForAcceptanceFlow
                     .padding()
+
+                ActionAreaInlineSlot()
             }
-            .actionAreaInset(backgroundColor: Color(.systemBackground)) {
+            .actionAreaInset(inlineAtAccessibilitySizes: true) {
                 nextPageButton
             }
         case .settings:
@@ -63,16 +65,7 @@ struct InformationView<InformationalContent: View> : View {
                     .padding()
                     .frame(minHeight: scrollViewHeight)
             }
-            .background(
-                GeometryReader { geometry in
-                    let visibleHeight = geometry.size.height - (geometry.frame(in: .global).maxY > UIScreen.main.bounds.height - geometry.safeAreaInsets.bottom + 0.5 ? geometry.safeAreaInsets.bottom : 0)
-                    Color.clear
-                        .onAppear { scrollViewHeight = visibleHeight }
-                        .onChange(of: visibleHeight) { _, height in
-                            scrollViewHeight = height
-                        }
-                }
-            )
+            .readVisibleHeight(to: $scrollViewHeight)
         }
     }
     

@@ -8,6 +8,14 @@
 
 import SwiftUI
 
+/// Matches the corner radius of the system's inset-grouped list cards.
+public var cardCornerRadius: CGFloat {
+    if #available(iOS 26.0, *) {
+        return 26
+    } else {
+        return 10
+    }
+}
 
 /// A platter displaying a number of components over a rounded background tile.
 ///
@@ -40,17 +48,6 @@ import SwiftUI
 ///     Text("Below dynamic data")
 /// }
 /// ```
-
-/// Matches the corner radius of the system's inset-grouped list cards:
-/// iOS 26 adopted large concentric corners; earlier versions use the classic 10pt.
-public var cardCornerRadius: CGFloat {
-    if #available(iOS 26.0, *) {
-        return 26
-    } else {
-        return 10
-    }
-}
-
 public struct Card: View {
     var hero: AnyView?
     var parts: [AnyView?]

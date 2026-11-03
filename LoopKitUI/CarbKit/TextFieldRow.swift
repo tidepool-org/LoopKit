@@ -15,21 +15,23 @@ public struct TextFieldRow<Field: Hashable>: View {
     
     let title: String
     let placeholder: String
-    private let nextField: Field?
-    private var nextAction: (() -> Void)?
-    
+    private let nextAction: (() -> Void)?
+
     public init(text: Binding<String>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, placeholder: String, next: Field? = nil) {
+        self.init(text: text, focus: focus, equals: field, title: title, placeholder: placeholder, nextAction: focus.action(focusing: next))
+    }
+
+    public init(text: Binding<String>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, placeholder: String, next: @escaping () -> Void) {
+        self.init(text: text, focus: focus, equals: field, title: title, placeholder: placeholder, nextAction: next)
+    }
+
+    private init(text: Binding<String>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, placeholder: String, nextAction: (() -> Void)?) {
         self._text = text
         self.focus = focus
         self.field = field
         self.title = title
         self.placeholder = placeholder
-        self.nextField = next
-    }
-
-    public init(text: Binding<String>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, placeholder: String, next: @escaping () -> Void) {
-        self.init(text: text, focus: focus, equals: field, title: title, placeholder: placeholder)
-        self.nextAction = next
+        self.nextAction = nextAction
     }
 
     public var body: some View {
@@ -55,13 +57,8 @@ public struct TextFieldRow<Field: Hashable>: View {
         }
     }
 
-    @ViewBuilder
     private var textField: some View {
-        if let nextAction {
-            KeyboardTextField(placeholder, text: $text, focus: focus, equals: field, next: nextAction)
-        } else {
-            KeyboardTextField(placeholder, text: $text, focus: focus, equals: field, next: nextField)
-        }
+        KeyboardTextField(placeholder, text: $text, focus: focus, equals: field, nextAction: nextAction)
     }
     
     private func rowTapped() {

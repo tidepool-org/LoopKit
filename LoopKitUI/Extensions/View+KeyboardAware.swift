@@ -22,15 +22,6 @@ extension View {
     public func keyboardToolbar(isFocused: Bool, next: (() -> Void)? = nil, dismiss: @escaping () -> Void) -> some View {
         modifier(KeyboardToolbar(isFocused: isFocused, next: next, dismiss: dismiss))
     }
-
-    /// Reject oversized edits instead of truncating numeric values or device identifiers.
-    public func limitTextLength(_ text: Binding<String>, to maximumLength: Int) -> some View {
-        onChange(of: text.wrappedValue) { previous, current in
-            if current.utf16.count > maximumLength {
-                text.wrappedValue = previous
-            }
-        }
-    }
 }
 
 private struct KeyboardToolbar: ViewModifier {
@@ -39,10 +30,11 @@ private struct KeyboardToolbar: ViewModifier {
     let dismiss: () -> Void
 
     func body(content: Content) -> some View {
+        let content = content
+            .scrollBounceBehavior(.always)
+            .scrollDismissesKeyboard(.interactively)
         if #available(iOS 26.0, *) {
             content
-                .scrollBounceBehavior(.always)
-                .scrollDismissesKeyboard(.interactively)
                 .safeAreaBar(edge: .bottom, spacing: 0) {
                     if isFocused {
                         HStack {
@@ -59,8 +51,6 @@ private struct KeyboardToolbar: ViewModifier {
                 }
         } else {
             content
-                .scrollBounceBehavior(.always)
-                .scrollDismissesKeyboard(.interactively)
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
                         if isFocused {
@@ -74,12 +64,9 @@ private struct KeyboardToolbar: ViewModifier {
     }
 
     private var button: some View {
-        Button(
-            next == nil
-                ? LocalizedString("Done", comment: "Keyboard toolbar button that dismisses the keyboard")
-                : LocalizedString("Next", comment: "Keyboard toolbar button that moves to the next field"),
-            action: next ?? dismiss
-        )
+        let button = KeyboardToolbarButton(hasNext: next != nil)
+        return Button(button.title, action: next ?? dismiss)
+            .accessibilityIdentifier(button.accessibilityIdentifier)
     }
 }
 
@@ -89,8 +76,6 @@ private struct InputForm: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .scrollBounceBehavior(.always)
-            .scrollDismissesKeyboard(.interactively)
             .interactiveDismissDisabled(isInteractiveDismissDisabled || isKeyboardVisible)
             .background(KeyboardModalPinner(
                 isKeyboardVisible: isKeyboardVisible,
@@ -99,6 +84,24 @@ private struct InputForm: ViewModifier {
             .onKeyboardStateChange { state in
                 isKeyboardVisible = state.height > 0
             }
+            .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
+                guard let textField = notification.object as? UITextField else { return }
+                moveCaretToEnd(ofNumeric: textField)
+            }
+    }
+
+    private func moveCaretToEnd(ofNumeric textField: UITextField) {
+        switch textField.keyboardType {
+        case .numberPad, .decimalPad, .asciiCapableNumberPad:
+            break
+        default:
+            return
+        }
+        
+        DispatchQueue.main.async { [weak textField] in
+            guard let textField, textField.isFirstResponder else { return }
+            textField.selectedTextRange = textField.textRange(from: textField.endOfDocument, to: textField.endOfDocument)
+        }
     }
 }
 

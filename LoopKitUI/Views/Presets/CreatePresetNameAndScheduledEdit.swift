@@ -256,7 +256,7 @@ struct CreatePresetNameAndScheduledEdit: View {
         })
         .animation(.easeInOut, value: preset.duration)
         .inputForm(focus: $isTextFieldFocused)
-        .actionAreaInset {
+        .actionAreaInset(inlineAtAccessibilitySizes: true) {
             Button("Continue") {
                 path.append(CreatePresetPage.summary)
             }

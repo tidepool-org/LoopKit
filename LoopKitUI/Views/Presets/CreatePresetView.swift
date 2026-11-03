@@ -180,15 +180,7 @@ public struct CreatePresetView: View {
         Group {
             if let threshold = exceededThreshold {
                 WarningView(title: threshold.insulinNeedsScaleWarningTitle, caption: threshold.insulinNeedsScaleWarningCaption, severity: threshold.severity)
-                    .padding()
             }
-        }
-    }
-
-    private var actionArea: some View {
-        ActionArea {
-            guardrailWarningIfNecessary
-            actionButton
         }
     }
 

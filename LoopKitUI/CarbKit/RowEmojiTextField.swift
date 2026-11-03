@@ -56,12 +56,6 @@ struct RowEmojiTextField: View {
                 textField.font = UIFont.preferredFont(forTextStyle: .title3)
                 textField.autocorrectionType = .no
                 textField.autocapitalizationType = .none
-                if textField.customInput != nil {
-                    textField.customInput = nil
-                    if textField.isFirstResponder {
-                        textField.reloadInputViews()
-                    }
-                }
                 textField.placeholder = placeholder
             }).accessibilityIdentifier("textField_FoodType")
         }
@@ -69,17 +63,9 @@ struct RowEmojiTextField: View {
             RowTextField(text: $text, isFocused: $isFocused, maxLength: 20, configuration: { textField in
                 textField.textAlignment = .right
                 textField.font = UIFont.preferredFont(forTextStyle: .title3)
-                // Do not register a custom keyboard merely because its containing form appeared.
-                if isFocused {
-                    let controller = viewModel.emojiInputController
-                    if textField.customInput !== controller {
-                        textField.customInput = controller
-                        if textField.isFirstResponder {
-                            textField.reloadInputViews()
-                        }
-                    }
-                }
                 textField.placeholder = placeholder
+            }, prepareForEditing: { textField in
+                textField.customInput = viewModel.emojiInputController
             }).accessibilityIdentifier("textField_FoodType")
         }
     }

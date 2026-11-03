@@ -69,6 +69,7 @@ public struct CardList<Trailer: View>: View {
                 if let trailer = trailer {
                     trailer
                 }
+                ActionAreaInlineSlot()
             }
         }
         .background(Color(.systemGroupedBackground).ignoresSafeArea(.container))

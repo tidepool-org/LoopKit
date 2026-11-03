@@ -17,13 +17,11 @@ public struct CardSectionScrollView<Content: View, ActionAreaContent: View>: Vie
     let content: Content
     let actionArea: ActionAreaContent?
 
-    // Initializer for custom view header
     public init(@ViewBuilder content: () -> Content, @ViewBuilder actionArea: () -> ActionAreaContent) {
         self.content = content()
         self.actionArea = actionArea()
     }
 
-    // Initializer for no action area
     public init(@ViewBuilder content: () -> Content) where ActionAreaContent == Text {
         self.content = content()
         self.actionArea = nil
@@ -33,7 +31,7 @@ public struct CardSectionScrollView<Content: View, ActionAreaContent: View>: Vie
     public var body: some View {
         if let actionArea {
             scrollContent
-                .actionAreaInset { actionArea }
+                .actionAreaInset(inlineAtAccessibilitySizes: true) { actionArea }
         } else {
             scrollContent
         }
@@ -45,6 +43,8 @@ public struct CardSectionScrollView<Content: View, ActionAreaContent: View>: Vie
                 content
             }
             .padding()
+
+            ActionAreaInlineSlot()
         }
         .background(Color(.systemGroupedBackground))
     }
