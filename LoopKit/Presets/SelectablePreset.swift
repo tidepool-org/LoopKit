@@ -66,14 +66,25 @@ extension TemporaryScheduleOverride {
 
         switch context {
         case .preMeal:
-            return .preMeal(range: range!)
+            guard let range else {
+                // Display-only fallback for a malformed record: it renders as pre-meal but behaves as a custom preset.
+                let preset = TemporaryPreset(
+                    id: presetId,
+                    symbol: SelectablePreset.preMealSymbol,
+                    name: SelectablePreset.preMealName,
+                    settings: settings,
+                    duration: duration
+                )
+                return .custom(preset)
+            }
+            return .preMeal(range: range)
         case .activity(let activity):
             return .activity(activity)
         case .custom:
             let preset = TemporaryPreset(
                 id: syncIdentifier.uuidString,
                 symbol: nil,
-                name: NSLocalizedString("Single Use Preset", comment: "The title shown for a single use preset"),
+                name: SelectablePreset.singleUsePresetName,
                 settings: settings,
                 duration: duration
             )
@@ -109,6 +120,16 @@ public enum SelectablePreset: Hashable, Identifiable {
     case custom(TemporaryPreset)
     case preMeal(range: ClosedRange<LoopQuantity>)
     case activity(ActivityPreset)
+
+    static let preMealSymbol: PresetSymbol = .image("Pre-Meal-symbol", tint: .preMeal)
+
+    static var preMealName: String {
+        NSLocalizedString("Pre-Meal", comment: "The title of pre-meal preset")
+    }
+
+    static var singleUsePresetName: String {
+        NSLocalizedString("Single Use Preset", comment: "The title shown for a single use preset")
+    }
 
     public func hash(into hasher: inout Hasher) {
         switch self {
@@ -146,7 +167,7 @@ public enum SelectablePreset: Hashable, Identifiable {
     public var icon: PresetSymbol? {
         switch self {
         case .custom(let preset): return preset.symbol
-        case .preMeal: return .image("Pre-Meal-symbol", tint: .preMeal)
+        case .preMeal: return SelectablePreset.preMealSymbol
         case .activity(let activity): return activity.activityType.symbol
         }
     }
@@ -271,7 +292,7 @@ public enum SelectablePreset: Hashable, Identifiable {
         get {
             switch self {
             case .custom(let preset): return preset.name
-            case .preMeal: return NSLocalizedString("Pre-Meal", comment: "The title of pre-meal preset")
+            case .preMeal: return SelectablePreset.preMealName
             case .activity(let activity): return activity.activityType.name
             }
         }

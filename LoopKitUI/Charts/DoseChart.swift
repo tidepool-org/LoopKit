@@ -71,9 +71,13 @@ public extension DoseChart {
         let coordsSpace = ChartCoordsSpaceLeftBottomSingleAxis(chartSettings: chartSettings, chartFrame: frame, xModel: xAxisModel, yModel: yAxisModel)
 
         let (xAxisLayer, yAxisLayer, innerFrame) = (coordsSpace.xAxisLayer, coordsSpace.yAxisLayer, coordsSpace.chartInnerFrame)
+
+        // Each marker row owns one band between y-axis values; shrink markers so they fit the band on short charts
+        let bandHeight = innerFrame.height / CGFloat(yAxisValues.count - 1)
+        let manualBolusPointSize = min(18, bandHeight * 0.9)
+        let autoBolusPointSize = manualBolusPointSize * (12 / 18)
         
         // Manual bolus points
-        let manualBolusPointSize: Double = 18
         let manualBolusLayer: ManualBolusDoseChartLayer<ChartPoint>?
         
         if points.manualBolus.count > 0 {
@@ -83,7 +87,6 @@ public extension DoseChart {
         }
 
         // Auto bolus points
-        let autoBolusPointSize: Double = 12
         let autoBolusLayer: ChartPointsScatterCirclesLayer<ChartPoint>?
         
         if points.autoBolus.count > 0 {

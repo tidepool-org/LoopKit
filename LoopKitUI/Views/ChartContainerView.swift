@@ -10,13 +10,15 @@ import UIKit
 
 public class ChartContainerView: UIView {
 
+    /// Heights at or below this are skipped, since they may be requested mid-animation.
+    /// Lower it for compact charts that legitimately render in a short container.
+    public var minimumChartHeight: CGFloat = 50
+
     override public func layoutSubviews() {
         super.layoutSubviews()
 
         if chartView == nil || chartView!.frame != bounds {
-            // 50 is the smallest height in which we should attempt to redraw a chart.
-            // Smaller sizes might be requested mid-animation, so ignore them.
-            if bounds.height > 50 {
+            if bounds.height > minimumChartHeight {
                 chartView = chartGenerator?(bounds)
             }
         } else if chartView!.superview == nil {
