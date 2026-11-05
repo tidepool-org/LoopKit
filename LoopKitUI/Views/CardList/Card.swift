@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-/// Matches the corner radius of the system's inset-grouped list cards.
+/// Matches the corner radius of the system's inset-grouped list cards. Action buttons use it too.
 public var cardCornerRadius: CGFloat {
     if #available(iOS 26.0, *) {
         return 26

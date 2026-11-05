@@ -8,16 +8,6 @@
 
 import SwiftUI
 
-enum ActionButtonLayout {
-    static var cornerRadius: CGFloat {
-        if #available(iOS 26.0, *) {
-            return 26
-        } else {
-            return 10
-        }
-    }
-}
-
 public struct ActionButtonStyle: ButtonStyle {
     public enum ButtonType {
         case primary
@@ -32,7 +22,7 @@ public struct ActionButtonStyle: ButtonStyle {
     private let squidge: CGFloat = 1
 
     @Environment(\.isEnabled) private var isEnabled: Bool
-    private var cornerRadius: CGFloat { ActionButtonLayout.cornerRadius }
+    private var cornerRadius: CGFloat { cardCornerRadius }
 
     public init(_ style: ButtonType = .primary) {
         switch style {

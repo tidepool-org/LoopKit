@@ -84,24 +84,6 @@ private struct InputForm: ViewModifier {
             .onKeyboardStateChange { state in
                 isKeyboardVisible = state.height > 0
             }
-            .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
-                guard let textField = notification.object as? UITextField else { return }
-                moveCaretToEnd(ofNumeric: textField)
-            }
-    }
-
-    private func moveCaretToEnd(ofNumeric textField: UITextField) {
-        switch textField.keyboardType {
-        case .numberPad, .decimalPad, .asciiCapableNumberPad:
-            break
-        default:
-            return
-        }
-        
-        DispatchQueue.main.async { [weak textField] in
-            guard let textField, textField.isFirstResponder else { return }
-            textField.selectedTextRange = textField.textRange(from: textField.endOfDocument, to: textField.endOfDocument)
-        }
     }
 }
 

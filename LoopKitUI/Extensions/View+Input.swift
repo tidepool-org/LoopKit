@@ -62,6 +62,7 @@ public extension View {
     }
 
     /// Connects a native field to focus, with a Done or Next return key and toolbar action.
+    /// Tapping the unfocused field puts the caret after its text, wherever the tap lands.
     func inputField(focus: FocusState<Bool>.Binding, next: (() -> Void)? = nil) -> some View {
         focused(focus)
             .submitLabel(next == nil ? .done : .next)
@@ -76,9 +77,13 @@ public extension View {
                 \.inputFieldNavigation,
                 InputFieldNavigation(field: AnyHashable(true), nextAction: next)
             )
+            .modifier(FocusOnTapWithCaretAtEnd(isFocused: focus.wrappedValue) {
+                focus.wrappedValue = true
+            })
     }
 
     /// Declares native focus and the Next/Done action for both Return and the form toolbar.
+    /// Tapping the unfocused field puts the caret after its text, wherever the tap lands.
     func inputField<Field: Hashable>(
         focus: FocusState<Field?>.Binding,
         equals field: Field,
@@ -91,7 +96,11 @@ public extension View {
                 \.inputFieldNavigation,
                 InputFieldNavigation(field: AnyHashable(field), next: next.map(AnyHashable.init))
             )
+            .modifier(FocusOnTapWithCaretAtEnd(isFocused: focus.wrappedValue == field) {
+                focus.wrappedValue = field
+            })
     }
+
     /// Uses one callback for Return and toolbar Next when advancing to a custom input.
     func inputField<Field: Hashable>(
         focus: FocusState<Field?>.Binding,
@@ -105,8 +114,33 @@ public extension View {
                 \.inputFieldNavigation,
                 InputFieldNavigation(field: AnyHashable(field), nextAction: next)
             )
+            .modifier(FocusOnTapWithCaretAtEnd(isFocused: focus.wrappedValue == field) {
+                focus.wrappedValue = field
+            })
     }
 
+}
+
+/// A native field puts the caret where a tap lands, which in a right-aligned value is usually before the
+/// digits (LOOP-1916). Taps on an unfocused field focus it in code instead, which leaves the caret after
+/// the text; once the field is focused, taps reach it and move the caret as usual.
+private struct FocusOnTapWithCaretAtEnd: ViewModifier {
+    let isFocused: Bool
+    let focus: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            // Moving the caret in the focused field doesn't also trigger an enclosing row's tap gesture.
+            .onTapGesture {}
+            .overlay {
+                if !isFocused {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture(perform: focus)
+                        .accessibilityHidden(true)
+                }
+            }
+    }
 }
 
 private struct InitialInputFocus<Value: Hashable>: ViewModifier {

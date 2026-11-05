@@ -290,15 +290,72 @@ public extension View {
     /// Some containers report the home-indicator inset even when the view already stops above it,
     /// so the inset is subtracted only when the view's frame extends beneath it.
     func readVisibleHeight(to visibleHeight: Binding<CGFloat>) -> some View {
-        background(
+        modifier(VisibleHeightReader(visibleHeight: visibleHeight))
+    }
+}
+
+private struct VisibleHeightReader: ViewModifier {
+    @Binding var visibleHeight: CGFloat
+    @State private var windowHeight: CGFloat?
+
+    func body(content: Content) -> some View {
+        content.background(
             GeometryReader { geometry in
-                let height = geometry.size.height - (geometry.frame(in: .global).maxY > UIScreen.main.bounds.height - geometry.safeAreaInsets.bottom + 0.5 ? geometry.safeAreaInsets.bottom : 0)
+                let height = measuredHeight(in: geometry)
                 Color.clear
-                    .onAppear { visibleHeight.wrappedValue = height }
+                    .background(WindowHeightReader(height: $windowHeight))
+                    .onAppear { visibleHeight = height }
                     .onChange(of: height) { _, height in
-                        visibleHeight.wrappedValue = height
+                        visibleHeight = height
                     }
             }
         )
+    }
+
+    private func measuredHeight(in geometry: GeometryProxy) -> CGFloat {
+        let bottomInset = geometry.safeAreaInsets.bottom
+        guard let windowHeight,
+              geometry.frame(in: .global).maxY > windowHeight - bottomInset + 0.5 else {
+            return geometry.size.height
+        }
+        return geometry.size.height - bottomInset
+    }
+}
+
+private struct WindowHeightReader: UIViewRepresentable {
+    @Binding var height: CGFloat?
+
+    func makeUIView(context: Context) -> ProbeView {
+        let view = ProbeView()
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ view: ProbeView, context: Context) {
+        view.onWindowHeightChange = { height = $0 }
+    }
+
+    final class ProbeView: UIView {
+        var onWindowHeightChange: ((CGFloat?) -> Void)?
+        private var reportedHeight: CGFloat?
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            reportWindowHeight()
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            reportWindowHeight()
+        }
+
+        private func reportWindowHeight() {
+            let height = window?.bounds.height
+            guard height != reportedHeight else { return }
+            reportedHeight = height
+            DispatchQueue.main.async { [weak self] in
+                self?.onWindowHeightChange?(height)
+            }
+        }
     }
 }

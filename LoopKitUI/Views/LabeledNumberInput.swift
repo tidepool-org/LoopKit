@@ -16,13 +16,24 @@ public struct LabeledNumberInput: View {
     let allowFractions: Bool
     let focus: FocusState<Bool>.Binding
     @State private var enteredValue: String
-    
-    private var numberFormatter: NumberFormatter {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = allowFractions ? .decimal : .none
-        return numberFormatter
+
+    private static let wholeNumberFormatter = makeFormatter(allowFractions: false)
+    private static let decimalFormatter = makeFormatter(allowFractions: true)
+
+    private static func makeFormatter(allowFractions: Bool) -> NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = allowFractions ? .decimal : .none
+        return formatter
     }
-    
+
+    private static func numberFormatter(allowFractions: Bool) -> NumberFormatter {
+        allowFractions ? decimalFormatter : wholeNumberFormatter
+    }
+
+    private var numberFormatter: NumberFormatter {
+        Self.numberFormatter(allowFractions: allowFractions)
+    }
+
     public init(value: Binding<Double?>, font: Font = .largeTitle, label: String, placeholder: String? = nil, allowFractions: Bool = false, focus: FocusState<Bool>.Binding) {
         _value = value
         self.font = font
@@ -30,8 +41,7 @@ public struct LabeledNumberInput: View {
         self.placeholder = placeholder ?? LocalizedString("Value", comment: "Placeholder text until value is entered")
         self.allowFractions = allowFractions
         self.focus = focus
-        let formatter = NumberFormatter()
-        formatter.numberStyle = allowFractions ? .decimal : .none
+        let formatter = Self.numberFormatter(allowFractions: allowFractions)
         self._enteredValue = State(initialValue: value.wrappedValue.flatMap { formatter.string(from: NSNumber(value: $0)) } ?? "")
     }
         
