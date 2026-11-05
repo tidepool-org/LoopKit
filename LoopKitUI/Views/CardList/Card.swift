@@ -8,6 +8,14 @@
 
 import SwiftUI
 
+/// Matches the corner radius of the system's inset-grouped list cards. Action buttons use it too.
+public var cardCornerRadius: CGFloat {
+    if #available(iOS 26.0, *) {
+        return 26
+    } else {
+        return 10
+    }
+}
 
 /// A platter displaying a number of components over a rounded background tile.
 ///
@@ -89,7 +97,7 @@ public struct Card: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(CardBackground(color: backgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
         .padding(.horizontal)
     }
 }
@@ -220,7 +228,7 @@ public struct CardBackground: View {
     }
 
     public var body: some View {
-        RoundedRectangle(cornerRadius: 10, style: .continuous)
+        RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
             .foregroundColor(color)
     }
 }

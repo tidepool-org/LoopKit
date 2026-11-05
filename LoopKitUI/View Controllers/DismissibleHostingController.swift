@@ -6,6 +6,7 @@
 //  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 
 public struct _DismissibleHostingView<Content: View>: View {
@@ -49,6 +50,7 @@ public class DismissibleHostingController<Content: View>: UIHostingController<_D
     }
 
     private var onDisappear: () -> Void = {}
+    private var keyboardObservation: AnyCancellable?
 
     public convenience init (
         content: Content,
@@ -106,6 +108,13 @@ public class DismissibleHostingController<Content: View>: UIHostingController<_D
 
         self.onDisappear = onDisappear
         self.isModalInPresentation = isModalInPresentation
+
+        if !isModalInPresentation {
+            keyboardObservation = Keyboard.shared.$state
+                .sink { [weak self] state in
+                    self?.isModalInPresentation = state.height > 0
+                }
+        }
     }
 
     public override func viewWillDisappear(_ animated: Bool) {

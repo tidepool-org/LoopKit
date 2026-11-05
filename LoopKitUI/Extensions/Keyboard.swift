@@ -22,8 +22,19 @@ public final class Keyboard: ObservableObject {
     static let shared = Keyboard()
 
     private init() {
-        keyboardFrameChangeCancellable = NotificationCenter.default
-            .publisher(for: UIResponder.keyboardWillChangeFrameNotification)
+        let notificationNames: [Notification.Name] = [
+            UIResponder.keyboardWillChangeFrameNotification,
+            UIResponder.keyboardDidChangeFrameNotification,
+            UIResponder.keyboardWillHideNotification,
+            UIResponder.keyboardDidHideNotification,
+        ]
+        let hideNames: Set<Notification.Name> = [
+            UIResponder.keyboardWillHideNotification,
+            UIResponder.keyboardDidHideNotification,
+        ]
+        keyboardFrameChangeCancellable = Publishers.MergeMany(
+            notificationNames.map { NotificationCenter.default.publisher(for: $0) }
+        )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
                 guard let self = self, let userInfo = notification.userInfo else {
@@ -31,7 +42,9 @@ public final class Keyboard: ObservableObject {
                 }
 
                 let height: CGFloat
-                if let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                if hideNames.contains(notification.name) {
+                    height = 0
+                } else if let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                     height = UIScreen.main.bounds.intersection(keyboardFrame).height
                 } else {
                     height = 0
@@ -39,7 +52,9 @@ public final class Keyboard: ObservableObject {
 
                 let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
 
-                self.state = State(height: height, animationDuration: animationDuration)
+                if self.state.height != height {
+                    self.state = State(height: height, animationDuration: animationDuration)
+                }
             }
     }
 }

@@ -66,7 +66,6 @@ public struct ConfirmationToggle<Label: View, ActionLabel: View>: View {
         self.alertBody = alertBody
         self.confirmAction = confirmAction
         self._isOn = isOn
-        self.showConfirmAlert = showConfirmAlert
     }
     
     public var body: some View {

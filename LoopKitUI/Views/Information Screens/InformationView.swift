@@ -14,6 +14,8 @@ struct InformationView<InformationalContent: View> : View {
     var buttonText: Text
     var onExit: (() -> Void)
     let mode: SettingsPresentationMode
+
+    @State private var scrollViewHeight: CGFloat = 0
     
     init(
         title: Text,
@@ -46,22 +48,24 @@ struct InformationView<InformationalContent: View> : View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                bodyForMode
-                    .padding()
-                    .frame(minHeight: geometry.size.height)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var bodyForMode: some View {
         switch mode {
         case .acceptanceFlow:
-            bodyForAcceptanceFlow
+            ScrollView {
+                bodyForAcceptanceFlow
+                    .padding()
+
+                ActionAreaInlineSlot()
+            }
+            .actionAreaInset(inlineAtAccessibilitySizes: true) {
+                nextPageButton
+            }
         case .settings:
-            bodyForSettings
+            ScrollView {
+                bodyForSettings
+                    .padding()
+                    .frame(minHeight: scrollViewHeight)
+            }
+            .readVisibleHeight(to: $scrollViewHeight)
         }
     }
     
@@ -70,8 +74,6 @@ struct InformationView<InformationalContent: View> : View {
             titleView
             Divider()
             informationalContent
-            Spacer()
-            nextPageButton
         }
     }
     
@@ -104,7 +106,8 @@ struct InformationView<InformationalContent: View> : View {
     private var nextPageButton: some View {
         Button(action: onExit) {
             buttonText
-            .actionButtonStyle(.primary)
-        }.accessibilityIdentifier("button_continue")
+        }
+        .buttonStyle(ActionButtonStyle(.primary))
+        .accessibilityIdentifier("button_continue")
     }
 }

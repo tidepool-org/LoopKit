@@ -40,9 +40,9 @@ public struct PopoverLink<Label, Destination> : View where Label : View, Destina
         self.isFullScreen = isFullScreen
     }
 
-    private func popoverButton() -> some View {
+    private func popoverButton(isPresented: Binding<Bool>) -> some View {
         Button {
-            (isActive ?? _internalIsActive.projectedValue).wrappedValue = true
+            isPresented.wrappedValue = true
         } label: {
             label
         }
@@ -50,17 +50,19 @@ public struct PopoverLink<Label, Destination> : View where Label : View, Destina
 
     /// The content and behavior of the view.
     public var body: some View {
+        let isPresented = isActive ?? $internalIsActive
+
         if isFullScreen {
-            popoverButton().fullScreenCover(isPresented: (isActive ?? _internalIsActive.projectedValue)) {
+            popoverButton(isPresented: isPresented).fullScreenCover(isPresented: isPresented) {
                 destination
             }
         } else {
             if horizontalSizeClass == .compact {
-                popoverButton().sheet(isPresented: (isActive ?? _internalIsActive.projectedValue)) {
+                popoverButton(isPresented: isPresented).sheet(isPresented: isPresented) {
                     destination
                 }
             } else {
-                popoverButton().popover(isPresented: (isActive ?? _internalIsActive.projectedValue)) {
+                popoverButton(isPresented: isPresented).popover(isPresented: isPresented) {
                     destination
                 }
             }

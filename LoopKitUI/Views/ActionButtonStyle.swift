@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-
 public struct ActionButtonStyle: ButtonStyle {
     public enum ButtonType {
         case primary
@@ -20,10 +19,10 @@ public struct ActionButtonStyle: ButtonStyle {
     private let fontColor: Color
     private let backgroundColor: Color
     private let edgeColor: Color
-    private let cornerRadius: CGFloat = 10
     private let squidge: CGFloat = 1
 
     @Environment(\.isEnabled) private var isEnabled: Bool
+    private var cornerRadius: CGFloat { cardCornerRadius }
 
     public init(_ style: ButtonType = .primary) {
         switch style {

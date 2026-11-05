@@ -8,18 +8,30 @@
 
 import SwiftUI
 
-public struct TextFieldRow: View {
+public struct TextFieldRow<Field: Hashable>: View {
     @Binding private var text: String
-    @Binding private var isFocused: Bool
+    private let focus: FocusState<Field?>.Binding
+    private let field: Field
     
     let title: String
     let placeholder: String
-    
-    public init(text: Binding<String>, isFocused: Binding<Bool>, title: String, placeholder: String) {
+    private let nextAction: (() -> Void)?
+
+    public init(text: Binding<String>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, placeholder: String, next: Field? = nil) {
+        self.init(text: text, focus: focus, equals: field, title: title, placeholder: placeholder, nextAction: focus.action(focusing: next))
+    }
+
+    public init(text: Binding<String>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, placeholder: String, next: @escaping () -> Void) {
+        self.init(text: text, focus: focus, equals: field, title: title, placeholder: placeholder, nextAction: next)
+    }
+
+    private init(text: Binding<String>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, placeholder: String, nextAction: (() -> Void)?) {
         self._text = text
-        self._isFocused = isFocused
+        self.focus = focus
+        self.field = field
         self.title = title
         self.placeholder = placeholder
+        self.nextAction = nextAction
     }
 
     public var body: some View {
@@ -29,14 +41,12 @@ public struct TextFieldRow: View {
             
             Spacer()
             
-            RowTextField(text: $text, isFocused: $isFocused) {
-                $0.textAlignment = .right
-                $0.placeholder = placeholder
-                $0.font = .preferredFont(forTextStyle: .body)
-            }
+            textField
+            .multilineTextAlignment(.trailing)
+            .font(.body)
             .onTapGesture {
                 // so that row does not lose focus on cursor move
-                if !isFocused {
+                if focus.wrappedValue != field {
                     rowTapped()
                 }
             }
@@ -46,10 +56,14 @@ public struct TextFieldRow: View {
             rowTapped()
         }
     }
+
+    private var textField: some View {
+        KeyboardTextField(placeholder, text: $text, focus: focus, equals: field, nextAction: nextAction)
+    }
     
     private func rowTapped() {
         withAnimation {
-            isFocused.toggle()
+            focus.wrappedValue = focus.wrappedValue == field ? nil : field
         }
     }
 }

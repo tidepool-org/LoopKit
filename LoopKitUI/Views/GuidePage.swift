@@ -21,25 +21,38 @@ public struct GuidePage<Content, ActionAreaContent>: View where Content: View, A
         self.actionAreaContent = actionAreaContent()
     }
 
+    public init(@ViewBuilder content: @escaping () -> Content) where ActionAreaContent == EmptyView {
+        self.content = content()
+        self.actionAreaContent = EmptyView()
+    }
+
+    @ViewBuilder
     public var body: some View {
-        VStack(spacing: 0) {
-            List {
-                if self.horizontalSizeClass == .compact {
-                    Section(header: EmptyView(), footer: EmptyView()) {
-                        self.content
-                    }
-                } else {
+        if ActionAreaContent.self == EmptyView.self {
+            listContent
+        } else {
+            listContent
+                .actionAreaInset(inlineAtAccessibilitySizes: true) {
+                    self.actionAreaContent
+                }
+        }
+    }
+
+    private var listContent: some View {
+        List {
+            if self.horizontalSizeClass == .compact {
+                Section(header: EmptyView(), footer: EmptyView()) {
                     self.content
                 }
+            } else {
+                self.content
             }
-            .insetGroupedListStyle()
-            VStack {
-                self.actionAreaContent
-            }
-            .padding(self.horizontalSizeClass == .regular ? .bottom : [])
-            .background(Color(UIColor.secondarySystemGroupedBackground).shadow(radius: 5))
+
+            ActionAreaInlineSlot(margin: 0)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .insetGroupedListStyle()
     }
 }
 
@@ -54,9 +67,8 @@ struct GuidePage_Previews: PreviewProvider {
                 print("Button tapped")
             }) {
                 Text("Action Button")
-                    .actionButtonStyle()
             }
+            .buttonStyle(ActionButtonStyle())
         }
     }
 }
-

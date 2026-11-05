@@ -14,15 +14,22 @@ struct RowEmojiTextField: View {
     @Binding private var isFocused: Bool
     
     private var placeholder: String
-    private let emojiType: EmojiDataSourceType
     
     @StateObject private var viewModel: EmojiTextFieldViewModel
     
     class EmojiTextFieldViewModel: ObservableObject, EmojiInputControllerDelegate {
         @Published var standardInputMode = false
         let didSelectItemInSection: ((Int) -> Void)?
+        private let emojiType: EmojiDataSourceType
+
+        @MainActor lazy var emojiInputController: EmojiInputController = {
+            let controller = EmojiInputController.instance(withEmojis: emojiType.dataSource())
+            controller.delegate = self
+            return controller
+        }()
         
-        init(didSelectItemInSection: ((Int) -> Void)?) {
+        init(emojiType: EmojiDataSourceType, didSelectItemInSection: ((Int) -> Void)?) {
+            self.emojiType = emojiType
             self.didSelectItemInSection = didSelectItemInSection
         }
         
@@ -39,30 +46,27 @@ struct RowEmojiTextField: View {
         self._text = text
         self._isFocused = isFocused
         self.placeholder = placeholder
-        self.emojiType = emojiType
-        self._viewModel = StateObject(wrappedValue: EmojiTextFieldViewModel(didSelectItemInSection: didSelectItemInSection))
+        self._viewModel = StateObject(wrappedValue: EmojiTextFieldViewModel(emojiType: emojiType, didSelectItemInSection: didSelectItemInSection))
     }
     
     var body: some View {
-        // this if statement cannot be moved into the RowTextField closure because the closure does not refresh on state changes
         if viewModel.standardInputMode {
-            RowTextField(text: $text, isFocused: $isFocused, maxLength: 20) { textField in
+            RowTextField(text: $text, isFocused: $isFocused, maxLength: 20, configuration: { textField in
                 textField.textAlignment = .right
                 textField.font = UIFont.preferredFont(forTextStyle: .title3)
                 textField.autocorrectionType = .no
                 textField.autocapitalizationType = .none
                 textField.placeholder = placeholder
-            }.accessibilityIdentifier("textField_FoodType")
+            }).accessibilityIdentifier("textField_FoodType")
         }
         else {
-            RowTextField(text: $text, isFocused: $isFocused, maxLength: 20) { textField in
+            RowTextField(text: $text, isFocused: $isFocused, maxLength: 20, configuration: { textField in
                 textField.textAlignment = .right
                 textField.font = UIFont.preferredFont(forTextStyle: .title3)
-                let emojiController = EmojiInputController.instance(withEmojis: emojiType.dataSource())
-                emojiController.delegate = viewModel
-                textField.customInput = emojiController
                 textField.placeholder = placeholder
-            }.accessibilityIdentifier("textField_FoodType")
+            }, prepareForEditing: { textField in
+                textField.customInput = viewModel.emojiInputController
+            }).accessibilityIdentifier("textField_FoodType")
         }
     }
 }

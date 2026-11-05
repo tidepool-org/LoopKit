@@ -10,12 +10,14 @@ import SwiftUI
 import LoopKit
 import LoopAlgorithm
 
-public struct CarbQuantityRow: View {
+public struct CarbQuantityRow<Field: Hashable>: View {
     @Binding private var quantity: Double?
-    @Binding private var isFocused: Bool
+    private let focus: FocusState<Field?>.Binding
+    private let field: Field
     
     private let title: String
     private let preferredCarbUnit: LoopUnit
+    private let nextAction: (() -> Void)?
     
     @State private var carbInput: String = ""
     
@@ -23,14 +25,25 @@ public struct CarbQuantityRow: View {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.maximumFractionDigits = 1
+        formatter.usesGroupingSeparator = false
         return formatter
     }()
     
-    public init(quantity: Binding<Double?>, isFocused: Binding<Bool>, title: String, preferredCarbUnit: LoopUnit = .gram) {
+    public init(quantity: Binding<Double?>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, preferredCarbUnit: LoopUnit = .gram, next: Field? = nil) {
+        self.init(quantity: quantity, focus: focus, equals: field, title: title, preferredCarbUnit: preferredCarbUnit, nextAction: focus.action(focusing: next))
+    }
+
+    public init(quantity: Binding<Double?>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, preferredCarbUnit: LoopUnit = .gram, next: @escaping () -> Void) {
+        self.init(quantity: quantity, focus: focus, equals: field, title: title, preferredCarbUnit: preferredCarbUnit, nextAction: next)
+    }
+
+    private init(quantity: Binding<Double?>, focus: FocusState<Field?>.Binding, equals field: Field, title: String, preferredCarbUnit: LoopUnit, nextAction: (() -> Void)?) {
         self._quantity = quantity
-        self._isFocused = isFocused
+        self.focus = focus
+        self.field = field
         self.title = title
         self.preferredCarbUnit = preferredCarbUnit
+        self.nextAction = nextAction
     }
 
     public var body: some View {
@@ -39,27 +52,26 @@ public struct CarbQuantityRow: View {
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            RowTextField(text: $carbInput, isFocused: $isFocused, maxLength: 5) {
-                $0.textAlignment = .right
-                $0.keyboardType = .decimalPad
-                $0.placeholder = "0"
-                $0.font = .preferredFont(forTextStyle: .body)
-            }
-            .onTapGesture {
-                // so that row does not lose focus on cursor move
-                if !isFocused {
-                    rowTapped()
-                }
-            }
+            KeyboardTextField(
+                "0",
+                text: $carbInput,
+                focus: focus,
+                equals: field,
+                keyboardType: .decimalPad,
+                maxLength: 5,
+                nextAction: nextAction
+            )
+            .multilineTextAlignment(.trailing)
+            .font(.body)
             .accessibilityIdentifier("textField_CarbsAmount")
             
             carbUnitsLabel
         }
         .accessibilityElement(children: .combine)
-        .onChange(of: carbInput) { newValue in
+        .onChange(of: carbInput) { _, newValue in
             updateQuantity(with: newValue)
         }
-        .onChange(of: quantity) { newQuantity in
+        .onChange(of: quantity) { _, newQuantity in
             updateCarbInput(with: newQuantity)
         }
         .onAppear {
@@ -77,12 +89,14 @@ public struct CarbQuantityRow: View {
     
     // Update quantity based on text field input
     private func updateQuantity(with input: String) {
-        let filtered = input.filter { "0123456789.".contains($0) }
+        // The decimal pad and the formatter both use the locale's separator, such as "," in German.
+        let decimalSeparator = formatter.decimalSeparator ?? "."
+        let filtered = input.filter { ("0123456789." + decimalSeparator).contains($0) }
         if filtered != input {
             self.carbInput = filtered
         }
         
-        if let doubleValue = Double(filtered) {
+        if let doubleValue = Double(filtered.replacingOccurrences(of: decimalSeparator, with: ".")) {
             quantity = doubleValue
         } else {
             quantity = nil
@@ -100,7 +114,7 @@ public struct CarbQuantityRow: View {
     
     private func rowTapped() {
         withAnimation {
-            isFocused.toggle()
+            focus.wrappedValue = focus.wrappedValue == field ? nil : field
         }
     }
 }

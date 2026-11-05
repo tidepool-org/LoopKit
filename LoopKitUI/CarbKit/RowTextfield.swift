@@ -13,10 +13,12 @@ struct RowTextField: UIViewRepresentable {
     @Binding var text: String
     @Binding var isFocused: Bool
     var maxLength: Int? = nil
+    var next: (() -> Void)? = nil
     var configuration = { (view: CustomInputTextField) in }
-    
+    var prepareForEditing: ((CustomInputTextField) -> Void)? = nil
+
     func makeCoordinator() -> Coordinator {
-        return Coordinator(text: $text, isFocused: $isFocused, maxLength: maxLength)
+        return Coordinator(text: $text, isFocused: $isFocused, maxLength: maxLength, next: next, prepareForEditing: prepareForEditing)
     }
 
     func makeUIView(context: UIViewRepresentableContext<RowTextField>) -> CustomInputTextField {
@@ -27,8 +29,13 @@ struct RowTextField: UIViewRepresentable {
     }
 
     func updateUIView(_ textField: CustomInputTextField, context: UIViewRepresentableContext<RowTextField>) {
-        textField.text = text
+        if textField.text != text {
+            textField.text = text
+        }
         configuration(textField)
+        context.coordinator.next = next
+        context.coordinator.prepareForEditing = prepareForEditing
+        KeyboardDismissAccessory.configureDismissal(for: textField, next: next)
         DispatchQueue.main.async {
             if isFocused && !textField.isFirstResponder {
                 textField.becomeFirstResponder()
@@ -42,11 +49,15 @@ struct RowTextField: UIViewRepresentable {
         @Binding var text: String
         @Binding var isFocused: Bool
         let maxLength: Int?
-        
-        init(text: Binding<String>, isFocused: Binding<Bool>, maxLength: Int?) {
+        var next: (() -> Void)?
+        var prepareForEditing: ((CustomInputTextField) -> Void)?
+
+        init(text: Binding<String>, isFocused: Binding<Bool>, maxLength: Int?, next: (() -> Void)?, prepareForEditing: ((CustomInputTextField) -> Void)?) {
             self._text = text
             self._isFocused = isFocused
             self.maxLength = maxLength
+            self.next = next
+            self.prepareForEditing = prepareForEditing
         }
         
         @objc fileprivate func textChanged(_ textField: UITextField) {
@@ -54,6 +65,13 @@ struct RowTextField: UIViewRepresentable {
             DispatchQueue.main.async {
                 self.text = text
             }
+        }
+
+        func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+            if let textField = textField as? CustomInputTextField {
+                prepareForEditing?(textField)
+            }
+            return true
         }
 
         func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -65,6 +83,15 @@ struct RowTextField: UIViewRepresentable {
             }
         }
         
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            if let next {
+                next()
+            } else {
+                textField.resignFirstResponder()
+            }
+            return true
+        }
+
         func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
             if isFocused {
                 isFocused = false
@@ -82,4 +109,3 @@ struct RowTextField: UIViewRepresentable {
         }
     }
 }
-
