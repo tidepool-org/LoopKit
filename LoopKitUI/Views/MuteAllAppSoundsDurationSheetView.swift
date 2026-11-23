@@ -138,7 +138,7 @@ private struct MuteSoundsDurationForm: View {
 
                 Callout(
                     .warning,
-                    title: Text("Critical alerts will be muted"),
+                    title: Text("Critical alerts, including Urgent Low, will be muted"),
                     message: Text("All app sounds, including sounds for all critical alerts such as Urgent Low, Sensor Fail, Pump Expiration, and others will NOT sound for your selected time duration.")
                 )
 
