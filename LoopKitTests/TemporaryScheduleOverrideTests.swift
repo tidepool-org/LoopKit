@@ -451,6 +451,87 @@ class TemporaryScheduleOverrideTests: XCTestCase {
         XCTAssertEqual(expectedValues, values)
     }
 
+    // Regression: a preset already active at an entry's start and ending exactly at that
+    // entry's end used to make no progress in the splitting loop and append forever.
+    func testTimelineSensitivityApplicationActivePresetEndingAtEntryEnd() {
+        let timeline = [
+            AbsoluteScheduleValue(startDate: .t(1) , endDate: .t(2), value: 50.0),
+            AbsoluteScheduleValue(startDate: .t(2) , endDate: .t(3), value: 120.0),
+        ]
+
+        let overrides: [TemporaryScheduleOverride] = [
+            .custom(scale: 0.5, start: .t(1.5), end: .t(3))
+        ]
+
+        let applied = overrides.applySensitivity(over: timeline)
+
+        let times = applied.map { $0.startDate }
+        let expectedTimes: [Date] = [.t(1), .t(1.5), .t(2)]
+        XCTAssertEqual(expectedTimes, times)
+
+        let endTimes = applied.map { $0.endDate }
+        let expectedEndTimes: [Date] = [.t(1.5), .t(2), .t(3)]
+        XCTAssertEqual(expectedEndTimes, endTimes)
+
+        let values = applied.map { $0.value }
+        let expectedValues: [Double] = [50, 100, 240]
+        XCTAssertEqual(expectedValues, values)
+    }
+
+    // Back-to-back presets meeting exactly at an entry boundary must not produce a zero-width segment.
+    func testTimelineSensitivityApplicationAdjacentPresetsAtEntryBoundary() {
+        let timeline = [
+            AbsoluteScheduleValue(startDate: .t(1) , endDate: .t(2), value: 50.0),
+            AbsoluteScheduleValue(startDate: .t(2) , endDate: .t(3), value: 120.0),
+            AbsoluteScheduleValue(startDate: .t(3) , endDate: .t(4), value: 80.0),
+        ]
+
+        let overrides: [TemporaryScheduleOverride] = [
+            .custom(scale: 0.5, start: .t(1.5), end: .t(3)),
+            .custom(scale: 0.25, start: .t(3), end: .t(4)),
+        ]
+
+        let applied = overrides.applySensitivity(over: timeline)
+
+        let times = applied.map { $0.startDate }
+        let expectedTimes: [Date] = [.t(1), .t(1.5), .t(2), .t(3)]
+        XCTAssertEqual(expectedTimes, times)
+
+        let endTimes = applied.map { $0.endDate }
+        let expectedEndTimes: [Date] = [.t(1.5), .t(2), .t(3), .t(4)]
+        XCTAssertEqual(expectedEndTimes, endTimes)
+
+        let values = applied.map { $0.value }
+        let expectedValues: [Double] = [50, 100, 240, 320]
+        XCTAssertEqual(expectedValues, values)
+    }
+
+    // Regression: same shape as the field crash — the basal timeline ends at "now" and the
+    // active preset has been truncated to end at "now" as well.
+    func testTimelineBasalApplicationPresetTruncatedToTimelineEnd() {
+        let timeline = [
+            AbsoluteScheduleValue(startDate: .t(0) , endDate: .t(1), value: 1.0),
+            AbsoluteScheduleValue(startDate: .t(1) , endDate: .t(2), value: 0.5),
+        ]
+
+        var override: TemporaryScheduleOverride = .custom(scale: 1.5, start: .t(0.5), end: .t(5))
+        override.scheduledEndDate = .t(2)
+
+        let applied = [override].applyBasal(over: timeline)
+
+        let times = applied.map { $0.startDate }
+        let expectedTimes: [Date] = [.t(0), .t(0.5), .t(1)]
+        XCTAssertEqual(expectedTimes, times)
+
+        let endTimes = applied.map { $0.endDate }
+        let expectedEndTimes: [Date] = [.t(0.5), .t(1), .t(2)]
+        XCTAssertEqual(expectedEndTimes, endTimes)
+
+        let values = applied.map { $0.value }
+        let expectedValues: [Double] = [1.0, 1.5, 0.75]
+        XCTAssertEqual(expectedValues, values)
+    }
+
     func testTimelineSensitivityApplicationInMiddleOfTimeRange() {
         let timeline = [
             AbsoluteScheduleValue(startDate: .t(1) , endDate: .t(3), value: 50.0),
