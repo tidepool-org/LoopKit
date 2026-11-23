@@ -709,11 +709,14 @@ extension Array where Element == TemporaryScheduleOverride {
         for entry in timeline {
             var start = entry.startDate
 
-            while presetIndex < self.count {
+            // Stop once this entry is fully covered so no zero-width segments are emitted
+            while presetIndex < self.count, start < entry.endDate {
                 let preset = self[presetIndex]
 
-                // Skip presets that end before this sensitivity period
-                if preset.actualEndDate < start {
+                // Skip presets that end at or before this period's start. A preset ending exactly
+                // at `start` is still "active" there (inclusive interval), which would otherwise
+                // make no progress and loop forever.
+                if preset.actualEndDate <= start {
                     presetIndex += 1
                     continue
                 }
